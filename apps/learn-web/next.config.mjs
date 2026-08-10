@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   transpilePackages: [
-    "@lurexa/ui",
-    "@lurexa/types",
-    "@lurexa/backend",
-    "@lurexa/sdk",
+    '@lurexa/types',
+    '@lurexa/ui',
+    '@lurexa/backend',
+    '@lurexa/sdk',
+    '@lurexa/database',
   ],
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
