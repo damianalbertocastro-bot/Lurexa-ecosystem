@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "preserve",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@lurexa/ui/*": ["../../packages/ui/src/*"],
+      "@lurexa/types": ["../../packages/types/src/index.ts"],
+      "@lurexa/types/*": ["../../packages/types/src/*"],
+      "@lurexa/backend": ["../../packages/backend/src/index.ts"],
+      "@lurexa/backend/*": ["../../packages/backend/src/*"]
+    }
+  }
+}

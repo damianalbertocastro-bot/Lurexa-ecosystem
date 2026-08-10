@@ -1,0 +1,13 @@
+{
+  "extends": "@lurexa/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@lurexa/types": ["../types/src/index.ts"],
+      "@lurexa/types/*": ["../types/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

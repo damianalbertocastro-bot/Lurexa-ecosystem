@@ -1,0 +1,11 @@
+node_modules/
+.ignored_node_modules/
+.next/
+dist/
+build/
+out/
+.turbo/
+*.node
+.env
+.env.local
+.DS_Store

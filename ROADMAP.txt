@@ -1,0 +1,15 @@
+# Foundation 1
+
+- [ ] Configure Turborepo
+- [ ] Configure TypeScript
+- [ ] Create UI package
+- [ ] Create Tokens package
+- [ ] Create Config package
+- [ ] Configure Storybook
+- [ ] Configure GitHub Actions
+
+# Foundation 2
+
+- [ ] Authentication
+- [ ] RBAC
+- [ ] User Profiles

@@ -1,0 +1,3 @@
+# GeneratorTest
+
+Generated shared package.

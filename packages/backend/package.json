@@ -1,0 +1,27 @@
+{
+  "name": "@lurexa/backend",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lurexa/types": "workspace:*",
+    "dexie": "^4.4.4",
+    "firebase": "^10.12.0",
+    "firebase-admin": "^12.1.0"
+  },
+  "devDependencies": {
+    "@lurexa/eslint-config": "workspace:*",
+    "@lurexa/typescript-config": "workspace:*",
+    "@types/node": "^26.1.2",
+    "typescript": "5.9.2"
+  }
+}

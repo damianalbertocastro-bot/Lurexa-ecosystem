@@ -1,0 +1,14 @@
+{
+  "name": "lurexa",
+  "applications": [
+    { "name": "my-app", "template": "nextjs" },
+    { "name": "admin-portal", "template": "nextjs" },
+    { "name": "teacher-portal", "template": "nextjs" }
+  ],
+  "packages": [
+    { "name": "ui" },
+    { "name": "utils" },
+    { "name": "database" },
+    { "name": "backend" }
+  ]
+}
