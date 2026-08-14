@@ -16,6 +16,6 @@
     "firebase:emulators": "pnpm --filter @lurexa/backend firebase:emulators"
   },
   "devDependencies": {
-    "typescript": "^5.4.0"
+    "typescript": "^5.9.2"
   }
 }

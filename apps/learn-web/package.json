@@ -10,22 +10,23 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@lurexa/ui": "workspace:*",
-    "@lurexa/types": "workspace:*",
     "@lurexa/backend": "workspace:*",
+    "@lurexa/types": "workspace:*",
+    "@lurexa/ui": "workspace:*",
     "next": "14.2.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@lurexa/backend": "workspace:*",
     "@lurexa/eslint-config": "workspace:*",
+    "@lurexa/types": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
+    "@lurexa/ui": "workspace:*",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "typescript": "5.9.2",
-    "@lurexa/ui": "workspace:*",
-    "@lurexa/types": "workspace:*",
-    "@lurexa/backend": "workspace:*"
+    "typescript": "5.9.2"
   }
 }
