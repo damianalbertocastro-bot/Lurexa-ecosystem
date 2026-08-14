@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./Button": "./src/button.tsx",
+    "./Card": "./src/card.tsx",
+    "./button": "./src/button.tsx",
+    "./card": "./src/card.tsx",
     "./*": "./src/*.tsx"
   },
   "scripts": {
