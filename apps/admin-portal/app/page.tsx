@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@lurexa/ui/Button";
-import { Card } from "@lurexa/ui/Card";
+import { Button } from "@lurexa/ui/button";
+import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
 import { AdminService, PlatformMetricsSummary, AdminOrgOverview } from "@lurexa/backend";
 
