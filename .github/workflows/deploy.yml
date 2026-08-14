@@ -1,4 +1,4 @@
-name: Production Deployment CI/CD
+name: Learn Web Production Validation
 
 on:
   push:
@@ -34,16 +34,5 @@ jobs:
       - name: Build Learn Web
         run: pnpm --filter learn-web build
 
-  deploy-web-app:
-    needs: validate-learn-web
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Deploy Learn Web App to Vercel Production
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx vercel --prod --yes --token "$VERCEL_TOKEN"
+# Production deployment is intentionally handled by Vercel's Git integration.
+# Vercel watches main and deploys the repository using vercel.json after this push.
