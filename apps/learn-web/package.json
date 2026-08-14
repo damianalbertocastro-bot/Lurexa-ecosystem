@@ -14,8 +14,8 @@
     "@lurexa/types": "workspace:*",
     "@lurexa/ui": "workspace:*",
     "next": "14.2.5",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@lurexa/backend": "workspace:*",
@@ -25,8 +25,8 @@
     "@lurexa/ui": "workspace:*",
     "@playwright/test": "^1.62.1",
     "@types/node": "^22.15.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "18.2.79",
+    "@types/react-dom": "18.2.25",
     "typescript": "5.9.2"
   }
 }
