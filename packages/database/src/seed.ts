@@ -40,14 +40,14 @@ export const MOCK_USERS: User[] = [
 
 export const MOCK_COURSE: Course = {
   id: "course_algebra_101",
-  orgId: "org_oakridge_high",         // Added relation to org
-  authorId: "user_teacher_1",         // Added relation to teacher
+  orgId: "org_oakridge_high",
+  authorId: "user_teacher_1",
   title: "Algebra & Linear Equations",
   description: "Interactive secondary mathematics course with real-time AI tutoring.",
   subject: "math",
-  status: "published",                // Added status (likely a union like "draft" | "published")
-  isTemplate: false,                  // Added boolean flag
-  moduleIds: [],                      // Added empty array for modules
+  status: "published",
+  isTemplate: false,
+  moduleIds: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };
