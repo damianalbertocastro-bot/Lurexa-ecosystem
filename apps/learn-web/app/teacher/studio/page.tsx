@@ -3,12 +3,11 @@
 import React, { useState } from "react";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
-import { Input } from "@lurexa/ui/Input";
 import { Badge } from "@lurexa/ui/Badge";
 import { EcosystemService, BranchingScenarioNode } from "@lurexa/backend";
 
 export default function LurexaStudioPage() {
-  const [nodes, setNodes] = useState<BranchingScenarioNode[]>([
+  const [nodes] = useState<BranchingScenarioNode[]>([
     {
       id: "node_start",
       title: "Scenario Start: Lab Dilemma",
@@ -33,7 +32,7 @@ export default function LurexaStudioPage() {
         nodes: nodeMap,
       });
       alert("Interactive branching scenario saved successfully!");
-    } catch (err) {
+    } catch {
       alert("Failed to save Studio scenario.");
     } finally {
       setSaving(false);

@@ -1,4 +1,4 @@
-import { localDb, SyncMutation } from "./offline-db";
+import { localDb } from "./offline-db";
 import { ProgressService } from "./progress.service";
 import { StudentProgress, Lesson } from "@lurexa/types";
 

@@ -35,8 +35,8 @@ export default function SignupPage() {
       }
 
       window.location.href = "/dashboard";
-    } catch (err: any) {
-      setError(err.message || "An error occurred during sign up.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred during sign up.");
     } finally {
       setLoading(false);
     }

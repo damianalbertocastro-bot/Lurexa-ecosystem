@@ -26,7 +26,7 @@ export default function CoursePublishPage() {
         "one_time"
       );
       setPublished(true);
-    } catch (err) {
+    } catch {
       alert("Failed to publish course.");
     } finally {
       setLoading(false);

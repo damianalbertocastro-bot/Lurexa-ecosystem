@@ -6,12 +6,11 @@ import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { CourseBuilderService } from "@lurexa/backend";
-import { ContentBlock } from "@lurexa/types";
 
 export default function CourseBuilderPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [subject, setSubject] = useState<"english" | "math" | "science" | "other">("english");
+  const subject = "english" as const;
   const [modules, setModules] = useState<Array<{ id: string; title: string }>>([]);
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
@@ -32,8 +31,8 @@ export default function CourseBuilderPage() {
       );
       setActiveCourseId(course.id);
       alert("Course draft created successfully!");
-    } catch (err: any) {
-      alert(err.message || "Failed to create course.");
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to create course.");
     } finally {
       setLoading(false);
     }
@@ -50,8 +49,8 @@ export default function CourseBuilderPage() {
       );
       setModules([...modules, { id: mod.id, title: mod.title }]);
       setNewModuleTitle("");
-    } catch (err: any) {
-      alert(err.message || "Failed to add module.");
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to add module.");
     }
   };
 

@@ -4,10 +4,9 @@ import {
   setDoc,
   updateDoc,
   arrayUnion,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { Course, Module, Lesson, ContentBlock, Question } from "@lurexa/types";
+import { Course, Module, Lesson, ContentBlock } from "@lurexa/types";
 
 export const CourseBuilderService = {
   /**

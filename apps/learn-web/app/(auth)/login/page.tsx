@@ -30,8 +30,8 @@ export default function LoginPage() {
       } else {
         window.location.href = "/dashboard";
       }
-    } catch (err: any) {
-      setError(err.message || "Invalid email or password.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function LoginPage() {
           </Button>
 
           <p className="text-center text-xs text-slate-500 pt-2">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/signup" className="text-indigo-600 hover:underline font-medium">
               Sign up here
             </a>

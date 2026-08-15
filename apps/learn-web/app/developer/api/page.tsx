@@ -15,7 +15,7 @@ export default function DeveloperAPIPage() {
     try {
       const result = await EcosystemService.generateAPIKey("org_institutional_demo", 2500);
       setIssuedKey(result.rawKey);
-    } catch (err) {
+    } catch {
       alert("Failed to issue API key.");
     } finally {
       setLoading(false);
@@ -28,7 +28,7 @@ export default function DeveloperAPIPage() {
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">🔌 Lurexa Public API</h1>
-            <p className="text-slate-500">Integrate Lurexa's AI engine directly into your SIS/LMS</p>
+            <p className="text-slate-500">Integrate Lurexa&apos;s AI engine directly into your SIS/LMS</p>
           </div>
           <Badge variant="success">v1.0 GraphQL / REST</Badge>
         </div>

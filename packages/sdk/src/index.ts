@@ -1,4 +1,4 @@
-import { ApiResponse, User } from "@lurexa/types";
+import { ApiResponse } from "@lurexa/types";
 
 // Success helper
 export function createSuccessResponse<T>(data: T): ApiResponse<T> {

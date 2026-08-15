@@ -5,13 +5,13 @@ import { Badge } from "@lurexa/ui/Badge";
 import { OfflineSyncService } from "@lurexa/backend";
 
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(
+    () => typeof navigator === "undefined" || navigator.onLine
+  );
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    setIsOnline(navigator.onLine);
 
     const handleOnline = async () => {
       setIsOnline(true);

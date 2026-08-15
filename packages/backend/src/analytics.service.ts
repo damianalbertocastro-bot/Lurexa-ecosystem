@@ -1,6 +1,6 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
-import { StudentProgress, User } from "@lurexa/types";
+import { StudentProgress } from "@lurexa/types";
 
 export interface StudentRiskMetric {
   studentId: string;
@@ -61,6 +61,9 @@ export const AnalyticsService = {
    * Get list of students with flagged risk statuses
    */
   async getStudentRosterMetrics(orgId: string): Promise<StudentRiskMetric[]> {
+    // Preserve the public API until roster metrics are backed by an org-scoped query.
+    void orgId;
+
     return [
       {
         studentId: "std_1",

@@ -5,7 +5,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Input } from "@lurexa/ui/Input";
-import { MarketplaceService, PurchaseReceipt } from "@lurexa/backend";
+import { MarketplaceService } from "@lurexa/backend";
 import { MarketplaceListing } from "@lurexa/types";
 
 export default function MarketplacePage() {
@@ -33,7 +33,7 @@ export default function MarketplacePage() {
     try {
       const receipt = await MarketplaceService.purchaseCourse("org_buyer_demo", listing);
       alert(`Success! Course unlocked. Receipt ID: ${receipt.purchaseId}. Author earned $${receipt.authorEarnings}`);
-    } catch (err) {
+    } catch {
       alert("Purchase failed.");
     } finally {
       setPurchasingId(null);

@@ -1,6 +1,6 @@
-import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
+import { doc, getDoc, setDoc, increment } from "firebase/firestore";
 import { db } from "./firebase";
-import { Subscription, PricingPlan, UsageRecord } from "@lurexa/types";
+import { Subscription, PricingPlan } from "@lurexa/types";
 
 export interface PlanLimits {
   maxStudents: number;

@@ -51,7 +51,7 @@ export default function StudentInterventionPage({
 
           <Card title="Suggested Remedy">
             <p className="text-sm text-indigo-900 bg-indigo-50 p-3 rounded-lg">
-              "Assign 5 extra practice exercises focusing on key time markers ('already', 'yet', 'since') before next module unlock."
+              {"Assign 5 extra practice exercises focusing on key time markers ('already', 'yet', 'since') before next module unlock."}
             </p>
           </Card>
         </div>

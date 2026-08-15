@@ -34,7 +34,7 @@ export default function AdminDashboardPage() {
       setOrgs((prev) =>
         prev.map((o) => (o.id === orgId ? { ...o, status: nextStatus } : o))
       );
-    } catch (err) {
+    } catch {
       alert("Failed to update status.");
     }
   };
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
           </Card>
           <Card className="bg-slate-800 border-slate-700 text-slate-100" title="AI Token Consumption">
             <span className="text-3xl font-extrabold text-amber-400">
-              {(metrics?.totalAITokensUsed! / 1000).toFixed(0)}k Tokens
+              {metrics ? `${(metrics.totalAITokensUsed / 1000).toFixed(0)}k Tokens` : "—"}
             </span>
           </Card>
           <Card className="bg-slate-800 border-slate-700 text-slate-100" title="System Error Rate">

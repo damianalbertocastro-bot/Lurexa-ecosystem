@@ -6,7 +6,7 @@ import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Question, QuestionType } from "@lurexa/types";
-import { CourseBuilderService, AIGeneratorService } from "@lurexa/backend";
+import { AIGeneratorService } from "@lurexa/backend";
 
 export default function QuizBuilderPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -46,7 +46,7 @@ export default function QuizBuilderPage() {
     try {
       const aiDraft = await AIGeneratorService.generateLessonDraft("Grammar & Tenses", "B1");
       setQuestions((prev) => [...prev, ...aiDraft.suggestedQuestions]);
-    } catch (err) {
+    } catch {
       alert("AI generation failed.");
     } finally {
       setIsAiGenerating(false);

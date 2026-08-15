@@ -38,8 +38,8 @@ export default function TeacherDashboard() {
       );
       setGeneratedInvite(invite);
       setStudentEmail("");
-    } catch (err: any) {
-      alert(err.message || "Failed to generate invite.");
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to generate invite.");
     } finally {
       setLoading(false);
     }

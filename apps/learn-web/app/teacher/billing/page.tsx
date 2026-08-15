@@ -29,7 +29,7 @@ export default function TeacherBillingPage() {
     try {
       const session = await BillingService.createCheckoutSession("org_demo", plan);
       window.location.href = session.checkoutUrl;
-    } catch (err: any) {
+    } catch {
       alert("Failed to initiate checkout.");
     } finally {
       setLoading(false);

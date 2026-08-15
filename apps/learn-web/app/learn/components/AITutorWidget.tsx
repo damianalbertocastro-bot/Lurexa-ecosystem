@@ -46,7 +46,7 @@ export const AITutorWidget: React.FC<AITutorWidgetProps> = ({
       const assistantMsg: AIMessage = {
         id: `a_${Date.now()}`,
         role: "assistant",
-        content: `Great question regarding **${lessonTitle}**! Based on the lesson notes, remember to focus on the key principles. Let me know if you want a practical example!`,
+      content: `Great question regarding **${lessonTitle}**! Based on the lesson notes (${lessonContext.slice(0, 120)}), focus on the key principles. Let me know if you want a practical example!`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, assistantMsg]);

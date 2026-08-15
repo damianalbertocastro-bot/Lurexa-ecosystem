@@ -41,7 +41,7 @@ export default function CoursePlayerPage({
         lastAccessedAt: new Date().toISOString(),
       });
       setCompleted(true);
-    } catch (err) {
+    } catch {
       alert("Failed to sync progress.");
     } finally {
       setSyncing(false);

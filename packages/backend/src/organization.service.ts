@@ -2,11 +2,9 @@ import {
   collection,
   doc,
   setDoc,
-  getDoc,
   getDocs,
   query,
   where,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Organization, OrganizationMember, Invitation } from "@lurexa/types";

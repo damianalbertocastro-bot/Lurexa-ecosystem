@@ -20,7 +20,7 @@ export default function LurexaCoachPage() {
         "Oral Fluency & Accent Reduction"
       );
       setSession(sess);
-    } catch (err) {
+    } catch {
       alert("Failed to start AI Coach session.");
     } finally {
       setLoading(false);
