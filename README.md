@@ -1,159 +1,75 @@
-# Turborepo starter
+# Lurexa Ecosystem
 
-This Turborepo starter is maintained by the Turborepo core team.
+Lurexa is a TypeScript monorepo for its learning platform. The workspace uses pnpm and Turborepo to share UI, domain, data, authentication, and configuration code between web applications.
 
-## Using this example
+## Workspace layout
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```text
+apps/
+  learn-web/        Learner-facing Next.js application
+  admin-portal/     Administrative Next.js portal
+  teacher-portal/   Teacher Next.js portal
+  web/              Additional Next.js web application
+  docs/             Documentation Next.js application
+  mobile/           Expo/React Native application
+  storybook/        Component-library development environment
+packages/
+  auth/             Authentication primitives
+  backend/          Backend and Firebase-facing services
+  config/           Shared application configuration
+  database/         Database schema, configuration, and seed data
+  sdk/              Shared SDK surface
+  tokens/           Design tokens
+  types/            Shared TypeScript types
+  ui/               Shared UI component library
+  utils/            Shared utilities
 ```
 
-## What's inside?
+`bootstrap/`, `turbo/`, and `utilities/` provide Turborepo generators and setup support. The root contains one pnpm lockfile (`pnpm-lock.yaml`); do not add per-package or npm lockfiles.
 
-This Turborepo includes the following packages/apps:
+## Requirements
 
-### Apps and Packages
+- Node.js 20 or later
+- pnpm 10.3.0
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@lurexa/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@lurexa/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@lurexa/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Install dependencies from the repository root:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+## Common commands
 
-```sh
-cd my-turborepo
-npx turbo build
-npm dlx turbo build
-npm exec turbo build
+```bash
+pnpm dev                    # Start learn-web
+pnpm build                  # Build all workspace packages and apps
+pnpm lint                   # Run workspace linting
+pnpm check-types            # Run workspace TypeScript checks
+pnpm test                   # Run package test scripts
+pnpm firebase:emulators     # Start the backend Firebase emulators
+pnpm --filter learn-web dev # Start only the learner application
+pnpm --filter @lurexa/database seed
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Architecture rules
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- Use TypeScript only; do not introduce `any`.
+- Use design tokens and shared UI components instead of hard-coded visual values.
+- Prefer Server Components unless client state is necessary.
+- Keep Firestore access behind backend services; UI components must not access Firestore directly.
 
-```sh
-turbo build --filter=docs
-```
+## Deployment and automation
 
-Without global `turbo`:
+The root Vercel configuration builds `learn-web` and uses `apps/learn-web/.next` as its output directory. GitHub Actions validate linting, type checking, and builds for pushes and pull requests.
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
-```
+The repository package manager is pnpm 10.3.0, but the current workflow files install pnpm 9. Align those versions before treating CI as a reliable release gate.
 
-### Develop
+Two duplicate standalone Next.js templates and conflicting lockfiles were removed from the repository. Use the applications under `apps/` as the supported runtime entry points.
 
-To develop all apps and packages, run the following command:
+## Environment
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Local configuration belongs in `.env.local` and is intentionally excluded from version control. The monorepo build recognizes `DATABASE_URL` and `NODE_ENV`. Never commit secrets.
 
-```sh
-cd my-turborepo
-turbo dev
-```
+## Project status
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Recent work focused on `learn-web` deployment configuration, workspace dependency alignment, Playwright/type-check compatibility, and database seed data. See [ROADMAP.md](ROADMAP.md) for the current execution plan.
