@@ -19,8 +19,11 @@ export default function TeacherDashboard() {
   useEffect(() => {
     AuthService.onUserChanged(async (user) => {
       if (user) {
-        const claims = await AuthService.getUserClaims(user);
-        if (claims.orgId) setCurrentOrgId(claims.orgId);
+        const memberships = await OrganizationService.getMembershipsForUser(user.uid);
+        const membership = memberships.find((item) =>
+          ["owner", "admin", "teacher"].includes(item.role),
+        );
+        if (membership) setCurrentOrgId(membership.orgId);
       }
     });
   }, []);
@@ -98,6 +101,7 @@ export default function TeacherDashboard() {
         {!generatedInvite ? (
           <form onSubmit={handleCreateInvite} className="space-y-4">
             <Input
+              id="student-email"
               label="Student Email Address"
               type="email"
               placeholder="student@school.edu"

@@ -2,6 +2,7 @@ import type { Organization, User, Course } from "@lurexa/types";
 
 export const MOCK_ORGANIZATION: Organization = {
   id: "org_oakridge_high",
+  ownerId: "user_teacher_1",
   name: "Oakridge High School",
   slug: "oakridge-high",
   plan: "enterprise",

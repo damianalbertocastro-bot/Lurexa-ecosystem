@@ -2,9 +2,9 @@ import {
   collection,
   doc,
   setDoc,
+  getDoc,
   getDocs,
-  query,
-  where,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Organization, OrganizationMember, Invitation } from "@lurexa/types";
@@ -22,6 +22,7 @@ export const OrganizationService = {
 
     const newOrg: Organization = {
       id: orgId,
+      ownerId: ownerUserId,
       name,
       slug,
       plan: "free",
@@ -34,10 +35,7 @@ export const OrganizationService = {
       updatedAt: new Date().toISOString(),
     };
 
-    // Save Organization
-    await setDoc(doc(db, "organizations", orgId), newOrg);
-
-    // Create Member record for the owner
+    // Create the owner membership and its user-scoped lookup record atomically.
     const memberRef = doc(db, "organizations", orgId, "members", ownerUserId);
     const memberData: OrganizationMember = {
       id: ownerUserId,
@@ -46,7 +44,12 @@ export const OrganizationService = {
       role: "owner",
       joinedAt: new Date().toISOString(),
     };
-    await setDoc(memberRef, memberData);
+    const membershipIndexRef = doc(db, "user-memberships", ownerUserId, "organizations", orgId);
+    const batch = writeBatch(db);
+    batch.set(doc(db, "organizations", orgId), newOrg);
+    batch.set(memberRef, memberData);
+    batch.set(membershipIndexRef, memberData);
+    await batch.commit();
 
     return newOrg;
   },
@@ -59,35 +62,41 @@ export const OrganizationService = {
     email: string,
     role: "teacher" | "student" = "student"
   ): Promise<Invitation> {
-    const inviteId = doc(collection(db, "invitations")).id;
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const inviteRef = doc(db, "invitations", code);
 
+    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
     const invitation: Invitation = {
-      id: inviteId,
+      id: code,
       orgId,
       email,
       role,
       code,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      expiresAt: new Date(expiresAt).toISOString(),
+      expiresAtMillis: expiresAt,
+      usedAt: null,
     };
 
-    await setDoc(doc(db, "invitations", inviteId), invitation);
+    await setDoc(inviteRef, invitation);
     return invitation;
   },
 
   /**
    * Join an organization using an invitation code
    */
-  async joinViaCode(userId: string, code: string): Promise<OrganizationMember> {
-    const q = query(collection(db, "invitations"), where("code", "==", code.toUpperCase()));
-    const snap = await getDocs(q);
+  async joinViaCode(userId: string, email: string, code: string): Promise<OrganizationMember> {
+    const inviteRef = doc(db, "invitations", code.toUpperCase());
+    const inviteDoc = await getDoc(inviteRef);
 
-    if (snap.empty) {
+    if (!inviteDoc.exists()) {
       throw new Error("Invalid invitation code.");
     }
 
-    const inviteDoc = snap.docs[0];
     const invite = inviteDoc.data() as Invitation;
+
+    if (invite.email !== email) {
+      throw new Error("Invalid invitation code.");
+    }
 
     if (new Date(invite.expiresAt) < new Date()) {
       throw new Error("Invitation code has expired.");
@@ -100,10 +109,21 @@ export const OrganizationService = {
       orgId: invite.orgId,
       userId,
       role: invite.role,
+      invitationId: inviteDoc.id,
       joinedAt: new Date().toISOString(),
     };
 
-    await setDoc(memberRef, newMember);
+    const batch = writeBatch(db);
+    batch.set(memberRef, newMember);
+    batch.set(doc(db, "user-memberships", userId, "organizations", invite.orgId), newMember);
+    batch.update(inviteDoc.ref, { usedAt: new Date().toISOString() });
+    await batch.commit();
     return newMember;
+  },
+
+  async getMembershipsForUser(userId: string): Promise<OrganizationMember[]> {
+    const memberships = await getDocs(collection(db, "user-memberships", userId, "organizations"));
+
+    return memberships.docs.map((member) => member.data() as OrganizationMember);
   },
 };

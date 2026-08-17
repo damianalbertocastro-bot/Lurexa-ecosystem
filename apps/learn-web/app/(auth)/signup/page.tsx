@@ -31,10 +31,10 @@ export default function SignupPage() {
         await OrganizationService.createOrganization(orgName, slug, user.uid);
       } else {
         if (!inviteCode) throw new Error("Invitation code is required.");
-        await OrganizationService.joinViaCode(user.uid, inviteCode);
+        await OrganizationService.joinViaCode(user.uid, user.email ?? email, inviteCode);
       }
 
-      window.location.href = "/dashboard";
+      window.location.href = mode === "teacher" ? "/teacher/dashboard" : "/dashboard";
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred during sign up.");
     } finally {
@@ -68,6 +68,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
+            id="email"
             label="Email Address"
             type="email"
             value={email}
@@ -75,6 +76,7 @@ export default function SignupPage() {
             required
           />
           <Input
+            id="password"
             label="Password"
             type="password"
             value={password}
@@ -84,6 +86,7 @@ export default function SignupPage() {
 
           {mode === "teacher" ? (
             <Input
+              id="organization-name"
               label="School / Institution Name"
               placeholder="e.g. Lincoln High School"
               value={orgName}
@@ -92,6 +95,7 @@ export default function SignupPage() {
             />
           ) : (
             <Input
+              id="invite-code"
               label="6-Character Class Code"
               placeholder="e.g. X7K9PQ"
               value={inviteCode}

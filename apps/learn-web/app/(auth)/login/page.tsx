@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
-import { AuthService } from "@lurexa/backend";
+import { AuthService, OrganizationService } from "@lurexa/backend";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,9 +23,13 @@ export default function LoginPage() {
 
       // 2. Validate session & claims
       const claims = await AuthService.getUserClaims(user);
+      const memberships = await OrganizationService.getMembershipsForUser(user.uid);
+      const isTeacher = memberships.some((membership) =>
+        ["owner", "admin", "teacher"].includes(membership.role),
+      );
 
       // 3. Redirect based on authenticated session
-      if (claims.role === "teacher" || claims.role === "admin") {
+      if (claims.role === "teacher" || claims.role === "admin" || isTeacher) {
         window.location.href = "/teacher/dashboard";
       } else {
         window.location.href = "/dashboard";
@@ -46,6 +50,7 @@ export default function LoginPage() {
       >
         <form onSubmit={handleLogin} className="space-y-4">
           <Input
+            id="email"
             label="Email Address"
             type="email"
             value={email}
@@ -55,6 +60,7 @@ export default function LoginPage() {
           />
 
           <Input
+            id="password"
             label="Password"
             type="password"
             value={password}

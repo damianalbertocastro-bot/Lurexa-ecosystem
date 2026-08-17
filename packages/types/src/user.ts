@@ -14,6 +14,7 @@ export type PricingPlan = "free" | "basic" | "pro" | "enterprise";
 
 export interface Organization {
   id: string;
+  ownerId: string;
   name: string;
   slug: string;
   plan: PricingPlan;
@@ -33,6 +34,7 @@ export interface OrganizationMember {
   orgId: string;
   userId: string;
   role: MemberRole;
+  invitationId?: string;
   joinedAt: string;
 }
 
@@ -43,5 +45,6 @@ export interface Invitation {
   role: MemberRole;
   code: string;
   expiresAt: string;
-  usedAt?: string;
+  expiresAtMillis: number;
+  usedAt?: string | null;
 }

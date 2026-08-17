@@ -11,3 +11,7 @@ out/
 .DS_Store
 .vercel
 .env*
+
+# Firebase Local Emulator Suite diagnostics
+firebase-debug.log
+firestore-debug.log

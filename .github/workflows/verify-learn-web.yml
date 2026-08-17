@@ -23,14 +23,8 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - name: Install dependencies and refresh lockfile
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Upload refreshed lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: learn-web-pnpm-lock
-          path: pnpm-lock.yaml
+      - name: Install Workspace Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck learn-web
         run: pnpm --filter learn-web check-types

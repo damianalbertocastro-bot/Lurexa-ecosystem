@@ -2,39 +2,94 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper Functions
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isUser(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Default deny all access
-    match /{document=**} {
-      allow read, write: if false;
+    function memberPath(orgId, userId) {
+      return /databases/$(database)/documents/organizations/$(orgId)/members/$(userId);
     }
 
-    // Users Collection
+    function isOrganizationOwner(orgId) {
+      return isAuthenticated()
+        && get(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid
+        && get(memberPath(orgId, request.auth.uid)).data.role == "owner";
+    }
+
+    function isOrganizationMember(orgId) {
+      return isAuthenticated() && exists(memberPath(orgId, request.auth.uid));
+    }
+
+    function isInvitationOwner(invitation) {
+      return isAuthenticated()
+        && invitation.keys().hasAll(["email", "expiresAtMillis", "usedAt"])
+        && invitation.email == request.auth.token.email;
+    }
+
+    function isInvitationRecipient(invitation) {
+      return isInvitationOwner(invitation)
+        && invitation.usedAt == null
+        && invitation.expiresAtMillis > request.time.toMillis();
+    }
+
     match /users/{userId} {
       allow read, write: if isUser(userId);
     }
 
-    // Organizations & Multi-tenancy
     match /organizations/{orgId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.token.role == 'admin';
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow get: if isOrganizationMember(orgId) || resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isOrganizationOwner(orgId)
+        && request.resource.data.ownerId == resource.data.ownerId;
+
+      match /members/{userId} {
+        allow get: if isUser(userId) || isOrganizationOwner(orgId);
+        allow create: if isUser(userId)
+          && request.resource.data.userId == userId
+          && request.resource.data.orgId == orgId
+          && (
+            (request.resource.data.role == "owner"
+              && getAfter(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid)
+            || (
+              request.resource.data.invitationId is string
+              && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.orgId == orgId
+              && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.role == request.resource.data.role
+              && isInvitationRecipient(get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data)
+            )
+          );
+        allow update, delete: if isOrganizationOwner(orgId);
+      }
     }
 
-    // Courses & Content
+    // A user-scoped index supports login and dashboard routing without exposing
+    // organization membership records to other users.
+    match /user-memberships/{userId}/organizations/{orgId} {
+      allow get, list: if isUser(userId);
+      allow create: if isUser(userId)
+        && request.resource.data.userId == userId
+        && request.resource.data.orgId == orgId
+        && getAfter(memberPath(orgId, userId)).data.userId == userId;
+      allow update, delete: if false;
+    }
+
+    match /invitations/{invitationId} {
+      allow get: if isInvitationOwner(resource.data);
+      allow create: if isOrganizationOwner(request.resource.data.orgId);
+      allow update: if isInvitationRecipient(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"])
+        && request.resource.data.usedAt != null;
+      allow delete: if isOrganizationOwner(resource.data.orgId);
+    }
+
     match /courses/{courseId} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin');
     }
 
-    // Student Progress
     match /progress/{progressId} {
       allow read, write: if isAuthenticated();
     }

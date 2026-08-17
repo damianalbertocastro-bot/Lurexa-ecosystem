@@ -1,508 +1,139 @@
-# Code Review Guidelines
+# Lurexa Code Review Guidelines
 
-**Version:** 1.0  
-**Status:** Approved  
-**Owner:** Engineering Team  
+**Version:** 1.0 (merged)
+**Status:** Draft — supersedes prior Lurexa reviewer doc and generic Engineering Team doc
 **Applies to:** All repositories within the Lurexa organization
+**Reviewers:** Human developers and AI collaborators (Cursor, code-review personas)
 
 ---
 
-# Purpose
+## Core Philosophy
 
-Code reviews exist to improve software quality, maintain consistency, share knowledge, reduce defects, and ensure that every change aligns with the long-term vision of the Lurexa platform.
-
-Reviews are not intended to criticize developers.
-
-They are intended to improve the product.
+Code reviews at Lurexa are not just about finding bugs; they are about maintaining architectural consistency, ensuring educational accessibility, and keeping the monorepo clean. A Pull Request is a design discussion, not merely a code submission. Reviews improve the product — they are not a critique of the developer.
 
 ---
 
-# Core Principles
+## Pre-Review Requirements (Author, before opening a PR)
 
-Every review should prioritize:
-
-1. Correctness
-2. Simplicity
-3. Readability
-4. Maintainability
-5. Security
-6. Performance
-7. Accessibility
-8. Consistency
-9. User Experience
-
-Whenever trade-offs exist, reviewers should favor long-term maintainability over short-term convenience.
+- [ ] **Type Safety:** `pnpm check-types` from root — 0 errors.
+- [ ] **Linting:** `pnpm lint` — no warnings or errors.
+- [ ] **Build:** `pnpm build` — all workspace packages build successfully.
+- [ ] **Scope:** PR addresses a single concern (not "Add auth and redesign dashboard").
+- [ ] **Tests:** New features include relevant tests — see Testing Standards below.
+- [ ] No debugging code, no commented-out code, no secrets committed.
+- [ ] Documentation updated where applicable (README, `.ai/personas`, env vars, API docs).
 
 ---
 
-# Review Philosophy
+## Reviewer Checklist
 
-A Pull Request is considered a design discussion, not merely a code submission.
+### 1. Architecture & Monorepo Integrity
+- Are shared utilities placed in `@lurexa/utils` instead of duplicated in apps?
+- Are shared UI components added to `@lurexa/ui`?
+- Does the code break the dependency graph? (apps → packages, not packages → apps)
+- Can this reuse an existing service instead of introducing a new abstraction?
+- Is this introducing technical debt disproportionate to the feature's value?
 
-Reviewers should ask:
+### 2. Type Strictness
+- Any use of `any`? Reject — require explicit types.
+- Do database/Firestore schemas match `@lurexa/types` exactly?
+- Type assertions require inline justification or they're a blocking comment.
 
-- Is this the simplest solution?
-- Will another engineer understand this in six months?
-- Does this follow our architecture?
-- Does this introduce unnecessary complexity?
-- Does it improve the product?
+### 3. Code Quality
+- Small functions, low nesting, clear naming (`calculateFinalScore`, not `calc()` or `temp`).
+- No magic numbers, no hidden side effects, no duplicate logic.
+- Names explain *why* something exists, not just *what* it is.
+
+### 4. React Standards
+- Single-responsibility components, minimal state, justified effects and memoization.
+- Watch for prop drilling, oversized components, business logic embedded in UI.
+
+### 5. Educational Platform Standards (A11y & UX)
+- Full accessibility: ARIA labels, keyboard navigation, focus management, color contrast.
+- Responsive for students on low-end mobile devices.
+- Graceful loading states, especially for slow AI generation requests.
+
+### 6. Security & Firebase
+- Firestore queries securely filtered by `organizationId` and `userId` — no exceptions.
+- No hardcoded API keys or secrets — reject immediately if `.env` values are committed.
+- Client input is never trusted without server-side validation.
+
+### 7. Performance
+- Unnecessary renders, missing memoization, duplicate API calls, large bundle additions.
+- Can this be lazy-loaded or cached?
+
+### 8. API & Database Review
+- Endpoint naming, validation, error responses, status codes, pagination, versioning are consistent.
+- Queries are optimized; indexes exist where needed; no unnecessary reads/writes.
 
 ---
 
-# Reviewer Responsibilities
+## AI Feature Review — Deferred (Phase 2)
 
-Reviewers are responsible for ensuring:
+*Not part of the core Reviewer Checklist. No `@lurexa/prompts` (or equivalent versioned prompt package) exists yet, and building one is out of scope while Phase 1 (repo stabilization: lint/typecheck/build/docs) is the P0. These items are guidance, not gates — nothing here blocks or requires changes on a PR today.*
 
-- Architecture is respected.
-- Business logic is correct.
-- Edge cases are handled.
-- Naming is clear.
-- Code follows project conventions.
+- Prompts should eventually live outside business logic, in a versioned, diffable location — not enforced until that location exists.
+- Deterministic behavior for grading/scoring logic is worth flagging informally if you notice non-determinism, but isn't a review requirement yet.
+- Hallucination mitigation and error fallback for user-facing AI output — same: flag, don't block.
+- **Trigger to promote this section to the core checklist:** either `@lurexa/prompts` gets built, or AI feature work exceeds ~2–3 hardcoded prompts, whichever comes first. At that point delete this section and reinstate AI Feature Review as item 9 in the Reviewer Checklist, with prompt-location violations moved to the Blocking row of the Comment Classification table.
+
+---
+
+## Testing Standards
+
+- **Unit tests (Vitest):** business logic, utilities, services.
+- **Integration tests:** API behavior, database interaction, authentication.
+- **E2E tests (Playwright):** critical user journeys (auth, course flow, AI tutor interaction).
+
+---
+
+## Comment Classification
+*(New — imported from generic doc; Lurexa-specific doc had no severity taxonomy, which made review threads ambiguous.)*
+
+| Level | Meaning | Examples |
+|---|---|---|
+| **Blocking** | Must be fixed before merge | Security issue, broken functionality, incorrect architecture, missing tests, `any` usage, exposed secret/API key |
+| **Required** | Should be fixed before merge | Readability, missing validation, naming, documentation |
+| **Suggestion** | Optional improvement | Refactoring, cleaner implementation, better abstraction |
+| **Question** | Clarification only | No change required |
+
+---
+
+## Approval & Merge Rules
+*(New — the original stack-specific doc had a pre-review checklist but no explicit merge gate.)*
+
+A PR may be **approved** only if:
+- Pre-review requirements are all met.
+- Reviewer checklist passes with no unresolved Blocking comments.
+- CI is green.
 - Documentation is updated.
-- Tests exist when required.
-- No security risks are introduced.
-- No unnecessary complexity is added.
 
-A reviewer is accountable for every approval they give.
-
----
-
-# Author Responsibilities
-
-Before requesting review, the author should verify that:
-
-- All tests pass.
-- Build succeeds.
-- Lint passes.
-- Type checking passes.
-- Documentation is updated.
-- Feature has been manually tested.
-- No debugging code remains.
-- No commented-out code remains.
-- No secrets are committed.
-
----
-
-# Review Checklist
-
-## Functionality
-
-- Does the feature work?
-- Are requirements satisfied?
-- Are edge cases handled?
-- Is error handling appropriate?
-- Does the implementation match the intended behavior?
-
----
-
-## Architecture
-
-Verify that the implementation:
-
-- Respects folder structure.
-- Uses existing abstractions.
-- Does not duplicate logic.
-- Does not violate layering.
-- Avoids unnecessary coupling.
-
-Questions:
-
-- Can this reuse an existing service?
-- Should this belong elsewhere?
-- Is this introducing technical debt?
-
----
-
-## Code Quality
-
-Review for:
-
-- Readability
-- Simplicity
-- Small functions
-- Clear naming
-- Low complexity
-- Minimal nesting
-- Consistent formatting
-
-Avoid:
-
-- Large functions
-- Magic numbers
-- Hidden side effects
-- Unclear variables
-- Duplicate logic
-
----
-
-## Naming
-
-Names should clearly describe intent.
-
-Prefer:
-
-```ts
-calculateFinalScore()
-
-createStudent()
-
-isAuthenticated
-```
-
-Avoid:
-
-```ts
-calc()
-
-doStuff()
-
-value2
-
-temp
-```
-
-Names should explain *why* something exists, not merely *what* it is.
-
----
-
-# TypeScript Standards
-
-Require:
-
-- Explicit types where useful
-- Strong typing
-- No unnecessary `any`
-- Prefer interfaces for object contracts
-- Use enums sparingly
-- Prefer discriminated unions when appropriate
-
-Avoid:
-
-```ts
-any
-
-unknown casting
-
-type assertions without justification
-```
-
----
-
-# React Standards
-
-Verify:
-
-- Components have a single responsibility.
-- Hooks are used correctly.
-- State is minimal.
-- Effects are necessary.
-- Memoization is justified.
-- Components remain reusable.
-
-Watch for:
-
-- Prop drilling
-- Large components
-- Excessive state
-- Business logic inside UI
-
----
-
-# Performance Review
-
-Check for:
-
-- Unnecessary renders
-- Expensive computations
-- Missing memoization
-- Duplicate API calls
-- Large bundle additions
-
-Questions:
-
-- Can this be lazy loaded?
-- Can this be cached?
-- Is this efficient enough?
-
----
-
-# Security Review
-
-Always verify:
-
-- Authentication
-- Authorization
-- Input validation
-- Secret management
-- API permissions
-- Data exposure
-
-Never approve:
-
-- Hardcoded credentials
-- Exposed API keys
-- Unsafe queries
-- Missing authorization
-- Trusting client input
-
----
-
-# Accessibility Review
-
-Ensure:
-
-- Semantic HTML
-- Keyboard navigation
-- Focus management
-- Accessible labels
-- Color contrast compliance
-- Screen reader compatibility
-
-Accessibility is required—not optional.
-
----
-
-# UI Review
-
-Verify:
-
-- Uses approved design system components.
-- Uses design tokens.
-- Consistent spacing.
-- Responsive layout.
-- Visual consistency.
-
-Do not introduce custom styling when an existing component already solves the problem.
-
----
-
-# API Review
-
-Review:
-
-- Endpoint naming
-- Validation
-- Error responses
-- Status codes
-- Pagination
-- Versioning
-
-APIs should remain predictable and consistent.
-
----
-
-# Database Review
-
-Verify:
-
-- Queries are optimized.
-- Indexes exist when necessary.
-- No unnecessary reads.
-- No unnecessary writes.
-- Data integrity is preserved.
-
----
-
-# AI Feature Review
-
-For AI-related features, verify:
-
-- Prompt quality
-- Prompt versioning
-- Prompt safety
-- Deterministic behavior where required
-- Hallucination mitigation
-- Error fallback
-- Token efficiency
-
-Never hardcode prompts inside business logic.
-
-Prompts should remain versioned and maintainable.
-
----
-
-# Documentation Review
-
-Every feature should update documentation when applicable.
-
-Examples:
-
-- README
-- Architecture docs
-- API documentation
-- Environment variables
-- User guides
-
-Code without documentation becomes technical debt.
-
----
-
-# Testing Review
-
-Verify appropriate test coverage:
-
-## Unit Tests
-
-Business logic
-
-Utilities
-
-Services
-
-## Integration Tests
-
-API behavior
-
-Database interaction
-
-Authentication
-
-## End-to-End Tests
-
-Critical user journeys
-
----
-
-# Comment Classification
-
-Use comments consistently.
-
-## Blocking
-
-Must be fixed before merge.
-
-Examples:
-
-- Security issue
-- Broken functionality
-- Incorrect architecture
-- Missing tests
-- Critical bug
-
----
-
-## Required
-
-Should be fixed before merge.
-
-Examples:
-
-- Readability
-- Missing validation
-- Naming
-- Documentation
-
----
-
-## Suggestion
-
-Optional improvement.
-
-Examples:
-
-- Refactoring
-- Cleaner implementation
-- Better abstraction
-
----
-
-## Question
-
-Clarification only.
-
-No change required.
-
----
-
-# Approval Rules
-
-A Pull Request may be approved only if:
-
-- Requirements are satisfied.
-- Review checklist passes.
-- Tests pass.
-- CI passes.
-- Documentation is updated.
-- No blocking comments remain.
-
----
-
-# Merge Rules
-
-Never merge if:
-
+**Never merge if:**
 - CI is failing.
 - Merge conflicts exist.
-- Security concerns remain.
-- Architecture concerns remain unresolved.
-- Requested changes have not been addressed.
+- Security concerns remain (Firestore scoping, exposed keys, unvalidated input).
+- Architecture concerns are unresolved (dependency graph violations, duplicated shared logic).
+
+*(No merge gate on prompt location — see "AI Feature Review — Deferred" section above.)*
 
 ---
 
-# Review Etiquette
+## Review Etiquette
 
-Reviews should be:
+Prefer: *"This function could be simplified by extracting the validation logic."*
+Avoid: *"This code is bad."*
 
-- Respectful
-- Specific
-- Educational
-- Objective
-
-Focus on improving the code—not the author.
-
-Prefer:
-
-> "This function could be simplified by extracting the validation logic."
-
-Avoid:
-
-> "This code is bad."
+Focus on improving the code, not the author. This applies equally when the "author" is an AI collaborator — critique the diff, not the model.
 
 ---
 
-# Continuous Improvement
+## Related Documents
 
-The review process should evolve over time.
-
-The engineering team should periodically evaluate:
-
-- Review quality
-- Common review findings
-- Recurring defects
-- Review duration
-- Knowledge-sharing effectiveness
-
-Lessons learned should be incorporated into future versions of this document.
-
----
-
-# Success Metrics
-
-A healthy review culture results in:
-
-- Lower defect rates
-- Faster onboarding
-- Consistent architecture
-- Reduced technical debt
-- Better collaboration
-- Higher code quality
-- Stable releases
-
----
-
-# Related Documents
-
-- Pull Request Checklist.md
-- Testing Strategy.md
-- Development Constitution.md
-- Engineering Principles.md
 - Monorepo Standards.md
 - AI Development Guidelines.md
+- Development Constitution.md
+- `.ai/personas/` (CEO, CPO, curriculum, technical writer roles)
 
 ---
 
-**Document Owner:** Engineering Team
-
-**Review Cycle:** Every 6 months
-
-**Status:** Active
+**Review Cycle:** Every 6 months, or on major architecture decisions (e.g., Firebase → alternative, Turborepo restructure).
