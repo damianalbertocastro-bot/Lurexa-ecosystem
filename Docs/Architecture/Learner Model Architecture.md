@@ -1,446 +1,250 @@
 # Learner Model Architecture
 
-Version: 1.0
-
-Status: Approved
-
-Owner: Lurexa Mind / Platform Architecture
-
+Status: Authoritative conceptual architecture  
+Owner: Lurexa Learning Technologies  
 Last updated: 2026-08-17
 
----
-
-# Purpose
-
-This document defines how Lurexa represents an evolving learner across products.
-
-The Learner Model is a shared Lurexa Mind capability built on trusted records and permissions provided by Lurexa Core.
-
-It exists so a learner does not start from zero when moving between Lurexa Learn, Lurexa Coach, and future products.
+## Governing principle
 
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
 
----
+Lurexa uses one persistent cross-product Learner Model. Products must not create isolated, conflicting learner profiles when reliable and authorized learner information already exists elsewhere in the ecosystem.
 
-# Architectural Principle
+This document defines architectural responsibility. It does **not** assert that every capability described here is already implemented.
 
-Products observe the learner.
-
-Lurexa Mind interprets those observations.
-
-Lurexa Core owns trusted platform state, authorization, and persistence.
+## Responsibility model
 
 ```text
-Product interaction
-      ↓
-Core records authorized learning evidence
-      ↓
-Mind Learner Model interprets evidence
-      ↓
-Personalization / recommendations / coaching context
-      ↓
-Product experience
+Products
+  generate learning experiences and evidence
+        ↓
+Lurexa Core
+  authenticates, authorizes, validates and persists trusted records
+        ↓ authorized evidence/context
+Lurexa Mind
+  interprets evidence and produces learning intelligence
+        ↓ approved derived intelligence
+Lurexa Core
+  persists approved authoritative records where required
+        ↓ authorized learner context
+Products
+  adapt the next experience
 ```
 
-The Learner Model must not become a second uncontrolled user database.
+The Learner Model is the persistent evolving representation of the learner across the ecosystem. It spans trusted evidence/state owned by Core and interpretations produced by Mind. It is **not** a second database owned independently by Mind.
 
----
+## Lurexa Core responsibility
 
-# Learner Model vs User Profile
+Core owns the trusted record and the infrastructure required to protect it.
 
-A user profile contains identity and account-oriented information.
+Core responsibilities include:
+
+- canonical learner identity;
+- authentication;
+- authorization and permissions;
+- trusted learner records;
+- persistence;
+- evidence provenance;
+- cross-product data contracts;
+- access-control enforcement;
+- lifecycle and retention rules;
+- approved persistence of derived observations;
+- safe exchange of authorized learner information between products and Mind.
+
+Products and Mind must not bypass Core ownership rules to create competing authoritative state.
+
+## Lurexa Mind responsibility
+
+Mind interprets authorized learning evidence and produces reusable learning intelligence.
+
+Mind may support:
+
+- learner-state interpretation;
+- personalization;
+- adaptive experiences;
+- recommendations;
+- learning interventions;
+- AI tutoring and coaching;
+- mastery estimates;
+- recurring-error interpretation;
+- pronunciation-pattern interpretation;
+- goal-aware adaptation;
+- cross-product learning intelligence.
+
+Mind does not become the authoritative authentication, authorization, or persistence layer.
+
+## Learner Model domains
+
+The model may progressively represent information such as:
+
+- CEFR level and proficiency evidence;
+- curriculum position and context;
+- demonstrated competencies;
+- recurring mistakes;
+- pronunciation patterns and targets;
+- vocabulary development;
+- grammar development;
+- fluency development;
+- learning goals;
+- strengths and weaknesses;
+- activity and performance history;
+- prior interventions;
+- relevant learning preferences;
+- progress over time.
+
+Not every domain must be implemented at once. Domains should be introduced when a product need, evidence source, privacy rule, and ownership contract are clear.
+
+## Evidence versus interpretation
+
+Lurexa must preserve the distinction between observations and conclusions.
+
+### Evidence
 
 Examples:
 
-- name
-- account ID
-- email
-- organization membership
-- preferences
+- completed activity;
+- assessment response;
+- lesson progress;
+- speaking sample metadata;
+- pronunciation observation;
+- repeated grammar error;
+- successful correction;
+- teacher-entered observation.
 
-A Learner Model represents educational state.
+Evidence should carry enough provenance to understand where it came from, when it occurred, and how trustworthy it is.
 
-Examples:
-
-- CEFR level
-- skill estimates
-- current learning objectives
-- vocabulary mastery
-- grammar mastery
-- recurring error patterns
-- pronunciation targets
-- speaking fluency patterns
-- L1-transfer patterns
-- practice history
-- confidence indicators
-- learning goals
-- recommended next actions
-
-Identity belongs primarily to Lurexa Core.
-
-Educational interpretation belongs primarily to Lurexa Mind.
-
----
-
-# Initial Learner Model Domains
-
-## Proficiency
-
-- Overall CEFR estimate
-- Skill-specific CEFR estimates where evidence supports them
-- Placement evidence
-- Confidence/uncertainty of estimates
-
-## Current Learning Context
-
-- Current course
-- Current module
-- Current lesson/unit
-- Recently studied topics
-- Current vocabulary targets
-- Current grammar targets
-- Current speaking targets
-
-## Mastery
-
-- Vocabulary knowledge
-- Grammar knowledge
-- Listening skills
-- Reading skills
-- Speaking skills
-- Writing skills
-
-Mastery estimates should distinguish between observed evidence and inferred state.
-
-## Error Patterns
+### Interpretation
 
 Examples:
 
-- repeated grammar errors
-- lexical transfer
-- word-choice patterns
-- pronunciation substitutions
-- final-consonant reduction
-- word stress patterns
-- rhythm and intonation patterns
+- likely CEFR state;
+- probable recurring pronunciation pattern;
+- recommended practice target;
+- estimated vocabulary weakness;
+- suggested intervention;
+- confidence that a prior weakness has improved.
 
-Errors should be represented as learnable patterns, not permanent labels.
+Interpretations should not silently overwrite raw evidence. Where an interpretation becomes persistent learner state, it must pass through approved Core-owned contracts.
 
-## Pronunciation Profile
+## Provenance and confidence
 
-The pronunciation profile may include:
+Where appropriate, learner evidence and derived intelligence should include:
 
-- target phonemes
-- recurring substitutions
-- intelligibility issues
-- word stress
-- sentence stress
-- rhythm
-- connected speech
-- intonation
-- successful corrections
-- recommended practice targets
+- source product or service;
+- source activity/session;
+- timestamp;
+- evidence type;
+- confidence or reliability indicator;
+- model/rule version when AI-derived;
+- review status when human validation is relevant;
+- authorization/privacy classification.
 
-The system must not treat a Dominican accent itself as a defect.
+## Cross-product adaptation
 
-Preferred progression:
+A learner moving between Lurexa products should experience continuity.
 
-1. Intelligibility
-2. Naturalness
-3. Optional pronunciation refinement
+Example: a learner uses Lurexa Learn and later opens Lurexa Coach. When authorized and relevant, Coach should receive existing context such as:
 
-## L1 Transfer Profile
+- CEFR level;
+- current curriculum context;
+- recurring English mistakes;
+- pronunciation targets;
+- learning goals;
+- previous learning activity;
+- demonstrated strengths and weaknesses.
 
-The first deeply modeled L1 profile is Dominican Spanish.
+Coach should not ask the learner to start over when reliable authorized evidence already exists.
 
-The purpose is to identify likely transfer from Dominican Spanish into English and produce more useful explanations and practice.
+New evidence from Coach can improve the shared Learner Model and later help Learn or another authorized product adapt. This is a two-way ecosystem learning loop, not simple profile synchronization.
 
-Examples may include:
+## Lurexa Coach specialization
 
-- Spanish vowel substitution for English vowel contrasts
-- English consonant production challenges
-- final consonants
-- consonant clusters
-- stress and rhythm transfer
-- literal translation of Dominican expressions or Spanish structures
+Coach is an AI-powered English speaking and pronunciation product.
 
-The architecture must support future L1 profiles without redesigning the learner model.
+Its first deep linguistic specialization is Dominican Spanish speakers learning English. Coach should prioritize:
 
-## Preferences and Support
+- intelligibility;
+- naturalness;
+- speaking fluency;
+- pronunciation refinement;
+- confidence in spoken communication;
+- recurring-pattern identification;
+- targeted corrective practice;
+- Dominican-Spanish-to-English linguistic transfer;
+- context-aware practice appropriate to level and goals.
 
-Possible signals:
+The goal is **not accent erasure**.
 
-- English Immersion
-- Guided English
-- Foundation Support
-- preferred correction intensity
-- preferred speaking topics
-- target pronunciation style when requested
+Dominican Spanish is the first deep L1 profile, not a permanent architecture constraint. L1-transfer knowledge must be extensible so additional linguistic profiles can be added without redesigning Coach or the Learner Model.
 
-## Goals
+## Access and minimization
 
-Examples:
-
-- conversational confidence
-- job interview preparation
-- travel communication
-- academic English
-- professional English
-- pronunciation refinement
-- CEFR progression
-
----
-
-# Evidence Sources
-
-The Learner Model can be updated only from approved evidence sources.
-
-Potential sources include:
-
-## Lurexa Learn
-
-- lesson completion
-- quiz and assessment results
-- activity attempts
-- vocabulary performance
-- grammar performance
-- AI tutoring interactions when approved
-- current curriculum context
-
-## Lurexa Coach
-
-- speaking-session observations
-- pronunciation patterns
-- fluency indicators
-- recurring spontaneous grammar errors
-- vocabulary gaps
-- successful repairs/corrections
-- session goals
-
-## Lurexa Teach
-
-Teacher-created or teacher-validated learning observations may contribute where product policy and permissions allow.
-
-## Assessments
-
-Validated placement, formative, and proficiency evidence may contribute to proficiency estimates.
-
----
-
-# Evidence vs Inference
-
-Every meaningful learner-model attribute should preserve the distinction between:
-
-- observed evidence
-- inferred state
-- learner-provided preference
-- teacher-provided judgment
-- system recommendation
-
-Where useful, fields should include:
-
-```text
-value
-source
-observedAt
-confidence
-scope
-expiresAt or reviewAfter
-```
-
-The system should avoid turning a weak inference into permanent truth.
-
----
-
-# CEFR-Aware Adaptation
-
-Lurexa Mind should provide product-facing context that constrains difficulty.
-
-For example, an A1 learner entering Lurexa Coach may receive:
-
-```text
-CEFR: A1
-Current topic: daily routines
-Known language: family, food, simple present
-Current objectives: frequency adverbs, simple present
-Pronunciation targets: final consonants, /iː/ vs /ɪ/
-Avoid: rare vocabulary, advanced conditionals, long multi-part questions
-Feedback intensity: light during conversation, detailed after conversation
-```
-
-Coach should not ask for information such as CEFR level when an authorized, current estimate already exists.
-
-Difficulty adaptation should reduce unnecessary struggle without removing productive challenge.
-
----
-
-# Cross-Product Continuity
-
-Example:
-
-```text
-Lurexa Learn
-Learner studies restaurant language
-        ↓
-Core records lesson progress and current objectives
-        ↓
-Mind updates learner context
-        ↓
-Lurexa Coach
-Runs a level-appropriate restaurant role-play
-        ↓
-Coach observes speaking and pronunciation patterns
-        ↓
-Mind interprets patterns
-        ↓
-Core persists approved evidence
-        ↓
-Learn recommends targeted follow-up practice
-```
-
-The user should experience this as one continuous learning relationship.
-
----
-
-# Product Access Rules
-
-## Lurexa Learn
-
-Can consume learner-model context needed for adaptive learning and recommendations.
-
-## Lurexa Coach
-
-Can consume relevant CEFR, current learning context, speaking targets, and prior coaching evidence needed to personalize practice.
-
-## Lurexa Teach
-
-Can consume educator-appropriate summaries according to permissions and privacy policy.
-
-## Lurexa Insight
-
-Can consume authorized individual or aggregated learning evidence for interpretable analytics.
-
-## Lurexa Admin
-
-Controls organization, role, governance, and access policy. It should not receive unrestricted pedagogical detail merely because a user is an administrator.
-
----
-
-# Privacy and Governance
-
-The Learner Model may become highly sensitive because it can describe performance, behavior, strengths, weaknesses, and inferred learning needs.
+Products consume only learner information they are authorized and designed to use.
 
 Rules:
 
-- Data minimization is mandatory.
-- Products receive only the context they need.
-- AI providers should receive only the minimum approved context required for a task.
-- Authorization must be checked before learner context is exposed.
-- Learners should have meaningful transparency and control where appropriate.
-- Inferences should not be treated as immutable facts.
-- Sensitive learner data must not be used for unrelated commercial profiling.
-- Retention and deletion policies must be defined before production-scale use.
-- High-impact decisions should not rely solely on opaque model inference.
+1. A valid identity does not imply access to every learner-model field.
+2. Product contracts should request the minimum context needed for the experience.
+3. Sensitive or high-impact inferences require stronger governance than ordinary activity history.
+4. Mind receives only the context necessary for the intelligence task.
+5. Product UIs must not expose internal model detail merely because it exists.
 
----
+## Contract boundaries
 
-# Initial Technical Direction
+The architecture should evolve toward explicit contracts for:
 
-Do not begin by creating one giant `learnerModel` document containing every possible field.
+### Learning Evidence Contract
 
-Prefer a modular domain design with stable identifiers and evidence-backed subdomains.
+Products submit structured evidence through approved Core boundaries.
 
-Conceptual structure:
+### Learner Context Contract
 
-```text
-learner
-├── identity reference       # Core-owned
-├── proficiency
-├── curriculum context
-├── mastery estimates
-├── error patterns
-├── pronunciation profile
-├── goals
-├── preferences
-└── recommendations
-```
+Products request authorized learner context appropriate to a specific experience.
 
-Possible implementation may span multiple collections/tables/events. The logical model should not dictate a premature Firestore schema.
+### Mind Interpretation Contract
 
-Do not allow product UIs to mutate inferred learner state directly.
+Core-authorized evidence/context is supplied to Mind for interpretation.
 
----
+### Derived Observation Persistence Contract
 
-# Service Boundaries
+Approved Mind outputs that should influence persistent learner state are validated and persisted through Core-owned boundaries.
 
-Preferred interaction:
+The exact schemas are future implementation work and must be designed against the existing repository before code changes are claimed.
 
-```text
-Product
-  ↓
-Core authorization
-  ↓
-Learner Context Service
-  ↓
-Mind Learner Model
-  ↓
-Personalization / Coach / Recommendation service
-```
+## Anti-patterns
 
-When Mind produces a persistent observation or inference, use an approved Core-owned contract or repository/service boundary.
+Do not:
 
----
+- create a separate learner truth inside each product;
+- create a giant ungoverned `learnerModel` document that mixes evidence, guesses, permissions, and UI state;
+- let product UIs directly mutate inferred learner state;
+- allow Mind to become the authorization layer;
+- allow products to call model providers directly for persistent personalization logic;
+- overwrite evidence with AI conclusions;
+- treat pronunciation scores as unquestionable truth;
+- hard-code Dominican Spanish assumptions so deeply that another L1 requires a rewrite.
 
-# MVP Sequence
+## Implementation strategy
 
-## Stage 1 — Reliable learning evidence
+Architecture changes do not automatically require immediate refactoring.
 
-- stable user IDs
-- enrollment
-- progress
-- CEFR estimate
-- current course/unit context
-- assessment records
+Before changing packages or persistence:
 
-## Stage 2 — Learner Model foundation
+1. map current repository capabilities to Core, Mind, and product responsibilities;
+2. identify actual duplication or boundary violations;
+3. define the smallest useful v1 evidence/context contracts;
+4. preserve compatible packages and services;
+5. refactor only where an implementation boundary is justified.
 
-- learner-context contract
-- evidence provenance
-- recurring-error representation
-- goals/preferences
-- basic personalization
+## Related documents
 
-## Stage 3 — Speaking and pronunciation profile
+- `Docs/00-Lurexa-Bible.md`
+- `Docs/Architecture/Capability Architecture.md`
+- `Docs/Architecture/Capability Interaction Matrix.md`
+- `Docs/Architecture/Dependency Graph.md`
+- `ROADMAP.md`
+- `AGENTS.md`
 
-- Coach session evidence
-- pronunciation target representation
-- L1-transfer tags
-- correction history
-- CEFR-aware conversation context
+## Source-of-truth rule
 
-## Stage 4 — Cross-product adaptation
-
-- Learn uses Coach evidence for follow-up practice
-- Coach uses Learn curriculum state automatically
-- Teach consumes appropriate summaries
-- Insight surfaces interpretable trends
-
----
-
-# Success Criteria
-
-The Learner Model succeeds when:
-
-- learners do not repeatedly re-enter known learning context
-- Coach automatically adapts to current CEFR level
-- recommendations become more useful as evidence accumulates
-- Learn and Coach reinforce each other
-- corrections target recurring high-value patterns instead of isolated mistakes
-- educators can understand relevant learner trends without receiving unnecessary private data
-- personalization remains explainable, controllable, and technically reusable across products
-
----
-
-# Guiding Rule
-
-> **Products observe the learner. Mind understands the learner. Core protects and persists the trusted learning record.**
+If an older Lurexa document says that Mind independently owns the authoritative Learner Model, that each product owns its own learner profile, or that the thesis prototype defines the commercial architecture, that statement is superseded by this architecture.
