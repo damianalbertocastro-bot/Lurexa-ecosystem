@@ -1,598 +1,240 @@
 # Dependency Graph
 
-Version: 1.0
+Status: Authoritative conceptual architecture  
+Owner: Lurexa Learning Technologies  
+Last updated: 2026-08-17
 
-Status: Approved
+## Purpose
 
-Owner: Platform Architecture
+This document defines allowed architectural dependency directions across Lurexa. It prevents product silos, duplicate learner truth, and accidental coupling between user experiences, persistence, and AI providers.
 
----
+This is a conceptual dependency model. Existing package names do not need to be changed until repository-level evidence justifies a refactor.
 
-# Purpose
+## Ecosystem dependency graph
 
-This document defines the permitted dependency relationships within the Lurexa ecosystem.
-
-Its goals are to:
-
-- Prevent circular dependencies
-- Keep business logic isolated
-- Preserve modularity
-- Improve maintainability
-- Enable independent package evolution
-- Simplify testing
-- Reduce coupling
-
-Every new dependency introduced into the repository must comply with this document.
-
----
-
-# Dependency Philosophy
-
-Dependencies always flow downward.
-
-Higher-level modules orchestrate lower-level modules.
-
-Lower-level modules must never depend on higher-level modules.
-
-The architecture follows the Dependency Rule.
-
-```
-Applications
-        │
-        ▼
-Capability Interfaces
-        │
-        ▼
-Application Layer
-        │
-        ▼
-Domain Layer
-        │
-        ▼
-Infrastructure
-        │
-        ▼
-External Services
+```text
+                    Lurexa Learning Technologies
+                               │
+                 governance / standards / strategy
+                               │
+          ┌────────────────────┴────────────────────┐
+          │                                         │
+      Lurexa Core                              Lurexa Mind
+ trust + authoritative state              learning intelligence
+          │                                         │
+          └──────── authorized context/evidence ────┘
+                               │
+                      supported interfaces
+                               │
+       ┌───────────┬───────────┼───────────┬───────────┬───────────┐
+       │           │           │           │           │           │
+     Learn       Coach       Teach       Admin       Insight      Studio
 ```
 
-Dependencies never flow upward.
-
----
-
-# Architecture Layers
-
-## Layer 1
-
-Applications
-
-Examples
-
-- learn-web
-- teacher-portal
-- admin-portal
-- mobile
-
-Responsibilities
-
-- Routing
-- UI composition
-- User interaction
-
-Applications contain almost no business rules.
-
----
-
-## Layer 2
-
-Capability Interfaces
-
-Examples
-
-packages/
-
-- learning
-- ai
-- commerce
-- scheduling
-
-Expose
-
-- SDK
-- Hooks
-- Public APIs
-- Shared Types
-
-Applications communicate only with this layer.
-
----
-
-## Layer 3
-
-Application Layer
-
-Contains
-
-- Use Cases
-- Commands
-- Queries
-- Services
-
-Coordinates business operations.
-
-No framework code.
-
----
-
-## Layer 4
-
-Domain Layer
-
-Contains
-
-- Entities
-- Value Objects
-- Business Rules
-- Domain Events
-
-This layer has zero external dependencies.
-
-It represents the core of the platform.
-
----
-
-## Layer 5
-
-Infrastructure
-
-Contains
-
-- Firestore
-- Firebase
-- Stripe
-- Gemini
-- Google Calendar
-- Storage
-
-Infrastructure implements interfaces defined by the Domain.
-
----
-
-## Layer 6
-
-External Services
-
-Examples
-
-- Firebase
-- Gemini
-- Stripe
-- Google Calendar
-- TensorFlow Lite
-
-These services never know the platform exists.
-
----
-
-# Allowed Dependency Matrix
-
-| From | Can Depend On |
-|--------|---------------|
-| Applications | Capability Interfaces |
-| Capability Interfaces | Application Layer |
-| Application Layer | Domain Layer |
-| Infrastructure | Domain Layer |
-| Infrastructure | External Services |
-| Domain Layer | Nothing External |
-
----
-
-# Forbidden Dependencies
-
-Applications
-
-❌ Firestore
-
-❌ Firebase SDK
-
-❌ Stripe SDK
-
-❌ Gemini SDK
-
-❌ Calendar APIs
-
-Applications always communicate through capabilities.
-
----
-
-Capability Interfaces
-
-❌ React Pages
-
-❌ Next.js Routing
-
-❌ UI Components
-
-Interfaces remain framework-neutral whenever possible.
-
----
-
-Domain Layer
-
-Never imports
-
-- React
-- Firebase
-- Next.js
-- Stripe
-- Firestore
-- Browser APIs
-
-The Domain Layer should be portable.
-
----
-
-Infrastructure
-
-Cannot contain business rules.
-
-Infrastructure only implements contracts.
-
----
-
-# Capability Dependencies
-
-The following dependencies are approved.
-
-Identity
-
-↓
-
-None
-
-Identity is foundational.
-
----
-
-Learning
-
-↓
-
-Identity
-
----
-
-AI
-
-↓
-
-Identity
-
-Learning
-
----
-
-Content
-
-↓
-
-Identity
-
-AI
-
----
-
-Commerce
-
-↓
-
-Identity
-
----
-
-Scheduling
-
-↓
-
-Identity
-
-Notifications
-
----
-
-Notifications
-
-↓
-
-Identity
-
----
-
-Analytics
-
-↓
-
-Identity
-
-Learning
-
-AI
-
-Commerce
-
----
-
-Offline
-
-↓
-
-Learning
-
-Identity
-
----
-
-# Dependency Diagram
-
-```
-                     Identity
-                        │
-        ┌───────────────┼───────────────┐
-        │               │               │
-    Learning        Commerce      Notifications
-        │               │               │
-        │               │               │
-        ▼               ▼               ▼
-        AI         Scheduling      Analytics
-        │                               ▲
-        │                               │
-        └──────────────┬────────────────┘
-                       │
-                   Offline
+Products depend on supported Core and Mind capabilities. Core and Mind do not depend on product applications for their fundamental domain ownership.
+
+## Learner Model dependency flow
+
+```text
+Product experience
+      ↓
+learning evidence
+      ↓
+Core validation + authorization + trusted persistence
+      ↓
+authorized evidence/context
+      ↓
+Mind interpretation
+      ↓
+approved derived intelligence
+      ↓
+Core-governed persistence/context boundary
+      ↓
+authorized product adaptation
 ```
 
-Identity sits at the center of the platform.
+The Learner Model emerges from this governed loop. It is not a separate product-owned profile store.
 
-No capability may create a dependency cycle.
+## Allowed dependency directions
 
----
+### Products → Core contracts
 
-# Shared Packages
+Allowed for:
+- authentication/session use;
+- authorized domain operations;
+- learning-evidence submission;
+- learner-context retrieval;
+- enrollment/progress operations;
+- content access;
+- scheduling/commerce/notification operations;
+- offline synchronization.
 
-These packages may be imported by every capability.
+Products should depend on supported interfaces rather than implementation-specific persistence details.
 
-packages/
+### Products → Mind contracts
 
-- types
-- tokens
-- config
-- utils
+Allowed for:
+- tutoring/coaching requests;
+- personalization;
+- recommendations;
+- adaptive feedback;
+- pronunciation/speaking intelligence;
+- content adaptation;
+- teacher-assistance intelligence.
 
-Rules
+Mind calls should carry only the minimum authorized context needed for the task.
 
-Shared packages
+### Mind → Core contracts
 
-↓
+Allowed for:
+- retrieving authorized evidence/context;
+- resolving approved learner/context identifiers;
+- persisting approved derived observations through Core-governed boundaries;
+- accessing platform services required for intelligence workflows.
 
-Never depend on capabilities.
+Mind must not bypass Core authorization or write directly to uncontrolled product-specific state.
 
-Capabilities
+### Core → infrastructure
 
-↓
+Allowed for trusted technical dependencies such as:
+- Firebase/Auth/Firestore/Storage;
+- server runtimes;
+- payment/scheduling integrations;
+- messaging/notification infrastructure;
+- observability systems;
+- synchronization infrastructure.
 
-May depend on shared packages.
+The exact technologies may evolve without changing Core's responsibility.
 
----
+### Mind → model/speech providers
 
-# SDK Rules
+Allowed through governed provider abstractions for:
+- LLMs;
+- speech recognition;
+- text-to-speech;
+- pronunciation/speech analysis;
+- evaluation/guardrail services.
 
-Applications never import capability internals.
+Product clients should not depend directly on these providers for production learning intelligence.
 
-Allowed
+## Disallowed dependency directions
 
-```ts
-import { sdk } from "@lurexa/sdk";
+```text
+Product UI ─X→ Firestore for arbitrary inferred learner-state writes
+Product UI ─X→ AI provider for persistent personalized intelligence
+Product A  ─X→ Product B private learner profile
+Mind       ─X→ independent auth/permission ownership
+Mind       ─X→ ungoverned authoritative learner persistence
+Core       ─X→ product-specific UI/business-flow dependency
+Insight    ─X→ becoming the source database
+Coach      ─X→ becoming a second Mind
 ```
 
-Not allowed
+## Repository mapping
 
-```ts
-import { FirestoreCourseRepository } from "@lurexa/learning";
+The current monorepo includes shared packages whose names predate the refined Core/Mind architecture. Preserve them until actual module responsibility is inspected.
+
+Conceptual mapping examples:
+
+```text
+@lurexa/auth       → Core identity/access
+@lurexa/database   → Core persistence/data access
+@lurexa/sdk        → supported product/service contracts
+@lurexa/types      → shared domain contracts
+@lurexa/backend    → server capabilities; may contain Core/Mind modules depending on actual code
+@lurexa/ui         → shared presentation infrastructure
+@lurexa/tokens     → shared design-system infrastructure
+@lurexa/config     → shared technical configuration
+@lurexa/utils      → shared utilities subject to dependency discipline
 ```
 
-The SDK is the public contract.
+These are mapping hypotheses, not implementation-status assertions. Inspect the package before moving or renaming code.
 
----
+## Product dependencies
 
-# UI Rules
+### Lurexa Learn
 
-Applications consume
+```text
+Learn → Core
+Learn → Mind
+```
 
-@lurexa/ui
+Learn may generate learning evidence and consume personalization, but it does not independently own ecosystem learner truth.
 
-Capabilities never depend on UI.
+### Lurexa Coach
 
-UI components never contain business logic.
+```text
+Coach → Core
+Coach → Mind
+```
 
----
+Coach consumes authorized learner context and Mind speaking/pronunciation intelligence; it contributes new evidence through Core-governed contracts.
 
-# Event Communication
+Dominican Spanish is the first deep L1 profile. L1-specific linguistic knowledge should be plugged into Mind/Coach capabilities through extensible contracts rather than embedded as an irreversible system assumption.
 
-Capabilities communicate through:
+### Lurexa Teach
 
-- Events
-- Interfaces
-- Contracts
+```text
+Teach → Core
+Teach → Mind
+```
 
-Never by directly modifying another capability's data.
+Teach receives role-appropriate learner context and may contribute teacher observations/interventions through governed contracts.
 
-Example
+### Lurexa Admin
 
-Enrollment Created
+```text
+Admin → Core
+Admin → selected Mind capabilities where justified
+```
 
-↓
+Admin manages institutional workflows and policy configuration. Core enforces trust.
 
-Analytics updates metrics
+### Lurexa Insight
 
-↓
+```text
+Insight → Core
+Insight → Mind
+```
 
-Notifications sends email
+Insight consumes governed records and derived intelligence; it should not create an alternate analytics truth that products then treat as authoritative learner state.
 
-↓
+### Lurexa Studio
 
-Coach updates study plan
+```text
+Studio → Core
+Studio → Mind
+```
 
-No capability calls another capability's private implementation.
+Studio owns content-authoring workflows. Mind may assist generation/adaptation while Core governs canonical content records and access.
 
----
+## Shared package dependency principles
 
-# Data Ownership
+1. Low-level shared packages must not import application code.
+2. Product-specific logic should not leak into broadly shared packages without a clear capability reason.
+3. Core contracts should avoid depending on a specific product's UI types.
+4. Mind contracts should avoid depending on a specific AI provider's SDK types at product boundaries.
+5. Cross-product learner context must use governed domain contracts, not database-document imports.
+6. Circular dependencies between product, Core and Mind domains are architecture defects.
 
-Every entity has exactly one owner.
+## Implementation sequence
 
-| Entity | Owner |
-|---------|-------|
-| User | Identity |
-| Role | Identity |
-| Course | Learning |
-| Module | Learning |
-| Lesson | Learning |
-| Enrollment | Learning |
-| Certificate | Learning |
-| Prompt | AI |
-| Conversation | AI |
-| Product | Commerce |
-| Subscription | Commerce |
-| Booking | Scheduling |
-| Notification | Notifications |
-| Analytics Report | Analytics |
+Before changing repository structure:
 
-Ownership is exclusive.
+1. inventory actual imports and service responsibilities;
+2. map existing modules to Core, Mind, product, or shared-experience infrastructure;
+3. flag violations of the allowed dependency directions;
+4. define the first v1 Learner Context and Learning Evidence contracts;
+5. refactor only the boundaries needed for the next product milestone.
 
-Other capabilities consume public interfaces.
+## Commercial architecture rule
 
----
+The thesis prototype is a validation/reference artifact. Production dependency decisions must optimize for the commercial multi-product ecosystem, not reproduce thesis-specific coupling or constraints.
 
-# Circular Dependency Policy
+## Related documents
 
-Circular dependencies are prohibited.
-
-Examples
-
-Learning
-
-↓
-
-AI
-
-↓
-
-Learning
-
-❌ Forbidden
-
-Instead
-
-Learning
-
-↓
-
-Event
-
-↓
-
-AI
-
-AI reacts.
-
-Learning remains unchanged.
-
----
-
-# Repository Mapping
-
-Future package organization
-
-packages/
-
-identity/
-
-learning/
-
-ai/
-
-content/
-
-commerce/
-
-notifications/
-
-analytics/
-
-offline/
-
-scheduling/
-
-shared/
-
-config/
-
-sdk/
-
-tokens/
-
-types/
-
-ui/
-
-utils/
-
-Capabilities never import applications.
-
-Applications compose capabilities.
-
----
-
-# Code Review Checklist
-
-Every Pull Request should answer:
-
-- Does this introduce a new dependency?
-- Is the dependency allowed?
-- Does it create tighter coupling?
-- Does it duplicate existing functionality?
-- Does it violate capability ownership?
-- Could this dependency become an event instead?
-
-If any answer raises concern, the dependency should be reviewed before merging.
-
----
-
-# Future Evolution
-
-As the ecosystem grows, additional capabilities may be added.
-
-Examples
-
-- Assessments
-- Research
-- Enterprise
-- Parents
-- Kids
-
-Every new capability must:
-
-- Define ownership
-- Define dependencies
-- Update this document
-- Update the Capability Interaction Matrix
-- Include an ADR if introducing a new architectural pattern
-
----
-
-# Guiding Principle
-
-Dependencies should make the platform easier to extend—not harder to understand.
-
-Every dependency is a long-term commitment.
-
-Prefer stable contracts, clear ownership, and loose coupling over convenience.
+- `Docs/Architecture/Capability Architecture.md`
+- `Docs/Architecture/Capability Interaction Matrix.md`
+- `Docs/Architecture/Learner Model Architecture.md`
+- `ROADMAP.md`
+- `AGENTS.md`
