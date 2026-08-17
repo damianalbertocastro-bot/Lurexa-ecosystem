@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm --filter learn-web build",
-  "installCommand": "pnpm install --no-frozen-lockfile",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": "apps/learn-web/.next"
 }
