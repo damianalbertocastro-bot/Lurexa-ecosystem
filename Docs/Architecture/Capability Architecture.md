@@ -1,6 +1,6 @@
 # Capability Architecture
 
-Version: 1.1
+Version: 1.2
 
 Status: Approved
 
@@ -12,15 +12,9 @@ Last updated: 2026-08-17
 
 # Purpose
 
-This document defines the business capabilities of the Lurexa platform and maps them to the company architecture established by Lurexa Learning Technologies.
+This document defines the reusable business capabilities of the Lurexa platform and maps them to the company architecture established by Lurexa Learning Technologies.
 
-Capabilities are the highest reusable architectural building blocks of the ecosystem.
-
-Applications do not own core business logic.
-
-Applications compose capabilities.
-
-This allows new products to be created without rewriting existing functionality.
+Applications do not own core business logic. Applications compose capabilities.
 
 ---
 
@@ -33,43 +27,20 @@ Lurexa Learning Technologies
 │   └── Shared platform and operational capabilities
 │
 ├── Lurexa Mind
-│   └── Intelligence, personalization, and adaptive-learning capabilities
+│   └── Intelligence, learner modeling, and adaptive-learning capabilities
 │
 └── Products
     ├── Lurexa Learn
+    ├── Lurexa Coach
     ├── Lurexa Teach
     ├── Lurexa Admin
     ├── Lurexa Insight
-    ├── Lurexa Coach
     └── Lurexa Studio
 ```
 
-Lurexa Core and Lurexa Mind are platform technology layers.
+Core and Mind are platform technology layers. They are not product applications.
 
-They are not product applications.
-
-Products consume capabilities from Core and Mind through stable interfaces.
-
----
-
-# What is a Capability?
-
-A capability is a reusable business domain that provides services to one or more products.
-
-A capability owns:
-
-- Business rules
-- APIs
-- Data model
-- Services
-- Events
-- Permissions
-- Validation
-- Documentation
-
-Applications consume capabilities.
-
-Capabilities never depend on applications.
+Products consume capabilities through stable interfaces.
 
 ---
 
@@ -81,7 +52,7 @@ Lurexa Platform
 ├── Lurexa Core
 │   ├── Identity
 │   ├── Organizations
-│   ├── Learning
+│   ├── Learning Records
 │   ├── Content Contracts
 │   ├── Commerce
 │   ├── Scheduling
@@ -95,84 +66,30 @@ Lurexa Platform
     ├── Personalization
     ├── Recommendations
     ├── Tutoring Intelligence
+    ├── Speaking & Pronunciation Intelligence
+    ├── L1 Transfer Intelligence
     ├── Assessment Intelligence
     ├── Content Adaptation
     └── Pedagogical Agents
 ```
 
-Every capability should be independently testable.
-
-The mapping above is conceptual ownership. Existing packages do not need to be renamed immediately. Package boundaries should change only when the domain boundaries are proven and the refactor reduces rather than increases complexity.
+The mapping is conceptual ownership. Existing packages do not need immediate renaming. Package boundaries should change only when domain boundaries are proven.
 
 ---
 
-# Capability Layers
+# Capability Contract
 
-Every capability follows the same internal architecture.
+A capability owns, as applicable:
 
-```text
-Capability
-│
-├── Domain
-├── Application
-├── Infrastructure
-└── Interface
-```
+- domain rules
+- APIs and service interfaces
+- data contracts
+- validation
+- events
+- permissions
+- documentation
 
----
-
-## Domain
-
-Contains:
-
-- Entities
-- Business Rules
-- Value Objects
-- Domain Events
-
-No framework code belongs here.
-
----
-
-## Application
-
-Contains:
-
-- Use Cases
-- Commands
-- Queries
-- Services
-
-Coordinates business logic.
-
----
-
-## Infrastructure
-
-Contains adapters and implementations such as:
-
-- Firestore
-- Firebase
-- External APIs
-- Stripe
-- Google Calendar
-- AI model providers
-
-Infrastructure implements interfaces defined by the domain/application layers.
-
----
-
-## Interface
-
-Contains:
-
-- SDK contracts
-- React Hooks where appropriate
-- API Clients
-- UI Adapters
-- Public service interfaces
-
-Applications communicate with capabilities through supported interfaces rather than implementation details.
+Applications consume capabilities. Capabilities do not depend on product applications.
 
 ---
 
@@ -180,215 +97,119 @@ Applications communicate with capabilities through supported interfaces rather t
 
 ## Purpose
 
-Lurexa Core is the shared technical and operational foundation of the ecosystem.
-
-Core should provide trusted identity, data, permissions, system state, operational services, and reusable business capabilities to all products.
-
-A concise definition is:
+Lurexa Core is the trusted technical and operational foundation of the ecosystem.
 
 > **Lurexa Core is the technology foundation that powers the Lurexa ecosystem.**
 
-Core should remain secure, stable, reusable, observable, and independent of any one product experience.
+Core owns authoritative platform state, authorization, and reusable operational services.
 
----
-
-# Identity Capability
-
-Purpose:
-
-Manage users and access.
+## Identity
 
 Responsibilities:
 
-- Authentication
+- authentication
+- sessions
+- user lifecycle
+- user/account profiles
 - RBAC
-- Sessions
-- User Profiles
-- Identity lifecycle
+- permissions
 
-Owns:
-
-- Users
-- Roles
-- Permissions
-
-Consumed by:
-
-Every product and authorized Mind service.
-
----
-
-# Organizations Capability
-
-Purpose:
-
-Support schools, institutions, teams, and future multi-tenant customers.
+## Organizations
 
 Responsibilities:
 
-- Organizations
-- Memberships
-- Institutional roles
-- Tenant boundaries
-- Organization configuration
+- organizations
+- memberships
+- tenant boundaries
+- institutional roles
+- organization configuration
 
-Consumed by:
-
-Learn, Teach, Admin, Insight, Studio, Coach where applicable.
-
----
-
-# Learning Capability
-
-Purpose:
-
-Represent and track structured education.
+## Learning Records
 
 Responsibilities:
 
-- Courses
-- Modules
-- Lessons
-- Activities
-- Quizzes
-- Progress
-- Certificates
-- Enrollment
-- Learning records
+- courses
+- modules
+- lessons
+- activities
+- quizzes
+- enrollment
+- progress
+- certificates
+- assessment records
+- trusted learning events
 
-Consumed by:
+Learning Records are evidence sources for Lurexa Mind. Mind should not become a second source of truth for course completion or enrollment.
 
-Learn, Teach, Insight, Coach, Studio, and approved Mind capabilities.
-
----
-
-# Content Contracts Capability
-
-Purpose:
-
-Define the reusable platform representation of educational content.
+## Content Contracts
 
 Responsibilities:
 
-- Learning object contracts
-- Question contracts
-- Media references
-- Version identifiers
-- Content metadata
-- Publication states
+- learning object contracts
+- questions
+- media references
+- content metadata
+- publication/version state
 
-This capability should not be confused with Studio, which is a product experience for authoring and managing content.
+Studio is the product experience for authoring. Content contracts remain platform capabilities.
 
-Consumed by:
-
-Learn, Teach, Studio, Coach, and Mind content-adaptation services.
-
----
-
-# Commerce Capability
-
-Purpose:
-
-Monetize the platform.
+## Commerce
 
 Responsibilities:
 
-- Products
-- Plans
-- Billing
-- Coupons
-- Refunds
-- Invoices
-- Subscription state
+- plans
+- subscriptions
+- billing
+- invoices
+- coupons
+- refunds
 
-Provider adapters may include Stripe.
-
-Consumed by:
-
-Learn, Admin, future enterprise products, and future standalone Coach offerings if commercialized separately.
-
----
-
-# Scheduling Capability
-
-Purpose:
-
-Coordinate time-based educational workflows.
+## Scheduling
 
 Responsibilities:
 
-- Calendar integration
-- Bookings
-- Availability
-- Time Zones
-- Live Classes
-- Appointment metadata
+- calendar integration
+- availability
+- bookings
+- time zones
+- live-class metadata
 
-Consumed by:
-
-Teach, Learn, Admin, and Coach where relevant.
-
----
-
-# Notifications Capability
-
-Purpose:
-
-Communicate with users through approved channels.
+## Notifications
 
 Responsibilities:
 
-- Email
-- Push
-- In-App
-- SMS (future)
-- WhatsApp (future)
-- Notification preferences
+- email
+- push
+- in-app notifications
+- future approved channels
+- notification preferences
 
-Consumed by:
-
-All relevant products and approved Mind workflows.
-
----
-
-# Platform Analytics Capability
-
-Purpose:
-
-Capture reliable platform and learning events that products and Insight can interpret.
+## Platform Analytics
 
 Responsibilities:
 
-- Event contracts
-- Usage telemetry
-- Engagement events
-- Learning events
+- event contracts
+- usage telemetry
+- engagement events
+- learning events
 - AI usage events
-- Operational metrics
+- operational metrics
 
-Lurexa Insight is the product that turns these records into decision-support experiences. The analytics capability itself remains part of Core.
+Lurexa Insight is the product that presents and interprets authorized analytics.
 
----
-
-# Offline & Sync Capability
-
-Purpose:
-
-Guarantee meaningful learning during unreliable connectivity.
+## Offline & Sync
 
 Responsibilities:
 
-- IndexedDB or equivalent client storage
-- Download Manager
-- Sync Engine
-- Conflict Resolution
-- Offline eligibility rules
-- Local state reconciliation
-- On-device model adapters where appropriate
+- local caching
+- download management
+- synchronization
+- conflict resolution
+- offline eligibility
+- evidence reconciliation
+- on-device adapters where appropriate
 
-Offline is considered a platform capability, not a cosmetic product feature.
-
-Consumed primarily by Learn and potentially Coach and future mobile products.
+Offline learning evidence must be reconciled safely before it influences persistent learner-model state.
 
 ---
 
@@ -398,190 +219,215 @@ Consumed primarily by Learn and potentially Coach and future mobile products.
 
 Lurexa Mind is the shared intelligence and adaptation layer of the ecosystem.
 
-Mind should understand approved learning context, transform it into pedagogically useful decisions, and expose reusable intelligence services to Lurexa products.
-
-A concise definition is:
-
 > **Lurexa Mind is the intelligence layer that understands, adapts, and responds to learners and educators.**
 
-Mind is not equivalent to a chatbot, prompt library, or individual AI provider.
-
-It is an architectural layer that owns reusable intelligence behavior.
+Mind is not equivalent to a chatbot, prompt library, or model provider.
 
 ---
 
-# AI Gateway Capability
-
-Purpose:
-
-Provide a controlled abstraction between Lurexa products/intelligence services and external or local model providers.
+# AI Gateway
 
 Responsibilities:
 
-- Model routing
-- Provider abstraction
-- Request policies
-- Cost controls
-- Rate limits
-- Model fallbacks
-- Structured outputs
-- Provider observability
+- provider abstraction
+- model routing
+- structured outputs
+- cost controls
+- rate limits
+- fallback behavior
+- observability
+- request policies
 
-Products should not directly depend on a model provider where the Mind gateway can provide the abstraction.
-
----
-
-# Learner Model Capability
-
-Purpose:
-
-Represent the educational state needed for responsible personalization.
-
-Responsibilities may include:
-
-- Proficiency state
-- Skill estimates
-- Learning goals
-- Practice history
-- Common errors
-- Preference signals
-- Confidence indicators
-- Recent learning context
-
-The Learner Model consumes only data that Core authorizes and exposes through supported interfaces.
-
-It should not become an uncontrolled duplicate user database.
+Products should not directly depend on model providers when the Mind gateway provides the abstraction.
 
 ---
 
-# Personalization Capability
+# Learner Model
 
 Purpose:
 
-Adapt learning experiences to learner context.
+Represent the evolving educational state needed for responsible personalization across products.
+
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+The learner model may include:
+
+- overall and skill-specific CEFR estimates
+- current curriculum context
+- vocabulary and grammar mastery
+- speaking, listening, reading, and writing skill estimates
+- recurring errors
+- pronunciation patterns and targets
+- L1-transfer patterns
+- fluency indicators
+- learning and practice history
+- goals
+- support preferences
+- confidence indicators
+- recommended next actions
+
+The Learner Model must preserve the difference between:
+
+- observed evidence
+- inferred state
+- learner-provided preference
+- teacher-provided judgment
+- system recommendation
+
+Where practical, meaningful learner-model attributes should preserve source, timestamp, confidence, and review/expiry behavior.
+
+The Learner Model consumes only authorized Core evidence. It must not become an uncontrolled duplicate user database.
+
+Detailed rules are defined in `Docs/Architecture/Learner Model Architecture.md`.
+
+---
+
+# Personalization
 
 Responsibilities:
 
-- Difficulty adaptation
-- Practice sequencing
-- Content selection
-- Explanation style adaptation
-- Learning-path adjustments
+- difficulty adaptation
+- CEFR-aware interaction constraints
+- practice sequencing
+- explanation-style adaptation
+- content selection
+- learning-path adjustments
 
-Consumed by:
-
-Learn, Coach, and future adaptive products.
-
----
-
-# Recommendations Capability
-
-Purpose:
-
-Recommend educationally meaningful next actions.
-
-Responsibilities:
-
-- Next activity suggestions
-- Review recommendations
-- Study-plan suggestions
-- Intervention recommendations
-- Teacher-facing recommendations
-
-Recommendations should be explainable where they materially influence learning decisions.
+An A1 learner should not receive unnecessarily advanced conversation simply because the underlying model can generate it.
 
 ---
 
-# Tutoring Intelligence Capability
-
-Purpose:
-
-Provide reusable pedagogical tutoring behavior.
+# Recommendations
 
 Responsibilities:
 
-- Explanations
-- Guided practice
+- next activity suggestions
+- review recommendations
+- study-plan suggestions
+- targeted remediation
+- teacher-facing interventions
+
+Meaningful recommendations should be explainable.
+
+---
+
+# Tutoring Intelligence
+
+Responsibilities:
+
+- explanations
+- hints
+- guided practice
+- error feedback
 - Socratic support
-- Error feedback
-- Hint generation
-- Conversation-based practice
-- Speaking support
-- Writing support
+- writing support
+- conversational practice
 
-Consumed primarily by:
-
-Learn and Coach.
-
-This capability is broader than a single UI feature named AI Tutor.
+Tutoring Intelligence is reusable across Learn and Coach. A product UI named AI Tutor is not itself the architecture.
 
 ---
 
-# Assessment Intelligence Capability
+# Speaking & Pronunciation Intelligence
 
 Purpose:
 
-Use validated intelligence to support formative assessment and feedback.
+Provide reusable speech-focused educational intelligence for Lurexa Coach and other products.
 
 Responsibilities may include:
 
-- Answer analysis
-- Error categorization
-- Writing feedback
-- Speaking assessment support
-- Rubric assistance
-- Difficulty estimation
-- Progress interpretation
+- speech analysis orchestration
+- intelligibility-oriented feedback
+- phoneme-level targets where technically reliable
+- word stress
+- sentence stress
+- rhythm
+- intonation
+- connected speech
+- pronunciation pattern tracking
+- correction prioritization
+- speaking fluency indicators
+- CEFR-aware speaking-task generation
 
-High-impact decisions should preserve human oversight and transparent evaluation rules.
+Educational goal:
+
+1. Intelligibility
+2. Naturalness
+3. Optional pronunciation refinement
+
+The system must not treat a Dominican accent itself as a defect.
 
 ---
 
-# Content Adaptation Capability
+# L1 Transfer Intelligence
 
 Purpose:
 
-Adapt approved educational content for specific learning contexts without undermining source integrity.
+Understand how a learner's first-language background may influence English production.
+
+The first deeply modeled profile is Dominican Spanish.
 
 Responsibilities may include:
 
-- Level adaptation
-- Example generation
-- Practice generation
-- Simplification
-- Expansion
-- Language support
-- Variant generation
+- likely sound substitutions
+- vowel/consonant transfer patterns
+- final consonant and cluster patterns
+- stress/rhythm transfer
+- lexical and grammatical transfer
+- interpretation of direct transfers from Dominican idioms/slang into intended English meaning
+- generation of culturally and linguistically useful explanations
 
-Consumed by:
-
-Learn, Teach, Studio, and Coach.
+This capability should support future L1 profiles without changing the overall architecture.
 
 ---
 
-# Pedagogical Agents Capability
+# Assessment Intelligence
 
-Purpose:
+Responsibilities may include:
 
-Coordinate specialized AI behaviors around bounded educational roles.
+- answer analysis
+- error categorization
+- writing feedback
+- speaking assessment support
+- rubric assistance
+- difficulty estimation
+- progress interpretation
+
+High-impact decisions require transparent rules and appropriate human oversight.
+
+---
+
+# Content Adaptation
+
+Responsibilities may include:
+
+- CEFR-level adaptation
+- simplification
+- expansion
+- example generation
+- practice generation
+- language support
+
+Consumed by Learn, Teach, Studio, and Coach.
+
+---
+
+# Pedagogical Agents
 
 Potential roles include:
 
-- Tutor agent
-- Speaking coach agent
-- Study-planning agent
-- Teacher-support agent
-- Assessment-support agent
+- tutor agent
+- speaking coach agent
+- study-planning agent
+- teacher-support agent
+- assessment-support agent
 
-Agents must operate under Mind policies, Core authorization, and product-specific constraints.
+Agents operate under Mind policies, Core authorization, and product-specific constraints.
 
 ---
 
 # Core ↔ Mind Relationship
 
-Core and Mind have different responsibilities.
-
-Core owns trusted platform state and operational truth.
+Core owns trusted state and authorization.
 
 Mind owns intelligent interpretation and adaptive behavior.
 
@@ -592,29 +438,29 @@ Preferred interaction:
 ```text
 Product
   ↓
-Core authorization + context
+Core authorization + trusted context
   ↓
 Mind intelligence service
   ↓
-Validated recommendation / response / action
+Validated response / recommendation / observation
+  ↓
+Approved persistence boundary
   ↓
 Product experience
 ```
 
-When Mind needs to persist a result, that persistence should occur through an approved Core-owned service or contract rather than direct database coupling where practical.
+When Mind needs to persist an observation or inference, it should use an approved Core-owned contract/service boundary.
 
 ---
 
 # Product Composition
 
-Products are experiences composed from Core and Mind capabilities.
-
 ## Lurexa Learn
 
-Primary consumers:
+Primary capabilities:
 
 - Identity
-- Learning
+- Learning Records
 - Content Contracts
 - Offline & Sync
 - Platform Analytics
@@ -624,13 +470,42 @@ Primary consumers:
 - Tutoring Intelligence
 - Assessment Intelligence
 
+Learn contributes structured evidence to the Learner Model and consumes adaptive context from Mind.
+
+## Lurexa Coach
+
+Primary capabilities:
+
+- Identity
+- Learning Records
+- Learner Model
+- Personalization
+- Recommendations
+- Tutoring Intelligence
+- Speaking & Pronunciation Intelligence
+- L1 Transfer Intelligence
+- Assessment Intelligence
+- Pedagogical Agents
+
+Coach must use relevant authorized learning context already known from Learn and prior Coach sessions.
+
+Coach initially focuses on English speaking/pronunciation for Dominican Spanish speakers and should adapt tasks to current CEFR/context.
+
+Coach is a product. It consumes Mind; it is not Mind.
+
+Recommended evolution:
+
+1. Embedded in Lurexa Learn.
+2. Cross-product using the shared Learner Model.
+3. Standalone only when independent user/business value justifies it.
+
 ## Lurexa Teach
 
-Primary consumers:
+Primary capabilities:
 
 - Identity
 - Organizations
-- Learning
+- Learning Records
 - Scheduling
 - Notifications
 - Platform Analytics
@@ -639,55 +514,36 @@ Primary consumers:
 - Content Adaptation
 - Pedagogical Agents
 
+Teach may consume role-appropriate Learner Model summaries, subject to authorization and privacy policy.
+
 ## Lurexa Admin
 
-Primary consumers:
+Primary capabilities:
 
 - Identity
 - Organizations
 - Commerce
 - Platform Analytics
 - Notifications
-- Governance-oriented platform services
+- governance-oriented services
+
+Administrative access does not imply unrestricted access to detailed pedagogical learner data.
 
 ## Lurexa Insight
 
-Primary consumers:
+Primary capabilities:
 
 - Identity
 - Organizations
 - Platform Analytics
-- Learning records
-- Approved Mind interpretation services
+- Learning Records
+- approved Mind interpretation services
 
-Insight is a product. Analytics is a Core capability.
-
-## Lurexa Coach
-
-Primary consumers:
-
-- Identity
-- Learning
-- Notifications
-- Scheduling where relevant
-- Learner Model
-- Personalization
-- Recommendations
-- Tutoring Intelligence
-- Assessment Intelligence
-- Pedagogical Agents
-
-Coach is a user-facing product powered by Mind. Coach is not Mind itself.
-
-Recommended evolution:
-
-1. Embedded in Lurexa Learn.
-2. Shared across relevant Lurexa products.
-3. Standalone only when independent user and business value justify it.
+Insight is a product. Analytics remains a Core capability.
 
 ## Lurexa Studio
 
-Primary consumers:
+Primary capabilities:
 
 - Identity
 - Organizations
@@ -696,25 +552,6 @@ Primary consumers:
 - Content Adaptation
 - Assessment Intelligence
 - Pedagogical Agents
-
-Studio is the authoring product. Content contracts remain reusable platform capabilities.
-
----
-
-# Capability Ownership
-
-Each capability owns:
-
-- Data or authoritative domain state where applicable
-- Validation
-- APIs
-- Events
-- Documentation
-- Authorization rules for its domain
-
-No capability should modify another capability's internal state directly.
-
-Communication occurs through public interfaces and supported contracts.
 
 ---
 
@@ -735,86 +572,26 @@ Infrastructure Adapter
 Forbidden:
 
 ```text
-Capability
-↓
-Product Application
+Product UI → Firestore directly
+Product UI → AI provider directly
+Product-specific learner model → duplicate shared learner state
+Mind → unauthorized direct platform-data access
 ```
-
-Forbidden:
-
-```text
-Product UI
-↓
-Firestore directly
-```
-
-Forbidden where avoidable:
-
-```text
-Product UI
-↓
-AI Provider directly
-```
-
-Preferred:
-
-```text
-Product
-↓
-Lurexa Core / Lurexa Mind interfaces
-```
-
----
-
-# Cross-Capability Communication
-
-Capabilities communicate through:
-
-- Public APIs
-- Domain/application services
-- Events
-- Shared Contracts
-
-Never through undocumented internal implementation details.
 
 ---
 
 # Package Mapping
 
-Capabilities may eventually become one or more packages.
+Capabilities may map to multiple focused packages.
 
-Current and future mappings can include packages such as:
+Do not create giant `core/` and `mind/` umbrella packages solely to mirror branding.
 
-```text
-packages/
-  auth/
-  backend/
-  database/
-  sdk/
-  types/
-  learning/
-  identity/
-  content/
-  commerce/
-  analytics/
-  notifications/
-  offline/
-  scheduling/
-  ai/
-  personalization/
-  recommendations/
-```
+Preferred interpretation:
 
-Do not create `core/` and `mind/` umbrella packages simply to mirror the brand hierarchy if doing so would create circular dependencies or a monolithic package.
+- **Lurexa Core** = architectural ownership group for cohesive platform capabilities/packages.
+- **Lurexa Mind** = architectural ownership group for cohesive intelligence capabilities/packages.
 
-The preferred pattern is:
-
-- **Lurexa Core** = architectural ownership group for multiple cohesive capabilities/packages.
-- **Lurexa Mind** = architectural ownership group for multiple cohesive intelligence capabilities/packages.
-
-Each package should remain narrowly scoped and independently testable.
-
-Engineering standards are defined in the repository governance and standards documents.
+Packages should remain narrowly scoped and independently testable.
 
 ---
 
@@ -822,38 +599,23 @@ Engineering standards are defined in the repository governance and standards doc
 
 ## Phase 1 — Core foundation
 
-Prioritize:
-
-- Identity
-- Organizations
-- Learning
-- Core data contracts
-- Commerce foundation
-- Notifications foundation
-- Offline/sync foundations
+Identity, organizations, learning records, stable contracts, commerce, notifications, offline/sync foundations.
 
 ## Phase 2 — Learn composition
 
-Use Core capabilities to deliver the Lurexa Learn MVP without duplicating business logic in the application.
+Deliver the Learn MVP on trusted Core capabilities.
 
-## Phase 3 — Mind foundation
+## Phase 3 — Mind + Learner Model foundation
 
-Prioritize:
-
-- AI Gateway
-- Learner Model
-- Personalization
-- Recommendations
-- Tutoring Intelligence
-- Validation and responsible-AI controls
+AI gateway, learner context contracts, evidence provenance, CEFR state, personalization, recommendations, tutoring intelligence, validation/privacy controls.
 
 ## Phase 4 — Embedded Coach
 
-Use Mind capabilities inside Lurexa Learn to validate Lurexa Coach before creating a separate application.
+CEFR-aware conversation, speaking/pronunciation evidence, Dominican-Spanish L1-transfer support, prioritized feedback, and safe persistence back into the shared Learner Model.
 
 ## Phase 5+
 
-Compose the same Core and Mind capabilities into Teach, Admin, Insight, Studio, cross-product Coach, enterprise offerings, and additional subjects.
+Compose the same Core and Mind capabilities into Teach, Admin, Insight, Studio, cross-product Coach, enterprise offerings, additional subjects, and future L1 profiles.
 
 ---
 
@@ -865,6 +627,6 @@ Compose the same Core and Mind capabilities into Teach, Admin, Insight, Studio, 
 
 > Mind owns reusable intelligence.
 
-> Products compose both to deliver user value.
+> Products observe the learner. Mind understands the learner. Core protects and persists the trusted learning record.
 
 > Build capabilities first. Compose products second.
