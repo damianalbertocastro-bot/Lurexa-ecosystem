@@ -99,5 +99,16 @@ service cloud.firestore {
     match /progress/{progressId} {
       allow read, write: if isAuthenticated();
     }
+
+    // Learner Model data is intentionally server-only. Product clients must
+    // use authorized Core service boundaries rather than reading or mutating
+    // evidence and interpreted learner state directly.
+    match /learner-evidence/{evidenceId} {
+      allow read, write: if false;
+    }
+
+    match /learner-insights/{insightId} {
+      allow read, write: if false;
+    }
   }
 }
