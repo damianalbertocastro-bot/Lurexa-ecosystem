@@ -1,4 +1,4 @@
-import { Button } from "@lurexa/ui/Button";
+import Link from "next/link";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
@@ -11,9 +11,9 @@ export default function HomePage() {
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Lurexa Platform</h1>
-            <p className="text-slate-500">Student Learning Dashboard</p>
+            <p className="text-slate-500">Your learning workspace starts here</p>
           </div>
-          <Badge variant="success">Thesis Verified</Badge>
+          <Badge variant="success">Ready to learn</Badge>
         </div>
 
         {/* Course Card Example */}
@@ -32,12 +32,18 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <Button variant="primary" size="md">
-                Continue Lesson
-              </Button>
-              <Button variant="secondary" size="md">
-                Ask AI Tutor
-              </Button>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-base font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                Sign in to continue
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center rounded-lg bg-slate-100 px-4 py-2 text-base font-medium text-slate-900 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+              >
+                Create an account
+              </Link>
             </div>
           </div>
         </Card>
