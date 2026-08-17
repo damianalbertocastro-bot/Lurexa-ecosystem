@@ -126,3 +126,18 @@ export interface LearningEvidenceSubmission<TPayload = unknown> {
 export interface LearnerInsightSubmission {
   insight: LearnerInsight;
 }
+
+export interface LearnerInterpretationRequest {
+  learnerId: string;
+  organizationId?: string;
+  evidence: LearningEvidence[];
+  currentContext?: LearnerContext;
+  requestedDomains?: LearnerDomain[];
+}
+
+export interface LearnerInterpretationResult {
+  learnerId: string;
+  insights: LearnerInsight[];
+  evidenceIds: string[];
+  generatedAt: string;
+}
