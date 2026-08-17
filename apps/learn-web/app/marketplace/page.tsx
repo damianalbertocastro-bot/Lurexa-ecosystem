@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -9,6 +10,7 @@ import { MarketplaceService } from "@lurexa/backend";
 import { MarketplaceListing } from "@lurexa/types";
 
 export default function MarketplacePage() {
+  const router = useRouter();
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function MarketplacePage() {
             <h1 className="text-3xl font-bold text-slate-900">Lurexa Course Marketplace</h1>
             <p className="text-slate-500">Discover and import proven courses created by top educators</p>
           </div>
-          <Button variant="primary" onClick={() => (window.location.href = "/teacher/marketplace/publish")}>
+          <Button variant="primary" onClick={() => router.push("/teacher/marketplace/publish")}>
             + Publish Your Course
           </Button>
         </div>

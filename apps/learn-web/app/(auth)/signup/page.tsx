@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<"teacher" | "student">("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +36,7 @@ export default function SignupPage() {
         await OrganizationService.joinViaCode(user.uid, user.email ?? email, inviteCode);
       }
 
-      window.location.href = mode === "teacher" ? "/teacher/dashboard" : "/dashboard";
+      router.replace(mode === "teacher" ? "/teacher/dashboard" : "/dashboard");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred during sign up.");
     } finally {

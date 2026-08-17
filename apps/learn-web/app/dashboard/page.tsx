@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -9,6 +10,7 @@ import { CourseService, AuthService } from "@lurexa/backend";
 import { Course } from "@lurexa/types";
 
 export default function StudentDashboardPage() {
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +73,7 @@ export default function StudentDashboardPage() {
                     variant="primary"
                     className="w-full"
                     onClick={() => {
-                      window.location.href = `/learn/${course.id}/lesson_1`;
+                      router.push(`/learn/${course.id}/lesson_1`);
                     }}
                   >
                     Resume Learning

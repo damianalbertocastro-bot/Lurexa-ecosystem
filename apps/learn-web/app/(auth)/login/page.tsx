@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,9 +32,9 @@ export default function LoginPage() {
 
       // 3. Redirect based on authenticated session
       if (claims.role === "teacher" || claims.role === "admin" || isTeacher) {
-        window.location.href = "/teacher/dashboard";
+        router.replace("/teacher/dashboard");
       } else {
-        window.location.href = "/dashboard";
+        router.replace("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Invalid email or password.");

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { AnalyticsService, ClassAnalyticsSummary, StudentRiskMetric } from "@lurexa/backend";
 
 export default function TeacherInsightsPage() {
+  const router = useRouter();
   const [summary, setSummary] = useState<ClassAnalyticsSummary | null>(null);
   const [roster, setRoster] = useState<StudentRiskMetric[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ export default function TeacherInsightsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          window.location.href = `/teacher/insights/${student.studentId}`;
+                          router.push(`/teacher/insights/${student.studentId}`);
                         }}
                       >
                         Intervene →
