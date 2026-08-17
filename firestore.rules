@@ -24,6 +24,11 @@ service cloud.firestore {
       return isAuthenticated() && exists(memberPath(orgId, request.auth.uid));
     }
 
+    function isOrganizationManager(orgId) {
+      return isOrganizationMember(orgId)
+        && get(memberPath(orgId, request.auth.uid)).data.role in ["owner", "admin", "teacher"];
+    }
+
     function isInvitationOwner(invitation) {
       return isAuthenticated()
         && invitation.keys().hasAll(["email", "expiresAtMillis", "usedAt"])
@@ -77,12 +82,13 @@ service cloud.firestore {
     }
 
     match /invitations/{invitationId} {
-      allow get: if isInvitationOwner(resource.data);
-      allow create: if isOrganizationOwner(request.resource.data.orgId);
+      allow get: if isInvitationOwner(resource.data) || isOrganizationManager(resource.data.orgId);
+      allow list: if isOrganizationManager(resource.data.orgId);
+      allow create: if isOrganizationManager(request.resource.data.orgId);
       allow update: if isInvitationRecipient(resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"])
         && request.resource.data.usedAt != null;
-      allow delete: if isOrganizationOwner(resource.data.orgId);
+      allow delete: if isOrganizationManager(resource.data.orgId);
     }
 
     match /courses/{courseId} {

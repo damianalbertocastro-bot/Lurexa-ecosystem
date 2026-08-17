@@ -15,20 +15,40 @@ export default function TeacherDashboard() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [studentEmail, setStudentEmail] = useState("");
   const [generatedInvite, setGeneratedInvite] = useState<Invitation | null>(null);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLoadingInvitations, setIsLoadingInvitations] = useState(true);
+  const [revokingInvitationId, setRevokingInvitationId] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
 
+  const loadInvitations = async (orgId: string) => {
+    setIsLoadingInvitations(true);
+    try {
+      setInvitations(await OrganizationService.getInvitationsForOrganization(orgId));
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Unable to load invitations.");
+    } finally {
+      setIsLoadingInvitations(false);
+    }
+  };
+
   useEffect(() => {
-    AuthService.onUserChanged(async (user) => {
+    const unsubscribe = AuthService.onUserChanged(async (user) => {
       if (user) {
         const memberships = await OrganizationService.getMembershipsForUser(user.uid);
         const membership = memberships.find((item) =>
           ["owner", "admin", "teacher"].includes(item.role),
         );
-        if (membership) setCurrentOrgId(membership.orgId);
+        if (membership) {
+          setCurrentOrgId(membership.orgId);
+          await loadInvitations(membership.orgId);
+          return;
+        }
       }
+      setIsLoadingInvitations(false);
     });
+    return unsubscribe;
   }, []);
 
   const handleCreateInvite = async (e: React.FormEvent) => {
@@ -43,6 +63,7 @@ export default function TeacherDashboard() {
         "student"
       );
       setGeneratedInvite(invite);
+      setInvitations((currentInvitations) => [invite, ...currentInvitations]);
       setStudentEmail("");
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to generate invite.");
@@ -62,14 +83,35 @@ export default function TeacherDashboard() {
     }
   };
 
-  const handleCopyInviteCode = async () => {
-    if (!generatedInvite) return;
+  const handleCopyInviteCode = async (invite: Invitation) => {
 
     try {
-      await navigator.clipboard.writeText(generatedInvite.code);
+      await navigator.clipboard.writeText(invite.code);
     } catch {
       alert("Unable to copy the access code. Please copy it manually.");
     }
+  };
+
+  const handleRevokeInvitation = async (invite: Invitation) => {
+    if (!window.confirm(`Revoke the invitation for ${invite.email}?`)) return;
+
+    setRevokingInvitationId(invite.id);
+    try {
+      await OrganizationService.revokeInvitation(invite.id);
+      setInvitations((currentInvitations) =>
+        currentInvitations.filter((currentInvite) => currentInvite.id !== invite.id),
+      );
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Unable to revoke invitation.");
+    } finally {
+      setRevokingInvitationId(null);
+    }
+  };
+
+  const getInvitationStatus = (invite: Invitation) => {
+    if (invite.usedAt) return { label: "Used", variant: "success" as const };
+    if (invite.expiresAtMillis <= Date.now()) return { label: "Expired", variant: "warning" as const };
+    return { label: "Active", variant: "info" as const };
   };
 
   return (
@@ -116,6 +158,48 @@ export default function TeacherDashboard() {
             </div>
           </div>
         </Card>
+
+        <Card title="Student Invitations" subtitle="Share access codes manually until email delivery is configured">
+          {isLoadingInvitations ? (
+            <p className="py-3 text-sm text-slate-500">Loading invitations...</p>
+          ) : invitations.length === 0 ? (
+            <p className="py-3 text-sm text-slate-500">No invitations have been created yet.</p>
+          ) : (
+            <div className="divide-y divide-slate-100 pt-2">
+              {invitations.map((invite) => {
+                const status = getInvitationStatus(invite);
+                const isActive = status.label === "Active";
+
+                return (
+                  <div key={invite.id} className="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="font-medium text-slate-900">{invite.email}</p>
+                      <p className="text-xs text-slate-500">
+                        Code: <span className="font-semibold tracking-wider">{invite.code}</span> · Expires {new Date(invite.expiresAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={status.variant}>{status.label}</Badge>
+                      {isActive && (
+                        <Button variant="secondary" size="sm" onClick={() => handleCopyInviteCode(invite)}>
+                          Copy code
+                        </Button>
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        isLoading={revokingInvitationId === invite.id}
+                        onClick={() => handleRevokeInvitation(invite)}
+                      >
+                        Revoke
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
       </div>
 
       {/* Invite Modal */}
@@ -150,7 +234,7 @@ export default function TeacherDashboard() {
             <div className="rounded-lg bg-slate-100 py-3 text-2xl font-bold tracking-widest text-indigo-600">
               {generatedInvite.code}
             </div>
-            <Button variant="primary" className="w-full" onClick={handleCopyInviteCode}>
+            <Button variant="primary" className="w-full" onClick={() => handleCopyInviteCode(generatedInvite)}>
               Copy access code
             </Button>
             <Button

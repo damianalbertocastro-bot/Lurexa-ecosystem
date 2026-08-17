@@ -1,9 +1,12 @@
 import {
   collection,
+  deleteDoc,
   doc,
   setDoc,
   getDoc,
   getDocs,
+  query,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -119,6 +122,20 @@ export const OrganizationService = {
     batch.update(inviteDoc.ref, { usedAt: new Date().toISOString() });
     await batch.commit();
     return newMember;
+  },
+
+  async getInvitationsForOrganization(orgId: string): Promise<Invitation[]> {
+    const invitations = await getDocs(
+      query(collection(db, "invitations"), where("orgId", "==", orgId)),
+    );
+
+    return invitations.docs
+      .map((invitation) => invitation.data() as Invitation)
+      .sort((first, second) => second.expiresAtMillis - first.expiresAtMillis);
+  },
+
+  async revokeInvitation(invitationId: string): Promise<void> {
+    await deleteDoc(doc(db, "invitations", invitationId));
   },
 
   async getMembershipsForUser(userId: string): Promise<OrganizationMember[]> {
