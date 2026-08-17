@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -10,10 +11,12 @@ import { AuthService, OrganizationService } from "@lurexa/backend";
 import { Invitation } from "@lurexa/types";
 
 export default function TeacherDashboard() {
+  const router = useRouter();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [studentEmail, setStudentEmail] = useState("");
   const [generatedInvite, setGeneratedInvite] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,6 +51,27 @@ export default function TeacherDashboard() {
     }
   };
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await AuthService.logout();
+      router.replace("/login");
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to sign out.");
+      setIsSigningOut(false);
+    }
+  };
+
+  const handleCopyInviteCode = async () => {
+    if (!generatedInvite) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedInvite.code);
+    } catch {
+      alert("Unable to copy the access code. Please copy it manually.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="mx-auto max-w-5xl space-y-6">
@@ -57,9 +81,14 @@ export default function TeacherDashboard() {
             <h1 className="text-3xl font-bold text-slate-900">Teacher Management Portal</h1>
             <p className="text-slate-500">Manage your school, classes, and student access</p>
           </div>
-          <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>
-            + Invite Student
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="secondary" onClick={handleSignOut} isLoading={isSigningOut}>
+              Sign out
+            </Button>
+            <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>
+              + Create student invitation
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -121,6 +150,9 @@ export default function TeacherDashboard() {
             <div className="rounded-lg bg-slate-100 py-3 text-2xl font-bold tracking-widest text-indigo-600">
               {generatedInvite.code}
             </div>
+            <Button variant="primary" className="w-full" onClick={handleCopyInviteCode}>
+              Copy access code
+            </Button>
             <Button
               variant="secondary"
               className="w-full"
