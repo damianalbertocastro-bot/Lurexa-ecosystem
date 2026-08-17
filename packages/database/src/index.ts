@@ -17,3 +17,5 @@ export function createDatabaseConfig(url = process.env.DATABASE_URL): DatabaseCo
 
   return { url };
 }
+
+export * from "./learner.repository";
