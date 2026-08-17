@@ -1,632 +1,389 @@
 # Lurexa Product Ecosystem
 
-Version: 1.0
+Version: 1.1
 
 Status: Approved
+
+Last updated: 2026-08-17
 
 ---
 
 # Purpose
 
-This document defines the complete Lurexa product ecosystem.
+This document defines the authoritative product model for Lurexa Learning Technologies and provides product context for AI assistants, developers, designers, and stakeholders.
 
-Its purpose is to provide business and product context for every AI assistant, developer, designer, and stakeholder working on the platform.
-
-Every feature should belong to a product.
-
-Every product should have a clear responsibility.
-
-Avoid overlapping functionality.
+Every feature should belong to a product or a reusable platform capability. Products should not duplicate Lurexa Core or Lurexa Mind responsibilities.
 
 ---
 
-# Vision
+# Company and Product Architecture
 
-Lurexa is an AI-powered education ecosystem designed to help people learn more effectively through intelligent technology.
+```text
+Lurexa Learning Technologies
+│
+├── Lurexa Core
+│   └── Shared technical/platform foundation
+│
+├── Lurexa Mind
+│   └── Shared learning intelligence and adaptation
+│
+└── Products
+    ├── Lurexa Learn
+    ├── Lurexa Coach
+    ├── Lurexa Teach
+    ├── Lurexa Admin
+    ├── Lurexa Insight
+    └── Lurexa Studio
+```
 
-The ecosystem is modular.
+**Lurexa Learning Technologies** is the parent company and master business identity.
 
-Products should work independently while sharing a common platform, identity, and design language.
+**Lurexa Core** owns trusted platform foundations such as identity, authorization, organizations, learning records, content contracts, commerce, notifications, scheduling, APIs, analytics events, and offline/sync infrastructure.
 
-Users should experience Lurexa as one unified ecosystem rather than a collection of unrelated applications.
+**Lurexa Mind** owns reusable learning intelligence such as the Learner Model, personalization, recommendations, tutoring intelligence, pronunciation intelligence, L1-transfer analysis, adaptive feedback, assessment intelligence, and pedagogical AI behavior.
 
----
-
-# Mission
-
-Empower learners and educators with intelligent tools that personalize education, reduce repetitive work, and make learning accessible anywhere—even with limited internet connectivity.
-
----
-
-# Long-Term Goals
-
-- Become the leading AI-powered learning platform in Latin America.
-- Build an education platform that works online and offline.
-- Enable personalized learning at scale.
-- Give teachers AI tools that save time.
-- Create reusable infrastructure for future educational products.
-- Build a sustainable software company around the Lurexa ecosystem.
-
----
-
-# Core Platform
-
-Every Lurexa product shares the same platform.
-
-Shared services include:
-
-- Authentication
-- User Profiles
-- Organizations
-- Notifications
-- Payments
-- AI Gateway
-- Analytics
-- Design System
-- SDK
-- Database
-- File Storage
-- Search
-- Settings
-
-These services should never be duplicated inside individual applications.
+Products compose Core and Mind capabilities to create user experiences.
 
 ---
 
-# Product Portfolio
+# Core Product Principle — One Learner, One Evolving Model
 
-The Lurexa ecosystem is composed of multiple products.
+A learner must not start from zero when moving between Lurexa products.
+
+The ecosystem maintains one authorized, evolving learner model that can be used by relevant products through Lurexa Mind and Lurexa Core boundaries.
+
+> **One learner. One evolving profile. Every Lurexa experience adapts around it.**
+
+Products observe the learner. Lurexa Mind interprets those observations. Lurexa Core owns trusted records, permissions, and persistence.
+
+The learner model may include:
+
+- CEFR level and proficiency estimates
+- Current course, module, lesson, and learning objectives
+- Vocabulary and grammar mastery
+- Skill estimates by reading, listening, speaking, and writing
+- Recurring error patterns
+- Pronunciation patterns and targets
+- L1-transfer patterns
+- Speaking fluency indicators
+- Learning history and practice history
+- Goals
+- Confidence indicators
+- Preferred support mode
+- Recent learning context
+- Recommended next actions
+
+The learner model is not a duplicate user database and must not expose unrestricted personal data to AI systems.
 
 ---
 
 # Lurexa Learn
 
-Status
+Status: MVP / highest priority
 
-MVP
+Purpose: the flagship learner-facing digital learning environment.
 
-Priority
+Primary responsibilities:
 
-Highest
-
-Purpose
-
-An AI-powered Learning Management System (LMS) focused on asynchronous English education.
-
-Target Users
-
-- Students
-- Teachers
-- Administrators
-
-Responsibilities
-
-- Course delivery
-- Lessons
-- Practice activities
-- Quizzes
+- CEFR-aligned course delivery
+- Modules, lessons, activities, quizzes, and assignments
 - Progress tracking
+- Assessments and feedback
 - Certificates
-- AI Tutor
-- Assignments
-- Discussion boards
-- Learning analytics
+- Offline-capable learning where practical
+- AI-assisted tutoring through Lurexa Mind
+- Personalized learning paths
+- Capture of learning signals that can improve the Learner Model
 
-Future Features
+Lurexa Learn contributes structured evidence such as completed lessons, assessment performance, recurring mistakes, current vocabulary, current grammar targets, and learner goals.
 
-- Speaking evaluation
-- Pronunciation analysis
-- AI-generated exercises
-- Personalized study plans
-- Adaptive learning paths
+It does not own a separate personalization engine.
 
 ---
 
 # Lurexa Coach
 
-Status
+Status: planned; first delivered as an embedded experience inside Lurexa Learn
 
-Future
+Purpose: an AI-powered English speaking and pronunciation coach designed first around the linguistic realities of Dominican Spanish speakers.
 
-Purpose
+Lurexa Coach is a product powered by Lurexa Mind and Lurexa Core. It is not the intelligence layer itself.
 
-Personal AI learning coach.
+## Core differentiation
 
-Responsibilities
+Coach should understand how Dominican Spanish can influence English production and provide useful, English-first coaching rather than generic accent scoring.
 
-- Daily study plans
-- Goal tracking
-- Motivation
-- Habit formation
-- Personalized recommendations
-- Learning reminders
-- Weekly reports
+The goal is not accent erasure. The goal is clearer, more intelligible, more natural, and more controllable English pronunciation and speaking.
 
-Unlike the AI Tutor, Coach focuses on long-term learning habits rather than individual lessons.
+Coach should be capable of working with:
+
+- Pronunciation
+- Intelligibility
+- Fluency
+- Stress and rhythm
+- Intonation
+- Connected speech
+- Grammar in spoken communication
+- Vocabulary and natural phrasing
+- Communicative effectiveness
+- Dominican-Spanish-to-English transfer patterns
+- Dominican idioms, slang, and intended meaning when learners attempt direct transfer into English
+
+## English-first pedagogy
+
+Coach should default to explanations and interaction in English when the learner can handle them.
+
+Possible support modes:
+
+- English Immersion — English only
+- Guided English — English first, Spanish clarification when needed
+- Foundation Support — additional Spanish support for true beginners
+
+Spanish is an explanatory support tool, not the default operating language.
+
+## CEFR-aware adaptation
+
+Coach must use the shared Learner Model before starting or adapting a session.
+
+An A1 learner should receive A1-appropriate topics, vocabulary, sentence length, pace, instructions, and correction load. Coach must not force the learner into language complexity far beyond their current ability unless the learner explicitly requests a challenge.
+
+Example session context supplied by Mind may include:
+
+```text
+CEFR: A1
+Current topic: daily routines
+Known language: family, food, simple present
+Current objectives: frequency adverbs, simple present
+Pronunciation targets: final consonants, /iː/ vs /ɪ/
+Avoid: advanced conditionals, rare vocabulary, long multi-part questions
+Feedback intensity: light during conversation, detailed after conversation
+```
+
+## Persistent coaching context
+
+Coach should know relevant, authorized context already learned through Lurexa Learn and previous Coach sessions.
+
+It should not repeatedly ask learners for information the ecosystem already knows, such as their CEFR level or current learning unit.
+
+After a Coach session, useful observations can flow back through approved services to improve the Learner Model, such as:
+
+- recurring pronunciation patterns
+- repeated grammar errors in spontaneous speech
+- fluency changes
+- vocabulary gaps
+- confidence indicators
+- successful corrections
+- recommended practice targets
+
+## Feedback philosophy
+
+Coach should prioritize the highest-value feedback rather than interrupt every error.
+
+When appropriate, feedback should explain why a Dominican Spanish speaker may produce a sound or phrase in a particular way and show how to improve it.
+
+Preferred progression:
+
+1. Intelligibility
+2. Naturalness
+3. Refinement toward an optional target pronunciation style
+
+Avoid framing a Dominican accent itself as a defect.
+
+## Product evolution
+
+1. Embedded Coach inside Lurexa Learn.
+2. Cross-product Coach using the shared Learner Model.
+3. Standalone Lurexa Coach only when independent user and business value justify it.
 
 ---
 
-# Lurexa Studio
+# Lurexa Teach
 
-Status
+Status: planned
 
-Future
+Purpose: educator workspace.
 
-Target Users
+Responsibilities:
 
-Teachers
+- Class and learner management
+- Assignment workflows
+- Progress review
+- Scheduling
+- Teacher analytics
+- AI-assisted lesson and feedback support
+- Interpretable intervention recommendations
 
-Purpose
-
-AI-powered content creation platform.
-
-Responsibilities
-
-- Lesson builder
-- Quiz generator
-- Rubric generator
-- Image generation
-- Worksheet creation
-- Presentation creation
-- Course publishing
-
-Studio becomes the primary authoring environment.
-
----
-
-# Lurexa Classroom
-
-Status
-
-Future
-
-Purpose
-
-Synchronous learning environment.
-
-Responsibilities
-
-- Live classes
-- Attendance
-- Screen sharing
-- Whiteboard
-- Breakout rooms
-- Live AI assistant
-- Session recordings
-
-This product complements asynchronous learning.
-
----
-
-# Lurexa Marketplace
-
-Status
-
-Future
-
-Purpose
-
-Marketplace for educational resources.
-
-Responsibilities
-
-- Sell courses
-- Sell templates
-- Sell worksheets
-- Sell lesson plans
-- Sell assessments
-- Sell AI prompt packs
-
-Future
-
-Subscription marketplace.
+Teach may consume approved Learner Model summaries to help teachers understand patterns and support students, subject to role permissions and privacy controls.
 
 ---
 
 # Lurexa Admin
 
-Status
+Status: planned
 
-Planned
+Purpose: institutional and operational administration.
 
-Purpose
+Responsibilities:
 
-Administrative console.
-
-Responsibilities
-
-- User management
-- Organization management
-- Billing
-- Permissions
-- Reports
-- Platform settings
-- Feature flags
-- Moderation
-
----
-
-# Lurexa Analytics
-
-Status
-
-Future
-
-Purpose
-
-Learning intelligence platform.
-
-Responsibilities
-
-- Student dashboards
-- Teacher dashboards
-- Course analytics
-- Completion analytics
-- Engagement
-- Retention
-- AI usage metrics
-
----
-
-# Lurexa Mobile
-
-Status
-
-Future
-
-Purpose
-
-Native mobile application.
-
-Responsibilities
-
-- Offline learning
-- Push notifications
-- Downloaded lessons
-- Speaking practice
-- Camera-based activities
-
-Technology
-
-React Native (planned)
-
----
-
-# Lurexa API
-
-Status
-
-Internal
-
-Purpose
-
-Backend platform consumed by all products.
-
-Responsibilities
-
-- Authentication
-- AI Gateway
-- Payments
-- Calendar
-- Notifications
-- Analytics
-- Course APIs
-- User APIs
-
-Applications should communicate with the API through the shared SDK.
-
----
-
-# Product Relationships
-
-```
-                           Lurexa Platform
-                                   │
-    ┌──────────────┬───────────────┼──────────────┬──────────────┐
-    │              │               │              │              │
- Learn         Studio          Coach        Classroom     Marketplace
-    │              │               │              │              │
-    └──────────────┴───────────────┼──────────────┴──────────────┘
-                                   │
-                             Shared Platform
-                                   │
-     Authentication • AI • Payments • Analytics • Notifications
-```
-
----
-
-# User Roles
-
-Student
-
-Responsibilities
-
-- Learn
-- Practice
-- Complete activities
-- View progress
-
----
-
-Teacher
-
-Responsibilities
-
-- Create courses
-- Review students
-- Publish lessons
-- Schedule sessions
-- Use AI tools
-
----
-
-Administrator
-
-Responsibilities
-
-- Manage users
-- Manage organizations
-- Reports
-- Billing
+- Organizations and tenants
+- Users, roles, and permissions
+- Program/course configuration
+- Billing and subscriptions
+- Governance
+- Audit and compliance controls
 - Platform configuration
 
----
-
-Super Administrator
-
-Responsibilities
-
-- Platform governance
-- Infrastructure
-- Feature management
-- Security
-- Monitoring
+Admin should manage access to learner data; it should not become a teaching or personalization engine.
 
 ---
 
-# Learning Experience
+# Lurexa Insight
 
-Every learner follows this journey.
+Status: future
 
+Purpose: analytics and learning-intelligence product.
+
+Responsibilities:
+
+- Learner outcome dashboards
+- Cohort and course performance
+- Engagement and retention
+- Teacher and institutional views
+- AI usage and learning-impact metrics
+- Interpretable risk and intervention signals
+- Aggregated pronunciation and skill trends where authorized
+
+The authoritative product name is **Lurexa Insight**, singular. Do not use the older product names `Lurexa Analytics` or `Lurexa Insights` in new work.
+
+---
+
+# Lurexa Studio
+
+Status: future
+
+Purpose: educational content creation and authoring environment.
+
+Responsibilities:
+
+- Course and lesson authoring
+- Assessment creation
+- Question banks
+- Media/resource management
+- Templates
+- AI-assisted content creation through Mind
+- Review, versioning, approval, and publishing
+
+Studio creates and manages content. Learn delivers it.
+
+---
+
+# Shared Learner Experience
+
+A learner should experience Lurexa as one intelligent system rather than disconnected applications.
+
+Example:
+
+```text
+Lurexa Learn
+Student studies Unit 6: Ordering Food
+        ↓
+Core records trusted learning state
+        ↓
+Mind updates authorized learner context
+        ↓
+Lurexa Coach
+Creates an A1/A2 restaurant role-play using recently studied language
+        ↓
+Coach observes pronunciation and speaking patterns
+        ↓
+Mind interprets the observations
+        ↓
+Core persists approved learning records
+        ↓
+Learn can recommend targeted follow-up practice
 ```
-Register
 
-↓
-
-Placement Test (optional)
-
-↓
-
-Dashboard
-
-↓
-
-Course
-
-↓
-
-Module
-
-↓
-
-Lesson
-
-↓
-
-Practice
-
-↓
-
-Quiz
-
-↓
-
-Feedback
-
-↓
-
-AI Tutor
-
-↓
-
-Progress Tracking
-
-↓
-
-Certificate
-```
-
-The journey should remain consistent across products.
+This cross-product continuity is a strategic differentiator and should be preserved in architecture decisions.
 
 ---
 
-# AI Capabilities
+# AI Product Rules
 
-Artificial Intelligence should enhance every product.
-
-Examples
-
-Learn
-
-- AI Tutor
-- Explanations
-- Exercise generation
-
-Coach
-
-- Personalized study plans
-- Motivation
-
-Studio
-
-- Lesson generation
-- Quiz generation
-
-Admin
-
-- Reports
-- Predictions
-- Insights
-
-Analytics
-
-- Learning recommendations
-- Risk detection
-
----
-
-# Shared Design Language
-
-Every product uses:
-
-- Design Tokens
-- Component Library
-- Typography
-- Color System
-- Motion System
-- Iconography
-
-Users should immediately recognize a Lurexa product.
-
----
-
-# Shared Business Rules
-
-All products use the same:
-
-- Authentication
-- User IDs
-- Permissions
-- Organization model
-- Subscription model
-- Billing
-- Notifications
-- Localization
-
-Business rules should exist only once.
-
----
-
-# Product Evolution
-
-Phase 1
-
-- Lurexa Learn
-- AI Tutor
-- Payments
-- Teacher Portal
-- Admin Portal
-
-Phase 2
-
-- Coach
-- Analytics
-- Mobile App
-- Offline synchronization improvements
-
-Phase 3
-
-- Studio
-- Marketplace
-- Classroom
-
-Phase 4
-
-- Enterprise features
-- Multi-school management
-- Public API
-- Third-party integrations
-
----
-
-# Success Metrics
-
-Platform
-
-- Monthly Active Users (MAU)
-- Daily Active Users (DAU)
-- Course Completion Rate
-- Student Retention
-- Teacher Retention
-- Subscription Renewal Rate
-- Average Study Time
-- AI Satisfaction Score
-- Offline Usage Rate
-- Revenue Growth
-
-Every product should define additional product-specific KPIs.
-
----
-
-# Product Principles
-
-Every Lurexa product must:
-
-- Solve a real educational problem.
-- Integrate naturally with the ecosystem.
-- Share the same design language.
-- Share the same authentication system.
-- Respect accessibility standards.
-- Support AI where it adds value.
-- Support offline functionality whenever feasible.
-- Scale without major architectural changes.
+- Products do not call model providers directly when Mind provides an approved interface.
+- Products do not own independent learner profiles for personalization.
+- Mind may interpret authorized learner context but does not bypass Core authorization.
+- AI feedback must adapt to CEFR level and current learning context where those signals are available.
+- Learners should be able to understand why meaningful recommendations or corrections are being made.
+- High-impact educational decisions require appropriate validation and governance.
+- Personalization must respect privacy, data minimization, and user controls.
 
 ---
 
 # Product Boundaries
 
-Each product should have a single responsibility.
+Correct:
 
-Avoid feature duplication.
+- Learn delivers structured learning.
+- Coach provides speaking/pronunciation coaching.
+- Studio authors content.
+- Insight interprets learning evidence for dashboards.
+- Mind provides shared intelligence.
+- Core provides trusted platform foundations.
 
-Examples
+Incorrect:
 
-Correct
+- Each product creates its own learner model.
+- Coach directly reads Firestore or directly calls an AI provider.
+- Learn creates a second speaking intelligence engine separate from Mind.
+- Insight becomes a second analytics event store.
+- Studio creates its own authentication or organization model.
 
-- Studio creates lessons.
-- Learn delivers lessons.
+Products collaborate. They do not compete or duplicate platform capabilities.
 
-Incorrect
+---
 
-- Learn includes a second lesson editor.
+# Product Evolution
 
-Correct
+Phase 1 — Core platform foundation
 
-- Coach recommends study plans.
+Phase 2 — Lurexa Learn MVP and reliable learning records
 
-Incorrect
+Phase 3 — Lurexa Mind foundation and Learner Model
 
-- Learn contains a separate coaching engine.
+Phase 4 — Embedded Lurexa Coach with CEFR-aware speaking/pronunciation practice
 
-Products collaborate.
+Phase 5 — Lurexa Teach
 
-They do not compete.
+Phase 6 — Offline/mobile resilience
+
+Phase 7 — Lurexa Admin + Lurexa Insight
+
+Phase 8 — Lurexa Studio
+
+Phase 9 — Cross-product Coach and deeper learner-model adaptation
+
+Phase 10 — Enterprise, marketplace, APIs, additional subjects, and additional L1 profiles
 
 ---
 
 # Future Expansion
 
-The platform should be designed so future products can be added without modifying existing products significantly.
+Dominican Spanish is the first deep linguistic profile for Lurexa Coach, not a permanent technical limit.
 
-Potential future products include:
+Future L1 profiles could model additional Spanish varieties and other first-language backgrounds without changing the Core/Mind/product architecture.
 
-- Lurexa Assess (assessment platform)
-- Lurexa Recruit (teacher recruitment)
-- Lurexa Parents (parent portal)
-- Lurexa Kids (early childhood learning)
-- Lurexa Enterprise (corporate learning)
-- Lurexa Research (learning analytics and educational research)
-
-The ecosystem should remain modular, extensible, and cohesive.
+Potential future products may include Lurexa Assess, Classroom, Marketplace, Enterprise, Research, and other specialized experiences when they solve a distinct problem and justify separate product boundaries.
 
 ---
 
-# Guiding Principle
+# Guiding Principles
 
-Every new product should answer three questions before development begins:
+> **Lurexa Learning Technologies builds the ecosystem.**
 
-1. What educational problem does it solve?
-2. Why should it exist as a separate product instead of a feature?
-3. How does it strengthen the Lurexa ecosystem?
+> **Lurexa Core powers it.**
 
-If these questions cannot be answered clearly, the idea should remain a feature rather than becoming a new product.
+> **Lurexa Mind understands and adapts.**
+
+> **Products deliver the experience.**
+
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
