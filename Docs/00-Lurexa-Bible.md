@@ -1,506 +1,338 @@
 ---
 title: Lurexa Bible
-subtitle: The Definitive Guide to the Lurexa Ecosystem
-version: 1.0.0
+subtitle: Authoritative Guide to the Lurexa Ecosystem
+version: 1.2.0
 status: Approved
-owner: Lurexa
-author: Damian + GPT-5.5
+owner: Lurexa Learning Technologies
+author: Damian + AI collaborators
 created: 2026-07-23
-last_updated: 2026-07-23
+last_updated: 2026-08-17
 ---
 
 # Lurexa Bible
 
-> The single source of truth for every product, decision, architecture, design principle, engineering standard, and long-term vision inside the Lurexa ecosystem.
+This document is the primary strategic source of truth for Lurexa. Detailed architecture documents may provide deeper implementation guidance, but they must not contradict the responsibility model defined here.
 
----
+## 1. Company identity
 
-# Table of Contents
+**Lurexa Learning Technologies** is the parent company and master business identity.
 
-1. Vision
-2. Mission
-3. Why Lurexa Exists
-4. Core Values
-5. Product Philosophy
-6. Product Ecosystem
-7. Target Users
-8. Learning Philosophy
-9. Artificial Intelligence Philosophy
-10. Product Portfolio
-11. Business Model
-12. Brand Identity
-13. Visual Identity
-14. Design Language System
-15. Product Principles
-16. Engineering Principles
-17. Technology Stack
-18. Software Architecture
-19. AI Architecture
-20. Database Architecture
-21. Offline Strategy
-22. Security Principles
-23. Accessibility Standards
-24. Development Workflow
-25. Documentation Standards
-26. Product Roadmap
-27. Success Metrics
-28. Future Vision
+It owns the Lurexa brand, ecosystem strategy, product portfolio, platform technologies, intellectual property, standards and long-term commercial direction.
 
----
+Lurexa is not a single LMS. It is a scalable commercial EdTech ecosystem designed to support multiple learning products, educators, institutions, content workflows and intelligence capabilities.
 
-# Vision
+The earlier thesis prototype is a **validation/reference artifact**. It is not the production architecture and does not constrain the commercial roadmap unless a later explicit decision adopts a specific validated idea.
 
-To become the most trusted AI-powered learning ecosystem for language education in Latin America and, eventually, worldwide.
+## 2. Vision
 
-Lurexa aims to combine artificial intelligence, modern instructional design, and intuitive user experiences to help learners achieve real-world language proficiency.
+Build a trusted intelligent learning ecosystem in which every authorized learning experience can benefit from a learner's evolving history without forcing the learner to start over in each product.
 
----
+## 3. Mission
 
-# Mission
+Empower learners and educators through intelligent, personalized, accessible and measurable education while preserving human agency, privacy and trustworthy technical foundations.
 
-Empower learners through intelligent, personalized, and accessible education.
+## 4. Governing learner principle
 
-Our software should reduce friction, increase motivation, and make high-quality education available regardless of economic or technological limitations.
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
 
----
+Lurexa uses one persistent cross-product Learner Model rather than independent learner profiles per product.
 
-# Why Lurexa Exists
+Authorized products contribute learning evidence. Lurexa Mind interprets that evidence. Lurexa Core owns trusted records, authorization and persistence. Products consume only the context they are authorized and designed to use.
 
-Traditional LMS platforms are content repositories.
+## 5. Company and product architecture
 
-Lurexa is designed to become an intelligent learning companion.
+```text
+Lurexa Learning Technologies
+│
+├── Shared ecosystem layers
+│   ├── Lurexa Core
+│   └── Lurexa Mind
+│
+└── Product family
+    ├── Lurexa Learn
+    ├── Lurexa Coach
+    ├── Lurexa Teach
+    ├── Lurexa Admin
+    ├── Lurexa Insight
+    └── Lurexa Studio
+```
 
-Instead of simply delivering lessons, it should:
+Core and Mind are not ordinary end-user products. They are reusable ecosystem layers that support the product family.
 
-- Understand learners.
-- Adapt content.
-- Recommend practice.
-- Provide instant feedback.
-- Work online and offline.
-- Support teachers instead of replacing them.
+## 6. Lurexa Core
 
----
+**Lurexa Core** is the shared trusted technical/platform foundation.
 
-# Core Values
+Core owns or governs:
 
-- Simplicity over complexity.
-- Learning before technology.
-- Accessibility by default.
-- Privacy and trust.
-- Long-term maintainability.
-- AI as an assistant, not a substitute for human educators.
+- identity and authentication;
+- authorization and permissions;
+- canonical user and learner identity;
+- trusted learner records;
+- persistence;
+- shared platform services;
+- cross-product data contracts;
+- organizations and tenancy;
+- enrollment and progress records;
+- evidence provenance;
+- approved persistence of derived observations;
+- content contracts;
+- commerce/billing infrastructure;
+- scheduling;
+- notifications;
+- storage and configuration;
+- audit/observability infrastructure;
+- offline/synchronization trust boundaries;
+- infrastructure required for products to safely exchange authorized learning information.
 
----
+**Core owns the trusted record.**
 
-# Product Philosophy
+Core must remain reliable, secure, modular and largely invisible to end users.
 
-Every feature must answer one question:
+## 7. Lurexa Mind
 
-> Does this help someone learn better?
+**Lurexa Mind** is the shared AI and learning-intelligence layer.
 
-If the answer is no, the feature should not be built.
+Mind interprets authorized learning evidence and can support:
 
----
+- personalization;
+- learner-state interpretation;
+- adaptive experiences;
+- recommendations;
+- learning interventions;
+- AI tutoring and coaching;
+- mastery/error interpretation;
+- pronunciation and fluency intelligence;
+- L1-transfer intelligence;
+- assessment intelligence;
+- content adaptation;
+- pedagogical agents;
+- model/provider abstraction;
+- validation and responsible-AI safeguards.
 
-# Product Ecosystem
+Mind does **not** own authoritative authentication, authorization or persistence. When a Mind-derived observation should become persistent learner state, it must pass through an approved Core-governed boundary.
 
-The Lurexa ecosystem is composed of independent but connected products.
+## 8. Learner Model
 
-## Lurexa Learn
+The Learner Model is the persistent evolving representation of the learner across the ecosystem.
 
-The flagship asynchronous LMS.
+It may progressively represent:
 
-Features:
+- CEFR level;
+- curriculum position/context;
+- demonstrated competencies;
+- recurring mistakes;
+- pronunciation patterns and targets;
+- vocabulary development;
+- grammar development;
+- fluency development;
+- goals;
+- strengths and weaknesses;
+- activity/performance history;
+- prior interventions;
+- relevant learning preferences;
+- progress over time.
 
-- CEFR-based English courses
-- AI Tutor
-- Interactive activities
-- Offline learning
-- Progress tracking
-- Certificates
+The Learner Model is an ecosystem construct: trusted evidence/state is governed by Core; Mind interprets authorized evidence; products receive only appropriate context.
 
----
+It must not become a giant ungoverned profile document mixing raw evidence, AI guesses, permissions and UI state.
 
-## Future Products
+## 9. Cross-product learning loop
+
+Lurexa should behave as one learning relationship.
+
+Example:
+
+```text
+Learn experience
+  ↓ learning evidence
+Core trusted record
+  ↓ authorized evidence
+Mind interpretation
+  ↓ authorized learner context
+Coach adaptation
+  ↓ speaking/pronunciation evidence
+Core trusted record
+  ↓
+Mind interpretation
+  ↓
+Learn next experience
+```
+
+This is a two-way ecosystem learning loop, not simple profile synchronization.
+
+A learner moving from Learn to Coach should not need to restate reliable authorized information already known by Lurexa, such as CEFR level, current curriculum context, recurring English mistakes, pronunciation targets, goals, relevant prior activity, strengths or weaknesses.
+
+## 10. Product family
+
+### Lurexa Learn
+
+Learner-facing LMS and structured learning experience. It delivers courses, lessons, activities, assessment, progress and adaptive learning experiences while contributing trustworthy learning evidence through Core-governed contracts.
 
 ### Lurexa Coach
 
-Personal AI learning coach.
+AI-powered English speaking and pronunciation experience.
+
+Its first deep linguistic specialization is **Dominican Spanish speakers learning English**.
+
+Coach prioritizes:
+
+- intelligibility;
+- naturalness;
+- speaking fluency;
+- pronunciation refinement;
+- confidence in spoken communication;
+- recurring pronunciation-pattern identification;
+- targeted corrective practice;
+- Dominican-Spanish-to-English linguistic transfer;
+- context-aware speaking appropriate to level and goals.
+
+The objective is **not accent erasure**.
+
+Dominican Spanish is the first deep linguistic profile, not a permanent technical limitation. Additional L1 profiles must be addable without redesigning Coach or the Learner Model from scratch.
+
+Coach is a product that consumes Core and Mind. It must not become a second Mind or a separate learner-memory architecture.
+
+### Lurexa Teach
+
+Teacher-facing product for class/learner management, assignments, scheduling, progress review, interventions and AI-assisted instructional support. Teach receives role-appropriate learner intelligence rather than unrestricted model internals.
+
+### Lurexa Admin
+
+Institutional and administrative product for organizations, users, roles, programs, billing/subscriptions, governance, audit and policy configuration. Core remains responsible for enforcing trust and permissions.
+
+### Lurexa Insight
+
+Analytics, intelligence and reporting product. It surfaces learner, cohort, engagement, outcome and learning-intelligence views using governed records and interpretable intelligence.
 
 ### Lurexa Studio
 
-Teacher authoring tools.
+Content and learning-experience creation product for courses, lessons, assessments, media, reusable learning objects, authoring, publishing/versioning and AI-assisted creation through Mind.
 
-### Lurexa Classroom
+## 11. Product philosophy
 
-Virtual classroom and live teaching.
+Every product or feature must improve at least one of these outcomes:
 
-### Lurexa Marketplace
+- learning;
+- teaching;
+- operating an educational program;
+- creating learning experiences;
+- understanding learning evidence or outcomes.
 
-Marketplace for educational resources.
+Products are experiences. Core and Mind are reusable ecosystem layers.
 
-### Lurexa Analytics
+## 12. Learning philosophy
 
-Learning intelligence dashboards.
+Lurexa may combine evidence-informed approaches such as:
 
----
+- CEFR;
+- Communicative Language Teaching;
+- Task-Based Learning;
+- retrieval practice;
+- spaced repetition;
+- formative assessment;
+- mastery-oriented progression;
+- adaptive practice where evidence supports it.
 
-# Target Users
+AI should reinforce sound pedagogy rather than replace it.
 
-Primary:
+## 13. AI philosophy
 
-- Dominican learners
-- Spanish-speaking adults
-- Beginners to C2
+AI should explain, guide, personalize, adapt, recommend, coach and help educators interpret learning evidence.
 
-Secondary:
+AI should not silently become the source of truth, fabricate authoritative learner state, expose unnecessary personal data or make high-impact decisions without governance.
 
-- Teachers
-- Schools
-- Language institutes
-- Corporate training programs
+Model providers are implementation dependencies behind Lurexa Mind, not product architecture.
 
----
+## 14. Engineering principles
 
-# Learning Philosophy
+- TypeScript-first where appropriate.
+- Capability-oriented architecture.
+- Shared contracts before duplicated logic.
+- Products depend on supported capabilities; Core does not depend on product applications.
+- Mind does not bypass Core trust boundaries.
+- Product UIs do not write arbitrary inferred learner state directly.
+- Product UIs do not call AI providers directly for production learner intelligence.
+- Evidence and inference remain distinguishable.
+- Authorization and data minimization precede AI access.
+- Documentation precedes major architecture changes.
+- Conceptual architecture changes do not automatically require immediate package renaming/refactoring.
 
-Lurexa follows:
+## 15. Current technology direction
 
-- CEFR
-- Communicative Language Teaching
-- Task-Based Learning
-- Retrieval Practice
-- Spaced Repetition
-- Formative Assessment
+Current repository direction includes:
 
-AI should reinforce these methodologies rather than replace them.
+- Turborepo + pnpm monorepo;
+- Next.js + React + TypeScript;
+- Tailwind CSS / shared UI and design tokens;
+- Firebase/Auth/Firestore/Storage-oriented platform infrastructure;
+- GitHub Actions;
+- Vercel/Firebase deployment responsibilities as appropriate;
+- AI/speech providers accessed through governed Mind capabilities;
+- PWA/offline-first capabilities where valuable.
 
----
+Technology choices may evolve. Responsibility boundaries should remain stable unless explicitly changed.
 
-# Artificial Intelligence Philosophy
+## 16. Repository architecture
 
-AI should:
+Current high-level structure includes applications, shared packages, `Docs/`, `.ai/` and `bootstrap/`.
 
-- Explain.
-- Guide.
-- Motivate.
-- Personalize.
-- Adapt.
+Existing packages such as `@lurexa/auth`, `@lurexa/backend`, `@lurexa/database`, `@lurexa/sdk`, `@lurexa/types`, `@lurexa/ui`, `@lurexa/tokens`, `@lurexa/config` and `@lurexa/utils` should be mapped to Core/Mind/product responsibilities before renaming or splitting them.
 
-AI should never fabricate information or override teacher authority.
+Architecture branding is not by itself a reason to restructure code.
 
----
+## 17. Business direction
 
-# Business Model
+Commercial opportunities may include:
 
-Initial:
+- individual learner subscriptions;
+- premium Coach experiences;
+- teacher subscriptions;
+- schools and institutes;
+- universities;
+- corporate learning;
+- institutional analytics;
+- government/large-institution deployments;
+- future marketplace/API offerings.
 
-- Individual subscriptions
-- Teacher subscriptions
+The product architecture must support growth beyond the thesis prototype and beyond the initial Dominican-English specialization.
 
-Future:
+## 18. Accessibility, trust and resilience
 
-- Schools
-- Universities
-- Corporate learning
-- Government contracts
-- Marketplace revenue
+Lurexa should target accessible user experiences, strong privacy and secure authorization, responsible AI, low-bandwidth resilience and meaningful offline capability where practical.
 
----
+For user-facing products, WCAG 2.2 AA is the intended accessibility baseline where applicable.
 
-# Brand Identity
+## 19. Source-of-truth hierarchy
 
-Brand attributes:
+For architecture decisions, use this order unless a newer explicit decision replaces it:
 
-- Intelligent
-- Friendly
-- Professional
-- Modern
-- Trustworthy
-- Human-centered
-
-Tagline (working):
-
-> Learn Smarter. Grow Further.
-
----
-
-# Design Language System
-
-The UI follows:
-
-- Clean layouts.
-- Soft rounded corners.
-- Consistent spacing.
-- Minimal cognitive load.
-- Mobile-first responsiveness.
-
-Design Tokens are the single source of visual truth.
-
----
-
-# Product Principles
-
-1. Learning first.
-2. AI second.
-3. Performance always.
-4. Accessibility by default.
-5. Offline whenever possible.
-6. Reusable components.
-7. API-first architecture.
-8. Measurable outcomes.
-
----
-
-# Engineering Principles
-
-- TypeScript only.
-- No duplicated logic.
-- Shared packages.
-- Component-driven development.
-- Test critical functionality.
-- Documentation before implementation.
-
----
-
-# Technology Stack
-
-Frontend:
-
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-
-Backend:
-
-- Firebase
-- Firestore
-- Cloud Functions
-
-AI:
-
-- Gemini
-- TensorFlow Lite
-
-Payments:
-
-- Stripe
-
-Scheduling:
-
-- Google Calendar
-
-Deployment:
-
-- Firebase Hosting
-- GitHub Actions
-
----
-
-# Software Architecture
-
-The ecosystem follows a modular monorepo.
-
-```text
-apps/
-packages/
-services/
-docs/
-firebase/
-```
-
-Applications consume shared packages.
-
-Business logic remains outside UI components.
-
----
-
-# AI Architecture
-
-```text
-User
-   ↓
-AI Gateway
-   ↓
-Prompt Builder
-   ↓
-Gemini
-   ↓
-Response Validator
-   ↓
-Memory
-```
-
-Future models can be integrated without changing client applications.
-
----
-
-# Database Architecture
-
-Firestore is the primary datastore.
-
-Collections include:
-
-- users
-- courses
-- modules
-- lessons
-- enrollments
-- progress
-- certificates
-- subscriptions
-- ai_sessions
-
-Repositories abstract direct Firestore access.
-
----
-
-# Offline Strategy
-
-Offline capability is a core feature.
-
-Technologies:
-
-- IndexedDB
-- Service Workers
-- TensorFlow Lite
-
-Users should be able to:
-
-- Continue lessons.
-- Review vocabulary.
-- Complete quizzes.
-- Receive AI assistance where local models permit.
-
----
-
-# Security Principles
-
-- Least privilege.
-- Secure authentication.
-- Role-based access control.
-- Server-side validation.
-- Encrypted communication.
-- Secret management through environment variables.
-
----
-
-# Accessibility Standards
-
-Minimum WCAG 2.2 AA compliance.
-
-Every feature supports:
-
-- Keyboard navigation.
-- Screen readers.
-- Color contrast.
-- Responsive layouts.
-- Reduced motion preferences.
-
----
-
-# Development Workflow
-
-1. Product requirement.
-2. Technical design.
-3. Architecture review.
-4. Implementation.
-5. Testing.
-6. Documentation.
-7. Deployment.
-8. Monitoring.
-
----
-
-# Documentation Standards
-
-Every feature requires:
-
-- User story.
-- Acceptance criteria.
-- Technical notes.
-- Tests.
-- Architecture impact.
-- Changelog entry.
-
----
-
-# Product Roadmap
-
-## Phase 1
-
-Engineering Foundation
-
-## Phase 2
-
-Lurexa Learn MVP
-
-## Phase 3
-
-AI Tutor
-
-## Phase 4
-
-Teacher Portal
-
-## Phase 5
-
-Offline Platform
-
-## Phase 6
-
-Marketplace
-
-## Phase 7
-
-Enterprise Platform
-
----
-
-# Success Metrics
-
-Educational:
-
-- Course completion rate
-- CEFR progression
-- Vocabulary retention
-- Student satisfaction
-
-Technical:
-
-- Uptime
-- Build time
-- Test coverage
-- Crash-free sessions
-
-Business:
-
-- Monthly recurring revenue
-- Active users
-- Customer retention
-- Lifetime value
-
----
-
-# Future Vision
-
-Lurexa should evolve from a single LMS into a complete educational operating system.
-
-The long-term objective is not simply to teach English.
-
-It is to build a platform capable of supporting any subject, any learner, and any institution through intelligent, adaptive, and accessible educational technology.
-
----
-
-# Related Documents
-
-- Brand Book.md
-- Product Requirements Document (PRD).md
-- System Architecture.md
-- Development Constitution.md
-- UI Component Library.md
-- Design Tokens.md
-- Firestore Database Design.md
-- Engineering Blueprint.md
+1. explicit current decision from the product owner;
+2. this Lurexa Bible;
+3. `Docs/Architecture/*` detailed architecture documents;
+4. `ROADMAP.md` implementation sequencing;
+5. `AGENTS.md` and `.ai/*` AI-development instructions;
+6. older historical documents.
+
+When an older document conflicts with this model, mark the older assumption as superseded rather than mixing architectures.
+
+## 20. Superseded assumptions
+
+The following are obsolete unless explicitly reintroduced:
+
+- thesis prototype as the commercial production architecture;
+- Lurexa as only an LMS with extra portals;
+- one independent learner profile per product;
+- Mind as the authoritative persistence/authorization owner;
+- Coach as merely a generic chatbot feature;
+- accent erasure as a Coach objective;
+- Dominican Spanish as Coach's permanent technical limit;
+- direct product-to-model-provider coupling for production learner intelligence.
+
+## 21. End-state principle
+
+> **Lurexa Learning Technologies builds the ecosystem.**  
+> **Lurexa Core owns trust.**  
+> **Lurexa Mind interprets learning.**  
+> **Products deliver experiences and generate evidence.**  
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**

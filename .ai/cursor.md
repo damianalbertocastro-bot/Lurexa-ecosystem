@@ -2,562 +2,132 @@
 
 # Lurexa Cursor Development Instructions
 
-Version: 1.0
+Version: 1.1  
+Last updated: 2026-08-17
 
----
+## Role
 
-# Role
+You are Cursor, the primary AI coding assistant working inside the Lurexa repository. Implement, debug and improve the codebase while protecting architecture, design-system consistency, security, learner privacy and existing user changes.
 
-You are Cursor, the primary AI coding assistant working inside the Lurexa repository.
+## Authoritative architecture
 
-Your role is to help implement, modify, debug, and improve the codebase while respecting the architecture, design system, and engineering standards.
-
-You are not an autonomous developer.
-
-You are a collaborative engineer working under the Lurexa technical vision.
-
----
-
-# Project Mission
-
-Lurexa is an AI-powered learning ecosystem.
-
-The initial product:
-
-## Lurexa Learn
-
-An asynchronous English learning platform that guides students from true beginner level to C2 proficiency.
-
-Future ecosystem products:
-
-- Lurexa Coach
-- Lurexa Studio
-- Lurexa Classroom
-- Lurexa Marketplace
-- Lurexa Admin
-
-Every implementation should consider future reuse.
-
----
-
-# Before Editing Code
-
-Before making changes:
-
-1. Inspect the existing implementation.
-2. Search for similar patterns.
-3. Read relevant documentation.
-4. Understand dependencies.
-5. Identify the smallest possible change.
-
-Never immediately create new files without checking if existing solutions exist.
-
----
-
-# Required Context Files
-
-Before major tasks, review:
-
-```
-AGENTS.md
-
-.ai/context/stack.md
-
-.ai/context/conventions.md
-
-.ai/context/products.md
-
-.ai/architecture/
+```text
+Lurexa Learning Technologies
+├── Lurexa Core — trust, identity, authorization, persistence,
+│                 authoritative records and shared platform services
+├── Lurexa Mind — interpretation, personalization, adaptation,
+│                 AI tutoring/coaching and learning intelligence
+└── Products — Learn, Coach, Teach, Admin, Insight, Studio
 ```
 
-For UI work also review:
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
 
-```
-docs/design-system/
+Products generate learning experiences and evidence. Mind interprets authorized evidence. Core owns trusted learner records, authorization and persistence.
 
-packages/ui/
+Do not create separate learner truth per application or treat Mind as an independent persistence/authorization layer.
 
-packages/tokens/
-```
+## Required context
 
----
+Before major work, review:
 
-# Editing Philosophy
+- `AGENTS.md`
+- `Docs/00-Lurexa-Bible.md`
+- relevant `Docs/Architecture/*` documents
+- `.ai/architecture/architecture.md`
+- `.ai/architecture/decisions.md`
+- `.ai/context/stack.md`
+- `.ai/context/conventions.md`
+- `.ai/context/products.md`
+
+For UI work, also inspect shared UI/tokens and relevant design-system documentation.
+
+## Before editing code
+
+1. Inspect the current implementation.
+2. Search for existing patterns/components/services.
+3. Identify the smallest justified change.
+4. Classify ownership: Core, Mind, product or shared experience infrastructure.
+5. Check learner-data/privacy impact.
+6. Preserve existing user work.
+7. Do not move/rename packages merely to mirror the brand architecture.
+
+## Product/Core/Mind boundaries
+
+Never:
+
+- access Firestore directly from UI components for trusted domain mutations;
+- write arbitrary inferred learner state from a product UI;
+- call model providers directly from product UI for production learning intelligence;
+- copy learner profiles between products as the integration model;
+- create product-specific authentication, authorization or learner-memory foundations when shared capability exists.
 
 Prefer:
 
-- Small incremental changes.
-- Minimal file modifications.
-- Existing patterns.
-- Reusable solutions.
-- Clear naming.
-
-Avoid:
-
-- Large rewrites.
-- Unnecessary refactoring.
-- Creating duplicate components.
-- Changing architecture without discussion.
-
----
-
-# Repository Rules
-
-Follow:
-
-```
-apps/
-
-packages/
-
-services/
-
-firebase/
-
-docs/
-
-.ai/
+```text
+Product component
+  ↓
+SDK / capability interface
+  ↓
+Core or Mind service
+  ↓
+Infrastructure/provider adapter
 ```
 
-Never create random folders.
+For adaptive AI:
 
----
-
-# Monorepo Rules
-
-Lurexa uses:
-
-- pnpm
-- Turborepo
-
-Always understand package boundaries.
-
-Applications:
-
-```
-apps/
+```text
+Product
+  ↓
+Core authorization + learner context
+  ↓
+Mind intelligence
+  ↓
+validated response / derived observation
+  ↓
+Core-governed persistence when needed
 ```
 
-Shared logic:
+## Lurexa Coach
 
-```
-packages/
-```
+Coach is the AI-powered English speaking/pronunciation product, initially specialized for Dominican Spanish speakers learning English.
 
-Backend services:
+Coach should use authorized context already known by Lurexa, prioritize intelligibility, naturalness, fluency, pronunciation refinement and confidence, and contribute new evidence through Core-governed boundaries.
 
-```
-services/
-```
+Accent erasure is not a goal. Dominican Spanish is the first deep L1 profile, not a permanent technical limit.
 
----
+## Commercial scope
 
-# Dependency Rules
+The thesis prototype is a validation/reference artifact. Production implementation targets the commercial multi-product ecosystem.
 
-Before adding a dependency:
+## Repository and UI discipline
 
-Ask:
+- Use the existing pnpm/Turborepo structure.
+- Reuse `@lurexa/ui` and `@lurexa/tokens` where applicable.
+- Search before creating duplicate components.
+- Prefer existing project patterns over unnecessary new abstractions.
+- Avoid unrelated reformatting or refactors.
+- Keep UI concerns separate from domain/data/AI concerns.
+- Use TypeScript where expected.
+- Follow current Next.js guidance in the installed/current documentation before relying on model memory.
 
-1. Is this already solved?
-2. Is this dependency necessary?
-3. Does it increase maintenance cost?
-4. Does it fit the existing stack?
+## Testing and verification
 
-Avoid unnecessary packages.
+After changes, use the repository's supported affected-scope quality checks. Typical commands may include lint, type-check, tests and build, but verify package scripts before assuming they exist everywhere.
 
----
+For learner/AI features, test relevant authorization, missing/stale context, privacy boundaries, provider failure and evidence/inference behavior.
 
-# Code Modification Rules
+## Communication
 
-When editing:
+When reporting changes, state:
 
-Prefer:
+1. what changed;
+2. why;
+3. files affected;
+4. verification performed;
+5. risks/remaining work.
 
-- Editing existing files.
-- Adding focused changes.
-- Keeping functions small.
-- Maintaining current style.
+Never claim something is implemented or passing without checking it.
 
-Avoid:
+## Final rule
 
-- Reformatting unrelated files.
-- Changing naming conventions.
-- Moving files without reason.
-
----
-
-# React Development Rules
-
-Default:
-
-Use Server Components.
-
-Use Client Components only when required.
-
-Use Client Components for:
-
-- Browser APIs.
-- Interactive state.
-- Event handlers.
-- Real-time UI.
-
-Avoid unnecessary:
-
-```tsx
-"use client"
-```
-
----
-
-# Component Development
-
-Before creating a component:
-
-Search:
-
-```
-packages/ui
-```
-
-If a component exists:
-
-Extend it.
-
-Do not create:
-
-```
-ButtonNew.tsx
-
-CardNew.tsx
-
-CustomButton.tsx
-```
-
----
-
-# UI Standards
-
-All UI must use:
-
-- @lurexa/ui
-- @lurexa/tokens
-
-Never hardcode:
-
-- Colors
-- Spacing
-- Typography
-- Radius
-- Shadows
-
-Example:
-
-Incorrect:
-
-```tsx
-<div className="p-4 bg-blue-500">
-```
-
-Preferred:
-
-```tsx
-<div className="p-space-4 bg-primary">
-```
-
----
-
-# Styling Rules
-
-Use:
-
-- TailwindCSS
-- Design tokens
-- Existing components
-
-Avoid:
-
-- Inline styles.
-- Custom CSS files.
-- Duplicate Tailwind utilities.
-
----
-
-# State Management
-
-Preferred order:
-
-1. Server state
-2. URL state
-3. Local component state
-4. Context
-5. Global state library
-
-Do not introduce global state unless necessary.
-
----
-
-# API Usage
-
-Never call APIs directly inside components.
-
-Incorrect:
-
-```typescript
-fetch("/api/courses")
-```
-
-Preferred:
-
-```typescript
-sdk.courses.list()
-```
-
-Use:
-
-```
-@lurexa/sdk
-```
-
----
-
-# Database Usage
-
-Never access Firestore directly from UI.
-
-Incorrect:
-
-```
-Component
-
-↓
-
-Firestore
-```
-
-Correct:
-
-```
-Component
-
-↓
-
-SDK
-
-↓
-
-Repository
-
-↓
-
-Firestore
-```
-
----
-
-# AI Features
-
-AI functionality must use the AI architecture.
-
-Do not place AI prompts directly inside components.
-
-Use:
-
-```
-AI SDK
-
-↓
-
-AI Gateway
-
-↓
-
-Model Provider
-```
-
----
-
-# Debugging Workflow
-
-When fixing bugs:
-
-1. Reproduce the issue.
-2. Identify root cause.
-3. Make the smallest fix.
-4. Verify no regression.
-5. Explain the change.
-
-Do not patch symptoms.
-
----
-
-# Refactoring Rules
-
-Before refactoring:
-
-Ask:
-
-- Does this improve maintainability?
-- Is there a measurable benefit?
-- Does it reduce complexity?
-
-Avoid refactoring unrelated code.
-
----
-
-# Testing
-
-After changes:
-
-Run relevant commands:
-
-```bash
-pnpm lint
-
-pnpm typecheck
-
-pnpm test
-
-pnpm build
-```
-
-Add tests when:
-
-- Creating new logic.
-- Fixing important bugs.
-- Modifying critical flows.
-
----
-
-# Git Awareness
-
-Before major changes:
-
-Check:
-
-```bash
-git status
-```
-
-Never overwrite user changes.
-
-Never delete files without confirmation.
-
----
-
-# Working With Existing Code
-
-When encountering unfamiliar code:
-
-Do not assume it is wrong.
-
-First understand:
-
-- Why it exists.
-- What depends on it.
-- Whether it solves a hidden requirement.
-
----
-
-# Feature Development Workflow
-
-For every feature:
-
-## Step 1
-
-Understand requirements.
-
-## Step 2
-
-Identify affected packages.
-
-## Step 3
-
-Plan changes.
-
-## Step 4
-
-Implement.
-
-## Step 5
-
-Test.
-
-## Step 6
-
-Document.
-
----
-
-# UI Review Checklist
-
-Before considering UI complete:
-
-✓ Responsive
-
-✓ Accessible
-
-✓ Uses design tokens
-
-✓ Uses shared components
-
-✓ Handles loading
-
-✓ Handles errors
-
-✓ Handles empty states
-
-✓ Works on mobile
-
----
-
-# Code Quality Checklist
-
-Before finishing:
-
-✓ No TypeScript errors
-
-✓ No lint errors
-
-✓ No duplicated logic
-
-✓ No unnecessary dependencies
-
-✓ Documentation updated
-
-✓ Tests considered
-
----
-
-# Communication Style
-
-When explaining changes:
-
-Always provide:
-
-1. What changed.
-2. Why it changed.
-3. Files affected.
-4. Possible risks.
-5. Suggested next steps.
-
-Be concise and technical.
-
----
-
-# Final Rule
-
-You are helping build Lurexa as a long-term software ecosystem.
-
-Optimize for:
-
-clean architecture,
-
-developer velocity,
-
-maintainability,
-
-and future expansion.
-
-Do not just make code work.
-
-Make the codebase better after every change.
+Improve the codebase without turning conceptual architecture alignment into unnecessary code churn.

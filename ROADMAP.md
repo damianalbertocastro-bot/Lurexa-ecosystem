@@ -1,39 +1,366 @@
-# Lurexa roadmap
+# Lurexa Roadmap
 
-Status reflects the workspace and repository state inspected on 2026-08-14. It is a working plan, not a release promise.
+Status reflects the repository state inspected through 2026-08-17. This is a working commercial roadmap, not a release promise.
 
-## Current baseline
+## Strategic source of truth
 
-- [x] pnpm/Turborepo workspace established with shared packages and multiple applications.
-- [x] Firebase configuration, Firestore rules, and indexes are present.
-- [x] Shared design tokens, UI, types, database, backend, auth, config, SDK, and utility packages exist.
-- [x] `learn-web` has a Vercel build configuration and recent deployment-focused fixes.
-- [x] Database seed data has recent fixes for organization, author, status, and module fields.
-- [x] GitHub Actions provide lint, type-check, and build workflows.
+Lurexa is the commercial multi-product EdTech ecosystem built by **Lurexa Learning Technologies**.
 
-## Immediate priorities
+The earlier thesis prototype is a validation/reference artifact. It does not define the production architecture or commercial implementation roadmap.
 
-1. Align GitHub Actions with the declared pnpm 10.3.0 version, then run the full CI workflow on `main`.
-2. Verify the `learn-web` production deployment end to end: install, build, environment variables, and the deployed application.
-3. Run `pnpm lint`, `pnpm check-types`, and `pnpm build` from a clean dependency install; resolve any remaining workspace incompatibilities.
-4. Replace remaining generated app READMEs with project-specific setup and ownership documentation.
+## Company and ecosystem architecture
 
-## Product foundation
+```text
+Lurexa Learning Technologies
+│
+├── Shared ecosystem layers
+│   ├── Lurexa Core
+│   │   └── trust, identity, authorization, persistence,
+│   │       authoritative records and shared platform services
+│   │
+│   └── Lurexa Mind
+│       └── learning intelligence, interpretation,
+│           personalization, adaptation and AI learning capabilities
+│
+└── Product family
+    ├── Lurexa Learn
+    ├── Lurexa Coach
+    ├── Lurexa Teach
+    ├── Lurexa Admin
+    ├── Lurexa Insight
+    └── Lurexa Studio
+```
 
-- [ ] Complete authentication, RBAC, and user-profile flows using the shared auth and backend layers.
-- [ ] Define stable domain contracts in `@lurexa/types` and expose supported integrations through `@lurexa/sdk`.
-- [ ] Establish database migrations, repeatable seed data, and environment-specific operational guidance.
-- [ ] Document application ownership and the supported relationship among learner, teacher, admin, mobile, and documentation apps.
+Core and Mind are shared ecosystem layers, not ordinary end-user products.
 
-## Quality and delivery
+## Governing learner principle
 
-- [ ] Add focused test coverage for shared packages and critical learner flows.
-- [ ] Standardize framework and React versions across applications where compatibility permits.
-- [ ] Establish preview/production deployment ownership to avoid overlapping Vercel and GitHub Actions deploy paths.
-- [ ] Add release checks for environment configuration and Firestore security rules.
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
 
-## Repository hygiene
+Products generate learning experiences and evidence. Lurexa Mind interprets authorized evidence and produces learning intelligence. Lurexa Core owns trust, identity, authorization, persistence and authoritative records.
 
-- [x] Generated dependency directories and Turborepo cache identified as safe-to-regenerate artifacts.
-- [x] Remove duplicate standalone Next.js templates and conflicting npm/per-package lockfiles; supported runtime apps now live under `apps/`.
-- [ ] Keep root documentation current as applications, packages, and deployment ownership change.
+The Learner Model is the persistent evolving representation of the learner across the ecosystem. It is not an independent database owned solely by Mind and it must not be duplicated per product.
+
+## Current verified baseline
+
+The following repository foundations already exist and should not be rebuilt merely because the conceptual architecture has matured:
+
+- [x] pnpm/Turborepo workspace with multiple applications and shared packages.
+- [x] Firebase configuration and Firestore-related infrastructure present in the repository.
+- [x] Shared packages for auth, backend, config, database, SDK, tokens, types, TypeScript config, UI and utilities.
+- [x] GitHub Actions / CI infrastructure present.
+- [x] `bootstrap/` repository-bootstrap tooling present.
+- [x] Lurexa company/product hierarchy documented.
+- [x] Dedicated architecture documents for capabilities, dependencies and Learner Model present.
+- [x] Root AI-development guidance present in `AGENTS.md` and `.ai/`.
+
+These statements describe verified repository structure, not completion of production features.
+
+## Immediate architecture-alignment work
+
+- [x] Establish Lurexa Learning Technologies as parent/master business identity.
+- [x] Establish Lurexa Core and Lurexa Mind as shared ecosystem layers.
+- [x] Establish Learn, Coach, Teach, Admin, Insight and Studio as product family.
+- [x] Establish one persistent cross-product Learner Model.
+- [x] Separate Core trust/persistence from Mind interpretation/intelligence.
+- [x] Define Coach as a speaking/pronunciation product, not the intelligence layer.
+- [x] Define Dominican Spanish as Coach's first deep L1 profile, not a permanent technical limit.
+- [x] Align core architecture documentation and AI-agent guidance with these decisions.
+
+## Highest-priority next technical action
+
+Define the first production-oriented **Learner Context Contract** and **Learning Evidence Contract** against the existing repository before building production personalization or Coach memory.
+
+Do not begin by renaming packages. First map existing code to the responsibility model and identify actual gaps.
+
+---
+
+# Phase 1 — Stabilize engineering and establish Lurexa Core foundations
+
+Goal: create a reliable production platform on which every product can depend.
+
+- [ ] Verify clean `pnpm install`, lint, type-check, test and build workflows.
+- [ ] Keep CI aligned with repository package-manager/tooling versions.
+- [ ] Complete authentication flows.
+- [ ] Complete RBAC/authorization foundations.
+- [ ] Establish organizations/tenancy boundaries.
+- [ ] Define canonical user and learner identity rules.
+- [ ] Define trusted learning-record and evidence persistence boundaries.
+- [ ] Define stable shared domain contracts.
+- [ ] Expose supported application interfaces through `@lurexa/sdk` or equivalent boundaries.
+- [ ] Define Core authorization rules for Mind access to learner context.
+- [ ] Establish migration, seed and environment guidance.
+- [ ] Map existing shared packages to Core, Mind and product responsibilities without premature renaming.
+
+Exit condition: products can depend on stable identity, authorization, contracts and trusted records without duplicating platform logic.
+
+---
+
+# Phase 2 — Lurexa Learn production MVP
+
+Goal: ship the first production learner experience on Core and begin generating reliable learning evidence.
+
+- [ ] Complete learner onboarding.
+- [ ] Complete course/module/lesson navigation.
+- [ ] Complete enrollment and progress persistence.
+- [ ] Deliver core interactive activities.
+- [ ] Establish assessment and feedback workflows.
+- [ ] Capture structured learning evidence through Core-owned boundaries.
+- [ ] Validate responsive, accessible and low-bandwidth behavior.
+- [ ] Establish learner-facing product analytics.
+
+Initial evidence domains may include:
+
+- CEFR/placement evidence;
+- course/module/unit position;
+- recently studied topics;
+- vocabulary/grammar targets;
+- activity and assessment outcomes;
+- recurring-error evidence where reliable;
+- goals and learner-selected preferences.
+
+Exit condition: a learner can register, enroll, learn, complete activities and retain trustworthy progress/evidence in production.
+
+---
+
+# Phase 3 — Learner Model + Lurexa Mind foundation
+
+Goal: create reusable learning intelligence over Core-governed evidence instead of product-specific AI memory.
+
+- [ ] Define v1 Learning Evidence Contract.
+- [ ] Define v1 Learner Context Contract.
+- [ ] Define Mind Interpretation Contract.
+- [ ] Define approved Derived Observation Persistence Contract.
+- [ ] Establish model/provider abstraction.
+- [ ] Establish pedagogical prompt/policy layers.
+- [ ] Define evidence provenance: source, timestamp, confidence/reliability and versioning where appropriate.
+- [ ] Implement initial learner-model domains incrementally:
+  - [ ] CEFR/proficiency state;
+  - [ ] curriculum context;
+  - [ ] goals/preferences;
+  - [ ] vocabulary/grammar development primitives;
+  - [ ] recurring-error representation.
+- [ ] Establish personalization and recommendation primitives.
+- [ ] Implement safety, privacy, validation and observability boundaries.
+- [ ] Define AI evaluation metrics for educational usefulness, reliability, latency and cost.
+
+Exit condition: multiple product experiences can consume authorized shared learner intelligence without separate learner memories or direct provider coupling.
+
+---
+
+# Phase 4 — Lurexa Coach MVP
+
+Goal: validate the differentiated English speaking/pronunciation product using the shared Learner Model.
+
+## Session adaptation
+
+- [ ] Read authorized learner context before starting a session.
+- [ ] Adapt to current CEFR level.
+- [ ] Adapt vocabulary/grammar to relevant learning context.
+- [ ] Use known goals and recurring issues rather than asking the learner to start over.
+- [ ] Adjust speaking speed, question length and correction load.
+
+## Speaking experience
+
+- [ ] Free conversation mode.
+- [ ] Guided role-play mode.
+- [ ] Pronunciation-focused practice.
+- [ ] Curriculum-linked practice from Learn.
+- [ ] Level- and goal-aware feedback.
+
+## Pronunciation and fluency intelligence
+
+- [ ] Define structured speaking/pronunciation evidence.
+- [ ] Track meaningful recurring patterns rather than isolated errors only.
+- [ ] Prioritize intelligibility.
+- [ ] Support naturalness and pronunciation refinement.
+- [ ] Support fluency-oriented feedback.
+- [ ] Support word stress, sentence stress, rhythm, intonation and connected speech where technically reliable.
+- [ ] Avoid accent-erasure framing and scoring.
+
+## Dominican Spanish specialization
+
+- [ ] Define initial Dominican-Spanish-to-English transfer taxonomy.
+- [ ] Validate high-value transfer patterns with appropriate ELT/linguistic expertise.
+- [ ] Build targeted corrective practice around predictable transfer where pedagogically useful.
+- [ ] Keep linguistic-profile architecture extensible for future L1 populations.
+
+## Evidence loop
+
+- [ ] Submit Coach evidence through Core-governed contracts.
+- [ ] Allow Mind to interpret Coach evidence.
+- [ ] Persist approved derived observations through Core boundaries.
+- [ ] Make relevant updated context available to Learn and other authorized products.
+
+Exit condition: Coach provides useful CEFR-appropriate speaking practice, uses known learner context automatically and contributes evidence back into the shared ecosystem loop.
+
+---
+
+# Phase 5 — Closed-loop Learn ↔ Coach adaptation
+
+Goal: prove that Lurexa behaves like one learning ecosystem rather than synchronized independent profiles.
+
+- [ ] Learn recommends Coach practice based on current learning needs.
+- [ ] Coach uses recent Learn curriculum context when relevant.
+- [ ] Coach evidence can trigger targeted Learn follow-up.
+- [ ] Repeated speaking issues can influence recommended practice.
+- [ ] Successful corrections can reduce unnecessary repetition.
+- [ ] Provide learner-facing explanations for recommendations where useful.
+- [ ] Provide appropriate personalization/history controls.
+
+Reference loop:
+
+```text
+Learn experience
+  ↓ evidence
+Core trusted record
+  ↓ authorized evidence
+Mind interpretation
+  ↓ authorized context
+Coach adaptation
+  ↓ evidence
+Core trusted record
+  ↓
+Mind interpretation
+  ↓
+Learn next experience
+```
+
+Exit condition: learners experience continuity across Learn and Coach without duplicate profiles.
+
+---
+
+# Phase 6 — Lurexa Teach
+
+Goal: provide educators with a professional workspace powered by the same Core and Mind capabilities.
+
+- [ ] Class and learner management.
+- [ ] Assignment workflows.
+- [ ] Progress and intervention views.
+- [ ] Scheduling workflows.
+- [ ] AI-assisted instructional support.
+- [ ] Role-appropriate Learner Model summaries.
+- [ ] Interpretable recommendations and learner-risk signals.
+- [ ] Privacy controls preventing unnecessary learner-data exposure.
+- [ ] Approved teacher observations/interventions as evidence where appropriate.
+
+Exit condition: teachers can manage learning and use appropriate intelligence without a separate learner/profile foundation.
+
+---
+
+# Phase 7 — Offline and mobile resilience
+
+Goal: make connectivity limitations a first-class commercial platform concern.
+
+- [ ] Robust offline caching for eligible learning content.
+- [ ] Safe progress/evidence synchronization.
+- [ ] Conflict-resolution strategy.
+- [ ] Low-bandwidth media/data optimization.
+- [ ] Define viable offline Coach capabilities.
+- [ ] Reconcile offline evidence before it changes trusted Learner Model state.
+- [ ] Validate PWA/mobile behavior on representative lower-cost devices and unreliable networks.
+
+Exit condition: core learning remains useful during intermittent connectivity and evidence synchronizes safely.
+
+---
+
+# Phase 8 — Lurexa Admin + Lurexa Insight
+
+## Lurexa Admin
+
+- [ ] Organization and tenant administration.
+- [ ] User, role and permission management.
+- [ ] Program/course configuration.
+- [ ] Billing/subscription administration.
+- [ ] Governance, audit and compliance controls.
+- [ ] Learner-data/model access policy controls where required.
+
+## Lurexa Insight
+
+- [ ] Learner outcome dashboards.
+- [ ] Cohort/course analysis.
+- [ ] Engagement and retention analysis.
+- [ ] Teacher/institution views.
+- [ ] AI usage and learning-impact metrics.
+- [ ] Interpretable intervention/risk signals.
+- [ ] Authorized aggregated speaking/pronunciation trends.
+
+Exit condition: institutions can operate the platform and understand outcomes without direct database access or opaque AI scores.
+
+---
+
+# Phase 9 — Lurexa Studio
+
+Goal: provide scalable content and learning-experience creation workflows.
+
+- [ ] Course and lesson authoring.
+- [ ] Assessment/question-bank creation.
+- [ ] Media/resource management.
+- [ ] Templates and reusable learning objects.
+- [ ] AI-assisted content creation through Mind.
+- [ ] Review, approval, versioning and publishing.
+- [ ] Learner-aware adaptation at delivery time without corrupting canonical source content.
+
+---
+
+# Phase 10 — Coach distribution expansion
+
+Goal: evolve Coach's distribution only after the learning loop demonstrates independent value.
+
+- [ ] Evaluate embedded vs dedicated Coach application UX.
+- [ ] Preserve shared identity and Learner Model regardless of distribution surface.
+- [ ] Deepen pronunciation history and practice sequencing.
+- [ ] Evaluate independent subscription/economics when justified.
+- [ ] Preserve the rule that Coach consumes Mind; Coach does not become Mind.
+
+---
+
+# Phase 11 — Linguistic and ecosystem expansion
+
+Goal: expand beyond the initial Dominican-English specialization without redesigning the foundation.
+
+Potential directions:
+
+- [ ] Additional Spanish L1 profiles.
+- [ ] Additional L1 linguistic profiles.
+- [ ] Additional subjects.
+- [ ] Enterprise/institutional offerings.
+- [ ] Marketplace capabilities.
+- [ ] Public/partner APIs.
+- [ ] Native mobile where justified.
+- [ ] Corporate learning.
+- [ ] Government/large-institution deployments.
+
+Dominican Spanish is the first deep linguistic profile, not a permanent technical limit.
+
+---
+
+# Quality and governance requirements
+
+- [ ] Focused tests for critical learner flows.
+- [ ] Authorization tests for learner-context access.
+- [ ] Tests for missing, stale and partial learner context.
+- [ ] AI evaluation/regression testing before Mind becomes production-critical.
+- [ ] Representative Coach evaluation set for Dominican Spanish learners.
+- [ ] Linguistic/ELT validation for production transfer claims.
+- [ ] Measure personalized Coach sessions against generic uncontextualized AI conversation.
+- [ ] Track speech/AI cost, reliability and latency.
+- [ ] Maintain evidence/inference separation.
+
+# Repository architecture rules
+
+- Keep architecture documentation current as ownership changes.
+- Do not rename packages solely to match branding.
+- Prevent products from bypassing Core trust boundaries.
+- Prevent product UIs from calling AI providers directly for persistent learning intelligence.
+- Prevent multiple apps from creating competing learner truth.
+- Keep Lurexa Insight as the analytics/intelligence/reporting product name.
+- Treat conceptual architecture changes separately from implementation status.
+
+# End-state principle
+
+> **Lurexa Learning Technologies builds the ecosystem.**  
+> **Lurexa Core owns trust.**  
+> **Lurexa Mind interprets learning.**  
+> **Products deliver experiences and generate evidence.**  
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
