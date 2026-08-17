@@ -2,7 +2,9 @@
 
 # Lurexa Codex Engineering Instructions
 
-Version: 1.0
+Version: 1.1
+
+Last updated: 2026-08-17
 
 ---
 
@@ -22,28 +24,158 @@ You protect:
 - Security
 - Maintainability
 - Developer experience
+- Learner privacy
+- Cross-product consistency
 
 ---
 
-# Project Context
+# Authoritative Company and Product Context
 
-Lurexa is an AI-powered learning ecosystem.
+Lurexa is not a single LMS.
 
-The first product is:
+The authoritative company and product hierarchy is:
 
-## Lurexa Learn
+```text
+Lurexa Learning Technologies
+│
+├── Lurexa Core
+│   └── Shared technical/platform foundation
+│
+├── Lurexa Mind
+│   └── Shared learning intelligence and adaptation
+│
+└── Products
+    ├── Lurexa Learn
+    ├── Lurexa Coach
+    ├── Lurexa Teach
+    ├── Lurexa Admin
+    ├── Lurexa Insight
+    └── Lurexa Studio
+```
 
-An asynchronous English learning platform designed for Dominican students from true beginner level to C2 proficiency.
+Lurexa Learning Technologies is the parent company and master business identity.
 
-Future ecosystem products:
+Lurexa Core owns trusted platform foundations such as identity, authorization, organizations, learning records, commerce, notifications, scheduling, APIs, analytics events, and offline/sync infrastructure.
 
-- Lurexa Coach
-- Lurexa Studio
-- Lurexa Classroom
-- Lurexa Marketplace
-- Lurexa Admin
+Lurexa Mind owns reusable intelligence such as the Learner Model, personalization, recommendations, tutoring intelligence, pronunciation intelligence, L1-transfer analysis, adaptive feedback, assessment intelligence, and pedagogical AI behavior.
 
-Every implementation decision should consider future ecosystem expansion.
+Products compose Core and Mind. Do not rebuild Core or Mind logic independently inside product applications.
+
+---
+
+# Core Learner Principle
+
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+A learner should not start from zero when moving between Lurexa products.
+
+Products observe learner activity. Lurexa Mind interprets approved learning evidence. Lurexa Core owns trusted platform state, authorization, and persistence.
+
+Read and follow:
+
+`Docs/Architecture/Learner Model Architecture.md`
+
+before implementing learner personalization, Coach memory/context, recommendations, pronunciation profiles, CEFR adaptation, or cross-product learning state.
+
+Do not create separate learner profiles or personalization engines per application.
+
+---
+
+# Lurexa Coach Product Definition
+
+Lurexa Coach is an AI-powered English speaking and pronunciation coach designed first around the linguistic realities of Dominican Spanish speakers.
+
+It is a product powered by Lurexa Mind and Lurexa Core. It is not Lurexa Mind itself.
+
+Initial goals include:
+
+- spoken English practice
+- pronunciation coaching
+- intelligibility improvement
+- fluency development
+- stress, rhythm, intonation, and connected speech
+- grammar and vocabulary feedback in spontaneous speech
+- natural English phrasing
+- Dominican-Spanish-to-English transfer analysis
+- understanding intended meaning when learners transfer Dominican idioms, slang, or Spanish structures directly into English
+
+The product should not frame a Dominican accent itself as a defect.
+
+Preferred progression:
+
+1. Intelligibility
+2. Naturalness
+3. Optional pronunciation refinement
+
+Coach should begin as an embedded experience inside Lurexa Learn, then become cross-product, and only become a standalone application when independent product value justifies it.
+
+---
+
+# CEFR-Aware Adaptation Rule
+
+When current learner context exists, AI experiences must use it instead of asking the learner to restate known information.
+
+For example, if a learner is A1 and is studying daily routines, Lurexa Coach should use A1-appropriate vocabulary, sentence length, pace, correction load, and topics.
+
+It should not generate advanced conversation simply because the underlying model can do so.
+
+A valid session context may include:
+
+```text
+CEFR: A1
+Current topic: daily routines
+Known language: family, food, simple present
+Current objectives: frequency adverbs, simple present
+Pronunciation targets: final consonants, /iː/ vs /ɪ/
+Avoid: rare vocabulary, advanced conditionals, long multi-part questions
+Feedback intensity: light during conversation, detailed after conversation
+```
+
+Difficulty should provide productive challenge without unnecessary struggle.
+
+---
+
+# Learner Model Rules
+
+The Learner Model may include:
+
+- CEFR level and skill estimates
+- current curriculum context
+- vocabulary and grammar mastery
+- recurring error patterns
+- pronunciation profile
+- L1-transfer patterns
+- speaking fluency indicators
+- learning and practice history
+- goals
+- preferences
+- confidence indicators
+- recommended next actions
+
+Preserve the difference between observed evidence and inferred state.
+
+Where practical, learner-model updates should include source/provenance, timestamps, confidence, and review/expiry behavior.
+
+Do not create a giant unstructured learner document merely because it is easy in Firestore.
+
+Do not allow product UI components to directly mutate inferred learner state.
+
+---
+
+# Privacy and AI Context Rules
+
+The Learner Model may contain sensitive educational information.
+
+Therefore:
+
+- Apply data minimization.
+- Expose only task-relevant learner context to AI services.
+- Check authorization before reading learner context.
+- Do not send the full learner record to an external model when only a small context subset is needed.
+- Treat inferred weaknesses as revisable estimates, not permanent facts.
+- Do not use learner weaknesses for unrelated commercial profiling.
+- Preserve user and institutional privacy boundaries.
+- Keep high-impact decisions explainable and appropriately reviewable.
 
 ---
 
@@ -56,8 +188,10 @@ You are responsible for:
 - Refactoring code.
 - Finding technical risks.
 - Improving developer workflows.
-- Creating reusable components.
+- Creating reusable components and capabilities.
 - Maintaining consistency across applications.
+- Protecting Core/Mind/product boundaries.
+- Preventing duplicated learner state.
 
 ---
 
@@ -70,19 +204,20 @@ Always analyze:
 3. Existing components.
 4. Related documentation.
 5. Current implementation patterns.
+6. Whether the feature belongs to Core, Mind, or a product.
+7. Whether the feature reads or changes learner state.
 
-Read:
+Read as relevant:
 
-```
+```text
 AGENTS.md
-
 .ai/context/stack.md
-
 .ai/context/conventions.md
-
 .ai/context/products.md
-
-docs/
+Docs/00-Lurexa-Bible.md
+Docs/Architecture/Capability Architecture.md
+Docs/Architecture/Learner Model Architecture.md
+ROADMAP.md
 ```
 
 Do not start coding without understanding the existing system.
@@ -99,6 +234,7 @@ Prefer:
 - Explicit architecture.
 - Strong typing.
 - Incremental improvements.
+- Evidence-backed learner state.
 
 Avoid:
 
@@ -106,50 +242,20 @@ Avoid:
 - Premature abstractions.
 - Unnecessary dependencies.
 - Complex solutions to simple problems.
+- Product-specific copies of shared capabilities.
+- Provider-specific AI logic in UI code.
 
 ---
 
 # Repository Architecture
 
-Follow:
+Follow the existing repository structure.
 
-```
-apps/
+Applications consume shared packages and capability interfaces.
 
-packages/
+Do not create random top-level directories.
 
-services/
-
-firebase/
-
-docs/
-
-.ai/
-```
-
-Never create random top-level directories.
-
----
-
-# Application Architecture
-
-Applications:
-
-```
-apps/
-
-learn-web
-
-teacher-portal
-
-admin-portal
-
-storybook
-```
-
-Applications consume shared packages.
-
-They should not duplicate logic.
+Do not create giant `core` or `mind` umbrella packages solely to mirror the brand names. Core and Mind are architectural ownership groups; physical package boundaries should remain cohesive and independently testable.
 
 ---
 
@@ -157,338 +263,125 @@ They should not duplicate logic.
 
 ## @lurexa/ui
 
-Contains:
+Contains reusable UI components, design-system implementation, and accessibility patterns.
 
-- Reusable UI components.
-- Design system implementation.
-- Accessibility patterns.
-
-Must not contain:
-
-- Business logic.
-- API calls.
-- Database queries.
-
----
+Must not contain business logic, AI provider calls, or database queries.
 
 ## @lurexa/tokens
 
-Contains:
-
-- Colors.
-- Typography.
-- Spacing.
-- Shadows.
-- Motion.
-- Themes.
-
-Never hardcode design values.
-
----
+Contains design tokens. Never hardcode visual values when a token exists.
 
 ## @lurexa/types
 
-Contains:
-
-Shared TypeScript definitions.
-
-Examples:
-
-```
-User
-
-Course
-
-Lesson
-
-Enrollment
-
-Progress
-
-AIResponse
-
-Payment
-```
-
----
+Contains shared domain contracts. Learner-related types must distinguish trusted records, evidence, and inferred learner-model state where relevant.
 
 ## @lurexa/sdk
 
-Contains:
-
-Application-facing APIs.
-
-Example:
-
-```typescript
-sdk.courses.list()
-
-sdk.ai.chat()
-
-sdk.users.profile()
-```
-
-Applications should communicate through the SDK.
-
----
+Contains supported application-facing APIs. Applications should communicate through stable interfaces rather than direct database/provider access.
 
 ## @lurexa/database
 
-Contains:
-
-- Firestore access.
-- Repository patterns.
-- Database operations.
-
-Never access Firestore directly from UI components.
+Contains database repositories and operations. UI components must not access Firestore directly.
 
 ---
 
-# Coding Standards
+# Backend and Capability Rules
 
-Always:
+Preferred flow:
 
-- TypeScript only.
-- Strict typing.
-- Small functions.
-- Meaningful names.
-- Clear interfaces.
-- Proper error handling.
-
-Never:
-
-- Use `any`.
-- Ignore TypeScript errors.
-- Disable lint rules without explanation.
-- Copy and paste duplicate logic.
-
----
-
-# React Rules
-
-Default:
-
-Use Server Components.
-
-Use Client Components only when required.
-
-Client Components are appropriate for:
-
-- Forms.
-- Interactive UI.
-- Browser APIs.
-- Real-time interactions.
-
-Avoid unnecessary:
-
-```typescript
-"use client"
-```
-
----
-
-# Component Rules
-
-Before creating a component:
-
-Check:
-
-```
-packages/ui
-```
-
-If something similar exists:
-
-Extend it.
-
-Do not duplicate.
-
----
-
-Every component should consider:
-
-- Accessibility.
-- Loading state.
-- Empty state.
-- Error state.
-- Responsive behavior.
-
----
-
-# Styling Rules
-
-Use:
-
-- TailwindCSS.
-- Design tokens.
-- Existing UI components.
-
-Never:
-
-```css
-color:#3A5BFF;
-```
-
-Instead:
-
-```css
-color:var(--color-primary);
-```
-
----
-
-# Backend Rules
-
-Architecture:
-
-```
-Application
-
+```text
+Product Application
 ↓
-
-SDK
-
+Capability Interface / SDK
 ↓
-
-Repository
-
+Domain/Application Service
 ↓
-
-Firebase
+Infrastructure Adapter
 ```
 
-Never bypass layers.
+For adaptive AI flows:
 
----
+```text
+Product
+↓
+Core authorization + learner context
+↓
+Mind intelligence service
+↓
+Validated response / recommendation / observation
+↓
+Approved persistence boundary
+```
 
-# Firebase Rules
-
-Firebase is the initial backend platform.
-
-Use:
-
-- Authentication.
-- Firestore.
-- Storage.
-- Cloud Functions.
-
-Security rules are mandatory.
-
-Never trust the client.
+Mind must not bypass Core authorization to read or mutate product data.
 
 ---
 
 # AI Development Rules
 
-All AI functionality must use the AI layer.
+All AI functionality must use approved Lurexa Mind interfaces.
 
-Architecture:
-
-```
-Application
-
-↓
-
-AI SDK
-
-↓
-
-AI Gateway
-
-↓
-
-Model Provider
-```
-
-Never call AI providers directly from UI components.
-
----
+Never call an AI provider directly from UI components.
 
 AI features must handle:
 
-- Loading.
-- Errors.
-- Retry.
-- Timeout.
-- Streaming when appropriate.
-- Cost awareness.
+- loading
+- errors
+- retry
+- timeout
+- streaming when appropriate
+- cost awareness
+- evaluation
+- learner-level adaptation when context exists
+- privacy/data minimization
+
+When implementing pronunciation or speaking intelligence, avoid simplistic accent scoring as the primary educational output. Prefer actionable feedback tied to intelligibility, naturalness, specific speech patterns, and learner goals.
 
 ---
 
 # Offline Development Rules
 
-Offline functionality is a core Lurexa feature.
+Offline functionality is a core platform capability.
 
-Consider:
+Consider local caching, synchronization, conflict resolution, and safe reconciliation of learning evidence.
 
-- IndexedDB.
-- Local caching.
-- Synchronization.
-- Conflict resolution.
+Do not assume continuous connectivity.
 
-Never assume continuous connectivity.
+Learner-model inference should not silently diverge across devices; define how offline evidence is reconciled before it influences persistent adaptive state.
 
 ---
 
 # Database Changes
 
-Before modifying data models:
+Before modifying learner-related data models, review:
 
-Review:
-
+```text
+Docs/Architecture/Learner Model Architecture.md
+Docs/Architecture/Capability Architecture.md
 ```
-docs/database
-```
 
-Create a migration plan when necessary.
+Create migration and compatibility plans when needed.
 
-Avoid breaking existing data.
+Do not let an implementation convenience lock the Learner Model into an unmaintainable schema.
 
 ---
 
 # Testing Requirements
 
-Before considering a task complete:
+Before considering a task complete, run the repository's current supported quality commands.
 
-Run:
+Relevant adaptive/AI features require tests for:
 
-```bash
-pnpm lint
+- authorization
+- CEFR constraints
+- missing/partial learner context
+- stale learner context
+- privacy boundaries
+- evidence vs inference handling
+- failure of external AI providers
+- safe fallback behavior
 
-pnpm typecheck
-
-pnpm test
-
-pnpm build
-```
-
-Relevant features require:
-
-- Unit tests.
-- Integration tests.
-- End-to-end tests when needed.
-
----
-
-# Git Workflow
-
-Use conventional commits.
-
-Format:
-
-```
-type(scope): description
-```
-
-Examples:
-
-```
-feat(ui): add course card component
-
-fix(auth): resolve session timeout
-
-docs(api): update SDK documentation
-```
+Pronunciation/Coach features also require evaluation against representative Dominican Spanish learner cases before production claims are made.
 
 ---
 
@@ -496,29 +389,14 @@ docs(api): update SDK documentation
 
 For every feature:
 
-## Step 1
-
-Understand the requirement.
-
-## Step 2
-
-Check existing architecture.
-
-## Step 3
-
-Plan implementation.
-
-## Step 4
-
-Implement the smallest complete solution.
-
-## Step 5
-
-Test.
-
-## Step 6
-
-Document.
+1. Understand the requirement.
+2. Classify ownership: Core, Mind, or product.
+3. Check existing architecture and packages.
+4. Identify learner-data/privacy impact.
+5. Plan the smallest complete solution.
+6. Implement.
+7. Test.
+8. Document.
 
 ---
 
@@ -526,43 +404,9 @@ Document.
 
 Do not silently guess.
 
-Instead:
+Identify assumptions, explain tradeoffs, choose the simplest viable option, and document important decisions.
 
-1. Identify assumptions.
-2. Explain tradeoffs.
-3. Choose the simplest viable option.
-4. Document important decisions.
-
----
-
-# Code Review Standards
-
-When reviewing code, check:
-
-Architecture:
-
-- Does it belong in the correct package?
-- Does it introduce unnecessary coupling?
-
-Quality:
-
-- Is it readable?
-- Is it maintainable?
-
-Security:
-
-- Are permissions enforced?
-- Are secrets protected?
-
-Performance:
-
-- Are unnecessary renders avoided?
-- Are queries optimized?
-
-UX:
-
-- Are loading states handled?
-- Are errors understandable?
+Do not invent learner traits from insufficient evidence.
 
 ---
 
@@ -570,28 +414,25 @@ UX:
 
 A task is complete when:
 
-✓ Code implemented
-
-✓ Tests added
-
-✓ TypeScript passes
-
-✓ Lint passes
-
-✓ Build passes
-
-✓ Documentation updated
-
-✓ Architecture respected
-
-✓ No unnecessary technical debt introduced
+- Code is implemented.
+- Relevant tests pass.
+- TypeScript and linting pass for affected scope.
+- Build passes for affected scope.
+- Documentation is updated.
+- Architecture is respected.
+- Core/Mind/product ownership is clear.
+- Learner privacy and authorization are preserved.
+- No unnecessary duplicated learner state is introduced.
+- No unnecessary technical debt is introduced.
 
 ---
 
-# Final Rule
+# Final Rules
 
 Do not optimize for completing the current task only.
 
 Optimize for building the Lurexa ecosystem.
+
+> **Products observe the learner. Mind understands the learner. Core protects and persists the trusted learning record.**
 
 Every line of code should make future development easier, not harder.
