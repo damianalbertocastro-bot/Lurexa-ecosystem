@@ -14,3 +14,4 @@ export * from "./marketplace.service";
 export * from "./admin.service";
 export * from "./ecosystem.service";
 export * from "./telemetry.service";
+export * from "./learner-model.service";
