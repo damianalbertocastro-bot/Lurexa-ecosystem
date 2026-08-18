@@ -18,3 +18,4 @@ export * from "./learner-model.service";
 export * from "./linguistic-intelligence.service";
 export * from "./coach-linguistic-adapter.service";
 export * from "./coach-linguistic-pipeline.service";
+export * from "./linguistic-pattern-aggregator.service";
