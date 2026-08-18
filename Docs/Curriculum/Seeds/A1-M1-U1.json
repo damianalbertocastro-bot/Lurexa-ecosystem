@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "course": {
+    "id": "english-a1-foundations",
+    "title": "A1 — Foundations for Real Communication",
+    "cefrLevel": "A1"
+  },
+  "module": {
+    "id": "a1-m1-hello-this-is-me",
+    "title": "Hello, This Is Me",
+    "mission": "Meet people, exchange basic personal information and build the pronunciation and interaction habits needed for a first English conversation."
+  },
+  "unit": {
+    "id": "a1-m1-u1-meeting-people",
+    "title": "Meeting People",
+    "mission": "Start and maintain a short first-time conversation using greetings, names, origin and basic repair strategies.",
+    "competencyIds": [
+      "EN.A1.LISTEN.PERSONAL_INFO",
+      "EN.A1.SPEAK.INTRODUCE_SELF",
+      "EN.A1.SPEAK.ASK_BASIC_PERSONAL_QUESTIONS",
+      "EN.A1.CONV.GREETING_EXCHANGE",
+      "EN.A1.CONV.REQUEST_CLARIFICATION",
+      "EN.A1.PHON.SOUND_AWARENESS",
+      "EN.A1.PHON.FINAL_CONSONANTS_FOUNDATION",
+      "EN.A1.VOC.IDENTITY_AND_GREETINGS",
+      "EN.A1.GRAM.BE_FOUNDATION"
+    ]
+  },
+  "lessons": [
+    {
+      "id": "a1-m1-u1-l1-first-hello",
+      "title": "First Hello",
+      "mission": "Greet someone, say your name and respond naturally when meeting a person for the first time.",
+      "estimatedMinutes": 28,
+      "freeEligible": true,
+      "contextRegion": "dominican",
+      "stages": [
+        { "type": "hook", "title": "First Day", "activityIds": ["l1-hook-first-day"] },
+        { "type": "vocabulary_builder", "title": "Words for a First Meeting", "activityIds": ["l1-vocab-greetings"] },
+        { "type": "listening", "title": "Meeting at Class", "activityIds": ["l1-listen-global", "l1-listen-detail", "l1-micro-listen"] },
+        { "type": "language_noticing", "title": "Everyday English", "activityIds": ["l1-notice-contractions"] },
+        { "type": "phonetics_focus", "title": "Clear First Words", "activityIds": ["l1-phon-hello", "l1-phon-stress", "l1-phon-record"] },
+        { "type": "guided_practice", "title": "Build Your Greeting", "activityIds": ["l1-guided-greeting"] },
+        { "type": "conversation", "title": "Meet Sofia", "activityIds": ["l1-conversation-sofia"] },
+        { "type": "create_apply", "title": "My 15-Second Hello", "activityIds": ["l1-create-hello"] },
+        { "type": "review", "title": "Quick Recall", "activityIds": ["l1-review"] },
+        { "type": "quiz", "title": "First Hello Check", "activityIds": ["l1-quiz"] },
+        { "type": "reflection", "title": "Can I Do It?", "activityIds": ["l1-reflect"] }
+      ]
+    },
+    {
+      "id": "a1-m1-u1-l2-whats-your-name",
+      "title": "What’s Your Name?",
+      "mission": "Ask for and give a person's name, and ask for repetition when needed.",
+      "estimatedMinutes": 28,
+      "freeEligible": true,
+      "stages": [
+        { "type": "hook", "title": "Did You Catch the Name?", "activityIds": ["l2-hook-name"] },
+        { "type": "vocabulary_builder", "title": "Names and Repair Words", "activityIds": ["l2-vocab-names"] },
+        { "type": "listening", "title": "Listen for the Name", "activityIds": ["l2-listen-names", "l2-micro-repeat"] },
+        { "type": "grammar_focus", "title": "Ask and Answer", "activityIds": ["l2-grammar-name"] },
+        { "type": "phonetics_focus", "title": "Spell It Clearly", "activityIds": ["l2-phon-alphabet-preview", "l2-phon-name"] },
+        { "type": "conversation", "title": "Ask Again", "activityIds": ["l2-conversation-repair"] },
+        { "type": "create_apply", "title": "Two-Person Mini Dialogue", "activityIds": ["l2-create-dialogue"] },
+        { "type": "review", "title": "Name Retrieval", "activityIds": ["l2-review"] },
+        { "type": "quiz", "title": "Name and Clarification Check", "activityIds": ["l2-quiz"] }
+      ]
+    },
+    {
+      "id": "a1-m1-u1-l3-where-are-you-from",
+      "title": "Where Are You From?",
+      "mission": "Say your city or country and ask another person where they are from.",
+      "estimatedMinutes": 32,
+      "freeEligible": true,
+      "stages": [
+        { "type": "hook", "title": "Places We Know", "activityIds": ["l3-hook-places"] },
+        { "type": "vocabulary_builder", "title": "Countries, Cities and People", "activityIds": ["l3-vocab-origin"] },
+        { "type": "listening", "title": "Three Introductions", "activityIds": ["l3-listen-global", "l3-listen-detail"] },
+        { "type": "grammar_focus", "title": "I’m From...", "activityIds": ["l3-grammar-from"] },
+        { "type": "phonetics_focus", "title": "Country Word Stress", "activityIds": ["l3-phon-stress"] },
+        { "type": "conversation", "title": "Caribbean Connection", "activityIds": ["l3-conversation-origin"] },
+        { "type": "create_apply", "title": "Where I’m From", "activityIds": ["l3-create-origin"] },
+        { "type": "review", "title": "Origin Retrieval", "activityIds": ["l3-review"] },
+        { "type": "quiz", "title": "Origin Check", "activityIds": ["l3-quiz"] }
+      ]
+    },
+    {
+      "id": "a1-m1-u1-l4-meet-someone-new",
+      "title": "Meet Someone New",
+      "mission": "Combine greetings, names, origin and clarification strategies in one short conversation.",
+      "estimatedMinutes": 36,
+      "freeEligible": true,
+      "stages": [
+        { "type": "review", "title": "No-Notes Retrieval", "activityIds": ["l4-warm-retrieval"] },
+        { "type": "listening", "title": "First-Meeting Challenge", "activityIds": ["l4-listening-challenge"] },
+        { "type": "reading", "title": "Read a Simple Profile", "activityIds": ["l4-reading-profile"] },
+        { "type": "conversation", "title": "Conversation Mission", "activityIds": ["l4-conversation-mission"] },
+        { "type": "phonetics_focus", "title": "Intelligibility Check", "activityIds": ["l4-phon-check"] },
+        { "type": "create_apply", "title": "My First English Connection", "activityIds": ["l4-create-performance"] },
+        { "type": "review", "title": "Vocabulary Wrap", "activityIds": ["l4-vocab-wrap"] },
+        { "type": "quiz", "title": "Unit 1 Evidence Check", "activityIds": ["l4-unit-check"] },
+        { "type": "reflection", "title": "My Next Target", "activityIds": ["l4-reflect"] }
+      ]
+    }
+  ],
+  "activities": {
+    "l1-vocab-greetings": {
+      "type": "interactive_vocabulary",
+      "interactionModes": ["see_hear", "context_select", "repeat", "retrieve", "use"],
+      "items": ["Hello", "Hi", "Good morning", "Good afternoon", "Good evening", "My name is...", "I'm...", "Nice to meet you", "Bye", "Goodbye"]
+    },
+    "l1-conversation-sofia": {
+      "type": "scenario_conversation",
+      "aiRole": "Sofia, another A1 learner at a new class in Santo Domingo",
+      "learnerGoal": "Greet Sofia, give your name, respond to Nice to meet you, and close the conversation.",
+      "targetTurns": { "min": 4, "max": 6 },
+      "phraseSupport": ["Hi! I'm...", "My name is...", "Nice to meet you, too.", "Bye!"]
+    },
+    "l4-conversation-mission": {
+      "type": "scenario_conversation",
+      "learnerGoal": "Exchange greeting, name and origin; respond; request clarification if needed; close the conversation.",
+      "targetSeconds": [60, 90],
+      "scaffolding": ["full_phrases", "keywords", "independent"]
+    }
+  },
+  "unitCompletionRule": "Unit completion records evidence and completion status. It does not directly set competency mastery.",
+  "nextStepRules": [
+    "Strong performance -> recommend Unit 2.",
+    "Weak listening + adequate speaking -> recommend Unit 2 plus targeted listening retrieval.",
+    "Recurring phonetic issue -> recommend optional phonetics/Coach micro-practice if accessible.",
+    "Broad communication breakdown -> targeted Unit 1 review, not automatic full restart."
+  ]
+}
