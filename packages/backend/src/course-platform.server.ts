@@ -167,14 +167,20 @@ export const CoursePlatformService = {
     };
   },
 
-  async getLesson(actor: AuthenticatedActor, courseId: string, lessonId: string): Promise<{ lesson: Lesson; progress: StudentProgress | null }> {
+  async getLesson(actor: AuthenticatedActor, courseId: string, lessonId: string): Promise<{ lesson: Lesson; progress: StudentProgress | null; nextLesson: Lesson | null }> {
     const course = await getCourseOrThrow(courseId);
     if (course.status !== "published") throw new Error("This course is not published.");
     await requireMembership(actor.uid, course.orgId);
-    const entry = (await getCourseLessons(course)).find(({ lesson }) => lesson.id === lessonId);
-    if (!entry) throw new Error("Lesson not found in this course.");
+    const lessons = await getCourseLessons(course);
+    const lessonIndex = lessons.findIndex(({ lesson }) => lesson.id === lessonId);
+    if (lessonIndex < 0) throw new Error("Lesson not found in this course.");
+    const entry = lessons[lessonIndex];
     const progress = await getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`).get();
-    return { lesson: entry.lesson, progress: progress.exists ? (progress.data() as StudentProgress) : null };
+    return {
+      lesson: entry.lesson,
+      progress: progress.exists ? (progress.data() as StudentProgress) : null,
+      nextLesson: lessons[lessonIndex + 1]?.lesson ?? null,
+    };
   },
 
   async completeLesson(actor: AuthenticatedActor, courseId: string, lessonId: string, timeSpentSeconds: number): Promise<StudentProgress> {

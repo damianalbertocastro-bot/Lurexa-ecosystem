@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -12,9 +12,11 @@ import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
 
 export default function CoursePlayerPage() {
   const params = useParams<{ courseId: string; lessonId: string }>();
+  const router = useRouter();
   const [completed, setCompleted] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [nextLesson, setNextLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,15 +24,20 @@ export default function CoursePlayerPage() {
     if (!user) { setError("Sign in is required."); setLoading(false); return; }
     try {
       const response = await authenticatedFetch(`/api/learning?courseId=${encodeURIComponent(params.courseId)}&lessonId=${encodeURIComponent(params.lessonId)}`);
-      const payload = await response.json() as { lesson?: Lesson; progress?: StudentProgress | null; error?: string };
+      const payload = await response.json() as { lesson?: Lesson; progress?: StudentProgress | null; nextLesson?: Lesson | null; error?: string };
       if (!response.ok || !payload.lesson) throw new Error(payload.error ?? "Unable to load lesson.");
       setLesson(payload.lesson);
+      setNextLesson(payload.nextLesson ?? null);
       setCompleted(payload.progress?.completed ?? false);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to load lesson."); }
     finally { setLoading(false); }
   }), [params.courseId, params.lessonId]);
 
   const handleMarkComplete = async () => {
+    if (completed && nextLesson) {
+      router.push(`/learn/${params.courseId}/${nextLesson.id}`);
+      return;
+    }
     setSyncing(true);
     try {
       const response = await authenticatedFetch("/api/learning", {
@@ -77,8 +84,9 @@ export default function CoursePlayerPage() {
               variant={completed ? "secondary" : "primary"}
               onClick={handleMarkComplete}
               isLoading={syncing}
+              disabled={completed && !nextLesson}
             >
-              {completed ? "Lesson Completed ✓" : "Mark as Complete & Next →"}
+              {completed ? (nextLesson ? "Continue to next lesson →" : "Course completed ✓") : "Mark lesson complete"}
             </Button>
           </div>
         </div>
