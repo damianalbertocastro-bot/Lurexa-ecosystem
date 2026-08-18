@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lurexa.local/schemas/dominican-error-corpus.collection.schema.json",
+  "title": "Lurexa Dominican English Error Corpus Collection",
+  "type": "array",
+  "items": {
+    "$ref": "./dominican-error-corpus.schema.json"
+  },
+  "minItems": 1
+}
