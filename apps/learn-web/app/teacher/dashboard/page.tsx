@@ -21,11 +21,14 @@ export default function TeacherDashboard() {
   const [revokingInvitationId, setRevokingInvitationId] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
+  const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
 
   const loadInvitations = async (orgId: string) => {
     setIsLoadingInvitations(true);
     try {
-      setInvitations(await OrganizationService.getInvitationsForOrganization(orgId));
+      const loadedInvitations = await OrganizationService.getInvitationsForOrganization(orgId);
+      setInvitations(loadedInvitations);
+      setCurrentTimestamp(new Date().getTime());
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Unable to load invitations.");
     } finally {
@@ -110,7 +113,9 @@ export default function TeacherDashboard() {
 
   const getInvitationStatus = (invite: Invitation) => {
     if (invite.usedAt) return { label: "Used", variant: "success" as const };
-    if (invite.expiresAtMillis <= Date.now()) return { label: "Expired", variant: "warning" as const };
+    if (currentTimestamp !== null && invite.expiresAtMillis <= currentTimestamp) {
+      return { label: "Expired", variant: "warning" as const };
+    }
     return { label: "Active", variant: "info" as const };
   };
 
