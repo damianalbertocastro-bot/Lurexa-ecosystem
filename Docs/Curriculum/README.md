@@ -49,7 +49,8 @@ These documents do not replace `Docs/Architecture/*`. Architecture owns product 
 25. `24-A1-MODULE-1-ASSESSMENT-AND-LIVE-PRACTICE.md`
 26. `25-PLACEMENT-ITEM-BANK-A1-A2.md`
 27. `26-MEDIA-AND-INTERACTIVE-CARD-ASSET-STANDARD.md`
-28. `Seeds/A1-M1-U1.json` — machine-readable Unit 1 seed
+28. `27-A1-MODULES-2-8-PRODUCTION-SPEC.md`
+29. `Seeds/A1-M1-U1.json` — machine-readable Unit 1 seed
 
 ## Read paths by task
 ### Building or redesigning the lesson player
@@ -71,10 +72,10 @@ Read: 12, 14, 15, 24.
 Read: 04, 12, 13.
 
 ### Creating A1 content
-Read: 00, 01, 02, 06-11, 18, 19, 23, 24, 26.
+Read: 00, 01, 02, 06-11, 18, 19, 23, 24, 26, 27.
 
 ## MVP priority
-A1 is production-ready first. A2 should be designed next. B1-C2 retain stable cross-level architecture and are expanded before release.
+A1 now has complete production architecture from Module 1 through Module 8. Engineering should still validate the vertical slice before scaling content implementation. A2 is the next curriculum-design level. B1-C2 retain stable cross-level architecture and are expanded before release.
 
 Do not delay the MVP until every future C2 lesson exists. Prove one complete vertical learning loop first.
 
@@ -84,7 +85,7 @@ Do not delay the MVP until every future C2 lesson exists. Prove one complete ver
 The target includes four lessons and must prove:
 Placement -> lesson recommendation -> interactive vocabulary -> listening -> phonetics -> speaking/conversation -> Create & Apply -> quiz -> evidence -> learner-model interpretation -> remembered adaptation.
 
-Once Unit 1 is technically proven, Units 2 and 3 in file 23 complete the first content module and file 24 provides its assessment/live-practice layer.
+Once Unit 1 is technically proven, Units 2 and 3 in file 23 complete the first content module; file 24 provides its assessment/live-practice layer; file 27 defines the remaining A1 modules and rollout order.
 
 ## Architecture references
 Before implementing persistent learner state, personalization, AI interpretation or cross-product learning context, also read:
