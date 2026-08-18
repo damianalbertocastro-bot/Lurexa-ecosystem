@@ -51,7 +51,10 @@ export class LinguisticPatternAggregatorService {
       groups.set(patternId, existing);
     }
 
-    return [...groups.entries()].map(([patternId, events]) => {
+    return [...groups.entries()].flatMap(([patternId, events]) => {
+      const first = events[0];
+      if (!first) return [];
+
       const sessions = new Set(
         events.map((event) => event.source.sessionId ?? event.id),
       );
@@ -66,7 +69,7 @@ export class LinguisticPatternAggregatorService {
       ).length;
       const latest = [...events].sort((a, b) =>
         b.observedAt.localeCompare(a.observedAt),
-      )[0];
+      )[0] ?? first;
       const recurrence = recurrenceFor(
         events.length,
         sessions.size,
@@ -79,18 +82,18 @@ export class LinguisticPatternAggregatorService {
       const improvementAdjustment = spontaneousSuccessCount * 0.08;
       const confidence = clamp(support - improvementAdjustment, 0.1, 0.95);
 
-      return {
+      return [{
         patternId,
-        domain: latest?.payload.domain ?? events[0].payload.domain,
+        domain: latest.payload.domain,
         observationCount: events.length,
         sessionCount: sessions.size,
         selfCorrectionCount,
         successfulRetryCount,
         spontaneousSuccessCount,
-        lastObservedAt: latest?.observedAt ?? events[0].observedAt,
+        lastObservedAt: latest.observedAt,
         recurrence,
         confidence: Number(confidence.toFixed(2)),
-      };
+      }];
     });
   }
 }
