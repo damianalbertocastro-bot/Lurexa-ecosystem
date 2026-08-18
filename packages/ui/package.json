@@ -17,7 +17,7 @@
   "devDependencies": {
     "@lurexa/eslint-config": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
+    "@types/node": "^24.13.3",
     "@types/react": "18.2.79",
     "@types/react-dom": "18.2.25",
     "eslint": "^9.39.1",

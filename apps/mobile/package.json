@@ -24,7 +24,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@lurexa/typescript-config": "workspace:*",
-    "@types/node": "^26.1.2",
+    "@types/node": "^24.13.3",
     "@types/react": "~18.2.45",
     "typescript": "5.9.2"
   }

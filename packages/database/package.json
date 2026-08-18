@@ -18,7 +18,7 @@
   "devDependencies": {
     "@lurexa/eslint-config": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
+    "@types/node": "^24.13.3",
     "eslint": "^9.39.1",
     "tsx": "^4.23.11",
     "typescript": "5.9.2"
