@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lurexa.local/schemas/linguistic-evidence-event.schema.json",
+  "title": "Lurexa Linguistic Evidence Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "source", "timestamp", "modality", "taskMode", "observationType", "reliability"],
+  "properties": {
+    "eventId": {"type": "string", "minLength": 1},
+    "learnerRef": {"type": ["string", "null"]},
+    "sessionRef": {"type": ["string", "null"]},
+    "source": {"enum": ["LUREXA_COACH_EVIDENCE", "LUREXA_LEARN_EVIDENCE", "ASSESSMENT_EVIDENCE", "DAMIAN_CLASSROOM_OBSERVATION", "OTHER_TEACHER_OBSERVATION"]},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "patternId": {"type": ["string", "null"]},
+    "competencyIds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "modality": {"enum": ["speaking", "listening", "reading", "writing", "pronunciation"]},
+    "taskMode": {"enum": ["CONTROLLED_ACCURACY", "GUIDED_PRACTICE", "GUIDED_CONVERSATION", "FLUENCY_CONVERSATION", "PRONUNCIATION_FOCUS", "ASSESSMENT", "FREE_PRODUCTION", "PROFESSIONAL_COMMUNICATION", "ACADEMIC_COMMUNICATION"]},
+    "observationType": {"enum": ["SPOKEN_PRODUCTION", "WRITTEN_PRODUCTION", "LISTENING_RESPONSE", "READING_RESPONSE", "PRONUNCIATION_TASK", "CONVERSATION_BEHAVIOR", "SELF_CORRECTION", "TEACHER_OBSERVATION", "AI_OBSERVATION", "ASSESSMENT_RESPONSE"]},
+    "learnerForm": {"type": ["string", "null"]},
+    "normalizedObservation": {"type": ["string", "null"]},
+    "intendedMeaningOrFunction": {"type": ["string", "null"]},
+    "communicativeImpact": {"enum": ["CI0", "CI1", "CI2", "CI3"]},
+    "communicationBreakdown": {"type": "boolean"},
+    "intervention": {
+      "type": ["object", "null"],
+      "properties": {
+        "action": {"enum": ["IGNORE_AS_VARIATION", "OBSERVE_ONLY", "RECAST", "CLARIFICATION_REQUEST", "ELICIT_SELF_CORRECTION", "EXPLICIT_CORRECTION", "BRIEF_EXPLANATION", "MODEL_AND_REPEAT", "RETRY_SEGMENT", "DELAYED_FEEDBACK", "TARGETED_MICROPRACTICE", "SCHEDULE_REVIEW", "ESCALATE_TO_TEACHER_REVIEW"]},
+        "attempts": {"type": "integer", "minimum": 0},
+        "selfCorrection": {"enum": ["NOT_APPLICABLE", "SUCCESS", "FAILED", "NOT_ATTEMPTED"]},
+        "retryOutcome": {"enum": ["NOT_APPLICABLE", "SUCCESS", "PARTIAL", "FAILED", "NOT_ATTEMPTED"]}
+      },
+      "additionalProperties": false
+    },
+    "spontaneousSuccess": {"type": ["boolean", "null"]},
+    "reliability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidence"],
+      "properties": {
+        "confidence": {"enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]},
+        "audioQuality": {"enum": ["UNKNOWN", "POOR", "FAIR", "GOOD"]},
+        "humanValidated": {"type": "boolean"},
+        "notes": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
