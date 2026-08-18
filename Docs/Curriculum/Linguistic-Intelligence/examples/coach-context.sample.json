@@ -1,0 +1,68 @@
+{
+  "contractVersion": "0.1",
+  "generatedAt": "2026-08-18T17:37:00-04:00",
+  "learnerModelRevision": "example-only",
+  "proficiency": {
+    "overallEstimated": "B1",
+    "listening": "B2",
+    "reading": "B1",
+    "speaking": "B1",
+    "writing": "B1",
+    "productiveVocabulary": "B1",
+    "receptiveVocabulary": "B2"
+  },
+  "languageBackground": {
+    "l1": "es",
+    "variety": "es-DO",
+    "useForHypothesisGeneration": true
+  },
+  "session": {
+    "mode": "GUIDED_CONVERSATION",
+    "goal": "Describe a recent experience using clear past-time language"
+  },
+  "currentTargets": [
+    {
+      "patternId": "DO-ENG-PRO-006",
+      "competencyId": null,
+      "priority": "HIGH",
+      "evidenceGoal": "Spontaneous audible production of regular-past morphology"
+    }
+  ],
+  "activePatterns": [
+    {
+      "patternId": "DO-ENG-PRO-006",
+      "state": "UNSTABLE",
+      "recurrence": "R2_REPEATED_ACROSS_SESSIONS",
+      "confidence": "HIGH",
+      "communicativeImpact": "CI1",
+      "modality": "speaking",
+      "preferredActions": ["DELAYED_FEEDBACK", "RETRY_SEGMENT"],
+      "lastObservedAt": "2026-08-17T16:00:00-04:00"
+    }
+  ],
+  "pronunciationPriorities": [
+    {
+      "patternId": "DO-ENG-PRO-006",
+      "focus": "regular-past ending audibility",
+      "causeStatus": "UNRESOLVED_GRAMMAR_VS_PRONUNCIATION"
+    }
+  ],
+  "vocabularyTargets": [],
+  "strengths": ["Sustains familiar-topic conversation", "Understands past-time questions without translation support"],
+  "recentCorrections": [
+    {
+      "patternId": "DO-ENG-PRO-006",
+      "recentInterventions": 1,
+      "lastAction": "MODEL_AND_REPEAT",
+      "lastRetrySuccessful": true,
+      "cooldownSuggested": false
+    }
+  ],
+  "correction": {
+    "timingDefault": "AFTER_SEGMENT",
+    "maxPriorityCorrectionsPerSegment": 2,
+    "preferSelfRepair": true,
+    "allowL1AwareExplanation": true,
+    "protectFluency": true
+  }
+}
