@@ -1,0 +1,30 @@
+{
+  "eventId": "example-event-001",
+  "learnerRef": "example-learner",
+  "sessionRef": "example-session",
+  "source": "LUREXA_COACH_EVIDENCE",
+  "timestamp": "2026-08-18T17:40:00-04:00",
+  "patternId": "DO-ENG-PRO-006",
+  "competencyIds": [],
+  "modality": "speaking",
+  "taskMode": "GUIDED_CONVERSATION",
+  "observationType": "SPOKEN_PRODUCTION",
+  "learnerForm": "I watch TV last night",
+  "normalizedObservation": "Past-time meaning expressed without an audible regular-past marker on watched",
+  "intendedMeaningOrFunction": "Describe a completed past activity",
+  "communicativeImpact": "CI1",
+  "communicationBreakdown": false,
+  "intervention": {
+    "action": "ELICIT_SELF_CORRECTION",
+    "attempts": 1,
+    "selfCorrection": "SUCCESS",
+    "retryOutcome": "SUCCESS"
+  },
+  "spontaneousSuccess": null,
+  "reliability": {
+    "confidence": "HIGH",
+    "audioQuality": "GOOD",
+    "humanValidated": false,
+    "notes": "Cause remains unresolved between grammatical selection and spoken realization until additional evidence is collected."
+  }
+}
