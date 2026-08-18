@@ -8,12 +8,24 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm --filter @lurexa/learn-web dev",
+    "dev": "pnpm --filter learn-web dev",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "check-types": "pnpm -r check-types",
     "test": "pnpm -r test",
+    "phase0:lint": "pnpm --filter learn-web... lint",
+    "phase0:check-types": "pnpm --filter learn-web... check-types",
+    "phase0:build": "pnpm --filter learn-web... build",
+    "verify:phase0": "pnpm phase0:lint && pnpm phase0:check-types && pnpm phase0:build",
     "firebase:emulators": "firebase emulators:start --only auth,firestore"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "protobufjs",
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "devDependencies": {
     "typescript": "^5.9.2"
