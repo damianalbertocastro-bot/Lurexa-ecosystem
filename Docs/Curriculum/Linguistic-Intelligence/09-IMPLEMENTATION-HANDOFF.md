@@ -1,6 +1,6 @@
 # Lurexa Linguistic Intelligence — Implementation Handoff
 
-Status: Developer handoff — v0.1
+Status: Shared implementation foundation — v0.1
 
 ## 1. Purpose
 
@@ -52,62 +52,107 @@ Owns interaction behavior:
 
 ### Step A — Types and validation
 
-Implement typed models matching:
+Typed contracts now exist in `packages/types/src/linguistic-intelligence.ts` and are exported through `@lurexa/types`.
+
+Schema assets:
 
 - `data/dominican-error-corpus.schema.json`
+- `data/dominican-error-corpus.collection.schema.json`
 - `data/learner-context.schema.json`
 - `data/linguistic-evidence-event.schema.json`
 
-Validate sample payloads during CI.
-
 ### Step B — Corpus loader
 
-Load normalized corpus patterns as population knowledge. Corpus records must remain read-only to Coach at runtime except through versioned content updates.
+A versioned population seed now exists at:
+
+- `data/dominican-error-corpus.v0.1.json`
+
+Read-only catalog access is represented by:
+
+- `packages/backend/src/dominican-corpus-catalog.service.ts`
+
+Runtime code should inject a validated source into this catalog rather than importing corpus JSON throughout product code.
 
 ### Step C — Learner evidence ingestion
 
-Create an ingestion pathway for Coach/Learn/teacher evidence. Store raw evidence separately from Mind interpretations.
+The existing Core boundary remains authoritative:
+
+- `packages/backend/src/learner-model.service.ts`
+
+Coach linguistic observations are mapped into the existing `LearningEvidence` contract by:
+
+- `packages/backend/src/coach-linguistic-adapter.service.ts`
 
 ### Step D — Pattern aggregator
 
-For each learner and pattern/modality, aggregate recurrence, recency, successful repair, spontaneous success, and contradictory evidence.
+Implemented in:
+
+- `packages/backend/src/linguistic-pattern-aggregator.service.ts`
+
+It aggregates learner-specific recurrence, session spread, self-correction, retry success, spontaneous later success, and provisional confidence without replacing raw evidence.
 
 ### Step E — Confidence/state interpreter
 
-Implement the states and confidence rules in `06-EVIDENCE-CONFIDENCE-MODEL.md`. Avoid hardcoding nationality or population frequency into learner confidence.
+The aggregator currently implements a conservative v0.1 recurrence/confidence heuristic. These thresholds are provisional and must be recalibrated once real Lurexa learner evidence exists.
+
+Population frequency and nationality are not inputs to learner confidence.
 
 ### Step F — Context builder
 
-Construct the bounded context defined in `07-LEARNER-CONTEXT-CONTRACT.md`. Return only session-relevant active patterns and targets.
+Implemented in:
+
+- `packages/backend/src/coach-linguistic-adapter.service.ts`
+
+It minimizes generic Learner Model context into Coach-relevant grammar, vocabulary, pronunciation, fluency, targets, CEFR, and optional L1 profile information.
 
 ### Step G — Coach intervention resolver
 
-Implement `08-COACH-INTERVENTION-RULES.md` as a decision layer above model generation. The model may phrase feedback naturally, but timing, dosage, and allowed intervention classes should be constrained by policy.
+Implemented in:
+
+- `packages/backend/src/linguistic-intelligence.service.ts`
+
+The resolver constrains intervention class, timing, priority, retry behavior, and evidence creation according to communication breakdown, task mode, CEFR, target status, recurrence, self-correction, intelligibility risk, pragmatics risk, and acceptable variation.
 
 ### Step H — Evidence return loop
 
-After meaningful Coach interactions, emit `linguistic-evidence-event` records. Mind updates interpretations asynchronously within the product architecture, while Coach continues from the context it was given.
+Implemented as a shared orchestration boundary in:
 
-## 5. Recommended runtime shape
+- `packages/backend/src/coach-linguistic-pipeline.service.ts`
+
+The pipeline:
+
+1. requests authorized learner context through `LearnerModelService`;
+2. minimizes it for Coach;
+3. resolves intervention behavior;
+4. creates structured linguistic evidence;
+5. submits that evidence back through the same Core-owned learner-model boundary.
+
+## 5. Runtime shape
 
 ```text
 Core-authorized learner data
         ↓
-Mind evidence interpreter
+CoachLinguisticPipelineService.prepareSession()
         ↓
-Mind context builder
+CoachLinguisticAdapterService
         ↓
-Learner Context Contract
+CoachLinguisticContext
         ↓
-Coach session
+Coach session/runtime
         ↓
-Intervention resolver + conversation model
+LinguisticIntelligenceService.decideIntervention()
         ↓
-Linguistic Evidence Events
+Coach feedback / retry / continuation
         ↓
-Mind ingestion / interpretation
+CoachLinguisticPipelineService.recordObservation()
         ↓
-Updated learner model
+LearningEvidence
+        ↓
+LearnerModelService.submitEvidence()
+        ↓
+Core persistence
+        ↓
+Mind aggregation / future interpretation
 ```
 
 ## 6. Pattern matching strategy
@@ -117,7 +162,7 @@ For MVP, pattern detection should be conservative:
 - exact/high-confidence rules for simple structural patterns where feasible;
 - model-assisted classification for open-ended language;
 - confidence/reliability metadata on model classifications;
-- `UNCLASSIFIED` evidence when no responsible pattern match exists;
+- unclassified evidence when no responsible pattern match exists;
 - human/teacher review path for uncertain high-impact cases.
 
 Do not force every utterance into an existing corpus ID.
@@ -126,7 +171,7 @@ Do not force every utterance into an existing corpus ID.
 
 Do not paste the full corpus into every Coach prompt. Mind should select only relevant pattern definitions and intervention guidance for the active session.
 
-The full corpus belongs in retrieval/population knowledge; the context contract belongs in the runtime prompt/tool state.
+The full corpus belongs in population knowledge; the context contract belongs in runtime state.
 
 ## 8. Versioning
 
@@ -156,20 +201,17 @@ Track at minimum:
 
 ## 10. Evaluation cases
 
-Build automated behavioral tests for cases such as:
+Behavioral fixtures now exist in:
 
-1. A1 learner says `I have 25 years old` in guided conversation — one short priority correction, then continue.
-2. B1 learner tells a story with several errors — do not interrupt every error; select high-value feedback afterward.
-3. B1 learner self-corrects `students confuses... students confuse` — record positive repair; do not lecture.
-4. `watched` ending is inaudible — preserve grammar/pronunciation ambiguity rather than asserting one cause.
-5. Dominican L1 profile exists but learner has no TH evidence — do not create an active TH weakness.
-6. B2 learner repeatedly uses basic vocabulary despite receptive evidence — prompt retrieval rather than teaching random new synonyms.
-7. Pronunciation difference is intelligible acceptable variation — no correction.
-8. Communication breaks down — immediate clarification overrides fluency delay.
+- `examples/coach-intervention-cases.json`
+
+They cover A1 current-target correction, B1 delayed recurring feedback, self-correction, communication breakdown, acceptable pronunciation variation, B2 self-repair, pronunciation intelligibility risk, and low-value fluency errors.
+
+These fixtures should become automated tests when the repository standardizes a test runner for this package.
 
 ## 11. Human calibration still required
 
-The system is implementation-ready as a v0.1 specification, but these areas require future human evidence rather than invention:
+These areas require future human evidence rather than invention:
 
 - additional real Dominican transfer examples, especially pragmatics/natural expressions;
 - frequency estimates grounded in more than one teacher;
@@ -178,11 +220,11 @@ The system is implementation-ready as a v0.1 specification, but these areas requ
 - teacher-reviewed edge cases for World Englishes/acceptable variation;
 - product UX decisions for how learners choose correction preferences.
 
-These are calibration tasks, not blockers for an MVP implementation.
+These are calibration tasks, not blockers for the shared implementation foundation.
 
-## 12. Definition of done for this pedagogical workstream
+## 12. Definition of done for the pedagogical workstream
 
-The initial workstream is complete when the repository contains:
+Completed:
 
 - three-layer linguistic-intelligence authority;
 - taxonomy;
@@ -194,7 +236,34 @@ The initial workstream is complete when the repository contains:
 - learner-context contract;
 - Coach intervention rules;
 - machine-readable schemas;
-- sample payloads;
+- versioned machine-readable corpus seed;
+- sample payloads and intervention fixtures;
+- shared TypeScript contracts;
+- shared context/evidence adapter;
+- Mind-side intervention resolver;
+- learner-pattern aggregator;
+- Core-bound Coach linguistic pipeline;
 - implementation handoff.
 
-Further work should be treated as evidence expansion, validation, and versioned refinement rather than redesigning the foundation.
+## 13. Current repository boundary
+
+As of 2026-08-18, the repository does not contain a dedicated `apps/coach` application/runtime. Therefore the shared linguistic-intelligence implementation is available, but there is no end-user Coach session runtime in this repository to wire it into yet.
+
+Do not create a placeholder Coach product merely to claim integration. When the actual Coach runtime is introduced, it should consume these shared services rather than duplicate them.
+
+## 14. Remaining product-runtime work
+
+When a real Coach runtime exists, the next engineering tasks are:
+
+1. call `prepareSession()` at session initialization;
+2. expose only the minimized `CoachLinguisticContext` to the conversation/model layer;
+3. classify candidate learner observations conservatively;
+4. call `decide()` before interrupting or correcting;
+5. honor the returned timing/action rather than letting the language model invent correction policy;
+6. call `recordObservation()` after meaningful observations/corrections;
+7. implement telemetry for intervention dosage and outcomes;
+8. run the intervention fixtures as automated behavioral tests;
+9. validate the full corpus seed against its collection schema in CI;
+10. calibrate recurrence/confidence thresholds against real learner evidence.
+
+Until that runtime exists, this is the correct stopping boundary: the shared architecture and implementation contracts are complete without inventing a product shell.
