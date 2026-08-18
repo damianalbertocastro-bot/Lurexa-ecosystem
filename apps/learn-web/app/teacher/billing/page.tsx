@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -9,6 +10,7 @@ import { BillingService, PLAN_CONFIGS, PlanLimits } from "@lurexa/backend";
 import { PricingPlan } from "@lurexa/types";
 
 export default function TeacherBillingPage() {
+  const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<PricingPlan>("free");
   const [limits, setLimits] = useState<PlanLimits>(PLAN_CONFIGS["free"]);
   const [loading, setLoading] = useState(false);
@@ -45,9 +47,14 @@ export default function TeacherBillingPage() {
             <h1 className="text-3xl font-bold text-slate-900">Billing & Subscription Management</h1>
             <p className="text-slate-500">Manage plan tiers, student seats, and usage limits</p>
           </div>
-          <Badge variant={currentPlan === "free" ? "default" : "success"}>
-            Active Plan: {currentPlan.toUpperCase()}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge variant={currentPlan === "free" ? "default" : "success"}>
+              Active Plan: {currentPlan.toUpperCase()}
+            </Badge>
+            <Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>
+              Back to dashboard
+            </Button>
+          </div>
         </div>
 
         {/* Current Usage Metrics */}

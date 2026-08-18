@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
@@ -44,7 +45,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
+      <Link href="/" className="mb-6 text-2xl font-bold tracking-tight text-slate-900 transition hover:text-indigo-600" aria-label="Return to Lurexa home">
+        lurexa<span className="text-indigo-600">.</span>
+      </Link>
       <Card
         title="Welcome back to Lurexa"
         subtitle="Log in to your learning workspace"
