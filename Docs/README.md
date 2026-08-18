@@ -21,6 +21,8 @@ Do not silently blend conflicting assumptions. Mark the older claim as supersede
 | --- | --- | --- |
 | [Architecture](Architecture/) | Product boundaries, ownership, learner model and production contracts | engineers, product, AI agents |
 | [Curriculum](Curriculum/) | Learning methodology, curriculum objects, assessment and Dominican Spanish specialization | curriculum, product, design, engineering |
+| [Product](Product/) | Product outcomes, boundaries and MVP acceptance criteria | product, design, engineering |
+| [Design](Design/) | Cross-product interaction, accessibility and learning-experience design rules | design, product, engineering |
 | [Engineering](Engineering/) | Practices for building, testing, releasing and operating software | engineers and contributors |
 | [Governance](Governance/) | Decision, review and change-control practices | maintainers and reviewers |
 | [Standards](Standards/) | Cross-cutting quality and security standards | all contributors |
