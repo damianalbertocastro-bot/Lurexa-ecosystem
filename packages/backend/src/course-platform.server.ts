@@ -22,6 +22,17 @@ export interface TeacherCourseSummary {
   lessons: Array<{ moduleTitle: string; lesson: Lesson }>;
 }
 
+export interface LearnerGamificationSummary {
+  streakDays: number;
+  totalPoints: number;
+  lastActivityAt: string | null;
+}
+
+export interface LearnerDashboardSummary {
+  courses: LearnerCourseSummary[];
+  gamification: LearnerGamificationSummary;
+}
+
 function asCourse(value: FirebaseFirestore.DocumentData): Course {
   return { id: value.id as string, ...value } as Course;
 }
@@ -32,6 +43,19 @@ function asLesson(value: FirebaseFirestore.DocumentData): Lesson {
 
 function asModule(value: FirebaseFirestore.DocumentData): Module {
   return { id: value.id as string, ...value } as Module;
+}
+
+function calculateStreak(progress: StudentProgress[]): number {
+  const activeDays = new Set(progress.filter((entry) => entry.completed).map((entry) => entry.lastAccessedAt.slice(0, 10)));
+  const cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+  if (!activeDays.has(cursor.toISOString().slice(0, 10))) cursor.setDate(cursor.getDate() - 1);
+  let streakDays = 0;
+  while (activeDays.has(cursor.toISOString().slice(0, 10))) {
+    streakDays += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streakDays;
 }
 
 async function getMembership(actorId: string, orgId: string): Promise<{ role: string } | null> {
@@ -124,6 +148,23 @@ export const CoursePlatformService = {
       course,
       lessons: (await getCourseLessons(course)).map(({ module, lesson }) => ({ moduleTitle: module.title, lesson })),
     })));
+  },
+
+  async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
+    const [courses, progressSnapshots] = await Promise.all([
+      this.getLearnerCourses(actor),
+      getServerFirestore().collection("progress").where("studentId", "==", actor.uid).get(),
+    ]);
+    const progress = progressSnapshots.docs.map((snapshot) => snapshot.data() as StudentProgress);
+    const completed = progress.filter((entry) => entry.completed);
+    return {
+      courses,
+      gamification: {
+        streakDays: calculateStreak(progress),
+        totalPoints: completed.length * 10,
+        lastActivityAt: completed.sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt))[0]?.lastAccessedAt ?? null,
+      },
+    };
   },
 
   async getLesson(actor: AuthenticatedActor, courseId: string, lessonId: string): Promise<{ lesson: Lesson; progress: StudentProgress | null }> {

@@ -18,20 +18,40 @@ interface LearnerCourseSummary {
   nextLesson: Lesson | null;
 }
 
+interface LearnerGamificationSummary {
+  streakDays: number;
+  totalPoints: number;
+  lastActivityAt: string | null;
+}
+
+interface LearnerDashboardSummary {
+  courses: LearnerCourseSummary[];
+  gamification: LearnerGamificationSummary;
+}
+
 export default function StudentDashboardPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<LearnerCourseSummary[]>([]);
+  const [gamification, setGamification] = useState<LearnerGamificationSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AuthService.onUserChanged(async (user) => {
-      if (user) {
-        const response = await authenticatedFetch("/api/learning");
-        if (!response.ok) throw new Error("Unable to load courses.");
-        setCourses(await response.json() as LearnerCourseSummary[]);
+    const unsubscribe = AuthService.onUserChanged(async (user) => {
+      try {
+        if (user) {
+          const response = await authenticatedFetch("/api/learning?studentDashboard=1");
+          if (!response.ok) throw new Error("Unable to load dashboard.");
+          const dashboard = await response.json() as LearnerDashboardSummary;
+          setCourses(dashboard.courses);
+          setGamification(dashboard.gamification);
+        }
+      } catch (error: unknown) {
+        alert(error instanceof Error ? error.message : "Unable to load dashboard.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
+    return unsubscribe;
   }, []);
 
   return (
@@ -44,9 +64,32 @@ export default function StudentDashboardPage() {
             <p className="text-slate-500">Pick up right where you left off</p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="warning">🔥 5 Day Streak</Badge>
-            <Badge variant="info">⭐ 320 Points</Badge>
+            <button type="button" className="rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2" onClick={() => router.push("/dashboard/streak")} aria-label="View streak details">
+              <Badge variant="warning">🔥 {gamification?.streakDays ?? 0} Day Streak</Badge>
+            </button>
+            <button type="button" className="rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onClick={() => router.push("/dashboard/points")} aria-label="View points and rewards">
+              <Badge variant="info">⭐ {gamification?.totalPoints ?? 0} Points</Badge>
+            </button>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Card title="Courses" subtitle="Your active learning paths">
+            <span className="text-3xl font-bold text-indigo-600">{courses.length}</span>
+            <p className="mt-2 text-sm text-slate-500">Choose a course below to continue learning.</p>
+          </Card>
+          <Card title="Learning streak" subtitle="Come back consistently to build momentum">
+            <button type="button" className="w-full text-left" onClick={() => router.push("/dashboard/streak")}>
+              <span className="text-3xl font-bold text-amber-600">🔥 {gamification?.streakDays ?? 0}</span>
+              <span className="mt-2 block text-sm font-medium text-amber-700">View streak →</span>
+            </button>
+          </Card>
+          <Card title="Points" subtitle="Earned by completing lessons">
+            <button type="button" className="w-full text-left" onClick={() => router.push("/dashboard/points")}>
+              <span className="text-3xl font-bold text-indigo-600">⭐ {gamification?.totalPoints ?? 0}</span>
+              <span className="mt-2 block text-sm font-medium text-indigo-700">View points & rewards →</span>
+            </button>
+          </Card>
         </div>
 
         {/* Course Cards Grid */}
@@ -77,6 +120,7 @@ export default function StudentDashboardPage() {
                   </div>
 
                   <p className="text-xs text-slate-500">{completedLessons} of {totalLessons} lessons completed</p>
+                  <p className="text-xs text-slate-500">Course last updated {new Date(course.updatedAt).toLocaleDateString()}</p>
 
                   <Button
                     variant="primary"

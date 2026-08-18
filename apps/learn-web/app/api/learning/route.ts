@@ -15,6 +15,9 @@ export async function GET(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const courseId = url.searchParams.get("courseId");
     const lessonId = url.searchParams.get("lessonId");
+    if (url.searchParams.get("studentDashboard") === "1") {
+      return Response.json(await CoursePlatformService.getLearnerDashboard(actor));
+    }
     if (url.searchParams.get("teacherDashboard") === "1") {
       return Response.json(await CoursePlatformService.getTeacherCourses(actor));
     }
