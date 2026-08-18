@@ -17,6 +17,7 @@
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",
     "verify:phase0": "pnpm phase0:lint && pnpm phase0:check-types && pnpm phase0:build",
+    "verify:linguistic-intelligence": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && node scripts/verify-linguistic-intelligence.mjs",
     "firebase:emulators": "firebase emulators:start --only auth,firestore"
   },
   "pnpm": {
