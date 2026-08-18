@@ -8,7 +8,10 @@ import { Badge } from "@lurexa/ui/Badge";
 import { Input } from "@lurexa/ui/Input";
 import { Modal } from "@lurexa/ui/Modal";
 import { AuthService, OrganizationService } from "@lurexa/backend";
-import { Invitation } from "@lurexa/types";
+import { Course, Invitation, Lesson } from "@lurexa/types";
+import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+
+type TeacherCourseSummary = { course: Course; lessons: Array<{ moduleTitle: string; lesson: Lesson }> };
 
 export default function TeacherDashboard() {
   const router = useRouter();
@@ -22,6 +25,22 @@ export default function TeacherDashboard() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
   const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
+  const [courses, setCourses] = useState<TeacherCourseSummary[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+
+  const loadCourses = async () => {
+    setIsLoadingCourses(true);
+    try {
+      const response = await authenticatedFetch("/api/learning?teacherDashboard=1");
+      const payload = await response.json() as TeacherCourseSummary[] & { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Unable to load courses.");
+      setCourses(payload);
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Unable to load courses.");
+    } finally {
+      setIsLoadingCourses(false);
+    }
+  };
 
   const loadInvitations = async (orgId: string) => {
     setIsLoadingInvitations(true);
@@ -45,7 +64,7 @@ export default function TeacherDashboard() {
         );
         if (membership) {
           setCurrentOrgId(membership.orgId);
-          await loadInvitations(membership.orgId);
+          await Promise.all([loadInvitations(membership.orgId), loadCourses()]);
           return;
         }
       }
@@ -142,18 +161,57 @@ export default function TeacherDashboard() {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Workspace navigation */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card title="Active Students" subtitle="Total enrolled">
-            <span className="text-3xl font-bold text-indigo-600">24</span>
+          <Card title="Active Students" subtitle="View roster and manage invitations">
+            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/students")}>
+              <span className="text-3xl font-bold text-indigo-600">{invitations.filter((invite) => getInvitationStatus(invite).label === "Active").length}</span>
+              <span className="mt-2 block text-sm font-medium text-indigo-600">Manage students →</span>
+            </button>
           </Card>
-          <Card title="Active Courses" subtitle="Published modules">
-            <span className="text-3xl font-bold text-emerald-600">3</span>
+          <Card title="Active Courses" subtitle="Create and manage courses and lessons">
+            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/courses")}>
+              <span className="text-3xl font-bold text-emerald-600">{courses.filter(({ course }) => course.status === "published").length}</span>
+              <span className="mt-2 block text-sm font-medium text-emerald-600">Manage courses →</span>
+            </button>
           </Card>
-          <Card title="Current Plan" subtitle="Organization tier">
-            <Badge variant="info">Free Tier</Badge>
+          <Card title="Current Plan" subtitle="Organization tier and billing">
+            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/billing")}>
+              <Badge variant="info">Free Tier</Badge>
+              <span className="mt-2 block text-sm font-medium text-indigo-600">View plan →</span>
+            </button>
           </Card>
         </div>
+
+        <Card title="Courses & lessons" subtitle="Recent activity across your teaching workspace">
+          {isLoadingCourses ? (
+            <p className="py-3 text-sm text-slate-500">Loading courses...</p>
+          ) : courses.length === 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <p className="text-sm text-slate-500">No courses yet. Create a course to start adding lessons.</p>
+              <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>Create course</Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100 pt-2">
+              {courses.map(({ course, lessons }) => (
+                <div key={course.id} className="flex flex-col gap-3 py-4 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-slate-900">{course.title}</p>
+                      <Badge variant={course.status === "published" ? "success" : "warning"}>{course.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">{course.description}</p>
+                    <p className="mt-2 text-xs text-slate-500">Last updated {new Date(course.updatedAt).toLocaleString()}</p>
+                    <p className="mt-2 text-sm text-slate-700">
+                      {lessons.length === 0 ? "No lessons yet" : lessons.map(({ moduleTitle, lesson }) => `${moduleTitle}: ${lesson.title}`).join(" · ")}
+                    </p>
+                  </div>
+                  <Button variant="secondary" size="sm" onClick={() => router.push("/teacher/courses")}>Manage</Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
 
         {/* Student Roster Card */}
         <Card title="Class Roster" subtitle="Students with active access">

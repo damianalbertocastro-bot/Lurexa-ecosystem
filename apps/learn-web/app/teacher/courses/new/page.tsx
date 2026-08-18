@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
@@ -20,6 +21,7 @@ async function saveCourseChange<T>(body: Record<string, unknown>): Promise<T> {
 }
 
 export default function CourseBuilderPage() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const subject = "english" as const;
@@ -29,6 +31,7 @@ export default function CourseBuilderPage() {
   const [loading, setLoading] = useState(false);
   const [teacherContext, setTeacherContext] = useState<{ orgId: string; userId: string } | null>(null);
   const [activeModule, setActiveModule] = useState<{ id: string; title: string } | null>(null);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonContent, setLessonContent] = useState("");
   const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
@@ -71,23 +74,39 @@ export default function CourseBuilderPage() {
 
     setIsSavingLesson(true);
     try {
-      const lesson = await saveCourseChange<Lesson>({ action: "saveLesson", moduleId: activeModule.id, title: lessonTitle.trim(), contentBlocks: [{
+      const contentBlocks = [{
           id: crypto.randomUUID(),
           type: "text",
           data: { text: lessonContent.trim() },
           order: 1,
-        }], order: (lessonsByModule[activeModule.id]?.length ?? 0) + 1, estimatedMinutes: 10 });
+        }];
+      const lesson = editingLesson
+        ? await saveCourseChange<Lesson>({ action: "updateLesson", lessonId: editingLesson.id, title: lessonTitle.trim(), contentBlocks })
+        : await saveCourseChange<Lesson>({ action: "saveLesson", moduleId: activeModule.id, title: lessonTitle.trim(), contentBlocks, order: (lessonsByModule[activeModule.id]?.length ?? 0) + 1, estimatedMinutes: 10 });
       setLessonsByModule((current) => ({
         ...current,
-        [activeModule.id]: [...(current[activeModule.id] ?? []), lesson],
+        [activeModule.id]: editingLesson
+          ? (current[activeModule.id] ?? []).map((currentLesson) => currentLesson.id === lesson.id ? lesson : currentLesson)
+          : [...(current[activeModule.id] ?? []), lesson],
       }));
       setLessonTitle("");
       setLessonContent("");
       setActiveModule(null);
+      setEditingLesson(null);
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to save lesson.");
     } finally {
       setIsSavingLesson(false);
+    }
+  };
+
+  const handleDeleteLesson = async (moduleId: string, lesson: Lesson) => {
+    if (!window.confirm(`Delete the lesson “${lesson.title}”?`)) return;
+    try {
+      await saveCourseChange<{ ok: true }>({ action: "deleteLesson", lessonId: lesson.id });
+      setLessonsByModule((current) => ({ ...current, [moduleId]: (current[moduleId] ?? []).filter((item) => item.id !== lesson.id) }));
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to delete lesson.");
     }
   };
 
@@ -124,14 +143,19 @@ export default function CourseBuilderPage() {
             <h1 className="text-3xl font-bold text-slate-900">Course Builder</h1>
             <p className="text-slate-500">Design modules, lessons, and AI-assisted content</p>
           </div>
-          <Badge variant={activeCourseId ? "success" : "warning"}>
-            {activeCourseId ? "Draft Created" : "Unsaved"}
-          </Badge>
-          {activeCourseId && (
-            <Button variant="primary" onClick={handlePublish} isLoading={isPublishing}>
-              Publish Course
+          <div className="flex items-center gap-3">
+            <Badge variant={activeCourseId ? "success" : "warning"}>
+              {activeCourseId ? "Draft Created" : "Unsaved"}
+            </Badge>
+            {activeCourseId && (
+              <Button variant="primary" onClick={handlePublish} isLoading={isPublishing}>
+                Publish Course
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => router.push("/teacher/courses")}>
+              Return to courses
             </Button>
-          )}
+          </div>
         </div>
 
         {/* Step 1: Course Info */}
@@ -188,12 +212,18 @@ export default function CourseBuilderPage() {
                       </span>
                       <h4 className="font-semibold text-slate-900">{mod.title}</h4>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => setActiveModule(mod)}>
+                    <Button variant="ghost" size="sm" onClick={() => { setEditingLesson(null); setActiveModule(mod); }}>
                       + Add Lesson
                     </Button>
                     <p className="text-xs text-slate-500">
                       {lessonsByModule[mod.id]?.length ?? 0} lesson(s)
                     </p>
+                    {(lessonsByModule[mod.id] ?? []).map((lesson) => (
+                      <div key={lesson.id} className="flex w-full items-center justify-between border-t border-slate-100 pt-3 text-sm">
+                        <span>{lesson.title}</span>
+                        <span className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setEditingLesson(lesson); setLessonTitle(lesson.title); setLessonContent(String(lesson.contentBlocks[0]?.data.text ?? "")); setActiveModule(mod); }}>Edit</Button><Button variant="destructive" size="sm" onClick={() => handleDeleteLesson(mod.id, lesson)}>Delete</Button></span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -204,8 +234,8 @@ export default function CourseBuilderPage() {
 
       <Modal
         isOpen={activeModule !== null}
-        onClose={() => setActiveModule(null)}
-        title={activeModule ? `Add lesson to ${activeModule.title}` : "Add lesson"}
+        onClose={() => { setActiveModule(null); setEditingLesson(null); }}
+        title={activeModule ? `${editingLesson ? "Edit" : "Add"} lesson ${editingLesson ? "in" : "to"} ${activeModule.title}` : "Add lesson"}
       >
         <form onSubmit={handleSaveLesson} className="space-y-4">
           <Input
@@ -225,7 +255,7 @@ export default function CourseBuilderPage() {
             />
           </label>
           <Button type="submit" className="w-full" isLoading={isSavingLesson}>
-            Save Lesson
+            {editingLesson ? "Save changes" : "Save lesson"}
           </Button>
         </form>
       </Modal>

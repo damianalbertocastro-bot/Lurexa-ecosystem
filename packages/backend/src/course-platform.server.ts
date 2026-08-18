@@ -17,6 +17,11 @@ export interface LearnerCourseSummary {
   nextLesson: Lesson | null;
 }
 
+export interface TeacherCourseSummary {
+  course: Course;
+  lessons: Array<{ moduleTitle: string; lesson: Lesson }>;
+}
+
 function asCourse(value: FirebaseFirestore.DocumentData): Course {
   return { id: value.id as string, ...value } as Course;
 }
@@ -104,6 +109,23 @@ export const CoursePlatformService = {
     }));
   },
 
+  async getTeacherCourses(actor: AuthenticatedActor): Promise<TeacherCourseSummary[]> {
+    const database = getServerFirestore();
+    const memberships = await database.collection("user-memberships").doc(actor.uid).collection("organizations").get();
+    const organizationIds = memberships.docs
+      .filter((membership) => (['owner', 'admin', 'teacher'] as TeacherRole[]).includes(membership.data().role as TeacherRole))
+      .map((membership) => membership.id);
+    const courses = (await Promise.all(organizationIds.map(async (orgId) => {
+      const snapshots = await database.collection("courses").where("orgId", "==", orgId).get();
+      return snapshots.docs.map((snapshot) => asCourse(snapshot.data()));
+    }))).flat().sort((first, second) => second.updatedAt.localeCompare(first.updatedAt));
+
+    return Promise.all(courses.map(async (course) => ({
+      course,
+      lessons: (await getCourseLessons(course)).map(({ module, lesson }) => ({ moduleTitle: module.title, lesson })),
+    })));
+  },
+
   async getLesson(actor: AuthenticatedActor, courseId: string, lessonId: string): Promise<{ lesson: Lesson; progress: StudentProgress | null }> {
     const course = await getCourseOrThrow(courseId);
     if (course.status !== "published") throw new Error("This course is not published.");
@@ -161,6 +183,39 @@ export const CoursePlatformService = {
       transaction.update(moduleSnapshot.ref, { lessonIds: FieldValue.arrayUnion(reference.id) });
     });
     return lesson;
+  },
+
+  async updateLesson(actor: AuthenticatedActor, lessonId: string, title: string, contentBlocks: ContentBlock[]): Promise<Lesson> {
+    const lessonSnapshot = await getServerFirestore().collection("lessons").doc(lessonId).get();
+    if (!lessonSnapshot.exists) throw new Error("Lesson not found.");
+    const lesson = asLesson(lessonSnapshot.data()!);
+    const moduleSnapshot = await getServerFirestore().collection("modules").doc(lesson.moduleId).get();
+    if (!moduleSnapshot.exists) throw new Error("Module not found.");
+    const module = asModule(moduleSnapshot.data()!);
+    const course = await getCourseOrThrow(module.courseId);
+    await requireTeacher(actor.uid, course.orgId);
+    const updatedLesson: Lesson = { ...lesson, title, contentBlocks };
+    await getServerFirestore().runTransaction(async (transaction) => {
+      transaction.set(lessonSnapshot.ref, updatedLesson);
+      transaction.update(getServerFirestore().collection("courses").doc(course.id), { updatedAt: new Date().toISOString() });
+    });
+    return updatedLesson;
+  },
+
+  async deleteLesson(actor: AuthenticatedActor, lessonId: string): Promise<void> {
+    const lessonSnapshot = await getServerFirestore().collection("lessons").doc(lessonId).get();
+    if (!lessonSnapshot.exists) throw new Error("Lesson not found.");
+    const lesson = asLesson(lessonSnapshot.data()!);
+    const moduleSnapshot = await getServerFirestore().collection("modules").doc(lesson.moduleId).get();
+    if (!moduleSnapshot.exists) throw new Error("Module not found.");
+    const module = asModule(moduleSnapshot.data()!);
+    const course = await getCourseOrThrow(module.courseId);
+    await requireTeacher(actor.uid, course.orgId);
+    await getServerFirestore().runTransaction(async (transaction) => {
+      transaction.delete(lessonSnapshot.ref);
+      transaction.update(moduleSnapshot.ref, { lessonIds: FieldValue.arrayRemove(lessonId) });
+      transaction.update(getServerFirestore().collection("courses").doc(course.id), { updatedAt: new Date().toISOString() });
+    });
   },
 
   async publishCourse(actor: AuthenticatedActor, courseId: string): Promise<void> {

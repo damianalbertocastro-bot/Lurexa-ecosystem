@@ -15,6 +15,9 @@ export async function GET(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const courseId = url.searchParams.get("courseId");
     const lessonId = url.searchParams.get("lessonId");
+    if (url.searchParams.get("teacherDashboard") === "1") {
+      return Response.json(await CoursePlatformService.getTeacherCourses(actor));
+    }
     if (courseId && lessonId) return Response.json(await CoursePlatformService.getLesson(actor, courseId, lessonId));
     return Response.json(await CoursePlatformService.getLearnerCourses(actor));
   } catch (error) { return failure(error); }
@@ -34,6 +37,13 @@ export async function POST(request: Request): Promise<Response> {
     }
     if (payload.action === "saveLesson" && typeof payload.moduleId === "string" && typeof payload.title === "string" && Array.isArray(payload.contentBlocks) && typeof payload.order === "number" && typeof payload.estimatedMinutes === "number") {
       return Response.json(await CoursePlatformService.saveLesson(actor, payload.moduleId, payload.title, payload.contentBlocks as ContentBlock[], payload.order, payload.estimatedMinutes));
+    }
+    if (payload.action === "updateLesson" && typeof payload.lessonId === "string" && typeof payload.title === "string" && Array.isArray(payload.contentBlocks)) {
+      return Response.json(await CoursePlatformService.updateLesson(actor, payload.lessonId, payload.title, payload.contentBlocks as ContentBlock[]));
+    }
+    if (payload.action === "deleteLesson" && typeof payload.lessonId === "string") {
+      await CoursePlatformService.deleteLesson(actor, payload.lessonId);
+      return Response.json({ ok: true });
     }
     if (payload.action === "publishCourse" && typeof payload.courseId === "string") {
       await CoursePlatformService.publishCourse(actor, payload.courseId);
