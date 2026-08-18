@@ -9,6 +9,7 @@ import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { AuthService } from "@lurexa/backend";
 import { Course, Lesson } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
+import { LurexaLearnLogo } from "../components/LurexaLearnLogo";
 
 interface LearnerCourseSummary {
   course: Course;
@@ -55,14 +56,15 @@ export default function StudentDashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
+      <div className="mx-auto max-w-6xl space-y-6">
         {/* Header with Gamification */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Student Workspace</h1>
-            <p className="text-slate-500">Pick up right where you left off</p>
-          </div>
+        <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4"><LurexaLearnLogo /><div>
+            <p className="text-xs font-bold tracking-[.16em] text-indigo-700">YOUR LEARNING SPACE</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-[var(--learn-ink)]">Keep your momentum.</h1>
+            <p className="text-slate-500">Pick up exactly where you left off.</p>
+          </div></div>
           <div className="flex items-center gap-3">
             <button type="button" className="rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2" onClick={() => router.push("/dashboard/streak")} aria-label="View streak details">
               <Badge variant="warning">🔥 {gamification?.streakDays ?? 0} Day Streak</Badge>
@@ -74,17 +76,17 @@ export default function StudentDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card title="Courses" subtitle="Your active learning paths">
+          <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Courses" subtitle="Your active learning paths">
             <span className="text-3xl font-bold text-indigo-600">{courses.length}</span>
             <p className="mt-2 text-sm text-slate-500">Choose a course below to continue learning.</p>
           </Card>
-          <Card title="Learning streak" subtitle="Come back consistently to build momentum">
+          <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Learning streak" subtitle="Come back consistently to build momentum">
             <button type="button" className="w-full text-left" onClick={() => router.push("/dashboard/streak")}>
               <span className="text-3xl font-bold text-amber-600">🔥 {gamification?.streakDays ?? 0}</span>
               <span className="mt-2 block text-sm font-medium text-amber-700">View streak →</span>
             </button>
           </Card>
-          <Card title="Points" subtitle="Earned by completing lessons">
+          <Card className="border-0 bg-[var(--learn-mint)] shadow-lg shadow-emerald-950/5" title="Points" subtitle="Earned by completing lessons">
             <button type="button" className="w-full text-left" onClick={() => router.push("/dashboard/points")}>
               <span className="text-3xl font-bold text-indigo-600">⭐ {gamification?.totalPoints ?? 0}</span>
               <span className="mt-2 block text-sm font-medium text-indigo-700">View points & rewards →</span>
@@ -104,7 +106,7 @@ export default function StudentDashboardPage() {
             </Card>
           ) : (
             courses.map(({ course, completedLessons, totalLessons, progressPercent, nextLesson }) => (
-              <Card
+              <Card className="border-0 shadow-lg shadow-slate-200/60"
                 key={course.id}
                 title={course.title}
                 subtitle={course.description}

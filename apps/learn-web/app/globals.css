@@ -4,6 +4,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --learn-canvas: #f8f7f2;
+  --learn-ink: #172554;
+  --learn-surface: #ffffff;
+  --learn-accent: #4f46e5;
+  --learn-mint: #dff7ee;
 }
 
 @theme inline {
