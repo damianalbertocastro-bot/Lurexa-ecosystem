@@ -98,4 +98,11 @@ export const CourseBuilderService = {
 
     return lesson;
   },
+
+  async publishCourse(courseId: string): Promise<void> {
+    await updateDoc(doc(db, "courses", courseId), {
+      status: "published",
+      updatedAt: new Date().toISOString(),
+    });
+  },
 };
