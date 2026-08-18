@@ -5,3 +5,5 @@ export * from "./ai";
 export * from "./billing";
 export * from "./api";
 export * from "./learner";
+export * from "./curriculum";
+export * from "./learning-activity";
