@@ -50,14 +50,15 @@ These documents do not replace `Docs/Architecture/*`. Architecture owns product 
 26. `25-PLACEMENT-ITEM-BANK-A1-A2.md`
 27. `26-MEDIA-AND-INTERACTIVE-CARD-ASSET-STANDARD.md`
 28. `27-A1-MODULES-2-8-PRODUCTION-SPEC.md`
-29. `Seeds/A1-M1-U1.json` — machine-readable Unit 1 seed
+29. `28-A2-CURRICULUM-MAP.md`
+30. `Seeds/A1-M1-U1.json` — machine-readable Unit 1 seed
 
 ## Read paths by task
 ### Building or redesigning the lesson player
 Read: 00, 03, 09, 17, 19, 21, 22, 26.
 
 ### Building placement/progression
-Read: 02, 04, 05, 10, 20, 25.
+Read: 02, 04, 05, 10, 20, 25, 28.
 
 ### Building AI tutor/conversation
 Read: 05, 06, 08, 16, 19.
@@ -74,8 +75,11 @@ Read: 04, 12, 13.
 ### Creating A1 content
 Read: 00, 01, 02, 06-11, 18, 19, 23, 24, 26, 27.
 
+### Creating A2 content
+Read: 00, 01, 05-11, 20, 25, 26, 28.
+
 ## MVP priority
-A1 now has complete production architecture from Module 1 through Module 8. Engineering should still validate the vertical slice before scaling content implementation. A2 is the next curriculum-design level. B1-C2 retain stable cross-level architecture and are expanded before release.
+A1 now has complete production architecture from Module 1 through Module 8. Engineering should still validate the vertical slice before scaling content implementation. A2 now has a complete level/module map so placement and future content work have a defined destination. B1-C2 retain stable cross-level architecture and should be deepened before their release rather than blocking the MVP.
 
 Do not delay the MVP until every future C2 lesson exists. Prove one complete vertical learning loop first.
 
@@ -85,7 +89,7 @@ Do not delay the MVP until every future C2 lesson exists. Prove one complete ver
 The target includes four lessons and must prove:
 Placement -> lesson recommendation -> interactive vocabulary -> listening -> phonetics -> speaking/conversation -> Create & Apply -> quiz -> evidence -> learner-model interpretation -> remembered adaptation.
 
-Once Unit 1 is technically proven, Units 2 and 3 in file 23 complete the first content module; file 24 provides its assessment/live-practice layer; file 27 defines the remaining A1 modules and rollout order.
+Once Unit 1 is technically proven, Units 2 and 3 in file 23 complete the first content module; file 24 provides its assessment/live-practice layer; file 27 defines the remaining A1 modules and rollout order; file 28 defines the next CEFR-level destination.
 
 ## Architecture references
 Before implementing persistent learner state, personalization, AI interpretation or cross-product learning context, also read:
