@@ -119,7 +119,7 @@ The existing `ProgressService` accesses Firestore directly inside `@lurexa/backe
 
 That existing rule is too broad for the cross-product Learner Model. It must not be copied to learner evidence or insights, and the progress rule itself should later be hardened as part of Core authorization work.
 
-The current Firebase helper is a client Firebase initialization module. Although `firebase-admin` is installed in `@lurexa/backend`, no existing server-side Admin SDK initialization pattern was found during this inspection. A server-only persistence adapter should therefore establish that pattern deliberately rather than mixing Admin SDK code into the current client helper.
+The existing Firebase helper remains a client Firebase initialization module. Trusted Core operations now use the separate `@lurexa/backend/firebase-admin.server` boundary, which initializes the Firebase Admin SDK from `FIREBASE_SERVICE_ACCOUNT_JSON` in production or an explicit Firestore Emulator configuration locally. This module is intentionally excluded from the browser-facing backend barrel export. A server-only persistence adapter must use this boundary rather than mixing Admin SDK code into the client helper.
 
 ## Do not do yet
 
