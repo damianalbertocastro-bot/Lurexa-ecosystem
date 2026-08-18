@@ -129,3 +129,16 @@ export interface LinguisticEvidencePayload {
   retrySuccessful?: boolean;
   laterSpontaneousSuccess?: boolean;
 }
+
+export interface LinguisticPatternAggregate {
+  patternId: string;
+  domain: LinguisticDomain;
+  observationCount: number;
+  sessionCount: number;
+  selfCorrectionCount: number;
+  successfulRetryCount: number;
+  spontaneousSuccessCount: number;
+  lastObservedAt: string;
+  recurrence: LearnerRecurrenceState;
+  confidence: number;
+}
