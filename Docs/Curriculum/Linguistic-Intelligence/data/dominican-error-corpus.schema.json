@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lurexa.local/schemas/dominican-error-corpus.schema.json",
+  "title": "Lurexa Dominican English Error Corpus Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "patternId",
+    "learnerFormOrBehavior",
+    "primaryDomain",
+    "subdomain",
+    "observationTypes",
+    "targetRelationship",
+    "communicativeImpact",
+    "correctionPriority",
+    "cefrRelevance",
+    "evidenceStrength",
+    "transferStatus",
+    "sourceProvenance"
+  ],
+  "properties": {
+    "patternId": {"type": "string", "pattern": "^DO-ENG-(PRO|GRA|LEX|NAT|PRA|FLU|LIS|DIS|ORT)-[0-9]{3}$"},
+    "learnerFormOrBehavior": {"type": "string", "minLength": 1},
+    "intendedMeaningOrFunction": {"type": ["string", "null"]},
+    "preferredTargetOrAlternative": {"type": ["string", "null"]},
+    "primaryDomain": {"enum": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09"]},
+    "secondaryDomains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "subdomain": {"type": "string", "minLength": 1},
+    "observationTypes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["SPOKEN_PRODUCTION", "WRITTEN_PRODUCTION", "LISTENING_RESPONSE", "READING_RESPONSE", "PRONUNCIATION_TASK", "CONVERSATION_BEHAVIOR", "SELF_CORRECTION", "TEACHER_OBSERVATION", "AI_OBSERVATION", "ASSESSMENT_RESPONSE"]}
+    },
+    "targetRelationship": {"enum": ["INCORRECT", "DEVELOPMENTAL", "UNDERSTANDABLE_NONSTANDARD", "NATURALNESS", "REGISTER_MISMATCH", "PRAGMATIC_MISMATCH", "INTELLIGIBILITY_RISK", "COMMUNICATION_BREAKDOWN", "ACCEPTABLE_VARIATION", "UNCERTAIN"]},
+    "communicativeImpact": {"enum": ["CI0", "CI1", "CI2", "CI3"]},
+    "correctionPriority": {"enum": ["P0_MONITOR_ONLY", "P1_LOW", "P2_MEDIUM", "P3_HIGH", "P4_IMMEDIATE"]},
+    "cefrRelevance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minimumRelevantLevel": {"enum": ["A1", "A2", "B1", "B2", "C1", "C2"]},
+        "highestPriorityLevels": {"type": "array", "items": {"enum": ["A1", "A2", "B1", "B2", "C1", "C2"]}, "uniqueItems": true},
+        "persistencePossibleThrough": {"enum": ["A1", "A2", "B1", "B2", "C1", "C2"]}
+      }
+    },
+    "evidenceStrength": {"enum": ["EV0_HYPOTHESIZED", "EV1_TEACHER_OBSERVED", "EV2_RECURRENTLY_TEACHER_OBSERVED", "EV3_MULTI_LEARNER_CONFIRMED", "EV4_LUREXA_CORPUS_SUPPORTED", "EV5_STRONG_EMPIRICAL_SUPPORT"]},
+    "transferTypes": {"type": "array", "items": {"enum": ["LEXICAL_CALQUE", "GRAMMATICAL_CALQUE", "PHONOLOGICAL_TRANSFER", "ORTHOGRAPHIC_TRANSFER", "SEMANTIC_TRANSFER", "PRAGMATIC_TRANSFER", "DISCOURSE_TRANSFER", "POSITIVE_TRANSFER", "UNKNOWN_TRANSFER_TYPE"]}, "uniqueItems": true},
+    "transferStatus": {"enum": ["NOT_EVALUATED", "PLAUSIBLE", "TEACHER_SUSPECTED", "SUPPORTED_BY_RECURRENT_EVIDENCE", "RESEARCH_SUPPORTED_POPULATION_PATTERN", "INDIVIDUAL_TRANSFER_UNCONFIRMED"]},
+    "possibleL1Source": {"type": ["string", "null"]},
+    "populationClass": {"enum": ["DOMINICAN_SPECIFIC_CANDIDATE", "DOMINICAN_SALIENCE_HIGH", "GENERAL_SPANISH_TRANSFER", "GENERAL_ESL_PATTERN", "UNRESOLVED"]},
+    "sourceProvenance": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["DAMIAN_CLASSROOM_OBSERVATION", "OTHER_TEACHER_OBSERVATION", "LUREXA_LEARNER_EVIDENCE", "EXTERNAL_RESEARCH", "LINGUISTIC_HYPOTHESIS", "SYNTHETIC_EXAMPLE"]}
+    },
+    "notes": {"type": ["string", "null"]}
+  }
+}
