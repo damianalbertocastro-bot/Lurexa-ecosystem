@@ -75,12 +75,16 @@ export class CoachLinguisticAdapterService {
   }
 
   createEvidence(input: CreateCoachEvidenceInput): LearningEvidence<LinguisticEvidencePayload> {
+    const hasActiveCorrection =
+      input.payload.intervention !== undefined &&
+      input.payload.intervention !== "observe_only";
+
     return {
       id: input.id,
       learnerId: input.learnerId,
       organizationId: input.organizationId,
       source: input.source,
-      type: input.payload.intervention ? "correction_outcome" : "language_error",
+      type: hasActiveCorrection ? "correction_outcome" : "language_error",
       observedAt: input.observedAt,
       payload: input.payload,
       provenance: input.provenance,
