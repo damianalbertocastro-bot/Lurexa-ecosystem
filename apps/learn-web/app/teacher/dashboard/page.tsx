@@ -120,17 +120,21 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div className="min-h-screen bg-slate-100 p-4 sm:p-8">
+      <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Teacher Management Portal</h1>
-            <p className="text-slate-500">Manage your school, classes, and student access</p>
+            <p className="text-sm font-semibold text-indigo-600">LUREXA TEACH</p>
+            <h1 className="mt-1 text-3xl font-bold text-slate-900">Your teaching workspace</h1>
+            <p className="text-slate-500">Create learning experiences and manage student access.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button variant="secondary" onClick={handleSignOut} isLoading={isSigningOut}>
               Sign out
+            </Button>
+            <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>
+              Create course
             </Button>
             <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>
               + Create student invitation
