@@ -164,6 +164,41 @@ Technology choices may evolve; architecture responsibility does not change autom
 - Preserve provenance for learner evidence and important derived observations.
 - Do not rename packages solely to make the filesystem mirror product branding.
 
+## Curriculum and learning-experience rules
+
+Before implementing or redesigning Lurexa Learn lessons, curriculum pages, placement, quizzes, mastery/progression, vocabulary experiences, listening/speaking practice, phonetics, AI conversation, Create & Apply tasks, teacher-assigned learning activities, or learner-facing learning recommendations, read:
+
+- `Docs/Curriculum/README.md`
+- `Docs/Curriculum/00-LUREXA-LEARNING-METHODOLOGY.md`
+- `Docs/Curriculum/01-ENGLISH-CURRICULUM-ARCHITECTURE.md`
+- `Docs/Curriculum/02-ENGLISH-COMPETENCY-MODEL.md`
+- `Docs/Curriculum/03-LESSON-AND-ACTIVITY-SCHEMA.md`
+- `Docs/Curriculum/04-ASSESSMENT-MASTERY-AND-PLACEMENT.md`
+- `Docs/Curriculum/05-LEARNER-MODEL-EDUCATIONAL-SPEC.md`
+- `Docs/Curriculum/06-DOMINICAN-SPANISH-ENGLISH-LINGUISTIC-PROFILE.md` when English L1-transfer/cultural adaptation is relevant
+- `Docs/Curriculum/07-PHONETICS-PROGRESSION-A1-C2.md` for pronunciation/phonetics work
+- `Docs/Curriculum/08-CONVERSATION-FRAMEWORK.md` for AI/human conversation work
+- `Docs/Curriculum/09-INTERACTIVE-ACTIVITY-LIBRARY.md` for lesson/activity UX
+
+Curriculum implementation rules:
+
+- Treat `Docs/Curriculum/00-LUREXA-LEARNING-METHODOLOGY.md` as the broad pedagogical authority for learning-experience behavior.
+- Model lessons and activities as structured learning objects; do not hard-code the curriculum as long static page copy when a reusable schema is appropriate.
+- Keep stable competency IDs independent from lesson titles and cultural contexts.
+- Preserve the seven English skills: listening, speaking, reading, writing, vocabulary, grammar and phonetics. Treat conversation and Create & Apply as integrated modes.
+- Build interactive vocabulary behavior rather than defaulting to static front/back flashcards.
+- Do not treat lesson completion or a single quiz score as mastery.
+- Preserve first-attempt evidence separately from eventual success after hints/retries.
+- Placement should respect prior knowledge and must not force knowledgeable learners through A1 solely because of account tier or content availability.
+- Subscription tier may change access, pace and feature limits, but must not redefine proficiency or deliberately weaken pedagogy.
+- AI-generated learning content must declare objective, competency, expected learner action/output, feedback behavior and evidence purpose.
+- When learner memory influences UX, keep evidence and Mind interpretation distinct and use approved Core/Mind contracts.
+- Initial English content should be culturally relevant to Dominican/Spanish-speaking learners while progressively broadening toward Caribbean, Latin American and international/global contexts.
+- Phonetics optimizes for intelligibility and communicative control, not accent erasure.
+- Live teacher time should prioritize retrieval, interaction, application, creation and human feedback instead of simply duplicating asynchronous explanation.
+
+For the MVP, prioritize a complete A1 vertical slice that proves placement/recommended start → interactive lesson → speaking/listening/phonetics → conversation → Create & Apply → quiz/evidence → remembered learner context → next recommendation. Do not block the MVP on exhaustive C2 content.
+
 ## Source-of-truth rule
 
-When instructions conflict, prefer the newest explicit product-owner decision, then `Docs/00-Lurexa-Bible.md`, then detailed `Docs/Architecture/*` documents, then `ROADMAP.md`, then AI helper files. Mark old assumptions as superseded instead of blending them.
+When instructions conflict, prefer the newest explicit product-owner decision, then `Docs/00-Lurexa-Bible.md`, then detailed `Docs/Architecture/*` documents, then applicable `Docs/Curriculum/*` pedagogical documents, then `ROADMAP.md`, then AI helper files. Mark old assumptions as superseded instead of blending them.
