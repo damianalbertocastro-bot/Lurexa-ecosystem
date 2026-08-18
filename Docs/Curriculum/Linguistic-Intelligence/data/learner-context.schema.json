@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lurexa.local/schemas/learner-context.schema.json",
+  "title": "Lurexa Learner Context Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "proficiency", "session", "currentTargets", "activePatterns", "correction"],
+  "properties": {
+    "contractVersion": {"type": "string", "minLength": 1},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "learnerModelRevision": {"type": ["string", "null"]},
+    "proficiency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "overallEstimated": {"$ref": "#/$defs/cefr"},
+        "listening": {"$ref": "#/$defs/cefr"},
+        "reading": {"$ref": "#/$defs/cefr"},
+        "speaking": {"$ref": "#/$defs/cefr"},
+        "writing": {"$ref": "#/$defs/cefr"},
+        "productiveVocabulary": {"$ref": "#/$defs/cefr"},
+        "receptiveVocabulary": {"$ref": "#/$defs/cefr"}
+      }
+    },
+    "languageBackground": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "l1": {"type": "string"},
+        "variety": {"type": ["string", "null"]},
+        "useForHypothesisGeneration": {"type": "boolean"}
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "goal"],
+      "properties": {
+        "mode": {"$ref": "#/$defs/taskMode"},
+        "goal": {"type": "string", "minLength": 1}
+      }
+    },
+    "currentTargets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["priority"],
+        "properties": {
+          "patternId": {"type": ["string", "null"]},
+          "competencyId": {"type": ["string", "null"]},
+          "priority": {"enum": ["LOW", "MEDIUM", "HIGH", "IMMEDIATE"]},
+          "evidenceGoal": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "activePatterns": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["patternId", "state", "recurrence", "confidence", "communicativeImpact"],
+        "properties": {
+          "patternId": {"type": "string"},
+          "state": {"$ref": "#/$defs/controlState"},
+          "recurrence": {"$ref": "#/$defs/recurrence"},
+          "confidence": {"$ref": "#/$defs/confidence"},
+          "communicativeImpact": {"enum": ["CI0", "CI1", "CI2", "CI3"]},
+          "modality": {"enum": ["speaking", "listening", "reading", "writing", "pronunciation"]},
+          "preferredActions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "lastObservedAt": {"type": ["string", "null"], "format": "date-time"}
+        }
+      }
+    },
+    "pronunciationPriorities": {"type": "array", "items": {"type": "object"}},
+    "vocabularyTargets": {"type": "array", "items": {"type": "object"}},
+    "strengths": {"type": "array", "items": {"type": "string"}},
+    "recentCorrections": {"type": "array", "items": {"type": "object"}},
+    "correction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timingDefault", "maxPriorityCorrectionsPerSegment", "preferSelfRepair", "protectFluency"],
+      "properties": {
+        "timingDefault": {"enum": ["IMMEDIATE", "AFTER_TURN", "AFTER_SEGMENT", "AFTER_TASK", "MONITOR_ONLY"]},
+        "maxPriorityCorrectionsPerSegment": {"type": "integer", "minimum": 0, "maximum": 5},
+        "preferSelfRepair": {"type": "boolean"},
+        "allowL1AwareExplanation": {"type": "boolean"},
+        "protectFluency": {"type": "boolean"}
+      }
+    }
+  },
+  "$defs": {
+    "cefr": {"enum": ["A1", "A2", "B1", "B2", "C1", "C2"]},
+    "taskMode": {"enum": ["CONTROLLED_ACCURACY", "GUIDED_PRACTICE", "GUIDED_CONVERSATION", "FLUENCY_CONVERSATION", "PRONUNCIATION_FOCUS", "ASSESSMENT", "FREE_PRODUCTION", "PROFESSIONAL_COMMUNICATION", "ACADEMIC_COMMUNICATION"]},
+    "controlState": {"enum": ["UNKNOWN", "NOT_YET_DEMONSTRATED", "RECOGNIZES", "PRODUCES_WITH_MODEL", "PRODUCES_WITH_PROMPT", "PRODUCES_INDEPENDENTLY", "USES_SPONTANEOUSLY", "RETAINED", "UNSTABLE", "NEEDS_REVALIDATION"]},
+    "recurrence": {"enum": ["R0_SINGLE_OBSERVATION", "R1_REPEATED_SAME_SESSION", "R2_REPEATED_ACROSS_SESSIONS", "R3_STABLE_RECURRING_PATTERN", "R4_IMPROVING", "R5_NOT_RECENTLY_OBSERVED", "R6_REVALIDATION_NEEDED"]},
+    "confidence": {"enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]}
+  }
+}
