@@ -1,0 +1,25 @@
+{
+  "patternId": "DO-ENG-GRA-002",
+  "learnerFormOrBehavior": "Learner forms simple-present questions without do/does, relying on declarative order and/or intonation, e.g. 'You come to the house?'",
+  "intendedMeaningOrFunction": "Ask a simple-present yes/no question",
+  "preferredTargetOrAlternative": "Do you come to the house?",
+  "primaryDomain": "E02",
+  "secondaryDomains": ["E10"],
+  "subdomain": "AUXILIARY_DO / QUESTION_FORMATION",
+  "observationTypes": ["SPOKEN_PRODUCTION", "TEACHER_OBSERVATION"],
+  "targetRelationship": "DEVELOPMENTAL",
+  "communicativeImpact": "CI1",
+  "correctionPriority": "P3_HIGH",
+  "cefrRelevance": {
+    "minimumRelevantLevel": "A1",
+    "highestPriorityLevels": ["A1", "A2"],
+    "persistencePossibleThrough": "B1"
+  },
+  "evidenceStrength": "EV2_RECURRENTLY_TEACHER_OBSERVED",
+  "transferTypes": ["GRAMMATICAL_CALQUE"],
+  "transferStatus": "TEACHER_SUSPECTED",
+  "possibleL1Source": "Spanish question formation does not use an equivalent auxiliary do/does system.",
+  "populationClass": "GENERAL_SPANISH_TRANSFER",
+  "sourceProvenance": ["DAMIAN_CLASSROOM_OBSERVATION"],
+  "notes": "Population transfer is a hypothesis; learner-specific transfer must be supported by individual evidence."
+}
