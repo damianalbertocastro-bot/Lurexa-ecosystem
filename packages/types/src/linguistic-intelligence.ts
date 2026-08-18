@@ -142,3 +142,29 @@ export interface LinguisticPatternAggregate {
   recurrence: LearnerRecurrenceState;
   confidence: number;
 }
+
+export interface PopulationCorpusPattern {
+  patternId: string;
+  learnerFormOrBehavior: string;
+  primaryDomain: string;
+  subdomain: string;
+  observationTypes: string[];
+  targetRelationship: string;
+  communicativeImpact: CommunicativeImpact;
+  correctionPriority: string;
+  cefrRelevance: {
+    minimumRelevantLevel?: CefrLevel;
+    highestPriorityLevels?: CefrLevel[];
+    persistencePossibleThrough?: CefrLevel;
+  };
+  evidenceStrength: string;
+  transferStatus: string;
+  populationClass?: string;
+  sourceProvenance: string[];
+  secondaryDomains?: string[];
+  transferTypes?: string[];
+  possibleL1Source?: string | null;
+  intendedMeaningOrFunction?: string | null;
+  preferredTargetOrAlternative?: string | null;
+  notes?: string | null;
+}
