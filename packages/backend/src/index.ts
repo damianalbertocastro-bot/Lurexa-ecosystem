@@ -16,3 +16,4 @@ export * from "./ecosystem.service";
 export * from "./telemetry.service";
 export * from "./learner-model.service";
 export * from "./linguistic-intelligence.service";
+export * from "./coach-linguistic-adapter.service";
