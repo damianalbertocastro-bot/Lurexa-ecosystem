@@ -1,6 +1,6 @@
 # Lurexa Linguistic Intelligence Overview
 
-Status: Foundational pedagogical authority  
+Status: Foundational pedagogical authority — v0.2  
 Applies to: Lurexa Mind, Lurexa Coach, Lurexa Learn, Lurexa Teach  
 Depends on: `Docs/Curriculum/05-LEARNER-MODEL-EDUCATIONAL-SPEC.md`, `Docs/Curriculum/06-DOMINICAN-SPANISH-ENGLISH-LINGUISTIC-PROFILE.md`, `Docs/Curriculum/08-CONVERSATION-FRAMEWORK.md`
 
@@ -8,134 +8,56 @@ Depends on: `Docs/Curriculum/05-LEARNER-MODEL-EDUCATIONAL-SPEC.md`, `Docs/Curric
 
 This document defines how Lurexa organizes linguistic intelligence so population-level language knowledge, individual learner evidence, and AI coaching behavior remain distinct but interoperable.
 
-The governing principle is:
-
 > **Population knowledge generates hypotheses. Learner evidence generates personalization.**
 
 Lurexa must never convert a group-level tendency into an individual learner fact without learner-specific evidence.
 
 ## 2. Three-layer model
 
-Lurexa Linguistic Intelligence is organized into three operational layers.
-
 ### Layer 1 — Population Knowledge
 
-Population Knowledge stores patterns that may be useful when teaching or analyzing learners from a language background or speech community.
+Stores patterns that may help Lurexa decide what to monitor or test: possible Spanish/Dominican Spanish transfer, recurring classroom forms, pronunciation contrasts, pragmatic contrasts, and researched patterns.
 
-Examples include:
-
-- possible Spanish-to-English grammar transfer patterns;
-- possible Dominican Spanish-to-English phonological transfer patterns;
-- recurring lexical calques;
-- likely pragmatic contrasts;
-- pronunciation contrasts worth monitoring;
-- teacher-observed recurring learner forms;
-- externally researched linguistic patterns.
-
-Population knowledge is **hypothesis-generating**, not deterministic.
-
-It may answer:
-
-> What should Lurexa pay attention to?
-
-It must not answer:
-
-> What does this individual learner definitely do?
+Population knowledge answers: **What should Lurexa pay attention to?** It does not answer what an individual learner definitely does.
 
 ### Layer 2 — Learner Evidence
 
-Learner Evidence represents what an individual learner actually produced, understood, repaired, improved, retained, or repeatedly struggled with.
+Represents what an individual learner actually produced, understood, repaired, improved, retained, or repeatedly struggled with across Learn, Coach, pronunciation tasks, assessments, and teacher observations.
 
-Evidence may come from:
-
-- Lurexa Learn activities;
-- Lurexa Coach conversations;
-- pronunciation tasks;
-- teacher observations;
-- assessments;
-- learner retries;
-- later successful transfer.
-
-Learner evidence must remain distinguishable from Mind's interpretation of that evidence.
-
-Examples:
-
-**Evidence:** learner produced `I have 24 years` in two conversations.  
-**Interpretation:** age expressions with English `be` may not yet be stable in spontaneous production.
-
-Individual evidence always overrides population-level assumptions.
-
-### Layer 3 — Coach Behavior
-
-Coach Behavior determines what Lurexa Coach should do with relevant authorized learner context.
-
-Possible actions include:
-
-- allow the utterance and continue;
-- recast naturally;
-- prompt self-correction;
-- provide an explicit correction;
-- give a short explanation;
-- request repetition or retry;
-- delay feedback until the end of a segment;
-- schedule targeted future practice;
-- remember the observation without correcting it now.
-
-Coach behavior must depend on more than whether an utterance differs from a preferred target form.
-
-Relevant factors include:
-
-- communicative breakdown;
-- intelligibility impact;
-- current task goal;
-- CEFR level;
-- recurrence;
-- current curriculum target;
-- learner history;
-- whether the learner can self-repair;
-- whether interruption would damage productive fluency;
-- pragmatic or social impact.
-
-## 3. Shared classification foundation
-
-The three layers use a common classification foundation: the **Lurexa English Error Taxonomy**.
-
-The taxonomy is not a fourth layer. It is the shared vocabulary that allows Population Knowledge, Learner Evidence, and Coach Behavior to refer to the same linguistic feature consistently.
+Evidence remains separate from Mind interpretation.
 
 Example:
 
-```text
-Population knowledge:
-Potential Spanish transfer involving age expressions.
+- Evidence: learner produced `I have 24 years` in two conversations.
+- Interpretation: age expressions with English `be` may be unstable in spontaneous production.
 
-Taxonomy feature:
-GRAMMAR > COPULARITY_AND_POSSESSION > AGE_EXPRESSION_BE
+Individual evidence overrides population assumptions.
 
-Learner evidence:
-Learner produced "I have 24 years" three times.
+### Layer 3 — Coach Behavior
 
-Mind interpretation:
-Spontaneous control of AGE_EXPRESSION_BE is unstable.
+Determines what Coach should do with relevant authorized context: continue, recast, elicit self-correction, correct explicitly, explain briefly, retry, delay feedback, schedule review, or observe without correcting.
 
-Coach behavior:
-Prompt self-correction during guided A2 practice; delay correction during fluency work unless recurrent in the same session.
-```
+Behavior depends on impact, task, level, recurrence, learner history, self-repair, and interruption cost—not merely whether a form differs from a preferred target.
+
+## 3. Shared classification foundation
+
+The three layers use the **Lurexa English Error Taxonomy**. The taxonomy is not a fourth layer; it is the shared vocabulary connecting population patterns, learner evidence, Mind interpretation, and Coach intervention.
 
 ## 4. Data integrity rules
 
-Lurexa must preserve the following distinctions:
+Lurexa must preserve these distinctions:
 
-1. **Observed form vs inferred cause** — what happened is not the same as why it happened.
-2. **Population tendency vs learner fact** — language background may guide observation but cannot establish learner state.
-3. **Error vs variation** — not every non-native or non-preferred form is a pedagogical error.
-4. **Error vs naturalness** — an utterance can be grammatical but uncommon, awkward, overly literal, or register-inappropriate.
-5. **Evidence vs interpretation** — raw learning events must not be overwritten by Mind conclusions.
-6. **One occurrence vs recurring pattern** — recurrence raises confidence; a single event should rarely create a durable learner label.
-7. **Accuracy need vs correction need** — Lurexa may remember an error without interrupting the learner.
+1. observed form vs inferred cause;
+2. population tendency vs learner fact;
+3. error vs acceptable variation;
+4. error vs naturalness/register/pragmatics;
+5. evidence vs interpretation;
+6. one occurrence vs recurring pattern;
+7. accuracy need vs immediate correction need;
+8. receptive recognition vs productive control;
+9. grammar knowledge vs spoken realization when morphology is inaudible.
 
-## 5. Primary assets
-
-The Linguistic Intelligence documentation set is planned as:
+## 5. Canonical asset map
 
 ```text
 Docs/Curriculum/Linguistic-Intelligence/
@@ -143,47 +65,90 @@ Docs/Curriculum/Linguistic-Intelligence/
 ├── 01-ERROR-TAXONOMY.md
 ├── 02-DOMINICAN-ENGLISH-ERROR-CORPUS.md
 ├── 03-DOMINICAN-SPANISH-TRANSFER-CATALOG.md
-├── 04-CORRECTION-PHILOSOPHY.md
+├── 04-CORRECTION-AND-FEEDBACK-POLICY.md
 ├── 05-PRONUNCIATION-INTELLIGIBILITY-POLICY.md
 ├── 06-EVIDENCE-CONFIDENCE-MODEL.md
 ├── 07-LEARNER-CONTEXT-CONTRACT.md
-└── 08-COACH-INTERVENTION-RULES.md
+├── 08-COACH-INTERVENTION-RULES.md
+├── 09-IMPLEMENTATION-HANDOFF.md
+├── data/
+│   ├── dominican-error-corpus.schema.json
+│   ├── learner-context.schema.json
+│   └── linguistic-evidence-event.schema.json
+└── examples/
+    ├── dominican-error-corpus.sample.json
+    ├── coach-context.sample.json
+    └── linguistic-evidence-event.sample.json
 ```
 
-Machine-readable schemas and implementation contracts should be created only after the pedagogical model is sufficiently stable.
+The Markdown files are the pedagogical authority. Schemas are implementation-facing representations and must evolve with versioned policy changes.
 
-## 6. Build order
+## 6. Completed build sequence
 
-Recommended sequence:
+The v0.1/v0.2 foundation now covers:
 
-1. establish the error taxonomy;
-2. collect and normalize teacher observations;
-3. build the Dominican English error corpus;
-4. distinguish Dominican-specific, general Spanish-transfer, and general developmental patterns;
-5. define correction philosophy by proficiency level and task type;
-6. define pronunciation and intelligibility policy;
-7. define evidence strength and recurrence rules;
-8. define the learner-context contract;
-9. define Coach intervention rules;
-10. implement machine-readable schemas and product integration.
+1. three-layer architecture;
+2. error taxonomy;
+3. normalized teacher-observed Dominican English corpus;
+4. population-transfer catalog;
+5. correction philosophy by level/task;
+6. pronunciation/intelligibility policy;
+7. evidence strength, recurrence, learner control, and confidence;
+8. learner-context contract from Mind to Coach;
+9. Coach intervention decision rules;
+10. machine-readable schemas and sample payloads;
+11. implementation handoff and evaluation cases.
 
 ## 7. Product boundary
 
-Lurexa Mind interprets authorized learning evidence and recommends adaptive action. Lurexa Core remains responsible for trusted persistence, authorization, and authoritative learner records. Lurexa Coach consumes relevant context and produces new evidence; it must not maintain a competing independent learner profile.
+Lurexa Mind interprets authorized learning evidence, maintains pedagogical state/priority, and constructs context. Lurexa Core remains responsible for trusted persistence, authorization, identity, and authoritative learner records. Lurexa Coach consumes scoped context and returns new evidence; it must not maintain a competing authoritative learner profile.
 
-## 8. Success criterion
-
-The system succeeds when Lurexa can move reliably from:
+## 8. Runtime learning loop
 
 ```text
 population hypothesis
 → learner observation
-→ recurring evidence
-→ learner-specific interpretation
+→ structured evidence
+→ recurrence/confidence interpretation
+→ learner-specific state
+→ scoped context
 → context-aware intervention
-→ retry or future practice
+→ retry / later spontaneous use
 → new evidence
-→ updated learner understanding
+→ updated Mind interpretation
 ```
 
-without stereotyping learners, overcorrecting normal variation, or losing the provenance of the original evidence.
+## 9. Population-to-learner firewall
+
+A strong population pattern may justify testing a hypothesis sooner. It must not increase learner-specific confidence without individual evidence.
+
+Example: the presence of `es-DO` as an L1 variety may make TH perception a reasonable diagnostic candidate; it must not automatically create an active TH weakness.
+
+## 10. Pronunciation boundary
+
+Pronunciation targets intelligibility, perception, lexical/grammatical distinction, stress, rhythm, connected speech, rhetorical effectiveness, and learner goals. Lurexa must not treat ordinary Dominican/Caribbean or other World Englishes variation as an error solely because it differs from one prestige accent.
+
+## 11. Correction boundary
+
+Coach corrects according to learning value, not detector density. Fluency tasks default toward delayed selective feedback; controlled accuracy tasks may use immediate repeated correction. Communication breakdown may override normal delay rules.
+
+## 12. Context minimization
+
+Mind should not send the full learner history or full Dominican corpus into each Coach session. It should send the smallest current context that can change the experience appropriately: current targets, relevant recurring patterns, skill level, session mode, strengths, recent interventions, and bounded correction guidance.
+
+## 13. Evidence expansion strategy
+
+The current corpus is deliberately teacher-observed and conservative. Future versions should add:
+
+- additional real Dominican classroom examples;
+- multi-teacher frequency evidence;
+- Lurexa learner-corpus evidence;
+- external SLA/linguistics validation;
+- more natural-expression, pragmatics, discourse, and listening examples;
+- calibrated recurrence/confidence thresholds.
+
+These are evidence upgrades, not reasons to collapse the current architecture.
+
+## 14. Success criterion
+
+The system succeeds when it can reliably move from population knowledge to individualized evidence-backed intervention without stereotyping, overcorrecting, losing provenance, or confusing recognition with productive mastery.
