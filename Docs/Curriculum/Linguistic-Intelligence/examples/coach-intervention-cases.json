@@ -1,0 +1,50 @@
+[
+  {
+    "id": "A1_CURRENT_TARGET_AGE",
+    "context": {"learnerId": "example-a1", "cefr": "A1", "taskMode": "guided_conversation", "sessionGoal": "conversation"},
+    "observation": {"patternId": "DO-ENG-GRA-001", "domain": "grammar", "learnerForm": "I have 25 years old", "intendedMeaning": "I'm 25 years old", "communicativeImpact": "CI1", "communicationBreakdown": false, "currentTarget": true, "likelySelfCorrectable": false},
+    "expected": {"action": "model_and_repeat", "timing": "after_segment", "priority": 3, "reason": "current_target", "shouldCreateEvidence": true, "shouldRequestRetry": true}
+  },
+  {
+    "id": "B1_RECURRING_DURING_FLUENCY",
+    "context": {"learnerId": "example-b1", "cefr": "B1", "taskMode": "fluency_conversation", "sessionGoal": "fluency"},
+    "observation": {"patternId": "DO-ENG-PRO-006", "domain": "pronunciation", "learnerForm": "I watch TV last night", "communicativeImpact": "CI1", "communicationBreakdown": false, "currentTarget": false, "recurrence": "R2_REPEATED_ACROSS_SESSIONS", "likelySelfCorrectable": true},
+    "expected": {"action": "delayed_feedback", "timing": "after_task", "priority": 2, "reason": "recurring_pattern", "shouldCreateEvidence": true, "shouldRequestRetry": true}
+  },
+  {
+    "id": "B1_SELF_CORRECTION",
+    "context": {"learnerId": "example-b1-repair", "cefr": "B1", "taskMode": "guided_conversation", "sessionGoal": "conversation"},
+    "observation": {"domain": "grammar", "learnerForm": "Students confuses... students confuse", "communicativeImpact": "CI0", "communicationBreakdown": false, "currentTarget": false, "learnerSelfCorrected": true},
+    "expected": {"action": "observe_only", "timing": "none", "priority": 1, "reason": "self_corrected", "shouldCreateEvidence": true, "shouldRequestRetry": false}
+  },
+  {
+    "id": "COMMUNICATION_BREAKDOWN_OVERRIDES_FLUENCY",
+    "context": {"learnerId": "example-breakdown", "cefr": "A2", "taskMode": "fluency_conversation", "sessionGoal": "fluency"},
+    "observation": {"domain": "pronunciation", "communicativeImpact": "CI3", "communicationBreakdown": true, "currentTarget": false},
+    "expected": {"action": "clarification_request", "timing": "immediate", "priority": 4, "reason": "communication_breakdown", "shouldCreateEvidence": true, "shouldRequestRetry": true}
+  },
+  {
+    "id": "ACCEPTABLE_VARIATION_NO_CORRECTION",
+    "context": {"learnerId": "example-variation", "cefr": "C1", "taskMode": "free_production", "sessionGoal": "conversation"},
+    "observation": {"domain": "pronunciation", "communicativeImpact": "CI0", "communicationBreakdown": false, "currentTarget": false, "acceptableVariation": true},
+    "expected": {"action": "observe_only", "timing": "none", "priority": 0, "reason": "acceptable_variation", "shouldCreateEvidence": false, "shouldRequestRetry": false}
+  },
+  {
+    "id": "B2_TARGET_SELF_REPAIR",
+    "context": {"learnerId": "example-b2", "cefr": "B2", "taskMode": "controlled_accuracy", "sessionGoal": "accuracy"},
+    "observation": {"domain": "grammar", "communicativeImpact": "CI1", "communicationBreakdown": false, "currentTarget": true, "likelySelfCorrectable": true},
+    "expected": {"action": "elicit_self_correction", "timing": "immediate", "priority": 3, "reason": "current_target", "shouldCreateEvidence": true, "shouldRequestRetry": true}
+  },
+  {
+    "id": "B2_PRONUNCIATION_INTELLIGIBILITY_RISK",
+    "context": {"learnerId": "example-b2-pro", "cefr": "B2", "taskMode": "fluency_conversation", "sessionGoal": "fluency"},
+    "observation": {"patternId": "DO-ENG-PRO-008", "domain": "pronunciation", "communicativeImpact": "CI2", "communicationBreakdown": false, "currentTarget": false, "pronunciationIntelligibilityRisk": true, "likelySelfCorrectable": true},
+    "expected": {"action": "elicit_self_correction", "timing": "after_turn", "priority": 3, "reason": "high_impact", "shouldCreateEvidence": true, "shouldRequestRetry": true}
+  },
+  {
+    "id": "A2_LOW_VALUE_FLUENCY_ERROR",
+    "context": {"learnerId": "example-a2-low", "cefr": "A2", "taskMode": "guided_conversation", "sessionGoal": "conversation"},
+    "observation": {"domain": "grammar", "communicativeImpact": "CI0", "communicationBreakdown": false, "currentTarget": false},
+    "expected": {"action": "observe_only", "timing": "after_task", "priority": 1, "reason": "fluency_protection", "shouldCreateEvidence": true, "shouldRequestRetry": false}
+  }
+]
