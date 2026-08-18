@@ -6,8 +6,18 @@ import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Modal } from "@lurexa/ui/Modal";
-import { AuthService, CourseBuilderService, OrganizationService } from "@lurexa/backend";
-import { Lesson } from "@lurexa/types";
+import { AuthService, OrganizationService } from "@lurexa/backend";
+import { Course, Lesson, Module } from "@lurexa/types";
+import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+
+async function saveCourseChange<T>(body: Record<string, unknown>): Promise<T> {
+  const response = await authenticatedFetch("/api/learning", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  });
+  const payload = await response.json() as T & { error?: string };
+  if (!response.ok) throw new Error(payload.error ?? "Unable to save course changes.");
+  return payload;
+}
 
 export default function CourseBuilderPage() {
   const [title, setTitle] = useState("");
@@ -45,13 +55,7 @@ export default function CourseBuilderPage() {
 
     try {
       if (!teacherContext) throw new Error("A teacher organization is required.");
-      const course = await CourseBuilderService.createCourse(
-        teacherContext.orgId,
-        teacherContext.userId,
-        title,
-        description,
-        subject
-      );
+      const course = await saveCourseChange<Course>({ action: "createCourse", title, description, subject });
       setActiveCourseId(course.id);
       alert("Course draft created successfully!");
     } catch (error: unknown) {
@@ -67,19 +71,12 @@ export default function CourseBuilderPage() {
 
     setIsSavingLesson(true);
     try {
-      const lesson = await CourseBuilderService.saveLesson(
-        activeModule.id,
-        null,
-        lessonTitle.trim(),
-        [{
+      const lesson = await saveCourseChange<Lesson>({ action: "saveLesson", moduleId: activeModule.id, title: lessonTitle.trim(), contentBlocks: [{
           id: crypto.randomUUID(),
           type: "text",
           data: { text: lessonContent.trim() },
           order: 1,
-        }],
-        (lessonsByModule[activeModule.id]?.length ?? 0) + 1,
-        10,
-      );
+        }], order: (lessonsByModule[activeModule.id]?.length ?? 0) + 1, estimatedMinutes: 10 });
       setLessonsByModule((current) => ({
         ...current,
         [activeModule.id]: [...(current[activeModule.id] ?? []), lesson],
@@ -98,7 +95,7 @@ export default function CourseBuilderPage() {
     if (!activeCourseId) return;
     setIsPublishing(true);
     try {
-      await CourseBuilderService.publishCourse(activeCourseId);
+      await saveCourseChange<{ ok: true }>({ action: "publishCourse", courseId: activeCourseId });
       alert("Course published. Students in your organization can now access it.");
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to publish course.");
@@ -111,11 +108,7 @@ export default function CourseBuilderPage() {
     if (!activeCourseId || !newModuleTitle) return;
 
     try {
-      const mod = await CourseBuilderService.addModule(
-        activeCourseId,
-        newModuleTitle,
-        modules.length + 1
-      );
+      const mod = await saveCourseChange<Module>({ action: "addModule", courseId: activeCourseId, title: newModuleTitle, order: modules.length + 1 });
       setModules([...modules, { id: mod.id, title: mod.title }]);
       setNewModuleTitle("");
     } catch (error: unknown) {

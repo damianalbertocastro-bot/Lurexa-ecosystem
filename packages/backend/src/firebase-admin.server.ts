@@ -1,4 +1,5 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 const SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE = "FIREBASE_SERVICE_ACCOUNT_JSON";
@@ -90,4 +91,8 @@ export function getFirebaseAdminApp(): App {
 
 export function getServerFirestore(): Firestore {
   return getFirestore(getFirebaseAdminApp());
+}
+
+export function getServerFirebaseAuth(): Auth {
+  return getAuth(getFirebaseAdminApp());
 }

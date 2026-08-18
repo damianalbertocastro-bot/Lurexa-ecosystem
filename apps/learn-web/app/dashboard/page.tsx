@@ -6,22 +6,29 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
-import { CourseService, AuthService } from "@lurexa/backend";
-import { Course } from "@lurexa/types";
+import { AuthService } from "@lurexa/backend";
+import { Course, Lesson } from "@lurexa/types";
+import { authenticatedFetch } from "../../lib/authenticated-fetch";
+
+interface LearnerCourseSummary {
+  course: Course;
+  completedLessons: number;
+  totalLessons: number;
+  progressPercent: number;
+  nextLesson: Lesson | null;
+}
 
 export default function StudentDashboardPage() {
   const router = useRouter();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<LearnerCourseSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     AuthService.onUserChanged(async (user) => {
       if (user) {
-        const claims = await AuthService.getUserClaims(user);
-        if (claims.orgId) {
-          const orgCourses = await CourseService.getCoursesByOrg(claims.orgId);
-          setCourses(orgCourses);
-        }
+        const response = await authenticatedFetch("/api/learning");
+        if (!response.ok) throw new Error("Unable to load courses.");
+        setCourses(await response.json() as LearnerCourseSummary[]);
       }
       setLoading(false);
     });
@@ -53,7 +60,7 @@ export default function StudentDashboardPage() {
               </p>
             </Card>
           ) : (
-            courses.map((course) => (
+            courses.map(({ course, completedLessons, totalLessons, progressPercent, nextLesson }) => (
               <Card
                 key={course.id}
                 title={course.title}
@@ -64,19 +71,20 @@ export default function StudentDashboardPage() {
                   <div>
                     <div className="mb-1 flex justify-between text-xs text-slate-500">
                       <span>Progress</span>
-                      <span>40%</span>
+                      <span>{progressPercent}%</span>
                     </div>
-                    <ProgressBar value={40} />
+                    <ProgressBar value={progressPercent} />
                   </div>
+
+                  <p className="text-xs text-slate-500">{completedLessons} of {totalLessons} lessons completed</p>
 
                   <Button
                     variant="primary"
                     className="w-full"
-                    onClick={() => {
-                      router.push(`/learn/${course.id}/lesson_1`);
-                    }}
+                    disabled={!nextLesson}
+                    onClick={() => nextLesson && router.push(`/learn/${course.id}/${nextLesson.id}`)}
                   >
-                    Resume Learning
+                    {nextLesson ? "Resume Learning" : "Course Complete"}
                   </Button>
                 </div>
               </Card>
