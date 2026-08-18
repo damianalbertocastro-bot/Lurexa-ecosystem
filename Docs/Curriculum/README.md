@@ -45,6 +45,9 @@ These documents do not replace `Docs/Architecture/*`. Architecture owns product 
 21. `20-PLACEMENT-TEST-MVP-BLUEPRINT.md`
 22. `21-LESSON-PLAYER-UX-SPEC.md`
 23. `22-MVP-CURRICULUM-IMPLEMENTATION-BACKLOG.md`
+24. `23-A1-MODULE-1-UNITS-2-3.md`
+25. `24-A1-MODULE-1-ASSESSMENT-AND-LIVE-PRACTICE.md`
+26. `Seeds/A1-M1-U1.json` — machine-readable Unit 1 seed
 
 ## Read paths by task
 ### Building or redesigning the lesson player
@@ -57,16 +60,16 @@ Read: 02, 04, 05, 10, 20.
 Read: 05, 06, 08, 16, 19.
 
 ### Building pronunciation/Coach integration
-Read: 05, 06, 07, 16.
+Read: 05, 06, 07, 16, 24.
 
 ### Building teacher meetings/assignments
-Read: 12, 14, 15.
+Read: 12, 14, 15, 24.
 
 ### Implementing free/paid learning access
 Read: 04, 12, 13.
 
 ### Creating A1 content
-Read: 00, 01, 02, 06-11, 18, 19.
+Read: 00, 01, 02, 06-11, 18, 19, 23, 24.
 
 ## MVP priority
 A1 is production-ready first. A2 should be designed next. B1-C2 retain stable cross-level architecture and are expanded before release.
@@ -78,6 +81,8 @@ Do not delay the MVP until every future C2 lesson exists. Prove one complete ver
 
 The target includes four lessons and must prove:
 Placement -> lesson recommendation -> interactive vocabulary -> listening -> phonetics -> speaking/conversation -> Create & Apply -> quiz -> evidence -> learner-model interpretation -> remembered adaptation.
+
+Once Unit 1 is technically proven, Units 2 and 3 in file 23 complete the first content module and file 24 provides its assessment/live-practice layer.
 
 ## Architecture references
 Before implementing persistent learner state, personalization, AI interpretation or cross-product learning context, also read:
