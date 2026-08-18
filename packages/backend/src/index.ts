@@ -15,3 +15,4 @@ export * from "./admin.service";
 export * from "./ecosystem.service";
 export * from "./telemetry.service";
 export * from "./learner-model.service";
+export * from "./linguistic-intelligence.service";
