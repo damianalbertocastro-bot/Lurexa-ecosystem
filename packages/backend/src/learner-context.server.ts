@@ -44,9 +44,10 @@ export async function getScopedLearnerContext(input: {
 
   const domains = input.domains.filter((domain) => allowedDomains.includes(domain));
   const database = getServerFirestore();
-  const [progressSnapshot, evidenceSnapshot] = await Promise.all([
+  const [progressSnapshot, evidenceSnapshot, profileSnapshot] = await Promise.all([
     database.collection("progress").where("studentId", "==", input.learnerId).get(),
     database.collection("learning-evidence").where("learnerId", "==", input.learnerId).get(),
+    database.collection("learner-profiles").doc(input.learnerId).get(),
   ]);
 
   const progress = progressSnapshot.docs
@@ -62,8 +63,14 @@ export async function getScopedLearnerContext(input: {
     .map((snapshot) => snapshot.data() as { eventType?: string; recordedAt?: string })
     .sort((first, second) => (second.recordedAt ?? "").localeCompare(first.recordedAt ?? ""));
 
+  const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
+  const declaredGoals = Array.isArray(profile?.goals)
+    ? profile.goals.filter((goal): goal is string => typeof goal === "string")
+    : [];
+
   const context: LearnerContext = {
     learnerId: input.learnerId,
+    ...(domains.includes("goal") && declaredGoals.length ? { goals: declaredGoals } : {}),
     ...(domains.includes("curriculum") && latestProgress ? {
       curriculum: {
         courseId: latestProgress.courseId,
