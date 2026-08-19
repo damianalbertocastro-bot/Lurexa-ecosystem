@@ -1,6 +1,7 @@
 import type { ContentBlock, Course, Lesson, Module } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
+import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 
 const ORGANIZATION_ID = "lurexa-self-paced";
 const COURSE_ID = "english-a1-foundations";
@@ -206,6 +207,16 @@ export async function onboardSelfPacedLearner(input: {
       },
     }),
   ]);
+
+  try {
+    await refreshLearnerIntelligence({
+      learnerId: input.learnerId,
+      organizationId: ORGANIZATION_ID,
+      requestedDomains: ["goal"],
+    });
+  } catch (error) {
+    console.error("Learner goal interpretation failed after onboarding.", error);
+  }
 
   return {
     courseId: COURSE_ID,
