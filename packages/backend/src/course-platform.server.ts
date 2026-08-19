@@ -169,6 +169,37 @@ function validateLessonContentBlocks(contentBlocks: ContentBlock[]): void {
   }
 }
 
+
+async function appendPlatformEvidence(input: {
+  learnerId: string;
+  organizationId: string;
+  eventType: string;
+  source: Record<string, unknown>;
+  payload: Record<string, unknown>;
+  occurredAt: string;
+  idempotencyKey: string;
+}): Promise<void> {
+  const reference = getServerFirestore().collection("learning-evidence").doc();
+  await reference.set({
+    evidenceId: reference.id,
+    schemaVersion: "1",
+    learnerId: input.learnerId,
+    actor: { type: "learner", id: input.learnerId },
+    source: { product: "learn", ...input.source },
+    eventType: input.eventType,
+    occurredAt: input.occurredAt,
+    recordedAt: new Date().toISOString(),
+    authorizationContext: { organizationId: input.organizationId, membershipRequired: true },
+    payload: input.payload,
+    reliability: {
+      method: "system_observed",
+      limitations: ["A single event is not a mastery determination."],
+    },
+    provenance: { service: "course-platform", contractVersion: "1" },
+    idempotencyKey: input.idempotencyKey,
+  });
+}
+
 export const CoursePlatformService = {
   async authenticate(authorization: string | null): Promise<AuthenticatedActor> {
     if (!authorization?.startsWith("Bearer ")) throw new Error("Authentication is required.");
@@ -259,6 +290,7 @@ export const CoursePlatformService = {
       lastAccessedAt: new Date().toISOString(),
     };
     await getServerFirestore().collection("progress").doc(record.id).set({ ...record, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "lesson.completed", source: { courseId, lessonId }, payload: { timeSpentSeconds: record.timeSpentSeconds }, occurredAt: record.lastAccessedAt, idempotencyKey: `${actor.uid}:${lessonId}:lesson.completed` });
     return record;
   },
 
@@ -278,6 +310,7 @@ export const CoursePlatformService = {
     const previous = existing.exists ? (existing.data() as StudentProgress) : null;
     const attempts = [...(previous?.attempts ?? []), { ...attempt, activityType: "single_choice", attemptNumber: (previous?.attempts.filter((item) => item.quizId === quizId).length ?? 0) + 1, firstAttempt: !previous?.attempts.some((item) => item.quizId === quizId) }];
     await reference.set({ id: reference.id, studentId: actor.uid, lessonId, moduleId: entry.lesson.moduleId, courseId, completed: previous?.completed ?? false, timeSpentSeconds: previous?.timeSpentSeconds ?? 0, attempts, bestScore: Math.max(previous?.bestScore ?? 0, attempt.score), lastAccessedAt: attempt.completedAt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "assessment.submitted", source: { courseId, lessonId, activityId: quizId, attemptNumber: attempts.at(-1)?.attemptNumber ?? 1 }, payload: { correct: passed, firstAttempt: attempts.at(-1)?.firstAttempt ?? true }, occurredAt: attempt.completedAt, idempotencyKey: `${actor.uid}:${lessonId}:${quizId}:${attempts.at(-1)?.attemptNumber ?? 1}` });
     return { attempt, explanation: quiz.explanation ?? null };
   },
 
