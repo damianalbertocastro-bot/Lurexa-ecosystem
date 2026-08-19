@@ -6,6 +6,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
+import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
 
 const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
@@ -46,15 +47,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <a href={ecosystemUrl} className="mb-6 flex items-center gap-2 text-2xl font-bold tracking-tight text-slate-900 transition hover:text-indigo-600" aria-label="Return to the Lurexa ecosystem">
-        lurexa<span className="text-indigo-600">.</span>
-        <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700">Learn</span>
-      </a>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--learn-canvas)] p-4 sm:p-8">
+      <div className="mb-7"><LurexaLearnLogo href={ecosystemUrl} /></div>
       <Card
-        title="Welcome back to Lurexa"
-        subtitle="Log in to your learning workspace"
-        className="w-full max-w-md"
+        title="Welcome back."
+        subtitle="Continue the path you were building."
+        className="w-full max-w-md border-[#dfe7fb] p-7 sm:p-8"
       >
         <form onSubmit={handleLogin} className="space-y-4">
           <Input
@@ -84,7 +82,7 @@ export default function LoginPage() {
 
           <p className="text-center text-xs text-slate-500 pt-2">
             Don&apos;t have an account?{" "}
-            <a href="/signup" className="text-indigo-600 hover:underline font-medium">
+            <a href="/signup" className="font-bold text-[#592bd6] hover:text-[#1d5add]">
               Sign up here
             </a>
           </p>
