@@ -1,5 +1,6 @@
 import type { ContentBlock, Course, Lesson, Module } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
+import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 
 const ORGANIZATION_ID = "lurexa-self-paced";
 const COURSE_ID = "english-a1-foundations";
@@ -126,9 +127,9 @@ function starterCourse(now: string): { course: Course; module: Module; lesson: L
 }
 
 /**
- * Creates the smallest viable self-paced entry path. The starter recommendation
- * is intentionally based on the learner choosing to begin as a beginner; it is
- * not presented as a formal placement result.
+ * Creates the smallest viable self-paced entry path. A1 is a starter-course
+ * recommendation for the learner-selected beginner path, not a CEFR placement
+ * result or proficiency inference.
  */
 export async function onboardSelfPacedLearner(input: {
   learnerId: string;
@@ -136,6 +137,7 @@ export async function onboardSelfPacedLearner(input: {
   goal: SelfPacedGoal;
 }): Promise<SelfPacedOnboardingResult> {
   const database = getServerFirestore();
+  const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const now = new Date().toISOString();
   const { course, module, lesson } = starterCourse(now);
 
@@ -143,8 +145,7 @@ export async function onboardSelfPacedLearner(input: {
   const membershipReference = organizationReference.collection("members").doc(input.learnerId);
   const userMembershipReference = database.collection("user-memberships").doc(input.learnerId).collection("organizations").doc(ORGANIZATION_ID);
   const profileReference = database.collection("learner-profiles").doc(input.learnerId);
-  const evidenceReference = database.collection("learning-evidence").doc(`onboarding-${input.learnerId}`);
-  const recommendationReference = database.collection("learner-insights").doc(`starter-a1-${input.learnerId}`);
+  const goalEvidenceId = database.collection("learning-evidence").doc().id;
 
   await Promise.all([
     organizationReference.set({
@@ -183,34 +184,27 @@ export async function onboardSelfPacedLearner(input: {
       },
       updatedAt: now,
     }, { merge: true }),
-    evidenceReference.set({
-      evidenceId: evidenceReference.id,
-      schemaVersion: "1",
+    evidenceRepository.append({
+      id: goalEvidenceId,
       learnerId: input.learnerId,
-      actor: { type: "learner", id: input.learnerId },
-      source: { product: "learn", courseId: COURSE_ID, lessonId: LESSON_ID },
-      eventType: "goal.declared",
-      occurredAt: now,
-      recordedAt: now,
-      authorizationContext: { organizationId: ORGANIZATION_ID, learnerSelfAccess: true },
-      payload: { goal: input.goal, startingPath: "self-paced-beginner" },
-      reliability: { method: "learner_declared", limitations: ["This is a learner preference, not a proficiency measurement."] },
-      provenance: { service: "self-paced-onboarding", contractVersion: "1" },
-      idempotencyKey: `${input.learnerId}:self-paced-onboarding`,
-    }, { merge: true }),
-    recommendationReference.set({
-      observationId: recommendationReference.id,
-      learnerId: input.learnerId,
-      type: "recommended_start",
-      status: "active",
-      value: { courseId: COURSE_ID, lessonId: LESSON_ID, level: "A1" },
-      confidence: { band: "declared-start" },
-      evidenceBasis: [evidenceReference.id],
-      generatedBy: { capability: "onboarding-policy", version: "1" },
-      effectiveAt: now,
-      scope: ["learn"],
-      provenance: { policy: "learner-selected-beginner-path" },
-    }, { merge: true }),
+      organizationId: ORGANIZATION_ID,
+      source: {
+        product: "learn",
+        courseId: COURSE_ID,
+        lessonId: LESSON_ID,
+      },
+      type: "goal_update",
+      observedAt: now,
+      payload: {
+        goal: input.goal,
+        startingPath: "self-paced-beginner",
+      },
+      provenance: {
+        method: "learner_reported",
+        actorId: input.learnerId,
+        confidence: 1,
+      },
+    }),
   ]);
 
   return {
@@ -218,7 +212,7 @@ export async function onboardSelfPacedLearner(input: {
     lessonId: LESSON_ID,
     recommendation: {
       level: "A1",
-      rationale: "You chose the beginner path, so we are starting with a practical A1 introduction lesson.",
+      rationale: "You chose the beginner path, so we are starting with a practical A1 introduction lesson. This is not a formal CEFR placement result.",
     },
   };
 }
