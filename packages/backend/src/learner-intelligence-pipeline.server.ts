@@ -13,6 +13,11 @@ const defaultDomains: LearnerDomain[] = [
 /**
  * Orchestrates the current evidence -> Mind interpretation -> Core persistence
  * loop. Mind produces insights; Core repositories own persistence.
+ *
+ * When an organization scope is supplied, only evidence from that scope is
+ * interpreted. This prevents institution-specific evidence from being mixed
+ * accidentally while still allowing explicitly authorized global learner
+ * context in product experiences that support it.
  */
 export async function refreshLearnerIntelligence(input: {
   learnerId: string;
@@ -22,7 +27,7 @@ export async function refreshLearnerIntelligence(input: {
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const insightRepository = new FirestoreLearnerInsightRepository();
   const intelligence = new ConservativeLearningIntelligenceService();
-  const evidence = await evidenceRepository.listByLearner(input.learnerId);
+  const evidence = await evidenceRepository.listByLearner(input.learnerId, input.organizationId);
 
   const result = await intelligence.interpretLearnerEvidence({
     learnerId: input.learnerId,
