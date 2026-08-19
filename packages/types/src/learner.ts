@@ -97,6 +97,25 @@ export interface LearningEvidence<TPayload = unknown> {
   provenance: LearningEvidenceProvenance;
 }
 
+export type LearnerInsightData =
+  | { kind: "cefr_estimate"; level: CefrLevel }
+  | {
+      kind: "curriculum_context";
+      courseId?: string;
+      moduleId?: string;
+      unitId?: string;
+      lessonId?: string;
+      currentObjectives?: string[];
+    }
+  | {
+      kind: "learning_targets";
+      domain: Extract<LearnerDomain, "grammar" | "vocabulary" | "pronunciation" | "fluency">;
+      targets: string[];
+    }
+  | { kind: "recurring_pattern"; pattern: LearnerPattern }
+  | { kind: "goals"; goals: string[] }
+  | { kind: "recommendation"; actions: string[] };
+
 export interface LearnerInsight {
   id: string;
   learnerId: string;
@@ -105,6 +124,7 @@ export interface LearnerInsight {
   summary: string;
   confidence: number;
   basedOnEvidenceIds: string[];
+  data?: LearnerInsightData;
   generatedAt: string;
   validity?: {
     expiresAt?: string;
