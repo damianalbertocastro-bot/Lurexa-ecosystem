@@ -17,19 +17,31 @@ function readGoal(payload: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
-function groupFailedAttemptsByActivity(evidence: LearningEvidence[]): Map<string, LearningEvidence[]> {
-  const groups = new Map<string, LearningEvidence[]>();
+function repeatedCurrentFailures(evidence: LearningEvidence[]): Map<string, LearningEvidence[]> {
+  const byActivity = new Map<string, LearningEvidence[]>();
   for (const item of evidence) {
-    if (!item.source.activityId || readCorrect(item.payload) !== false) continue;
-    const current = groups.get(item.source.activityId) ?? [];
+    if (!item.source.activityId || readCorrect(item.payload) === null) continue;
+    const current = byActivity.get(item.source.activityId) ?? [];
     current.push(item);
-    groups.set(item.source.activityId, current);
+    byActivity.set(item.source.activityId, current);
   }
-  return groups;
+
+  const repeatedFailures = new Map<string, LearningEvidence[]>();
+  for (const [activityId, attempts] of byActivity) {
+    const ordered = attempts.sort((first, second) => first.observedAt.localeCompare(second.observedAt));
+    const trailingFailures: LearningEvidence[] = [];
+    for (let index = ordered.length - 1; index >= 0; index -= 1) {
+      const attempt = ordered[index];
+      if (!attempt || readCorrect(attempt.payload) !== false) break;
+      trailingFailures.unshift(attempt);
+    }
+    if (trailingFailures.length >= 2) repeatedFailures.set(activityId, trailingFailures);
+  }
+  return repeatedFailures;
 }
 
-function recommendationId(learnerId: string, activityId: string): string {
-  return `mind_recommendation_${learnerId}_${activityId}`.replace(/[^a-zA-Z0-9._-]/g, "_");
+function recommendationId(learnerId: string, activityId: string, organizationId?: string): string {
+  return `mind_recommendation_${learnerId}_${organizationId ?? "global"}_${activityId}`.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
 function goalInsightId(learnerId: string, organizationId?: string): string {
@@ -51,7 +63,7 @@ export class ConservativeLearningIntelligenceService {
     const insights: LearnerInsight[] = [];
     const requestedDomains = new Set(request.requestedDomains ?? []);
     const includeAllDomains = requestedDomains.size === 0;
-    const failedByActivity = groupFailedAttemptsByActivity(request.evidence);
+    const currentFailures = repeatedCurrentFailures(request.evidence);
     const now = new Date().toISOString();
 
     if (includeAllDomains || requestedDomains.has("goal")) {
@@ -79,17 +91,16 @@ export class ConservativeLearningIntelligenceService {
     }
 
     if (includeAllDomains || requestedDomains.has("recommendation")) {
-      for (const [activityId, failedEvidence] of failedByActivity) {
-        if (failedEvidence.length < 2) continue;
-
+      for (const [activityId, failedEvidence] of currentFailures) {
         const evidenceIds = failedEvidence.map((item) => item.id);
         const confidence = Math.min(0.85, 0.55 + failedEvidence.length * 0.05);
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
         insights.push({
-          id: recommendationId(request.learnerId, activityId),
+          id: recommendationId(request.learnerId, activityId, request.organizationId),
           learnerId: request.learnerId,
           ...(request.organizationId ? { organizationId: request.organizationId } : {}),
           domain: "recommendation",
-          summary: `Repeated unsuccessful attempts suggest revisiting activity ${activityId} before increasing difficulty.`,
+          summary: `Repeated recent unsuccessful attempts suggest revisiting activity ${activityId} before increasing difficulty.`,
           confidence,
           basedOnEvidenceIds: evidenceIds,
           data: {
@@ -97,6 +108,7 @@ export class ConservativeLearningIntelligenceService {
             actions: [`Revisit activity ${activityId}`],
           },
           generatedAt: now,
+          validity: { expiresAt },
         });
       }
     }
