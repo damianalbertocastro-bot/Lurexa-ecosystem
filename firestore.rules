@@ -126,5 +126,11 @@ service cloud.firestore {
     match /learner-insights/{insightId} {
       allow read, write: if false;
     }
+
+    // Coach sessions can contain learning context and future speaking evidence.
+    // They are created/read through authenticated server APIs, not direct client SDK access.
+    match /coach-sessions/{sessionId} {
+      allow read, write: if false;
+    }
   }
 }
