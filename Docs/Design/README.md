@@ -4,5 +4,6 @@ This section defines the product-design rules that keep Lurexa coherent across L
 
 - [Design System Foundations](Design%20System%20Foundations.md)
 - [Learning Experience UX Principles](Learning%20Experience%20UX%20Principles.md)
+- [Lurexa Learn Experience Redesign](Lurexa%20Learn%20Experience%20Redesign.md)
 
 Use shared design tokens and the UI component library for implementation. These documents define intent and interaction quality; they do not replace component API documentation.
