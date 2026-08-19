@@ -283,6 +283,7 @@ export const CoursePlatformService = {
   },
 
   async completeLesson(actor: AuthenticatedActor, courseId: string, lessonId: string, timeSpentSeconds: number): Promise<StudentProgress> {
+    const course = await getCourseOrThrow(courseId);
     const { lesson } = await this.getLesson(actor, courseId, lessonId);
     const record: StudentProgress = {
       id: `${actor.uid}_${lessonId}`, studentId: actor.uid, lessonId, moduleId: lesson.moduleId, courseId,
@@ -310,7 +311,7 @@ export const CoursePlatformService = {
     const previous = existing.exists ? (existing.data() as StudentProgress) : null;
     const attempts = [...(previous?.attempts ?? []), { ...attempt, activityType: "single_choice", attemptNumber: (previous?.attempts.filter((item) => item.quizId === quizId).length ?? 0) + 1, firstAttempt: !previous?.attempts.some((item) => item.quizId === quizId) }];
     await reference.set({ id: reference.id, studentId: actor.uid, lessonId, moduleId: entry.lesson.moduleId, courseId, completed: previous?.completed ?? false, timeSpentSeconds: previous?.timeSpentSeconds ?? 0, attempts, bestScore: Math.max(previous?.bestScore ?? 0, attempt.score), lastAccessedAt: attempt.completedAt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "assessment.submitted", source: { courseId, lessonId, activityId: quizId, attemptNumber: attempts.at(-1)?.attemptNumber ?? 1 }, payload: { correct: passed, firstAttempt: attempts.at(-1)?.firstAttempt ?? true }, occurredAt: attempt.completedAt, idempotencyKey: `${actor.uid}:${lessonId}:${quizId}:${attempts.at(-1)?.attemptNumber ?? 1}` });
+    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "assessment.submitted", source: { courseId, lessonId, activityId: quizId, attemptNumber: attempts[attempts.length - 1]?.attemptNumber ?? 1 }, payload: { correct: passed, firstAttempt: attempts[attempts.length - 1]?.firstAttempt ?? true }, occurredAt: attempt.completedAt, idempotencyKey: `${actor.uid}:${lessonId}:${quizId}:${attempts[attempts.length - 1]?.attemptNumber ?? 1}` });
     return { attempt, explanation: quiz.explanation ?? null };
   },
 
