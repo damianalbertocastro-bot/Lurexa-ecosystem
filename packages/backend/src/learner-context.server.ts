@@ -1,5 +1,15 @@
-import type { LearnerContext, LearnerDomain } from "@lurexa/types";
+import type {
+  LearnerContext,
+  LearnerDomain,
+  LearnerInsight,
+  LearnerPattern,
+  StudentProgress,
+} from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
+import {
+  FirestoreLearnerInsightRepository,
+  FirestoreLearningEvidenceRepository,
+} from "./learner-firestore.server";
 
 export type LearnerContextPurpose =
   | "learn_adaptive_practice"
@@ -10,7 +20,7 @@ export interface ScopedLearnerContext {
   purpose: LearnerContextPurpose;
   context: LearnerContext;
   evidenceSummary: {
-    recentEventTypes: string[];
+    recentEvidenceTypes: string[];
     latestEvidenceAt: string | null;
   };
   limitations: string[];
@@ -28,9 +38,19 @@ const allowedDomains: LearnerDomain[] = [
   "recommendation",
 ];
 
+function latestInsight(insights: LearnerInsight[], kind: NonNullable<LearnerInsight["data"]>["kind"]): LearnerInsight | undefined {
+  return insights
+    .filter((insight) => insight.data?.kind === kind)
+    .sort((first, second) => second.generatedAt.localeCompare(first.generatedAt))[0];
+}
+
+function pushUnique(target: string[], values: string[]): void {
+  for (const value of values) if (!target.includes(value)) target.push(value);
+}
+
 /**
  * Trusted Core read boundary for learner context. It intentionally returns a
- * small purpose-scoped projection and never exposes raw evidence artifacts.
+ * small purpose-scoped projection and never exposes raw evidence payloads.
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
@@ -43,57 +63,107 @@ export async function getScopedLearnerContext(input: {
   }
 
   const domains = input.domains.filter((domain) => allowedDomains.includes(domain));
+  const domainSet = new Set(domains);
   const database = getServerFirestore();
-  const [progressSnapshot, evidenceSnapshot, profileSnapshot] = await Promise.all([
+  const evidenceRepository = new FirestoreLearningEvidenceRepository();
+  const insightRepository = new FirestoreLearnerInsightRepository();
+
+  const [progressSnapshot, evidence, insights, profileSnapshot] = await Promise.all([
     database.collection("progress").where("studentId", "==", input.learnerId).get(),
-    database.collection("learning-evidence").where("learnerId", "==", input.learnerId).get(),
+    evidenceRepository.listByLearner(input.learnerId),
+    insightRepository.listActiveByLearner(input.learnerId),
     database.collection("learner-profiles").doc(input.learnerId).get(),
   ]);
 
   const progress = progressSnapshot.docs
-    .map((snapshot) => snapshot.data() as {
-      courseId?: string;
-      lessonId?: string;
-      lastAccessedAt?: string;
-      attempts?: Array<{ quizId?: string }>;
-    })
-    .sort((first, second) => (second.lastAccessedAt ?? "").localeCompare(first.lastAccessedAt ?? ""));
+    .map((snapshot) => snapshot.data() as StudentProgress)
+    .sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt));
   const latestProgress = progress[0];
-  const evidence = evidenceSnapshot.docs
-    .map((snapshot) => snapshot.data() as { eventType?: string; recordedAt?: string })
-    .sort((first, second) => (second.recordedAt ?? "").localeCompare(first.recordedAt ?? ""));
+  const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
 
   const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
   const declaredGoals = Array.isArray(profile?.goals)
     ? profile.goals.filter((goal): goal is string => typeof goal === "string")
     : [];
+  const goalInsight = latestInsight(filteredInsights, "goals");
+  const goals = goalInsight?.data?.kind === "goals" ? goalInsight.data.goals : declaredGoals;
 
   const context: LearnerContext = {
     learnerId: input.learnerId,
-    ...(domains.includes("goal") && declaredGoals.length ? { goals: declaredGoals } : {}),
-    ...(domains.includes("curriculum") && latestProgress ? {
-      curriculum: {
-        courseId: latestProgress.courseId,
-        lessonId: latestProgress.lessonId,
-        updatedAt: latestProgress.lastAccessedAt,
-      },
-    } : {}),
-    recentActivityIds: progress.flatMap((entry) => entry.attempts?.map((attempt) => attempt.quizId).filter((id): id is string => Boolean(id)) ?? []).slice(0, 10),
     generatedAt: new Date().toISOString(),
   };
+
+  if (domainSet.has("goal") && goals.length > 0) context.goals = goals;
+
+  if (domainSet.has("curriculum") && latestProgress) {
+    context.curriculum = {
+      courseId: latestProgress.courseId,
+      moduleId: latestProgress.moduleId,
+      lessonId: latestProgress.lessonId,
+      updatedAt: latestProgress.lastAccessedAt,
+    };
+  }
+
+  const proficiencyInsight = latestInsight(filteredInsights, "cefr_estimate");
+  if (domainSet.has("proficiency") && proficiencyInsight?.data?.kind === "cefr_estimate") {
+    context.proficiency = {
+      cefr: proficiencyInsight.data.level,
+      updatedAt: proficiencyInsight.generatedAt,
+    };
+  }
+
+  const targets: NonNullable<LearnerContext["activeTargets"]> = {};
+  for (const insight of filteredInsights) {
+    if (insight.data?.kind !== "learning_targets") continue;
+    if (insight.data.domain === "grammar") {
+      targets.grammar ??= [];
+      pushUnique(targets.grammar, insight.data.targets);
+    }
+    if (insight.data.domain === "vocabulary") {
+      targets.vocabulary ??= [];
+      pushUnique(targets.vocabulary, insight.data.targets);
+    }
+    if (insight.data.domain === "pronunciation") {
+      targets.pronunciation ??= [];
+      pushUnique(targets.pronunciation, insight.data.targets);
+    }
+    if (insight.data.domain === "fluency") {
+      targets.fluency ??= [];
+      pushUnique(targets.fluency, insight.data.targets);
+    }
+  }
+  if (Object.keys(targets).length > 0) context.activeTargets = targets;
+
+  const recurringPatterns: LearnerPattern[] = filteredInsights
+    .flatMap((insight) => insight.data?.kind === "recurring_pattern" ? [insight.data.pattern] : [])
+    .sort((first, second) => (second.confidence ?? 0) - (first.confidence ?? 0));
+  if (recurringPatterns.length > 0) context.recurringPatterns = recurringPatterns;
+
+  const recentActivityIds = evidence
+    .slice()
+    .sort((first, second) => second.observedAt.localeCompare(first.observedAt))
+    .flatMap((entry) => entry.source.activityId ? [entry.source.activityId] : [])
+    .filter((id, index, values) => values.indexOf(id) === index)
+    .slice(0, 10);
+  if (recentActivityIds.length > 0) context.recentActivityIds = recentActivityIds;
+
+  const recentEvidence = evidence
+    .slice()
+    .sort((first, second) => second.observedAt.localeCompare(first.observedAt));
 
   return {
     contractVersion: "1",
     purpose: input.purpose,
     context,
     evidenceSummary: {
-      recentEventTypes: [...new Set(evidence.map((entry) => entry.eventType).filter((type): type is string => Boolean(type)))].slice(0, 10),
-      latestEvidenceAt: evidence[0]?.recordedAt ?? null,
+      recentEvidenceTypes: [...new Set(recentEvidence.map((entry) => entry.type))].slice(0, 10),
+      latestEvidenceAt: recentEvidence[0]?.observedAt ?? null,
     },
     limitations: [
       "Context is purpose-scoped and excludes raw learner responses.",
-      "No proficiency estimate is returned until validated placement evidence exists.",
+      "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
       "Recent activity is evidence of participation, not a mastery determination.",
+      "Legacy Learn evidence is normalized at the repository boundary until its producer is migrated.",
     ],
   };
 }
