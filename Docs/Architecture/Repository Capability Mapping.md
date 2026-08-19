@@ -1,7 +1,7 @@
 # Repository Capability Mapping
 
 Status: Active
-Last updated: 2026-08-17
+Last updated: 2026-08-19
 
 ## Purpose
 
@@ -34,7 +34,7 @@ The current monorepo contains shared packages including:
 - `@lurexa/utils`
 - shared ESLint and TypeScript configuration packages
 
-The current backend package contains services for authentication, organizations, courses, progress, AI generation, AI guardrails, analytics, offline sync, billing, administration, ecosystem behavior, telemetry, and Firebase integration.
+The current backend package contains services for authentication, organizations, courses, progress, AI generation, AI guardrails, analytics, offline sync, billing, administration, ecosystem behavior, telemetry, Firebase integration, learner evidence persistence, scoped learner context, and the first Mind interpretation pipeline.
 
 The current `learn-web` application already contains learner-facing Learn routes and a Coach route. It also contains legacy/future-facing routes such as marketplace/developer areas. Their presence is implementation history, not evidence that those concepts are current top-level products. They should be reviewed later rather than deleted solely for architecture alignment.
 
@@ -43,40 +43,25 @@ The current `learn-web` application already contains learner-facing Learn routes
 | Repository area | Architectural owner | Current role | Direction |
 |---|---|---|---|
 | `@lurexa/auth` | Core | Authentication primitives | Keep as Core capability |
-| `@lurexa/database` | Core | Persistence abstraction | Expand through explicit repositories; do not expose persistence directly to product UI |
-| `@lurexa/backend` | Mixed implementation host | Existing server/domain services | Classify services by Core/Mind responsibility before splitting physical packages |
-| `@lurexa/types` | Shared contracts | Canonical domain types | Home for cross-boundary learner contracts |
-| `@lurexa/sdk` | Shared capability contracts | Generic SDK helpers plus learner/Mind interfaces | Expose supported product-facing Core and Mind interfaces |
+| `@lurexa/database` | Core | Persistence contracts | Keep datastore-neutral interfaces; concrete server adapters may live with current backend infrastructure until a split is justified |
+| `@lurexa/backend` | Mixed implementation host | Existing Core services plus early Mind implementation | Preserve conceptual ownership boundaries even while physical code shares this package |
+| `@lurexa/types` | Shared contracts | Canonical domain and learner types | Home for cross-boundary learner contracts |
+| `@lurexa/sdk` | Shared capability contracts | Generic helpers plus learner/Mind interfaces | Expose supported product-facing Core and Mind interfaces |
 | `@lurexa/config` | Shared infrastructure | Configuration | Keep neutral/shared |
 | `@lurexa/utils` | Shared infrastructure | Generic utilities | Keep domain-neutral |
 | `@lurexa/ui` | Shared product infrastructure | UI components | No learner persistence or AI-provider logic |
 | `@lurexa/tokens` | Shared product infrastructure | Design tokens | No domain logic |
 | `apps/*` | Products | User experiences | Generate experiences/evidence and consume authorized context |
 
-## Backend service classification
-
-### Core-aligned
-
-Existing services whose primary responsibility belongs to Core include authentication, organizations, courses/content records, progress persistence, billing, administration, offline synchronization, telemetry/event infrastructure, and Firebase/platform integration.
-
-### Mind-aligned or Mind-adjacent
-
-Existing AI generation and AI guardrail services are candidates for eventual Mind ownership. Their current physical location in `@lurexa/backend` is not itself an architecture violation.
-
-The new `LearningIntelligenceService` contract now gives future Mind implementations a product-agnostic boundary for interpreting learner evidence without owning authorization or authoritative persistence.
-
-### Requires review
-
-Analytics and ecosystem services may contain both trusted platform behavior and derived intelligence. They must be inspected capability-by-capability rather than assigned wholesale to Core or Mind.
-
 ## Learner contract foundation implemented
 
-The repository now defines distinct concepts in `@lurexa/types`:
+`@lurexa/types` now distinguishes:
 
-- `LearnerContext` — scoped information an authorized product may consume.
+- `LearnerContext` — purpose-scoped information an authorized product may consume.
 - `LearningEvidence` — observations contributed by products or authorized actors.
-- `LearnerInsight` — interpreted learning intelligence derived from evidence.
-- `LearnerInterpretationRequest` / `LearnerInterpretationResult` — the boundary between authorized evidence and Mind interpretation.
+- `LearnerInsight` — interpreted, revisable learning intelligence derived from evidence.
+- `LearnerInsightData` — typed machine-usable insight payloads such as CEFR estimates, learning targets, recurring patterns, goals, curriculum context, and recommendations.
+- `LearnerInterpretationRequest` / `LearnerInterpretationResult` — the Mind interpretation boundary.
 
 The separation is intentional:
 
@@ -84,65 +69,119 @@ The separation is intentional:
 Evidence != Insight != Context
 ```
 
-A product may record an observation. It must not promote that observation into authoritative interpreted learner state by itself.
+Products do not promote an observation directly into authoritative interpreted learner state.
 
 ## SDK boundaries implemented
 
-`@lurexa/sdk` now exposes:
+`@lurexa/sdk` exposes:
 
 - `LearnerModelService` for Core-facing context/evidence/persistence operations.
 - `LearningIntelligenceService` for Mind interpretation.
 
-These are contracts, not yet network transport implementations.
+These remain product-agnostic contracts rather than provider-specific implementations.
 
-## Persistence boundary implemented
+## Persistence implemented
 
-`@lurexa/database` now exposes repository contracts for append-only learning evidence and active learner insights.
+The repository contains datastore-neutral evidence/insight repository contracts and a current server-side Firestore adapter.
 
-The contracts do not require a single giant learner document and do not force a specific datastore layout.
+New canonical evidence is stored in the server-only `learning-evidence` collection. Active interpreted state is stored in the server-only `learner-insights` collection.
 
-## Core service boundary implemented
+Evidence writes are idempotent by deterministic evidence ID. If the same ID is reused with different content, the repository rejects the conflict instead of silently overwriting evidence.
 
-`@lurexa/backend` now exposes a Core-owned learner-model boundary that requires injected authorization before reading learner context, accepting learning evidence, or persisting a learner insight.
+Historical Learn evidence written with the earlier schema is normalized at the repository read boundary. This compatibility layer prevents an immediate migration from being required while new producers use the canonical contract.
 
-The service deliberately does not infer learning state. Interpretation remains a Mind responsibility.
+## Learn evidence producers migrated
 
-## Firestore protection implemented
+The current `CoursePlatformService` now emits canonical `LearningEvidence` for:
 
-The repository now reserves `/learner-evidence/{evidenceId}` and `/learner-insights/{insightId}` as server-only collections in Firestore Security Rules. Product clients receive no direct read or write permission to these paths.
+- lesson completion → `curriculum_progress`;
+- quiz attempts → `assessment_result`;
+- scored interactive activities → `activity_result`.
 
-This establishes the security direction before a concrete persistence adapter is introduced.
+The previous ad-hoc event schema is no longer produced by these flows. Existing historical records remain readable through normalization.
 
-## Important verified technical debt
+## First Mind implementation
 
-The existing `ProgressService` accesses Firestore directly inside `@lurexa/backend`, and `/progress/{progressId}` currently permits reads and writes by any authenticated user.
+`ConservativeLearningIntelligenceService` is the first concrete Mind implementation behind the shared contract.
 
-That existing rule is too broad for the cross-product Learner Model. It must not be copied to learner evidence or insights, and the progress rule itself should later be hardened as part of Core authorization work.
+Its current behavior is deliberately narrow: repeated unsuccessful attempts on the same activity can create a revisable practice recommendation. A single failed activity does not become a weakness, proficiency judgment, or mastery claim.
 
-The existing Firebase helper remains a client Firebase initialization module. Trusted Core operations now use the separate `@lurexa/backend/firebase-admin.server` boundary, which initializes the Firebase Admin SDK from `FIREBASE_SERVICE_ACCOUNT_JSON` in production or an explicit Firestore Emulator configuration locally. This module is intentionally excluded from the browser-facing backend barrel export. A server-only persistence adapter must use this boundary rather than mixing Admin SDK code into the client helper.
+This implementation is deterministic and provider-independent. Richer model-backed interpretation can replace or extend it later without changing the Core contracts.
 
-## Do not do yet
+## Closed learner loop implemented
 
-Do not yet:
+The first working loop is now:
 
-- create a giant `learnerModel` Firestore document;
-- rename `@lurexa/backend` to `core`;
-- create a monolithic `@lurexa/mind` package solely for branding;
-- expose learner evidence or insight collections directly to product clients;
-- let Coach or Learn write interpreted learner state directly;
-- remove existing product/route code only because naming strategy changed;
-- migrate existing progress records without an explicit migration requirement.
+```text
+Learn action
+  ↓
+Core progress record
+  ↓
+canonical LearningEvidence
+  ↓
+Mind interpretation
+  ↓
+Core learner-insight persistence
+  ↓
+purpose-scoped LearnerContext
+```
 
-## Next implementation sequence
+The current Learn server flow refreshes low-cost deterministic intelligence after evidence capture. Intelligence refresh failure is isolated from the learner's primary progress operation so an interpretation failure does not erase or reject valid learning progress.
 
-1. Establish a server-only Firebase Admin initialization boundary for trusted Core operations.
-2. Implement server-side evidence and insight repositories behind the existing database/service interfaces.
-3. Define concrete request-scoped authorization semantics for learner-context reads and evidence writes.
-4. Implement a context assembler that creates task-scoped `LearnerContext` from trusted Core records and approved active insights.
-5. Connect one narrow Learn flow to submit real `LearningEvidence` through a server boundary.
-6. Add tests for authorization, provenance, duplicate/idempotent submissions, stale insights, and partial context.
-7. Add only the Firestore indexes required by the concrete repository queries.
-8. Review legacy `learn-web` routes and existing AI/analytics services separately; do not conflate cleanup with Learner Model implementation.
+Before expensive or model-backed Mind interpretation is introduced, this synchronous refresh should be replaced by a durable asynchronous processing mechanism.
+
+## Scoped learner context implemented
+
+`getScopedLearnerContext` provides a trusted server-side Core read boundary.
+
+Current properties:
+
+- self-only learner access for the learner-facing route;
+- purpose-scoped domains;
+- trusted curriculum position derived from Core progress records;
+- goals from active insights with profile fallback;
+- CEFR only when an active evidence-backed CEFR insight exists;
+- active targets and recurring patterns from typed insights;
+- recent activity identifiers from normalized learning evidence;
+- no raw learner-response payloads returned to the product.
+
+`apps/learn-web/app/api/learner-context/route.ts` exposes this through an authenticated Node.js route.
+
+## Firebase Admin boundary implemented
+
+Trusted server operations use `@lurexa/backend/firebase-admin.server`.
+
+Production initialization uses `FIREBASE_SERVICE_ACCOUNT_JSON`; emulator operation can initialize from the configured project ID. The Admin module remains out of the browser-facing root backend barrel.
+
+## Firestore security posture
+
+`learning-evidence` and `learner-insights` are server-only: client rules grant no read or write access.
+
+`progress` is now treated as an authoritative Core record. Learners may read only their own progress and organization managers may read progress for courses they manage. Client writes are denied; writes must pass through trusted Core server APIs.
+
+The legacy browser `ProgressService.syncProgress` method remains only as a compatibility surface and now fails explicitly with guidance to use the trusted Core learning API rather than attempting a Firestore write that security rules reject.
+
+## No premature repository split
+
+The implementation deliberately has not:
+
+- renamed `@lurexa/backend` to Core;
+- created a monolithic `@lurexa/mind` branding package;
+- created a giant learner-model Firestore document;
+- exposed learner evidence or insights to product clients;
+- allowed Learn or Coach to write interpreted learner state directly;
+- migrated historical evidence or progress merely for naming consistency.
+
+## Current technical debt and next work
+
+1. Validate lint/type/build for the new learner contracts and server paths in CI/Vercel.
+2. Add focused tests for evidence idempotency, legacy normalization, stale/superseded insights, context scoping, and progress security rules.
+3. Replace synchronous Mind refresh with a durable job/event mechanism before model-backed interpretation introduces material latency or cost.
+4. Add competency/curriculum metadata needed to produce useful learning-target insights without guessing from activity IDs.
+5. Establish teacher/institution learner-context authorization separately from the current self-only learner route.
+6. Define evidence-backed CEFR/placement inputs before producing proficiency insights.
+7. Connect Lurexa Coach to the same scoped context boundary rather than creating a Coach profile.
+8. Review legacy product routes and mixed AI/analytics services independently from Learner Model work.
 
 ## Governing principle
 
