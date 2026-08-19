@@ -14,6 +14,14 @@ service cloud.firestore {
       return /databases/$(database)/documents/organizations/$(orgId)/members/$(userId);
     }
 
+    function coursePath(courseId) {
+      return /databases/$(database)/documents/courses/$(courseId);
+    }
+
+    function courseOrgId(courseId) {
+      return get(coursePath(courseId)).data.orgId;
+    }
+
     function isOrganizationOwner(orgId) {
       return isAuthenticated()
         && get(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid
@@ -96,8 +104,16 @@ service cloud.firestore {
       allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin');
     }
 
+    // Progress is an authoritative Core record. Authenticated learners may read
+    // their own records and organization managers may read records for courses
+    // they manage, but all writes must go through trusted server-side Core APIs.
     match /progress/{progressId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated()
+        && (
+          request.auth.uid == resource.data.studentId
+          || isOrganizationManager(courseOrgId(resource.data.courseId))
+        );
+      allow write: if false;
     }
 
     // Learner Model data is intentionally server-only. Product clients must
