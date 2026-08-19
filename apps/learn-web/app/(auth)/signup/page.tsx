@@ -8,6 +8,8 @@ import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+
 export default function SignupPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"teacher" | "student">("student");
@@ -47,10 +49,11 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
-      <Link href="/" className="mb-6 text-2xl font-bold tracking-tight text-slate-900 transition hover:text-indigo-600" aria-label="Return to Lurexa home">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--learn-canvas)] p-4 sm:p-8">
+      <a href={ecosystemUrl} className="mb-6 flex items-center gap-2 text-2xl font-bold tracking-tight text-slate-900 transition hover:text-indigo-600" aria-label="Return to the Lurexa ecosystem">
         lurexa<span className="text-indigo-600">.</span>
-      </Link>
+        <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700">Learn</span>
+      </a>
       <Card title="Create your Lurexa Account" subtitle="Join or create an institution" className="w-full max-w-md">
         <div className="mb-6 flex rounded-lg bg-slate-100 p-1">
           <button
