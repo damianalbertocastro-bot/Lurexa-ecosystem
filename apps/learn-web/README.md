@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lurexa Learn Web
 
-## Getting Started
+The learner-facing Lurexa Learn application. It is the first production surface for the shared Lurexa Core and Lurexa Mind architecture.
 
-First, run the development server:
+## Current MVP path
+
+A self-paced learner can:
+
+1. create an account without an institution code;
+2. choose an English-learning goal;
+3. receive a transparent A1 starter recommendation based on choosing the beginner path;
+4. enter the **English A1 Foundations** course;
+5. complete structured activity, quiz and Create & Apply work;
+6. have trusted learning evidence saved through server-side Core boundaries.
+
+Teacher/class-code enrollment remains available for institution-led learning.
+
+## Run locally
+
+From the repository root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm --filter learn-web dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required local environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy the relevant values from `packages/.env.example` into `.env.local`. The application needs:
 
-## Learn More
+- `NEXT_PUBLIC_FIREBASE_*` values for Firebase browser authentication;
+- `FIREBASE_SERVICE_ACCOUNT_JSON` for trusted server-side Core operations;
+- `FIREBASE_PROJECT_ID` when using the Firebase Emulator without a service account.
 
-To learn more about Next.js, take a look at the following resources:
+Never expose `FIREBASE_SERVICE_ACCOUNT_JSON` through a `NEXT_PUBLIC_` variable or commit it to the repository.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/signup` — independent or class-code account creation
+- `/onboarding` — self-paced goal selection and A1 starter provisioning
+- `/dashboard` — learner learning paths
+- `/learn/english-a1-foundations/a1-introduce-yourself` — first structured A1 lesson
+- `/learn/a1-preview` — focused A1 experience preview
 
-## Deploy on Vercel
+## Architecture rules
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Product UI does not write trusted learner records directly.
+- Server route handlers authenticate requests and use Firebase Admin for Core-owned persistence.
+- Raw learning evidence, learner profiles and derived observations are server-only.
+- Completion, activity attempts and quiz attempts are evidence—not standalone mastery claims.
