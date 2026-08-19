@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/button";
 import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
-import { AdminService, PlatformMetricsSummary, AdminOrgOverview } from "@lurexa/backend";
+import { AdminService, AuthService, PlatformMetricsSummary, AdminOrgOverview } from "@lurexa/backend";
+
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [metrics, setMetrics] = useState<PlatformMetricsSummary | null>(null);
   const [orgs, setOrgs] = useState<AdminOrgOverview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +43,8 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const signOut = async () => { await AuthService.logout(); router.replace("/login"); };
+
   if (loading) {
     return <div className="p-8 text-slate-500">Loading platform operations...</div>;
   }
@@ -52,7 +58,7 @@ export default function AdminDashboardPage() {
             <h1 className="text-3xl font-bold text-white">Lurexa Platform Operations</h1>
             <p className="text-slate-400">System control, tenant management, and moderation</p>
           </div>
-          <Badge variant="info">Superadmin Role Active</Badge>
+          <div className="flex items-center gap-2"><a href={ecosystemUrl} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white">Ecosystem</a><button type="button" onClick={signOut} className="rounded-lg border border-slate-700 px-3 py-2 text-sm font-bold text-slate-100 hover:border-slate-500 hover:bg-slate-800">Sign out</button><Badge variant="info">Superadmin Role Active</Badge></div>
         </div>
 
         {/* Global System KPIs */}
