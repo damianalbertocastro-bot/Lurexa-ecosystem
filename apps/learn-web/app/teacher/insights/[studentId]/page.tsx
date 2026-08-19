@@ -25,12 +25,12 @@ export default function StudentInterventionPage({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Student Profile & Targeted Intervention</h1>
-            <p className="text-slate-500">Student ID: {params.studentId}</p>
+            <h1 className="text-2xl font-bold text-[#071d67]">Student Profile & Targeted Intervention</h1>
+            <p className="text-[#6677a5]">Student ID: {params.studentId}</p>
           </div>
           <Badge variant="warning">At Risk</Badge>
         </div>
@@ -38,19 +38,19 @@ export default function StudentInterventionPage({
         {/* Learning Diagnosis */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card title="Learning Diagnosis">
-            <p className="text-sm text-slate-600 mb-2">
+            <p className="text-sm text-[#5d6f9d] mb-2">
               <strong>Struggle Concept:</strong> Present Perfect Tense vs Past Simple
             </p>
-            <p className="text-sm text-slate-600 mb-2">
+            <p className="text-sm text-[#5d6f9d] mb-2">
               <strong>AI Tutor Interactions:</strong> 8 queries (Asked for extra examples 3x)
             </p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[#5d6f9d]">
               <strong>Quiz Retries:</strong> 3 attempts on Module 2 Quiz
             </p>
           </Card>
 
           <Card title="Suggested Remedy">
-            <p className="text-sm text-indigo-900 bg-indigo-50 p-3 rounded-lg">
+            <p className="text-sm text-indigo-900 bg-indigo-50 p-3 rounded-xl">
               {"Assign 5 extra practice exercises focusing on key time markers ('already', 'yet', 'since') before next module unlock."}
             </p>
           </Card>
