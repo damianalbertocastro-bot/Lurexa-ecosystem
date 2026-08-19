@@ -37,5 +37,8 @@ jobs:
       - name: Verify Linguistic Intelligence
         run: pnpm verify:linguistic-intelligence
 
+      - name: Verify Learner Model Architecture
+        run: pnpm verify:learner-model
+
       - name: Verify Phase 0
         run: pnpm verify:phase0
