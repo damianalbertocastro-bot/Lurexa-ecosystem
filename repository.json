@@ -1,14 +1,26 @@
 {
+  "schemaVersion": 1,
   "name": "lurexa",
+  "packageManager": "pnpm",
   "applications": [
-    { "name": "my-app", "template": "nextjs" },
-    { "name": "admin-portal", "template": "nextjs" },
-    { "name": "teacher-portal", "template": "nextjs" }
+    { "name": "web", "path": "apps/web", "role": "ecosystem-landing" },
+    { "name": "docs", "path": "apps/docs", "role": "documentation" },
+    { "name": "learn-web", "path": "apps/learn-web", "role": "learner-product" },
+    { "name": "teacher-portal", "path": "apps/teacher-portal", "role": "teacher-product" },
+    { "name": "admin-portal", "path": "apps/admin-portal", "role": "admin-product" },
+    { "name": "mobile", "path": "apps/mobile", "role": "mobile-product" }
   ],
   "packages": [
-    { "name": "ui" },
-    { "name": "utils" },
-    { "name": "database" },
-    { "name": "backend" }
+    { "name": "@lurexa/auth", "path": "packages/auth" },
+    { "name": "@lurexa/backend", "path": "packages/backend" },
+    { "name": "@lurexa/config", "path": "packages/config" },
+    { "name": "@lurexa/database", "path": "packages/database" },
+    { "name": "@lurexa/eslint-config", "path": "packages/eslint-config" },
+    { "name": "@lurexa/sdk", "path": "packages/sdk" },
+    { "name": "@lurexa/tokens", "path": "packages/tokens" },
+    { "name": "@lurexa/types", "path": "packages/types" },
+    { "name": "@lurexa/typescript-config", "path": "packages/typescript-config" },
+    { "name": "@lurexa/ui", "path": "packages/ui" },
+    { "name": "@lurexa/utils", "path": "packages/utils" }
   ]
 }
