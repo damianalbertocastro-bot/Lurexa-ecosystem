@@ -54,12 +54,12 @@ export default function QuizBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Quiz & Assessment Builder</h1>
-            <p className="text-slate-500">Create reusable exercises or generate them with AI</p>
+            <h1 className="text-3xl font-bold text-[#071d67]">Quiz & Assessment Builder</h1>
+            <p className="text-[#6677a5]">Create reusable exercises or generate them with AI</p>
           </div>
           <Button variant="secondary" onClick={handleGenerateAiQuestions} isLoading={isAiGenerating}>
             ✨ AI Question Generator
@@ -70,11 +70,11 @@ export default function QuizBuilderPage() {
         <Card title="Add Question" subtitle="Define prompt, options, and correct answers">
           <form onSubmit={handleAddQuestion} className="space-y-4 pt-2">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-1 block">Question Type</label>
+              <label className="text-sm font-medium text-[#314b88] mb-1 block">Question Type</label>
               <select
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value as QuestionType)}
-                className="w-full rounded-lg border border-slate-300 p-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-[#d7e0f6] p-2 text-sm text-[#071d67] focus:outline-none focus:ring-2 focus:ring-[#1d5add]"
               >
                 <option value="multiple_choice">Multiple Choice</option>
                 <option value="single_choice">Single Choice</option>
@@ -92,7 +92,7 @@ export default function QuizBuilderPage() {
 
             {questionType.includes("choice") && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Answer Options</label>
+                <label className="text-sm font-medium text-[#314b88]">Answer Options</label>
                 {options.map((opt, idx) => (
                   <Input
                     key={idx}
@@ -132,20 +132,20 @@ export default function QuizBuilderPage() {
         {/* Quiz Questions List */}
         <Card title={`Questions Pool (${questions.length})`} subtitle="Questions in this assessment draft">
           {questions.length === 0 ? (
-            <p className="text-sm text-slate-500 py-4 text-center">No questions added yet.</p>
+            <p className="text-sm text-[#6677a5] py-4 text-center">No questions added yet.</p>
           ) : (
             <div className="space-y-3 pt-2">
               {questions.map((q, idx) => (
-                <div key={q.id} className="rounded-lg border border-slate-200 p-4 bg-white space-y-2">
+                <div key={q.id} className="rounded-xl border border-[#dfe7fb] p-4 bg-white space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-indigo-600">Question {idx + 1}</span>
+                    <span className="text-xs font-bold uppercase text-[#592bd6]">Question {idx + 1}</span>
                     <Badge variant="info">{q.type}</Badge>
                   </div>
-                  <p className="font-semibold text-slate-900">{q.prompt}</p>
+                  <p className="font-semibold text-[#071d67]">{q.prompt}</p>
                   {q.options && (
-                    <ul className="list-disc list-inside text-xs text-slate-600 space-y-1 pl-2">
+                    <ul className="list-disc list-inside text-xs text-[#5d6f9d] space-y-1 pl-2">
                       {q.options.map((opt, oIdx) => (
-                        <li key={oIdx} className={opt === q.correctAnswer ? "font-bold text-emerald-600" : ""}>
+                        <li key={oIdx} className={opt === q.correctAnswer ? "font-bold text-[#137867]" : ""}>
                           {opt} {opt === q.correctAnswer && "✓"}
                         </li>
                       ))}
