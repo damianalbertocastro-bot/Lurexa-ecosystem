@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { AuthService } from "@lurexa/backend";
@@ -31,9 +30,7 @@ export function ProductShell({ children, area, homeHref }: ProductShellProps) {
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <Link href={homeHref} aria-label="Go to Lurexa Learn home" className="shrink-0">
-              <LurexaLearnLogo />
-            </Link>
+            <LurexaLearnLogo href={homeHref} />
             <span className="hidden h-5 w-px bg-slate-200 sm:block" />
             <span className="hidden text-xs font-bold uppercase tracking-[.16em] text-slate-500 sm:block">{area}</span>
           </div>
