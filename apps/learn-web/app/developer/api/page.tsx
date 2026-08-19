@@ -23,12 +23,12 @@ export default function DeveloperAPIPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">🔌 Lurexa Public API</h1>
-            <p className="text-slate-500">Integrate Lurexa&apos;s AI engine directly into your SIS/LMS</p>
+            <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Build on Lurexa.</h1>
+            <p className="mt-2 text-[#6677a5]">Use authorised contracts to connect your SIS or LMS responsibly.</p>
           </div>
           <Badge variant="success">v1.0 GraphQL / REST</Badge>
         </div>
@@ -42,7 +42,7 @@ export default function DeveloperAPIPage() {
             ) : (
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-500 uppercase">Your New API Token (Save immediately):</p>
-                <div className="p-3 bg-slate-900 text-emerald-400 font-mono text-sm rounded-lg overflow-x-auto">
+                <div className="rounded-xl bg-[#071d67] p-4 font-mono text-sm text-[#8ff2ed] overflow-x-auto">
                   {issuedKey}
                 </div>
               </div>
@@ -51,8 +51,8 @@ export default function DeveloperAPIPage() {
         </Card>
 
         <Card title="API Endpoints Reference">
-          <div className="space-y-3 text-xs text-slate-700 font-mono">
-            <div className="p-3 bg-white border border-slate-200 rounded-lg flex justify-between">
+          <div className="space-y-3 font-mono text-xs text-[#314b88]">
+            <div className="flex justify-between rounded-xl border border-[#dfe7fb] bg-white p-4">
               <span><strong className="text-indigo-600">POST</strong> /api/v1/students/sync</span>
               <span className="text-slate-400">Sync SIS Rosters</span>
             </div>
