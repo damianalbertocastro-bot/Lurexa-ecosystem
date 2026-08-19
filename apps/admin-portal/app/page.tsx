@@ -1,126 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/button";
 import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
-import { AdminService, PlatformMetricsSummary, AdminOrgOverview } from "@lurexa/backend";
+import { ProductMark } from "@lurexa/ui/ProductMark";
+import { AdminService, AuthService, PlatformMetricsSummary, AdminOrgOverview } from "@lurexa/backend";
+
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [metrics, setMetrics] = useState<PlatformMetricsSummary | null>(null);
   const [orgs, setOrgs] = useState<AdminOrgOverview[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadAdminData() {
-      try {
-        const m = await AdminService.getPlatformMetrics();
-        const o = await AdminService.getOrganizationsOverview();
-        setMetrics(m);
-        setOrgs(o);
-      } catch (err) {
-        console.error("Failed to load admin data", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAdminData();
-  }, []);
+  useEffect(() => { async function loadAdminData() { try { const [m, o] = await Promise.all([AdminService.getPlatformMetrics(), AdminService.getOrganizationsOverview()]); setMetrics(m); setOrgs(o); } catch (err) { console.error("Failed to load admin data", err); } finally { setLoading(false); } } loadAdminData(); }, []);
+  const handleToggleOrgStatus = async (orgId: string, currentStatus: "active" | "suspended") => { const nextStatus = currentStatus === "active" ? "suspended" : "active"; try { await AdminService.updateOrgStatus(orgId, nextStatus); setOrgs((prev) => prev.map((o) => (o.id === orgId ? { ...o, status: nextStatus } : o))); } catch { alert("Failed to update status."); } };
+  const signOut = async () => { await AuthService.logout(); router.replace("/login"); };
+  if (loading) return <div className="grid min-h-screen place-items-center bg-[#f6f8ff] text-sm font-bold text-[#536aab]">Loading platform operations…</div>;
 
-  const handleToggleOrgStatus = async (orgId: string, currentStatus: "active" | "suspended") => {
-    const nextStatus = currentStatus === "active" ? "suspended" : "active";
-    try {
-      await AdminService.updateOrgStatus(orgId, nextStatus);
-      setOrgs((prev) =>
-        prev.map((o) => (o.id === orgId ? { ...o, status: nextStatus } : o))
-      );
-    } catch {
-      alert("Failed to update status.");
-    }
-  };
-
-  if (loading) {
-    return <div className="p-8 text-slate-500">Loading platform operations...</div>;
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* Ops Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Lurexa Platform Operations</h1>
-            <p className="text-slate-400">System control, tenant management, and moderation</p>
-          </div>
-          <Badge variant="info">Superadmin Role Active</Badge>
-        </div>
-
-        {/* Global System KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-slate-800 border-slate-700 text-slate-100" title="Monthly Active Users">
-            <span className="text-3xl font-extrabold text-indigo-400">
-              {metrics?.activeUsersMonthly.toLocaleString()}
-            </span>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700 text-slate-100" title="Monthly Revenue (MRR)">
-            <span className="text-3xl font-extrabold text-emerald-400">
-              ${metrics?.monthlyRecurringRevenue.toLocaleString()}
-            </span>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700 text-slate-100" title="AI Token Consumption">
-            <span className="text-3xl font-extrabold text-amber-400">
-              {metrics ? `${(metrics.totalAITokensUsed / 1000).toFixed(0)}k Tokens` : "—"}
-            </span>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700 text-slate-100" title="System Error Rate">
-            <span className="text-3xl font-extrabold text-slate-200">
-              {metrics?.systemErrorRatePercent}%
-            </span>
-          </Card>
-        </div>
-
-        {/* Organizations Management Table */}
-        <Card className="bg-slate-800 border-slate-700 text-slate-100" title="Registered Organizations" subtitle="Manage school tenants and plan enforcement">
-          <div className="overflow-x-auto pt-2">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-900/60 text-xs uppercase text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Organization Name</th>
-                  <th className="px-4 py-3">Plan Tier</th>
-                  <th className="px-4 py-3">Students</th>
-                  <th className="px-4 py-3">Created</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700">
-                {orgs.map((org) => (
-                  <tr key={org.id} className="hover:bg-slate-700/50">
-                    <td className="px-4 py-3 font-medium text-white">{org.name}</td>
-                    <td className="px-4 py-3 uppercase text-xs font-bold text-indigo-400">{org.plan}</td>
-                    <td className="px-4 py-3">{org.studentCount}</td>
-                    <td className="px-4 py-3 text-xs text-slate-400">{org.createdAt}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={org.status === "active" ? "success" : "warning"}>
-                        {org.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button
-                        variant={org.status === "active" ? "destructive" : "secondary"}
-                        size="sm"
-                        onClick={() => handleToggleOrgStatus(org.id, org.status)}
-                      >
-                        {org.status === "active" ? "Suspend" : "Reactivate"}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      </div>
+  return <main className="min-h-screen bg-[#f6f8ff] text-[#071d67]"><section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white"><div className="mx-auto max-w-7xl px-5 py-6 sm:px-8"><header className="flex flex-wrap items-center justify-between gap-5"><a href={ecosystemUrl}><ProductMark product="admin" inverse /></a><div className="flex flex-wrap items-center gap-2"><Badge variant="info">Superadmin</Badge><a href={ecosystemUrl} className="rounded-xl px-3 py-2 text-sm font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white">Ecosystem ↗</a><button type="button" onClick={signOut} className="rounded-xl border border-white/25 bg-white/10 px-3.5 py-2 text-sm font-extrabold text-white transition hover:bg-white hover:text-[#071d67]">Sign out</button></div></header><div className="mt-14 max-w-2xl pb-7"><p className="text-[10px] font-extrabold tracking-[.2em] text-[#7ee9ed]">PLATFORM OPERATIONS</p><h1 className="mt-3 text-4xl font-extrabold tracking-[-.06em] sm:text-5xl">A trusted foundation<br/>for every learner.</h1><p className="mt-4 text-sm leading-6 text-indigo-100">Monitor institutional health, access, and product adoption across the Lurexa ecosystem.</p></div></div></section>
+    <div className="mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">{[["Monthly active learners",metrics?.activeUsersMonthly.toLocaleString() ?? "—","Learners active this month"],["Monthly revenue",metrics ? `$${metrics.monthlyRecurringRevenue.toLocaleString()}` : "—","Recurring revenue"],["AI intelligence",metrics ? `${(metrics.totalAITokensUsed / 1000).toFixed(0)}k` : "—","Tokens used responsibly"],["System health",metrics ? `${metrics.systemErrorRatePercent}%` : "—","Current error rate"]].map(([label,value,detail],index)=><Card key={label} className={index===0?"border-[#c7d4fa] bg-[#eff3ff]":""}><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#6c7ba4]">{label}</p><b className="mt-3 block text-3xl tracking-[-.06em] text-[#071d67]">{value}</b><p className="mt-2 text-xs font-semibold text-[#64749b]">{detail}</p></Card>)}</div>
+      <Card title="Institution directory" subtitle="Manage school tenants, access, and plan enforcement."><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="border-y border-[#e6ecfb] bg-[#f8faff] text-[10px] font-extrabold uppercase tracking-[.13em] text-[#7180a8]"><tr><th className="px-4 py-3">Organization</th><th className="px-4 py-3">Plan</th><th className="px-4 py-3">Students</th><th className="px-4 py-3">Created</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Action</th></tr></thead><tbody className="divide-y divide-[#edf1fb]">{orgs.map((org)=><tr key={org.id} className="transition hover:bg-[#f8faff]"><td className="px-4 py-4 font-extrabold text-[#10245f]">{org.name}</td><td className="px-4 py-4 text-xs font-extrabold uppercase text-[#592bd6]">{org.plan}</td><td className="px-4 py-4 font-semibold text-[#4d629d]">{org.studentCount}</td><td className="px-4 py-4 text-xs text-[#7180a8]">{org.createdAt}</td><td className="px-4 py-4"><Badge variant={org.status === "active" ? "success" : "warning"}>{org.status}</Badge></td><td className="px-4 py-4 text-right"><Button variant={org.status === "active" ? "destructive" : "secondary"} size="sm" onClick={() => handleToggleOrgStatus(org.id, org.status)}>{org.status === "active" ? "Suspend" : "Reactivate"}</Button></td></tr>)}</tbody></table></div></Card>
     </div>
-  );
+  </main>;
 }

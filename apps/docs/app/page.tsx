@@ -1,102 +1,15 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@lurexa/ui/button";
-import styles from "./page.module.css";
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
+const guides = [
+  ["Getting started", "Understand the Lurexa ecosystem and its trusted, persistent learner model.", "→"],
+  ["For educators", "Set up classes, build meaningful practice, and act on learning evidence.", "↗"],
+  ["For builders", "Use shared Core and Mind contracts without duplicating learner data.", "</>"],
+];
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+function MasterMark() {
+  return <svg viewBox="0 0 80 80" className="h-9 w-9 text-[#592bd6]" aria-hidden="true"><path d="M39 38C26 38 13 31 10 15c-1-5 4-9 9-7 14 4 22 15 22 30Z" fill="currentColor"/><path d="M41 38c0-15 8-26 22-30 5-2 10 2 9 7-3 16-16 23-30 23Z" fill="currentColor" opacity=".74"/><path d="M39 42c-15 0-27 8-30 23-1 5 4 9 9 7 14-4 22-15 22-30Z" fill="currentColor" opacity=".84"/><path d="M41 42c0 15 8 26 22 30 5 2 10-2 9-7-3-15-15-23-30-23Z" fill="#12cdd4"/><circle cx="40" cy="40" r="5" fill="white"/></svg>;
+}
 
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/docs/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-        <Button className="..." variant="primary">
-            Open App
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
-      </footer>
-    </div>
-  );
+export default function DocumentationHome() {
+  return <main className="min-h-screen bg-[#f6f8ff] text-[#071d67]"><header className="border-b border-[#e1e8f9] bg-white/80 backdrop-blur"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8"><a href={ecosystemUrl} className="flex items-center gap-2.5"><MasterMark/><span className="text-lg font-extrabold tracking-[-.06em]">Lurexa <span className="text-[#1d5add]">Docs</span></span></a><a href={ecosystemUrl} className="rounded-xl border border-[#d7e0f6] bg-white px-3.5 py-2 text-sm font-extrabold text-[#3450a8] shadow-sm transition hover:-translate-y-0.5 hover:border-[#aebfec] hover:text-[#1d5add]">Ecosystem ↗</a></div></header><section className="relative mx-auto max-w-6xl overflow-hidden px-5 py-20 sm:px-8"><div className="absolute -right-24 top-0 h-80 w-80 rounded-full bg-[#12cdd4]/10 blur-3xl"/><div className="relative"><p className="text-[10px] font-extrabold tracking-[.2em] text-[#592bd6]">LUREXA DOCUMENTATION</p><h1 className="mt-5 max-w-4xl text-5xl font-extrabold leading-[.94] tracking-[-.07em] sm:text-7xl">Build learning experiences on <span className="bg-gradient-to-r from-[#592bd6] via-[#1d5add] to-[#12cdd4] bg-clip-text text-transparent">one shared foundation.</span></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#5d6f9d]">Guidance for educators, product teams, and contributors building the Lurexa ecosystem responsibly.</p><div className="mt-14 grid gap-4 md:grid-cols-3">{guides.map(([title,description,icon],index)=><a key={title} href={ecosystemUrl} className="group rounded-[22px] border border-[#dfe7fb] bg-white p-7 shadow-[0_12px_30px_rgba(32,52,128,.07)] transition hover:-translate-y-1 hover:border-[#b8c7f1] hover:shadow-[0_20px_40px_rgba(32,52,128,.13)]"><div className="flex items-start justify-between"><p className="text-[10px] font-extrabold tracking-[.18em] text-[#592bd6]">0{index+1}</p><span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#eee9ff] to-[#e5f9f8] text-sm font-extrabold text-[#1d5add]">{icon}</span></div><h2 className="mt-12 text-xl font-extrabold tracking-[-.04em]">{title}</h2><p className="mt-3 text-sm leading-6 text-[#6677a5]">{description}</p><span className="mt-7 block text-sm font-extrabold text-[#1d5add]">Explore guide →</span></a>)}</div></div></section></main>;
 }

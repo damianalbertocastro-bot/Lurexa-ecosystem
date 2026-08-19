@@ -39,13 +39,13 @@ export default function TeacherBillingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Billing & Subscription Management</h1>
-            <p className="text-slate-500">Manage plan tiers, student seats, and usage limits</p>
+            <h1 className="text-3xl font-bold text-[#071d67]">Billing & Subscription Management</h1>
+            <p className="text-[#6677a5]">Manage plan tiers, student seats, and usage limits</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant={currentPlan === "free" ? "default" : "success"}>
@@ -61,7 +61,7 @@ export default function TeacherBillingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card title="Student Seats" subtitle="Enrolled / Capacity">
             <div className="space-y-2 pt-2">
-              <span className="text-2xl font-bold text-slate-900">
+              <span className="text-2xl font-bold text-[#071d67]">
                 18 / {limits.maxStudents}
               </span>
               <ProgressBar value={(18 / limits.maxStudents) * 100} />
@@ -70,10 +70,10 @@ export default function TeacherBillingPage() {
 
           <Card title="AI Queries / Student" subtitle="Monthly guardrail cap">
             <div className="space-y-2 pt-2">
-              <span className="text-2xl font-bold text-indigo-600">
+              <span className="text-2xl font-bold text-[#592bd6]">
                 {limits.aiQueriesPerStudentMonth} Queries
               </span>
-              <p className="text-xs text-slate-500">Resets on the 1st of every month</p>
+              <p className="text-xs text-[#6677a5]">Resets on the 1st of every month</p>
             </div>
           </Card>
 
@@ -90,11 +90,11 @@ export default function TeacherBillingPage() {
         <Card title="Available Pricing Plans" subtitle="Select a plan that fits your school's scale">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
             {/* Free Tier */}
-            <div className="rounded-xl border border-slate-200 p-6 flex flex-col justify-between bg-white">
+            <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
               <div className="space-y-3">
-                <h3 className="text-lg font-bold text-slate-900">Free Tier</h3>
-                <p className="text-2xl font-extrabold text-slate-900">$0 <span className="text-xs font-normal text-slate-500">/mo</span></p>
-                <ul className="text-xs space-y-2 text-slate-600 pt-2">
+                <h3 className="text-lg font-bold text-[#071d67]">Free Tier</h3>
+                <p className="text-2xl font-extrabold text-[#071d67]">$0 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 20 students</li>
                   <li>• 3 courses</li>
                   <li>• 10 AI queries/student/mo</li>
@@ -111,14 +111,14 @@ export default function TeacherBillingPage() {
             </div>
 
             {/* Basic Tier */}
-            <div className="rounded-xl border-2 border-indigo-600 p-6 flex flex-col justify-between bg-indigo-50/20 relative">
-              <div className="absolute -top-3 right-4 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <div className="rounded-xl border-2 border-[#592bd6] p-6 flex flex-col justify-between bg-[#f1eeff] relative">
+              <div className="absolute -top-3 right-4 bg-[#592bd6] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                 POPULAR
               </div>
               <div className="space-y-3">
-                <h3 className="text-lg font-bold text-slate-900">Basic Plan</h3>
-                <p className="text-2xl font-extrabold text-slate-900">$9 <span className="text-xs font-normal text-slate-500">/mo</span></p>
-                <ul className="text-xs space-y-2 text-slate-600 pt-2">
+                <h3 className="text-lg font-bold text-[#071d67]">Basic Plan</h3>
+                <p className="text-2xl font-extrabold text-[#071d67]">$9 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 100 students</li>
                   <li>• Unlimited courses</li>
                   <li>• 50 AI queries/student/mo</li>
@@ -136,11 +136,11 @@ export default function TeacherBillingPage() {
             </div>
 
             {/* Pro Tier */}
-            <div className="rounded-xl border border-slate-200 p-6 flex flex-col justify-between bg-white">
+            <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
               <div className="space-y-3">
-                <h3 className="text-lg font-bold text-slate-900">Pro Plan</h3>
-                <p className="text-2xl font-extrabold text-slate-900">$29 <span className="text-xs font-normal text-slate-500">/mo</span></p>
-                <ul className="text-xs space-y-2 text-slate-600 pt-2">
+                <h3 className="text-lg font-bold text-[#071d67]">Pro Plan</h3>
+                <p className="text-2xl font-extrabold text-[#071d67]">$29 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 500 students</li>
                   <li>• Unlimited courses</li>
                   <li>• 200 AI queries/student/mo</li>

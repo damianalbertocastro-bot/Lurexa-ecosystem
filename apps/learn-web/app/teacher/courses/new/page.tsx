@@ -202,12 +202,12 @@ export default function CourseBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Course Builder</h1>
-            <p className="text-slate-500">Design modules, lessons, and AI-assisted content</p>
+            <h1 className="text-3xl font-bold text-[#071d67]">Course Builder</h1>
+            <p className="text-[#6677a5]">Design modules, lessons, and AI-assisted content</p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant={activeCourseId ? "success" : "warning"}>
@@ -270,22 +270,22 @@ export default function CourseBuilderPage() {
                 {modules.map((mod, index) => (
                   <div
                     key={mod.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-200 p-4 bg-white"
+                    className="flex items-center justify-between rounded-xl border border-[#dfe7fb] p-4 bg-white"
                   >
                     <div>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-[#592bd6]">
                         Module {index + 1}
                       </span>
-                      <h4 className="font-semibold text-slate-900">{mod.title}</h4>
+                      <h4 className="font-semibold text-[#071d67]">{mod.title}</h4>
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => { setEditingLesson(null); setLessonTitle(""); setLessonContent(""); setActivityDrafts([]); setActiveModule(mod); }}>
                       + Add Lesson
                     </Button>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6677a5]">
                       {lessonsByModule[mod.id]?.length ?? 0} lesson(s)
                     </p>
                     {(lessonsByModule[mod.id] ?? []).map((lesson) => (
-                      <div key={lesson.id} className="flex w-full items-center justify-between border-t border-slate-100 pt-3 text-sm">
+                      <div key={lesson.id} className="flex w-full items-center justify-between border-t border-[#edf1fb] pt-3 text-sm">
                         <span>{lesson.title}</span>
                         <span className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setEditingLesson(lesson); setLessonTitle(lesson.title); setLessonContent(String(lesson.contentBlocks.find((block) => block.type === "text")?.data.text ?? "")); setActivityDrafts(readActivityBlocks(lesson)); setActiveModule(mod); }}>Edit</Button><Button variant="destructive" size="sm" onClick={() => handleDeleteLesson(mod.id, lesson)}>Delete</Button></span>
                       </div>
@@ -310,19 +310,19 @@ export default function CourseBuilderPage() {
             onChange={(event) => setLessonTitle(event.target.value)}
             required
           />
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-[#314b88]">
             Lesson content
             <textarea
-              className="mt-1 w-full rounded-lg border border-slate-300 p-3 text-slate-900"
+              className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]"
               value={lessonContent}
               onChange={(event) => setLessonContent(event.target.value)}
               rows={8}
               required
             />
           </label>
-          <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-slate-900">Learning activities</p><p className="text-xs text-slate-600">Add stages from the Lurexa cycle. Students receive immediate feedback and retries.</p></div><Button type="button" size="sm" variant="secondary" onClick={() => setActivityDrafts((current) => [...current, defaultActivity()])}>+ Add activity</Button></div>
-            {activityDrafts.map((draft, index) => <div key={draft.id} className="space-y-3 rounded-lg border border-slate-200 bg-white p-3"><div className="flex items-center justify-between"><p className="text-sm font-semibold text-slate-900">Activity {index + 1}</p><Button type="button" size="sm" variant="destructive" onClick={() => setActivityDrafts((current) => current.filter((activity) => activity.id !== draft.id))}>Remove</Button></div><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><label className="text-sm font-medium text-slate-700">Activity type<select className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-slate-900" value={draft.type} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, type: event.target.value as LearningActivityType } : activity))}><option value="single_choice">Single-choice question</option><option value="multiple_selection">Multiple selection</option><option value="sentence_builder">Sentence builder</option></select></label><label className="text-sm font-medium text-slate-700">Lesson stage<select className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-slate-900" value={draft.stage} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, stage: event.target.value as LessonStage } : activity))}>{["HOOK", "VOCABULARY_BUILDER", "COMPREHENSION", "GRAMMAR_FOCUS", "PHONETICS_FOCUS", "GUIDED_PRACTICE", "CONVERSATION", "CREATE_APPLY", "REVIEW", "QUIZ", "REFLECTION"].map((stage) => <option key={stage} value={stage}>{stage.replaceAll("_", " ")}</option>)}</select></label></div><Input label="Activity title" value={draft.title} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, title: event.target.value } : activity))} /><Input label="Student instructions" value={draft.instructions} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, instructions: event.target.value } : activity))} /><Input label="Prompt" value={draft.prompt} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, prompt: event.target.value } : activity))} /><label className="block text-sm font-medium text-slate-700">Options, one per line<textarea className="mt-1 w-full rounded-lg border border-slate-300 p-3 text-slate-900" value={draft.options} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, options: event.target.value } : activity))} rows={4} /></label><label className="block text-sm font-medium text-slate-700">Correct answer{draft.type === "multiple_selection" ? "s, one per line" : ""}<textarea className="mt-1 w-full rounded-lg border border-slate-300 p-3 text-slate-900" value={draft.correctAnswers} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, correctAnswers: event.target.value } : activity))} rows={draft.type === "multiple_selection" ? 3 : 1} /></label><Input label="Feedback explanation" value={draft.explanation} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, explanation: event.target.value } : activity))} /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><Input label="Competency IDs (comma separated)" value={draft.competencyIds} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, competencyIds: event.target.value } : activity))} placeholder="A1.SPK.INTRO.01" /><Input label="Estimated minutes" type="number" min="1" value={String(draft.estimatedMinutes)} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, estimatedMinutes: Number(event.target.value) || 1 } : activity))} /></div></div>)}
+          <div className="space-y-3 rounded-xl border border-[#dfe7fb] bg-[var(--learn-canvas)] p-4">
+            <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-[#071d67]">Learning activities</p><p className="text-xs text-[#5d6f9d]">Add stages from the Lurexa cycle. Students receive immediate feedback and retries.</p></div><Button type="button" size="sm" variant="secondary" onClick={() => setActivityDrafts((current) => [...current, defaultActivity()])}>+ Add activity</Button></div>
+            {activityDrafts.map((draft, index) => <div key={draft.id} className="space-y-3 rounded-xl border border-[#dfe7fb] bg-white p-3"><div className="flex items-center justify-between"><p className="text-sm font-semibold text-[#071d67]">Activity {index + 1}</p><Button type="button" size="sm" variant="destructive" onClick={() => setActivityDrafts((current) => current.filter((activity) => activity.id !== draft.id))}>Remove</Button></div><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><label className="text-sm font-medium text-[#314b88]">Activity type<select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[#071d67]" value={draft.type} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, type: event.target.value as LearningActivityType } : activity))}><option value="single_choice">Single-choice question</option><option value="multiple_selection">Multiple selection</option><option value="sentence_builder">Sentence builder</option></select></label><label className="text-sm font-medium text-[#314b88]">Lesson stage<select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[#071d67]" value={draft.stage} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, stage: event.target.value as LessonStage } : activity))}>{["HOOK", "VOCABULARY_BUILDER", "COMPREHENSION", "GRAMMAR_FOCUS", "PHONETICS_FOCUS", "GUIDED_PRACTICE", "CONVERSATION", "CREATE_APPLY", "REVIEW", "QUIZ", "REFLECTION"].map((stage) => <option key={stage} value={stage}>{stage.replaceAll("_", " ")}</option>)}</select></label></div><Input label="Activity title" value={draft.title} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, title: event.target.value } : activity))} /><Input label="Student instructions" value={draft.instructions} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, instructions: event.target.value } : activity))} /><Input label="Prompt" value={draft.prompt} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, prompt: event.target.value } : activity))} /><label className="block text-sm font-medium text-[#314b88]">Options, one per line<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={draft.options} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, options: event.target.value } : activity))} rows={4} /></label><label className="block text-sm font-medium text-[#314b88]">Correct answer{draft.type === "multiple_selection" ? "s, one per line" : ""}<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={draft.correctAnswers} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, correctAnswers: event.target.value } : activity))} rows={draft.type === "multiple_selection" ? 3 : 1} /></label><Input label="Feedback explanation" value={draft.explanation} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, explanation: event.target.value } : activity))} /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><Input label="Competency IDs (comma separated)" value={draft.competencyIds} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, competencyIds: event.target.value } : activity))} placeholder="A1.SPK.INTRO.01" /><Input label="Estimated minutes" type="number" min="1" value={String(draft.estimatedMinutes)} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, estimatedMinutes: Number(event.target.value) || 1 } : activity))} /></div></div>)}
           </div>
           <Button type="submit" className="w-full" isLoading={isSavingLesson}>
             {editingLesson ? "Save changes" : "Save lesson"}

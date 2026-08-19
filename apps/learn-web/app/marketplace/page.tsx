@@ -43,13 +43,13 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Lurexa Course Marketplace</h1>
-            <p className="text-slate-500">Discover and import proven courses created by top educators</p>
+            <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Discover learning worth sharing.</h1>
+            <p className="mt-2 text-[#6677a5]">Thoughtful courses created by educators and ready for institutional use.</p>
           </div>
           <Button variant="primary" onClick={() => router.push("/teacher/marketplace/publish")}>
             + Publish Your Course
@@ -57,7 +57,7 @@ export default function MarketplacePage() {
         </div>
 
         {/* Filter / Search Bar */}
-        <div className="flex gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex gap-4 bg-white p-4 rounded-[22px] border border-[#dfe7fb] shadow-[0_12px_30px_rgba(32,52,128,.07)]">
           <Input
             placeholder="Search courses by subject, level, or keyword..."
             value={search}
@@ -68,9 +68,9 @@ export default function MarketplacePage() {
         </div>
 
         {/* Listings Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <p className="text-slate-500">Loading catalog...</p>
+            <p className="text-[#6677a5]">Loading catalog...</p>
           ) : (
             listings.map((item) => (
               <Card
@@ -81,9 +81,9 @@ export default function MarketplacePage() {
                 className="flex flex-col justify-between"
               >
                 <div className="space-y-4 pt-3">
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                  <div className="flex items-center justify-between border-t border-[#edf1fb] pt-3">
                     <span className="text-xs text-slate-500">{item.salesCount} School Licenses Sold</span>
-                    <span className="text-2xl font-extrabold text-slate-900">${item.price}</span>
+                    <span className="text-2xl font-extrabold text-[#071d67]">${item.price}</span>
                   </div>
 
                   <Button

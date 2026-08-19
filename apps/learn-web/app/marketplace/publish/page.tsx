@@ -34,12 +34,12 @@ export default function CoursePublishPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Publish Course to Marketplace</h1>
-            <p className="text-slate-500">Monetize your curriculum and earn 70% per purchase</p>
+            <h1 className="text-3xl font-extrabold tracking-[-.06em] text-[#071d67]">Share your course with care.</h1>
+            <p className="mt-2 text-[#6677a5]">Set a clear price and publish a trustworthy institutional listing.</p>
           </div>
           <Badge variant="success">Stripe Connect Ready</Badge>
         </div>
@@ -63,8 +63,8 @@ export default function CoursePublishPage() {
             />
 
             {/* Split Breakdown */}
-            <div className="rounded-lg bg-slate-100 p-4 space-y-2 text-xs text-slate-700">
-              <p className="font-semibold text-slate-900">Monetization Earnings Breakdown:</p>
+            <div className="rounded-2xl bg-[#f3f6ff] p-5 space-y-3 text-xs text-[#4d629d]">
+              <p className="font-extrabold text-[#071d67]">Monetization Earnings Breakdown:</p>
               <div className="flex justify-between">
                 <span>Teacher Earnings (70%):</span>
                 <span className="font-bold text-emerald-600">${(parseFloat(price || "0") * 0.7).toFixed(2)}</span>

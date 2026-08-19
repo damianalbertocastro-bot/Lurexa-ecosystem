@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
+import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -47,16 +49,14 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
-      <Link href="/" className="mb-6 text-2xl font-bold tracking-tight text-slate-900 transition hover:text-indigo-600" aria-label="Return to Lurexa home">
-        lurexa<span className="text-indigo-600">.</span>
-      </Link>
-      <Card title="Create your Lurexa Account" subtitle="Join or create an institution" className="w-full max-w-md">
-        <div className="mb-6 flex rounded-lg bg-slate-100 p-1">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--learn-canvas)] p-4 sm:p-8">
+      <div className="mb-7"><LurexaLearnLogo href={ecosystemUrl} /></div>
+      <Card title="Start your Lurexa path." subtitle="Join a class or create your educator space." className="w-full max-w-md border-[#dfe7fb] p-7 sm:p-8">
+        <div className="mb-7 flex rounded-xl bg-[#eef3ff] p-1.5">
           <button
             type="button"
             className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "student" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+              mode === "student" ? "bg-white text-[#071d67] shadow-sm" : "text-[#6b7aa4]"
             }`}
             onClick={() => setMode("student")}
           >
