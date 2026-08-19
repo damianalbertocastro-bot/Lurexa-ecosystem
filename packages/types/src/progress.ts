@@ -4,6 +4,11 @@ export interface QuizAttempt {
   maxScore: number;
   passed: boolean;
   completedAt: string;
+  activityType?: string;
+  attemptNumber?: number;
+  firstAttempt?: boolean;
+  hintUsed?: boolean;
+  competencyIds?: string[];
 }
 
 export interface StudentProgress {
