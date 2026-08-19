@@ -103,7 +103,7 @@ service cloud.firestore {
     // Learner Model data is intentionally server-only. Product clients must
     // use authorized Core service boundaries rather than reading or mutating
     // evidence and interpreted learner state directly.
-    match /learner-evidence/{evidenceId} {
+    match /learning-evidence/{evidenceId} {
       allow read, write: if false;
     }
 
