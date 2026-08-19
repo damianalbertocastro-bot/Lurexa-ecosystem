@@ -7,44 +7,18 @@ import { LurexaLearnLogo } from "./LurexaLearnLogo";
 
 const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
-interface ProductShellProps {
-  children: ReactNode;
-  area: "Learner space" | "Educator space" | "Practice space" | "Creator space";
-  homeHref: string;
-}
+interface ProductShellProps { children: ReactNode; area: "Learner space" | "Educator space" | "Practice space" | "Creator space"; homeHref: string; }
 
 export function ProductShell({ children, area, homeHref }: ProductShellProps) {
   const router = useRouter();
+  async function signOut() { try { await AuthService.logout(); router.replace("/login"); } catch { window.alert("We could not sign you out. Please try again."); } }
 
-  async function signOut() {
-    try {
-      await AuthService.logout();
-      router.replace("/login");
-    } catch {
-      window.alert("We could not sign you out. Please try again.");
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
-            <LurexaLearnLogo href={homeHref} />
-            <span className="hidden h-5 w-px bg-slate-200 sm:block" />
-            <span className="hidden text-xs font-bold uppercase tracking-[.16em] text-slate-500 sm:block">{area}</span>
-          </div>
-          <nav aria-label="Account controls" className="flex items-center gap-1.5 sm:gap-2">
-            <a href={ecosystemUrl} className="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 sm:text-sm">
-              <span className="hidden sm:inline">Lurexa ecosystem</span><span className="sm:hidden">Ecosystem</span>
-            </a>
-            <button type="button" onClick={signOut} className="rounded-lg border border-slate-200 px-2.5 py-2 text-xs font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 sm:px-3 sm:text-sm">
-              Sign out
-            </button>
-          </nav>
-        </div>
-      </header>
-      {children}
-    </div>
-  );
+  return <div className="min-h-screen bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
+    <header className="sticky top-0 z-30 border-b border-[#dfe7fb] bg-white/90 shadow-[0_8px_24px_rgba(32,52,128,.05)] backdrop-blur-xl">
+      <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3"><LurexaLearnLogo href={homeHref}/><span className="hidden h-6 w-px bg-[#dfe7fb] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[#6677a5] sm:block">{area}</span></div>
+        <nav aria-label="Account controls" className="flex items-center gap-2"><a href={ecosystemUrl} className="rounded-xl px-3 py-2 text-xs font-extrabold text-[#4b619b] transition hover:bg-[#eef3ff] hover:text-[#1d5add] sm:text-sm"><span className="hidden sm:inline">Lurexa ecosystem</span><span className="sm:hidden">Ecosystem</span></a><button type="button" onClick={signOut} className="rounded-xl border border-[#d7e0f6] bg-white px-3 py-2 text-xs font-extrabold text-[#334b87] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b6c8f4] hover:bg-[#f7f9ff] sm:px-3.5 sm:text-sm">Sign out</button></nav>
+      </div>
+    </header>{children}
+  </div>;
 }
