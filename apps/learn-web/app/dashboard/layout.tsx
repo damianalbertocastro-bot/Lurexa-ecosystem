@@ -3,5 +3,5 @@ import { AuthGuard } from "../components/AuthGuard";
 import { ProductShell } from "../components/ProductShell";
 
 export default function StudentDashboardLayout({ children }: { children: ReactNode }) {
-  return <AuthGuard><ProductShell area="Learner space" homeHref="/dashboard">{children}</ProductShell></AuthGuard>;
+  return <AuthGuard><ProductShell area="Learner space" product="learn" homeHref="/dashboard">{children}</ProductShell></AuthGuard>;
 }
