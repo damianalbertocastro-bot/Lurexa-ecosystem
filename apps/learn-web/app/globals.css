@@ -2,13 +2,15 @@
 @source "../../../packages/ui/src";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --learn-canvas: #f8f7f2;
-  --learn-ink: #172554;
+  --background: #f6f8ff;
+  --foreground: #071d67;
+  --learn-canvas: #f6f8ff;
+  --learn-ink: #071d67;
   --learn-surface: #ffffff;
-  --learn-accent: #4f46e5;
-  --learn-mint: #dff7ee;
+  --learn-accent: #592bd6;
+  --learn-blue: #1d5add;
+  --learn-cyan: #12cdd4;
+  --learn-mint: #e4f8f2;
 }
 
 @theme inline {
@@ -18,15 +20,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+html { background: var(--learn-canvas); }
+body { min-height: 100vh; background: var(--learn-canvas); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
+::selection { background: #dcd4ff; color: #071d67; }
