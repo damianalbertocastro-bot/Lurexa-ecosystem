@@ -63,7 +63,7 @@ function CapabilityIcon({ name }: { name: CapabilityName }) {
 
 export default function Home() {
   return <main className={styles.page}>
-    <nav className={styles.nav}>
+    <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
       <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark small /><span>Lurexa</span></a>
       <div className={styles.navLinks}><a href="#products">Products</a><a href="#shared-intelligence">How it works</a><a href="#values">Values</a></div>
       <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
