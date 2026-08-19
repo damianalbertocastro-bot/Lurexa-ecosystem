@@ -40,12 +40,12 @@ export default function LurexaStudioPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-5xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">🎬 Lurexa Studio</h1>
-            <p className="text-slate-500">Advanced interactive branching scenario authoring tool</p>
+            <h1 className="text-3xl font-bold text-[#071d67]">🎬 Lurexa Studio</h1>
+            <p className="text-[#6677a5]">Advanced interactive branching scenario authoring tool</p>
           </div>
           <Button variant="primary" onClick={handleSaveScenario} isLoading={saving}>
             Save Branching Scenario
@@ -57,13 +57,13 @@ export default function LurexaStudioPage() {
           {nodes.map((node, idx) => (
             <Card key={node.id} title={`Node #${idx + 1}: ${node.title}`} action={<Badge variant="info">Branch Node</Badge>}>
               <div className="space-y-3 pt-2">
-                <p className="text-sm text-slate-700 bg-slate-100 p-3 rounded-lg font-mono">
+                <p className="text-sm text-[#314b88] bg-[#f3f6ff] p-3 rounded-xl font-mono">
                   {node.contentMarkdown}
                 </p>
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase">Decision Pathways</span>
+                  <span className="text-xs font-bold text-[#6677a5] uppercase">Decision Pathways</span>
                   {node.choiceOptions.map((opt, oIdx) => (
-                    <div key={oIdx} className="flex items-center justify-between border border-slate-200 p-3 rounded-lg bg-white text-xs">
+                    <div key={oIdx} className="flex items-center justify-between border border-[#dfe7fb] p-3 rounded-xl bg-white text-xs">
                       <span>{opt.label}</span>
                       <Badge variant={opt.isCorrectPath ? "success" : "warning"}>
                         {opt.isCorrectPath ? "Correct Branch ✓" : "Remedial Branch"}
