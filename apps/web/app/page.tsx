@@ -74,7 +74,7 @@ export default function Home() {
         <p className={styles.kicker}>LUREXA LEARNING TECHNOLOGIES</p>
         <h1>Learning grows when <em>everything connects.</em></h1>
         <p className={styles.intro}>Lurexa is an intelligent learning ecosystem where each experience understands the learner, preserves meaningful progress, and makes the next step clearer.</p>
-        <div className={styles.heroActions}><a className={styles.primaryCta} href="#products">Explore the ecosystem <span>↓</span></a><a className={styles.textCta} href="#shared-intelligence">How Lurexa works <span>→</span></a></div>
+        <div className={styles.heroActions}><a className={styles.primaryCta} href="#products" aria-label="Explore Lurexa products">Explore the ecosystem <span>↓</span></a><a className={styles.textCta} href="#shared-intelligence">How Lurexa works <span>→</span></a></div>
         <p className={styles.microcopy}>One learner. One evolving model. Every experience adapts around it.</p>
       </div>
       <div className={styles.orbit} aria-label="Interactive Lurexa product map">
