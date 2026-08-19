@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
-import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningActivityContentBlockData, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
+import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
+import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningActivityContentBlockData, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
 
 type TeacherRole = "owner" | "admin" | "teacher";
 
@@ -169,34 +170,36 @@ function validateLessonContentBlocks(contentBlocks: ContentBlock[]): void {
   }
 }
 
+function evidenceIdFromKey(idempotencyKey: string): string {
+  return `learn_${idempotencyKey.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+}
 
 async function appendPlatformEvidence(input: {
   learnerId: string;
   organizationId: string;
-  eventType: string;
-  source: Record<string, unknown>;
+  type: LearningEvidenceType;
+  source: {
+    courseId?: string;
+    lessonId?: string;
+    activityId?: string;
+  };
   payload: Record<string, unknown>;
-  occurredAt: string;
+  observedAt: string;
   idempotencyKey: string;
 }): Promise<void> {
-  const reference = getServerFirestore().collection("learning-evidence").doc();
-  await reference.set({
-    evidenceId: reference.id,
-    schemaVersion: "1",
+  const repository = new FirestoreLearningEvidenceRepository();
+  await repository.append({
+    id: evidenceIdFromKey(input.idempotencyKey),
     learnerId: input.learnerId,
-    actor: { type: "learner", id: input.learnerId },
+    organizationId: input.organizationId,
     source: { product: "learn", ...input.source },
-    eventType: input.eventType,
-    occurredAt: input.occurredAt,
-    recordedAt: new Date().toISOString(),
-    authorizationContext: { organizationId: input.organizationId, membershipRequired: true },
+    type: input.type,
+    observedAt: input.observedAt,
     payload: input.payload,
-    reliability: {
+    provenance: {
       method: "system_observed",
-      limitations: ["A single event is not a mastery determination."],
+      actorId: input.learnerId,
     },
-    provenance: { service: "course-platform", contractVersion: "1" },
-    idempotencyKey: input.idempotencyKey,
   });
 }
 
@@ -236,7 +239,7 @@ export const CoursePlatformService = {
     const database = getServerFirestore();
     const memberships = await database.collection("user-memberships").doc(actor.uid).collection("organizations").get();
     const organizationIds = memberships.docs
-      .filter((membership) => (['owner', 'admin', 'teacher'] as TeacherRole[]).includes(membership.data().role as TeacherRole))
+      .filter((membership) => (["owner", "admin", "teacher"] as TeacherRole[]).includes(membership.data().role as TeacherRole))
       .map((membership) => membership.id);
     const courses = (await Promise.all(organizationIds.map(async (orgId) => {
       const snapshots = await database.collection("courses").where("orgId", "==", orgId).get();
@@ -291,7 +294,15 @@ export const CoursePlatformService = {
       lastAccessedAt: new Date().toISOString(),
     };
     await getServerFirestore().collection("progress").doc(record.id).set({ ...record, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "lesson.completed", source: { courseId, lessonId }, payload: { timeSpentSeconds: record.timeSpentSeconds }, occurredAt: record.lastAccessedAt, idempotencyKey: `${actor.uid}:${lessonId}:lesson.completed` });
+    await appendPlatformEvidence({
+      learnerId: actor.uid,
+      organizationId: course.orgId,
+      type: "curriculum_progress",
+      source: { courseId, lessonId },
+      payload: { event: "lesson.completed", timeSpentSeconds: record.timeSpentSeconds },
+      observedAt: record.lastAccessedAt,
+      idempotencyKey: `${actor.uid}:${lessonId}:lesson.completed`,
+    });
     return record;
   },
 
@@ -310,8 +321,21 @@ export const CoursePlatformService = {
     const existing = await reference.get();
     const previous = existing.exists ? (existing.data() as StudentProgress) : null;
     const attempts = [...(previous?.attempts ?? []), { ...attempt, activityType: "single_choice", attemptNumber: (previous?.attempts.filter((item) => item.quizId === quizId).length ?? 0) + 1, firstAttempt: !previous?.attempts.some((item) => item.quizId === quizId) }];
+    const latestAttempt = attempts[attempts.length - 1]!;
     await reference.set({ id: reference.id, studentId: actor.uid, lessonId, moduleId: entry.lesson.moduleId, courseId, completed: previous?.completed ?? false, timeSpentSeconds: previous?.timeSpentSeconds ?? 0, attempts, bestScore: Math.max(previous?.bestScore ?? 0, attempt.score), lastAccessedAt: attempt.completedAt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    await appendPlatformEvidence({ learnerId: actor.uid, organizationId: course.orgId, eventType: "assessment.submitted", source: { courseId, lessonId, activityId: quizId, attemptNumber: attempts[attempts.length - 1]?.attemptNumber ?? 1 }, payload: { correct: passed, firstAttempt: attempts[attempts.length - 1]?.firstAttempt ?? true }, occurredAt: attempt.completedAt, idempotencyKey: `${actor.uid}:${lessonId}:${quizId}:${attempts[attempts.length - 1]?.attemptNumber ?? 1}` });
+    await appendPlatformEvidence({
+      learnerId: actor.uid,
+      organizationId: course.orgId,
+      type: "assessment_result",
+      source: { courseId, lessonId, activityId: quizId },
+      payload: {
+        correct: passed,
+        firstAttempt: latestAttempt.firstAttempt ?? true,
+        attemptNumber: latestAttempt.attemptNumber ?? 1,
+      },
+      observedAt: attempt.completedAt,
+      idempotencyKey: `${actor.uid}:${lessonId}:${quizId}:${latestAttempt.attemptNumber ?? 1}`,
+    });
     return { attempt, explanation: quiz.explanation ?? null };
   },
 
@@ -337,8 +361,22 @@ export const CoursePlatformService = {
     const previousAttempts = previous?.attempts.filter((item) => item.quizId === activityId) ?? [];
     const attempt = { quizId: activityId, score: passed ? 1 : 0, maxScore: 1, passed, completedAt, activityType: activity.type, attemptNumber: previousAttempts.length + 1, firstAttempt: previousAttempts.length === 0, competencyIds: activity.competencyIds };
     await reference.set({ id: reference.id, studentId: actor.uid, lessonId, moduleId: entry.lesson.moduleId, courseId, completed: previous?.completed ?? false, timeSpentSeconds: previous?.timeSpentSeconds ?? 0, attempts: [...(previous?.attempts ?? []), attempt], bestScore: Math.max(previous?.bestScore ?? 0, attempt.score), lastAccessedAt: completedAt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    const evidenceReference = getServerFirestore().collection("learning-evidence").doc();
-    await evidenceReference.set({ evidenceId: evidenceReference.id, schemaVersion: "1", learnerId: actor.uid, actor: { type: "learner", id: actor.uid }, source: { product: "learn", courseId, lessonId, activityId, attemptNumber: attempt.attemptNumber }, eventType: "learning_activity.submitted", occurredAt: completedAt, recordedAt: new Date().toISOString(), authorizationContext: { organizationId: course.orgId, membershipRequired: true }, payload: { selectedAnswerCount: submitted.length, correct: passed, firstAttempt: attempt.firstAttempt, competencyIds: activity.competencyIds }, reliability: { method: "automatically_scored", limitations: ["Single activity result; not a mastery determination."] }, provenance: { contentSchemaVersion: activity.schemaVersion, activityType: activity.type }, idempotencyKey: `${actor.uid}:${lessonId}:${activityId}:${attempt.attemptNumber}` });
+    await appendPlatformEvidence({
+      learnerId: actor.uid,
+      organizationId: course.orgId,
+      type: "activity_result",
+      source: { courseId, lessonId, activityId },
+      payload: {
+        selectedAnswerCount: submitted.length,
+        correct: passed,
+        firstAttempt: attempt.firstAttempt,
+        attemptNumber: attempt.attemptNumber,
+        competencyIds: activity.competencyIds,
+        activityType: activity.type,
+      },
+      observedAt: completedAt,
+      idempotencyKey: `${actor.uid}:${lessonId}:${activityId}:${attempt.attemptNumber}`,
+    });
     return { attempt, explanation: activity.explanation ?? null };
   },
 
