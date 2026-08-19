@@ -18,6 +18,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
     "@lurexa/eslint-config": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
     "@types/node": "^24.13.3",
@@ -25,6 +26,7 @@
     "@types/react-dom": "19.2.2",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.2.0",
+    "tailwindcss": "^4",
     "typescript": "5.9.2"
   }
 }
