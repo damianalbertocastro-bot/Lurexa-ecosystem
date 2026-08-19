@@ -30,17 +30,17 @@ export default function TeacherInsightsPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-slate-500">Loading class insights...</div>;
+    return <div className="p-8 text-[#6677a5]">Loading class insights...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Teacher Insights & Analytics</h1>
-            <p className="text-slate-500">Monitor student performance and trigger interventions</p>
+            <h1 className="text-3xl font-bold text-[#071d67]">Teacher Insights & Analytics</h1>
+            <p className="text-[#6677a5]">Monitor student performance and trigger interventions</p>
           </div>
           <Button variant="secondary" onClick={() => window.print()}>
             Export Class CSV
@@ -50,25 +50,25 @@ export default function TeacherInsightsPage() {
         {/* Top Analytics Cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card title="Enrolled Students">
-            <span className="text-3xl font-bold text-slate-900">{summary?.totalStudents}</span>
+            <span className="text-3xl font-bold text-[#071d67]">{summary?.totalStudents}</span>
           </Card>
           <Card title="Avg Completion">
-            <span className="text-3xl font-bold text-indigo-600">{summary?.avgCompletionRate}%</span>
+            <span className="text-3xl font-bold text-[#592bd6]">{summary?.avgCompletionRate}%</span>
           </Card>
           <Card title="Avg Quiz Score">
-            <span className="text-3xl font-bold text-emerald-600">{summary?.avgQuizScore}%</span>
+            <span className="text-3xl font-bold text-[#137867]">{summary?.avgQuizScore}%</span>
           </Card>
           <Card title="Flagged At Risk">
-            <span className="text-3xl font-bold text-amber-600">{summary?.atRiskCount} Students</span>
+            <span className="text-3xl font-bold text-[#a66013]">{summary?.atRiskCount} Students</span>
           </Card>
         </div>
 
         {/* AI Recommendation Alert */}
-        <Card title="🤖 AI Teaching Recommendations" className="border-indigo-100 bg-indigo-50/50">
-          <ul className="space-y-2 pt-1 text-sm text-slate-800">
+        <Card title="🤖 AI Teaching Recommendations" className="border-[#d8d0ff] bg-[#f1eeff]">
+          <ul className="space-y-2 pt-1 text-sm text-[#20396f]">
             {summary?.aiRecommendations.map((rec, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
+                <span className="text-[#592bd6] font-bold">•</span>
                 <span>{rec}</span>
               </li>
             ))}
@@ -78,8 +78,8 @@ export default function TeacherInsightsPage() {
         {/* Student Risk Roster Table */}
         <Card title="Student Performance Roster" subtitle="Identifies struggling students requiring attention">
           <div className="overflow-x-auto pt-2">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-100 text-xs uppercase text-slate-700">
+            <table className="w-full text-left text-sm text-[#5d6f9d]">
+              <thead className="bg-[#f3f6ff] text-xs uppercase text-[#314b88]">
                 <tr>
                   <th className="px-4 py-3">Student</th>
                   <th className="px-4 py-3">Avg Score</th>
@@ -89,12 +89,12 @@ export default function TeacherInsightsPage() {
                   <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#edf1fb]">
                 {roster.map((student) => (
-                  <tr key={student.studentId} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                  <tr key={student.studentId} className="hover:bg-[var(--learn-canvas)]">
+                    <td className="px-4 py-3 font-medium text-[#071d67]">
                       <div>{student.studentName}</div>
-                      <div className="text-xs text-slate-400">{student.email}</div>
+                      <div className="text-xs text-[#8190b3]">{student.email}</div>
                     </td>
                     <td className="px-4 py-3 font-semibold">{student.avgScore}%</td>
                     <td className="px-4 py-3">{student.completedLessons}</td>
