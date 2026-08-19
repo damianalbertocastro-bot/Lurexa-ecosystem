@@ -13,7 +13,6 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@lurexa/database": "workspace:*",
     "@lurexa/types": "workspace:*",
     "dexie": "^4.4.4",
     "firebase": "^10.12.0",
