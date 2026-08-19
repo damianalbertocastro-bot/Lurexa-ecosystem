@@ -37,6 +37,9 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.3.3
       '@lurexa/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
@@ -58,6 +61,9 @@ importers:
       eslint-config-next:
         specifier: 16.2.0
         version: 16.2.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.2)
+      tailwindcss:
+        specifier: ^4
+        version: 4.3.3
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -77,6 +83,9 @@ importers:
         specifier: ^19.2.0
         version: 19.2.8(react@19.2.8)
     devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.3.3
       '@lurexa/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
@@ -95,6 +104,9 @@ importers:
       eslint:
         specifier: ^9.39.1
         version: 9.39.5(jiti@2.7.0)
+      tailwindcss:
+        specifier: ^4
+        version: 4.3.3
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -196,6 +208,9 @@ importers:
 
   apps/teacher-portal:
     dependencies:
+      '@lurexa/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       next:
         specifier: 16.2.12
         version: 16.2.12(@opentelemetry/api@1.9.1)(@playwright/test@1.62.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
