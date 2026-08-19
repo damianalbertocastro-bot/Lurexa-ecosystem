@@ -6,41 +6,14 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   isLoading?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = "primary",
-  size = "md",
-  isLoading = false,
-  disabled,
-  className = "",
-  ...props
-}) => {
-  const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
-
+export const Button: React.FC<ButtonProps> = ({ children, variant = "primary", size = "md", isLoading = false, disabled, className = "", ...props }) => {
+  const baseStyles = "inline-flex items-center justify-center rounded-xl font-bold tracking-[-.01em] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5add] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
   const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
-    secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-400",
-    ghost: "bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-400",
-    destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    primary: "bg-gradient-to-br from-[#592bd6] to-[#1d5add] text-white shadow-[0_12px_24px_rgba(50,63,184,.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(50,63,184,.3)]",
+    secondary: "border border-[#dbe4fa] bg-white text-[#071d67] shadow-sm hover:-translate-y-0.5 hover:border-[#9fb1ef] hover:shadow-md",
+    ghost: "bg-transparent text-[#3155b6] hover:bg-[#eef3ff]",
+    destructive: "bg-[#c62d48] text-white shadow-[0_10px_22px_rgba(198,45,72,.2)] hover:-translate-y-0.5 hover:bg-[#a91f39]",
   };
-
-  const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
-  };
-
-  return (
-    <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading && (
-        <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      )}
-      {children}
-    </button>
-  );
+  const sizes = { sm: "px-3.5 py-2 text-sm", md: "px-4.5 py-2.5 text-sm", lg: "px-6 py-3.5 text-base" };
+  return <button className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`} disabled={disabled || isLoading} {...props}>{isLoading && <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}{children}</button>;
 };
