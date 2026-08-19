@@ -101,8 +101,9 @@ export default function StudentDashboardPage() {
           ) : courses.length === 0 ? (
             <Card title="No Courses Enrolled">
               <p className="text-sm text-slate-500 mb-4">
-                You are not enrolled in any courses yet. Ask your teacher for a class code.
+                Start a self-paced A1 path, or ask your teacher for a class code.
               </p>
+              <Button variant="primary" onClick={() => router.push("/onboarding")}>Start my A1 path</Button>
             </Card>
           ) : (
             courses.map(({ course, completedLessons, totalLessons, progressPercent, nextLesson }) => (
