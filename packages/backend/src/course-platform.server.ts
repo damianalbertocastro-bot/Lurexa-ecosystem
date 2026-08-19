@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
+import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningActivityContentBlockData, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
 
 type TeacherRole = "owner" | "admin" | "teacher";
@@ -201,6 +202,15 @@ async function appendPlatformEvidence(input: {
       actorId: input.learnerId,
     },
   });
+
+  try {
+    await refreshLearnerIntelligence({
+      learnerId: input.learnerId,
+      organizationId: input.organizationId,
+    });
+  } catch (error) {
+    console.error("Learner intelligence refresh failed after evidence capture.", error);
+  }
 }
 
 export const CoursePlatformService = {
