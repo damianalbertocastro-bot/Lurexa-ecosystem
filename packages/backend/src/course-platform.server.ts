@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
-import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningActivityContentBlockData, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
+import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
 
 type TeacherRole = "owner" | "admin" | "teacher";
 
@@ -134,8 +134,19 @@ function readLearningActivityData(value: Record<string, unknown>): LearningActiv
 }
 
 function sanitizeLearningActivity(activity: LearningActivity): LearnerLearningActivity {
-  const { correctAnswers: _correctAnswers, hint: _hint, ...learnerActivity } = activity;
-  return learnerActivity;
+  return {
+    schemaVersion: activity.schemaVersion,
+    type: activity.type,
+    stage: activity.stage,
+    title: activity.title,
+    instructions: activity.instructions,
+    prompt: activity.prompt,
+    ...(activity.options ? { options: activity.options } : {}),
+    ...(activity.explanation ? { explanation: activity.explanation } : {}),
+    competencyIds: activity.competencyIds,
+    estimatedMinutes: activity.estimatedMinutes,
+    required: activity.required,
+  };
 }
 
 function sanitizeLessonForLearner(lesson: Lesson): Lesson {

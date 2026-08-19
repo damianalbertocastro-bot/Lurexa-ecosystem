@@ -19,7 +19,8 @@ export const ProgressService = {
    * authoritative Core record. Product code must submit learning actions to a
    * trusted server boundary such as CoursePlatformService/API routes instead.
    */
-  async syncProgress(_progress: StudentProgress): Promise<void> {
+  async syncProgress(progress: StudentProgress): Promise<void> {
+    void progress;
     throw new Error("Direct progress writes are disabled. Use the trusted Core learning API.");
   },
 };
