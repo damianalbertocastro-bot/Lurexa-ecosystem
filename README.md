@@ -130,7 +130,7 @@ Two duplicate standalone Next.js templates and conflicting lockfiles were remove
 
 ## Environment
 
-Local configuration belongs in `.env.local` and is intentionally excluded from version control. The monorepo build recognizes `DATABASE_URL` and `NODE_ENV`. Never commit secrets.
+Local configuration belongs in `.env.local` and is intentionally excluded from version control. Firebase browser configuration uses `NEXT_PUBLIC_FIREBASE_*`; trusted server-side Core routes require `FIREBASE_SERVICE_ACCOUNT_JSON` outside the Firestore Emulator. Never expose a service account through a `NEXT_PUBLIC_` variable or commit secrets. See `packages/.env.example` and `apps/learn-web/README.md` for the supported local setup.
 
 ## Project status
 
