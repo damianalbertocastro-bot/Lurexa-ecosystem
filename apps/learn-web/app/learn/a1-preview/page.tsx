@@ -21,8 +21,30 @@ export default function A1PreviewPage() {
   const [createSubmitted, setCreateSubmitted] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [contextMessage, setContextMessage] = useState<string | null>(null);
 
-  useEffect(() => AuthService.onUserChanged((user) => setSignedIn(Boolean(user))), []);
+  useEffect(() => AuthService.onUserChanged((user) => {
+    setSignedIn(Boolean(user));
+    if (!user) {
+      setContextMessage(null);
+      return;
+    }
+
+    void (async () => {
+      try {
+        const response = await authenticatedFetch("/api/learner-context?purpose=learn_adaptive_practice&domain=curriculum");
+        if (!response.ok) throw new Error("Learner context is unavailable.");
+        const payload = await response.json() as {
+          context?: { curriculum?: { lessonId?: string } };
+          limitations?: string[];
+        };
+        const lessonId = payload.context?.curriculum?.lessonId;
+        setContextMessage(lessonId ? `Your recent learning context is available from ${lessonId}.` : payload.limitations?.[1] ?? "Your learner context will grow as you practise.");
+      } catch {
+        setContextMessage("Your practice can continue even while learner context is unavailable.");
+      }
+    })();
+  }), []);
 
   const completedSteps = useMemo(
     () => [greetingChecked, speakingCompleted, createSubmitted].filter(Boolean).length,
@@ -102,7 +124,7 @@ export default function A1PreviewPage() {
           <div className="flex justify-between text-sm font-semibold text-slate-700"><span>Your path</span><span>{completedSteps}/3 steps</span></div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-teal-400 transition-all" style={{ width: `${(completedSteps / 3) * 100}%` }} /></div>
           {!signedIn && <p className="mt-3 text-sm text-slate-600">You can try the lesson now. <Link href="/login" className="font-semibold text-indigo-700 underline">Sign in</Link> to save your learning evidence.</p>}
-          {signedIn && <p className="mt-3 text-sm text-slate-600">{saveState === "saving" ? "Saving your learning evidence…" : saveState === "saved" ? "Your progress evidence is saved." : saveState === "error" ? "Your practice is complete, but saving did not work. Try again after reconnecting." : "Your activity evidence is kept separately from mastery."}</p>}
+          {signedIn && <><p className="mt-3 text-sm text-slate-600">{saveState === "saving" ? "Saving your learning evidence…" : saveState === "saved" ? "Your progress evidence is saved." : saveState === "error" ? "Your practice is complete, but saving did not work. Try again after reconnecting." : "Your activity evidence is kept separately from mastery."}</p>{contextMessage && <p className="mt-2 text-sm text-indigo-800">{contextMessage}</p>}</>}
         </div>
 
         <section className="space-y-6">
