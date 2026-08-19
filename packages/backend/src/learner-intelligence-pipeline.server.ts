@@ -3,6 +3,7 @@ import { FirestoreLearnerInsightRepository, FirestoreLearningEvidenceRepository 
 import { ConservativeLearningIntelligenceService } from "./mind-learning-intelligence.server";
 
 const defaultDomains: LearnerDomain[] = [
+  "goal",
   "grammar",
   "vocabulary",
   "pronunciation",
