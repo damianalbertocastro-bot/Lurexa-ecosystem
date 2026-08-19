@@ -23,6 +23,14 @@ async function saveCourseChange<T>(body: Record<string, unknown>): Promise<T> {
 type ActivityDraft = { id: string; type: LearningActivityType; stage: LessonStage; title: string; instructions: string; prompt: string; options: string; correctAnswers: string; explanation: string; competencyIds: string; estimatedMinutes: number };
 const defaultActivity = (): ActivityDraft => ({ id: crypto.randomUUID(), type: "single_choice", stage: "GUIDED_PRACTICE", title: "Quick check", instructions: "Choose the best answer.", prompt: "", options: "", correctAnswers: "", explanation: "", competencyIds: "", estimatedMinutes: 2 });
 
+function normalizeAuthoringAnswer(value: string): string {
+  return value.trim().toLocaleLowerCase().replace(/^[a-z]\s*[.)-]\s*/i, "").replace(/[.!?]+$/, "").trim();
+}
+
+function resolveCorrectAnswers(options: string[], answers: string[]): string[] {
+  return answers.map((answer) => options.find((option) => normalizeAuthoringAnswer(option) === normalizeAuthoringAnswer(answer)) ?? answer);
+}
+
 function readActivityBlocks(lesson: Lesson): ActivityDraft[] {
   return lesson.contentBlocks.filter((block) => block.type === "interactive").flatMap((block) => {
     const activity = block.data.activity;
@@ -131,7 +139,7 @@ export default function CourseBuilderPage() {
         }];
       for (const [index, draft] of activityDrafts.entries()) {
         const options = draft.options.split("\n").map((option) => option.trim()).filter(Boolean);
-        const correctAnswers = draft.correctAnswers.split("\n").map((answer) => answer.trim()).filter(Boolean);
+        const correctAnswers = resolveCorrectAnswers(options, draft.correctAnswers.split("\n").map((answer) => answer.trim()).filter(Boolean));
         if (!draft.title.trim() || !draft.instructions.trim() || !draft.prompt.trim() || options.length < 2 || !correctAnswers.length || correctAnswers.some((answer) => !options.includes(answer))) throw new Error(`Activity ${index + 1} needs a title, instructions, prompt, at least two options, and correct answers from the option list.`);
         if (draft.type === "single_choice" && correctAnswers.length !== 1) throw new Error(`Activity ${index + 1} is single choice, so it needs exactly one correct answer.`);
         const activity: LearningActivity = { schemaVersion: "1", type: draft.type, stage: draft.stage, title: draft.title.trim(), instructions: draft.instructions.trim(), prompt: draft.prompt.trim(), options, correctAnswers, competencyIds: draft.competencyIds.split(",").map((id) => id.trim()).filter(Boolean), estimatedMinutes: Math.max(1, Math.round(draft.estimatedMinutes)), required: true, ...(draft.explanation.trim() ? { explanation: draft.explanation.trim() } : {}) };
