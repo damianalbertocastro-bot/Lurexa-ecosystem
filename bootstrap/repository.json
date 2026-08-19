@@ -2,58 +2,26 @@
   "name": "lurexa",
   "packageManager": "pnpm",
   "apps": [
-    {
-      "name": "learn-web",
-      "path": "apps/learn-web",
-      "required": true
-    },
-    {
-      "name": "teacher-portal",
-      "path": "apps/teacher-portal",
-      "required": true
-    },
-    {
-      "name": "admin-portal",
-      "path": "apps/admin-portal",
-      "required": true
-    },
-    {
-      "name": "storybook",
-      "path": "apps/storybook",
-      "required": true
-    }
+    { "name": "web", "path": "apps/web", "required": true },
+    { "name": "docs", "path": "apps/docs", "required": true },
+    { "name": "learn-web", "path": "apps/learn-web", "required": true },
+    { "name": "teacher-portal", "path": "apps/teacher-portal", "required": true },
+    { "name": "admin-portal", "path": "apps/admin-portal", "required": true },
+    { "name": "mobile", "path": "apps/mobile", "required": true },
+    { "name": "storybook", "path": "apps/storybook", "required": false }
   ],
   "packages": [
-    {
-      "name": "@lurexa/backend",
-      "path": "packages/backend",
-      "required": true
-    },
-    {
-      "name": "@lurexa/config",
-      "path": "packages/config",
-      "required": true
-    },
-    {
-      "name": "@lurexa/sdk",
-      "path": "packages/sdk",
-      "required": true
-    },
-    {
-      "name": "@lurexa/tokens",
-      "path": "packages/tokens",
-      "required": true
-    },
-    {
-      "name": "@lurexa/types",
-      "path": "packages/types",
-      "required": true
-    },
-    {
-      "name": "@lurexa/ui",
-      "path": "packages/ui",
-      "required": true
-    }
+    { "name": "@lurexa/auth", "path": "packages/auth", "required": true },
+    { "name": "@lurexa/backend", "path": "packages/backend", "required": true },
+    { "name": "@lurexa/config", "path": "packages/config", "required": true },
+    { "name": "@lurexa/database", "path": "packages/database", "required": true },
+    { "name": "@lurexa/eslint-config", "path": "packages/eslint-config", "required": true },
+    { "name": "@lurexa/sdk", "path": "packages/sdk", "required": true },
+    { "name": "@lurexa/tokens", "path": "packages/tokens", "required": true },
+    { "name": "@lurexa/types", "path": "packages/types", "required": true },
+    { "name": "@lurexa/typescript-config", "path": "packages/typescript-config", "required": true },
+    { "name": "@lurexa/ui", "path": "packages/ui", "required": true },
+    { "name": "@lurexa/utils", "path": "packages/utils", "required": true }
   ],
   "tooling": {
     "typescript": true,
