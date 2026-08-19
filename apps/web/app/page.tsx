@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 
 type IconName = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
+type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
 
 const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "https://learn.lurexa.com";
 
@@ -11,6 +12,14 @@ const products: Array<{ name: string; eyebrow: string; description: string; icon
   { name: "Admin", eyebrow: "Institutional trust", description: "Safe access, governance, and a reliable foundation for institutions that need to scale.", icon: "admin", href: "#shared-intelligence", status: "In development" },
   { name: "Insight", eyebrow: "Learning evidence", description: "Turns progress, patterns, and needs into useful decisions—not another dashboard of noise.", icon: "insight", href: "#shared-intelligence", status: "In development" },
   { name: "Studio", eyebrow: "Learning creation", description: "A workspace for building and publishing meaningful learning experiences across Lurexa.", icon: "studio", href: "#shared-intelligence", status: "In development" },
+];
+
+const capabilities: Array<{ name: string; icon: CapabilityName }> = [
+  { name: "Connect", icon: "connect" }, { name: "Cloud", icon: "cloud" }, { name: "Secure", icon: "secure" },
+  { name: "Assess", icon: "assess" }, { name: "Schedule", icon: "schedule" }, { name: "Pay", icon: "pay" },
+  { name: "Mobile", icon: "mobile" }, { name: "PWA", icon: "pwa" }, { name: "Offline", icon: "offline" },
+  { name: "AI Tutor", icon: "tutor" }, { name: "API", icon: "api" }, { name: "Design System", icon: "design" },
+  { name: "Content", icon: "content" }, { name: "Marketing", icon: "marketing" }, { name: "Developer", icon: "developer" },
 ];
 
 function MasterMark({ small = false }: { small?: boolean }) {
@@ -25,12 +34,31 @@ function MasterMark({ small = false }: { small?: boolean }) {
 
 function ProductIcon({ name }: { name: IconName }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  if (name === "learn") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path {...common} d="M8 15c10-4 17-2 24 5v31c-7-7-14-9-24-5V15Zm48 0c-10-4-17-2-24 5v31c7-7 14-9 24-5V15Z"/><path d="M32 20v31" stroke="#16c9d1" strokeWidth="4"/></svg>;
-  if (name === "coach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect {...common} x="12" y="17" width="40" height="32" rx="12"/><path {...common} d="M20 12v5m24-5v5M24 33h.1m16 0h.1M24 41c5 4 11 4 16 0M7 28v10m50-10v10"/><circle cx="24" cy="33" r="2.5" fill="currentColor"/><circle cx="40" cy="33" r="2.5" fill="currentColor"/></svg>;
-  if (name === "teach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m6 25 26-13 26 13-26 13L6 25Z" fill="currentColor"/><path {...common} d="M16 31v10c10 8 22 8 32 0V31M52 28v15"/><circle cx="52" cy="45" r="3" fill="#16c9d1"/></svg>;
-  if (name === "admin") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m8 19 24-11 24 11H8Z" fill="currentColor"/><path {...common} d="M12 54h40M16 24v24m10-24v24m12-24v24m10-24v24"/><path d="M10 50h44v5H10z" fill="#16c9d1"/></svg>;
-  if (name === "insight") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect x="8" y="37" width="10" height="17" rx="5" fill="currentColor" opacity=".6"/><rect x="27" y="23" width="10" height="31" rx="5" fill="currentColor"/><rect x="46" y="10" width="10" height="44" rx="5" fill="#16c9d1"/><path {...common} d="M8 55h48"/></svg>;
-  return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m32 7 22 12v26L32 57 10 45V19L32 7Z" fill="currentColor" opacity=".9"/><path d="m10 19 22 12 22-12M32 31v26" stroke="white" strokeWidth="3" strokeLinejoin="round"/><path d="m32 31 22-12v7L32 38 10 26v-7l22 12Z" fill="#16c9d1"/></svg>;
+  if (name === "learn") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="M7 33 31 9l11 11L29 33 43 47 32 58 7 33Z" fill="currentColor"/><path d="m31 9 11-6v17L31 9Z" fill="#2160df"/><path d="M43 20 57 6v47H43V20Z" fill="currentColor"/></svg>;
+  if (name === "coach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect x="15" y="21" width="34" height="27" rx="7" fill="currentColor"/><path {...common} d="M22 17v-5m20 5v-5M9 28v12m46-12v12"/><circle cx="25" cy="34" r="3" fill="white"/><circle cx="39" cy="34" r="3" fill="white"/><path d="M29 42h7" stroke="#12cdd4" strokeWidth="3" strokeLinecap="round"/></svg>;
+  if (name === "teach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="M7 23h50l-9-11H16L7 23Z" fill="currentColor"/><path d="M15 25h34v7H15z" fill="currentColor"/><path d="M30 32v15" stroke="currentColor" strokeWidth="4"/><circle cx="30" cy="51" r="3" fill="#12cdd4"/></svg>;
+  if (name === "admin") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m7 23 25-15 25 15H7Z" fill="currentColor"/><path d="M13 28h7v21h-7zm15 0h8v21h-8zm16 0h7v21h-7z" fill="currentColor"/><path d="M9 52h46v5H9z" fill="#12cdd4"/></svg>;
+  if (name === "insight") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect x="8" y="37" width="10" height="17" rx="5" fill="currentColor" opacity=".6"/><rect x="27" y="23" width="10" height="31" rx="5" fill="currentColor"/><rect x="46" y="10" width="10" height="44" rx="5" fill="#16c9d1"/></svg>;
+  return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m20 8 22 2 13 20-13 25-24-1L7 32 20 8Z" fill="currentColor"/><path d="m21 31 9 9 17-17" fill="none" stroke="#12cdd4" strokeWidth="7" strokeLinecap="square"/></svg>;
+}
+
+function CapabilityIcon({ name }: { name: CapabilityName }) {
+  const common = { fill: "none", stroke: "currentColor", strokeWidth: 4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  if (name === "connect") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><circle cx="18" cy="17" r="8" fill="currentColor"/><circle cx="31" cy="16" r="9" fill="currentColor" opacity=".78"/><path d="M6 39c1-10 22-12 25-2M21 39c2-9 18-11 23 0" fill="currentColor"/></svg>;
+  if (name === "cloud") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="M10 37h28a9 9 0 0 0 0-18 13 13 0 0 0-25 3A8 8 0 0 0 10 37Z" fill="currentColor"/></svg>;
+  if (name === "secure") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="M24 5 40 11v11c0 10-7 17-16 21-9-4-16-11-16-21V11l16-6Z" fill="currentColor"/><path d="m16 24 5 5 11-12" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  if (name === "assess") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><rect x="10" y="9" width="28" height="34" rx="5" fill="currentColor"/><path d="M17 19h4m4 0h7M17 28h4m4 0h7M17 36h4m4 0h7" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg>;
+  if (name === "schedule") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><rect x="7" y="10" width="34" height="33" rx="5" fill="currentColor"/><path d="M7 19h34M16 5v9m16-9v9" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/><circle cx="17" cy="28" r="3" fill="white"/><circle cx="31" cy="28" r="3" fill="white"/><circle cx="17" cy="36" r="3" fill="#12cdd4"/><circle cx="31" cy="36" r="3" fill="white"/></svg>;
+  if (name === "pay") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="M7 15h28a6 6 0 0 1 6 6v16H7V15Z" fill="currentColor"/><path d="M7 15 32 8v7" fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round"/><path d="M31 25h12v10H31a5 5 0 0 1 0-10Z" fill="#12cdd4"/><circle cx="35" cy="30" r="2" fill="white"/></svg>;
+  if (name === "mobile") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><rect x="13" y="5" width="22" height="38" rx="5" fill="none" stroke="currentColor" strokeWidth="5"/><circle cx="24" cy="36" r="2.5" fill="#12cdd4"/></svg>;
+  if (name === "pwa") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" strokeWidth="4"/><path {...common} d="M6 24h36M24 6c-8 10-8 26 0 36M24 6c8 10 8 26 0 36"/></svg>;
+  if (name === "offline") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path {...common} d="M8 19c9-9 23-9 32 0M14 26c6-6 14-6 20 0M20 33c2-2 6-2 8 0"/><path d="M6 41 42 5" stroke="#12cdd4" strokeWidth="5"/></svg>;
+  if (name === "tutor") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><rect x="10" y="16" width="28" height="22" rx="7" fill="currentColor"/><path {...common} d="M16 12V8m16 4V8M5 21v11m38-11v11"/><circle cx="19" cy="26" r="2.5" fill="white"/><circle cx="29" cy="26" r="2.5" fill="white"/><path d="M20 33h8" stroke="#12cdd4" strokeWidth="3" strokeLinecap="round"/></svg>;
+  if (name === "api") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="M10 14h11v20H10zM27 14h11v20H27z" fill="currentColor"/><path d="M21 24h6" stroke="#12cdd4" strokeWidth="5"/></svg>;
+  if (name === "design") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="m8 15 16-8 16 8-16 8-16-8Zm0 10 16 8 16-8v8l-16 8-16-8v-8Z" fill="currentColor"/><path d="m8 33 16 8 16-8" fill="none" stroke="#12cdd4" strokeWidth="4"/></svg>;
+  if (name === "content") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><circle cx="10" cy="31" r="5" fill="currentColor"/><circle cx="25" cy="31" r="5" fill="currentColor"/><circle cx="39" cy="10" r="5" fill="currentColor"/><path d="m14 29 7-1m8-2 7-12" stroke="#12cdd4" strokeWidth="4"/></svg>;
+  if (name === "marketing") return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="m9 23 22-9v20L9 25v-2Z" fill="currentColor"/><path d="M14 27v12h6l2-10" fill="currentColor"/><path d="M35 19c4 3 4 8 0 11" fill="none" stroke="#12cdd4" strokeWidth="4" strokeLinecap="round"/></svg>;
+  return <svg viewBox="0 0 48 48" className={styles.capabilityIcon} aria-hidden="true"><path d="m17 12-10 12 10 12M31 12l10 12-10 12M27 7l-6 34" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
 export default function Home() {
@@ -66,6 +94,11 @@ export default function Home() {
     <section id="products" className={styles.products}>
       <div className={styles.sectionHeading}><p className={styles.kicker}>THE PRODUCT FAMILY</p><h2>Distinct experiences.<br/><em>One intelligent relationship.</em></h2><p>Every product has its own role, visual signature, and purpose—while contributing to the same evolving learner model.</p></div>
       <div className={styles.productGrid}>{products.map((product, index) => <a key={product.name} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductIcon name={product.icon}/></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.name}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
+    </section>
+
+    <section className={styles.capabilities} aria-labelledby="capabilities-heading">
+      <div className={styles.capabilitiesHeading}><p className={styles.kicker}>THE WIDER ECOSYSTEM</p><h2 id="capabilities-heading">Every capability speaks <em>the same visual language.</em></h2><p>These shared capabilities are being shaped as part of Lurexa’s ecosystem foundation. They are not separate promises; they make the product family more useful together.</p></div>
+      <div className={styles.capabilityGrid}>{capabilities.map((capability) => <div className={styles.capability} key={capability.name}><CapabilityIcon name={capability.icon}/><span>{capability.name}</span><i>Planned</i></div>)}</div>
     </section>
 
     <section id="shared-intelligence" className={styles.intelligence}>
