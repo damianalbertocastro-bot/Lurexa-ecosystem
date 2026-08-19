@@ -1,8 +1,4 @@
 import type {
-  LearnerInsightRepository,
-  LearningEvidenceRepository,
-} from "@lurexa/database/learner.repository";
-import type {
   LearnerInsight,
   LearningEvidence,
   LearningEvidenceType,
@@ -80,7 +76,7 @@ function evidenceDocumentsEquivalent(
   return JSON.stringify(stripUndefined(first)) === JSON.stringify(stripUndefined(second));
 }
 
-export class FirestoreLearningEvidenceRepository implements LearningEvidenceRepository {
+export class FirestoreLearningEvidenceRepository {
   async append<TPayload = unknown>(
     evidence: LearningEvidence<TPayload>,
   ): Promise<LearningEvidence<TPayload>> {
@@ -117,7 +113,7 @@ export class FirestoreLearningEvidenceRepository implements LearningEvidenceRepo
   }
 }
 
-export class FirestoreLearnerInsightRepository implements LearnerInsightRepository {
+export class FirestoreLearnerInsightRepository {
   async save(insight: LearnerInsight): Promise<LearnerInsight> {
     const reference = getServerFirestore().collection("learner-insights").doc(insight.id);
     await reference.set(stripUndefined(insight));
