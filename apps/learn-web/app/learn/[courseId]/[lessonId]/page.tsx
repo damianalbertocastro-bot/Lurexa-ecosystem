@@ -85,8 +85,8 @@ export default function CoursePlayerPage() {
     finally { setSubmittingActivityId(null); }
   };
 
-  if (loading) return <div className="min-h-screen bg-slate-50 p-8 text-slate-500">Loading lesson...</div>;
-  if (error || !lesson) return <div className="min-h-screen bg-slate-50 p-8 text-red-600">{error ?? "Lesson not found."}</div>;
+  if (loading) return <div className="min-h-screen bg-[var(--learn-canvas)] p-8 text-[#6677a5]">Loading lesson...</div>;
+  if (error || !lesson) return <div className="min-h-screen bg-[var(--learn-canvas)] p-8 text-red-600">{error ?? "Lesson not found."}</div>;
   const text = lesson.contentBlocks.filter((block) => block.type === "text")
     .map((block) => typeof block.data.text === "string" ? block.data.text : "").filter(Boolean).join("\n\n");
   const quizzes = lesson.contentBlocks.filter((block) => block.type === "quiz_embed").flatMap((block) => {
@@ -99,14 +99,14 @@ export default function CoursePlayerPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content (2 Cols) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+          <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{lesson.title}</h1>
-              <p className="text-xs text-slate-500">Course ID: {params.courseId}</p>
+              <h1 className="text-2xl font-bold text-[#071d67]">{lesson.title}</h1>
+              <p className="text-xs text-[#6677a5]">Course ID: {params.courseId}</p>
             </div>
             <Badge variant={completed ? "success" : "info"}>
               {completed ? "Completed ✓" : "In Progress"}
@@ -114,14 +114,14 @@ export default function CoursePlayerPage() {
           </div>
 
           <Card className="prose max-w-none">
-            <div className="whitespace-pre-line text-slate-700 leading-relaxed">
+            <div className="whitespace-pre-line text-[#314b88] leading-relaxed">
               {text || "This lesson has no readable text content yet."}
             </div>
           </Card>
 
           {quizzes.map((quiz) => {
             const feedback = quizFeedback[quiz.id];
-            return <Card key={quiz.id} title="Quick check" subtitle="Answer to confirm your understanding"><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-slate-900">{quiz.prompt}</legend>{quiz.options.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 text-sm text-slate-700"><input type="radio" name={quiz.id} value={option} checked={answers[quiz.id] === option} onChange={() => setAnswers((current) => ({ ...current, [quiz.id]: option }))} />{option}</label>)}<Button type="button" onClick={() => handleSubmitQuiz(quiz.id)} isLoading={submittingQuizId === quiz.id} disabled={!answers[quiz.id]}>Check answer</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
+            return <Card key={quiz.id} title="Quick check" subtitle="Answer to confirm your understanding"><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-[#071d67]">{quiz.prompt}</legend>{quiz.options.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dfe7fb] p-3 text-sm text-[#314b88]"><input type="radio" name={quiz.id} value={option} checked={answers[quiz.id] === option} onChange={() => setAnswers((current) => ({ ...current, [quiz.id]: option }))} />{option}</label>)}<Button type="button" onClick={() => handleSubmitQuiz(quiz.id)} isLoading={submittingQuizId === quiz.id} disabled={!answers[quiz.id]}>Check answer</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
           })}
 
           {activities.map(({ id, activity }) => {
@@ -135,7 +135,7 @@ export default function CoursePlayerPage() {
               if (isMultiSelect) return { ...current, [id]: currentAnswers.includes(option) ? currentAnswers.filter((answer) => answer !== option) : [...currentAnswers, option] };
               return { ...current, [id]: [option] };
             });
-            return <Card key={id} title={activity.title} subtitle={`${activity.stage.replaceAll("_", " ")} · ${activity.estimatedMinutes} min`}><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-slate-900">{activity.prompt}</legend><p className="text-sm text-slate-600">{activity.instructions}</p>{isSentenceBuilder && selected.length > 0 && <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">Your sentence: {selected.join(" ")}</div>}<div className="space-y-2">{activity.options?.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 text-sm text-slate-700"><input type={isMultiSelect || isSentenceBuilder ? "checkbox" : "radio"} name={id} value={option} checked={selected.includes(option)} onChange={() => toggleAnswer(option)} />{option}</label>)}</div><Button type="button" onClick={() => handleSubmitActivity(id)} isLoading={submittingActivityId === id} disabled={!selected.length}>Check answer</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
+            return <Card key={id} title={activity.title} subtitle={`${activity.stage.replaceAll("_", " ")} · ${activity.estimatedMinutes} min`}><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-[#071d67]">{activity.prompt}</legend><p className="text-sm text-[#5d6f9d]">{activity.instructions}</p>{isSentenceBuilder && selected.length > 0 && <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">Your sentence: {selected.join(" ")}</div>}<div className="space-y-2">{activity.options?.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dfe7fb] p-3 text-sm text-[#314b88]"><input type={isMultiSelect || isSentenceBuilder ? "checkbox" : "radio"} name={id} value={option} checked={selected.includes(option)} onChange={() => toggleAnswer(option)} />{option}</label>)}</div><Button type="button" onClick={() => handleSubmitActivity(id)} isLoading={submittingActivityId === id} disabled={!selected.length}>Check answer</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
           })}
 
           <div className="flex justify-end pt-4">
