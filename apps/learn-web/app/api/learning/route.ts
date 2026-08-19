@@ -31,12 +31,15 @@ export async function POST(request: Request): Promise<Response> {
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
     const body: unknown = await request.json();
     if (typeof body !== "object" || body === null || Array.isArray(body)) throw new Error("Invalid request body.");
-    const payload = body as { action?: unknown; courseId?: unknown; lessonId?: unknown; quizId?: unknown; activityId?: unknown; answer?: unknown; answers?: unknown; timeSpentSeconds?: unknown; title?: unknown; description?: unknown; subject?: unknown; moduleId?: unknown; contentBlocks?: unknown; order?: unknown; estimatedMinutes?: unknown };
+    const payload = body as { action?: unknown; courseId?: unknown; lessonId?: unknown; quizId?: unknown; activityId?: unknown; answer?: unknown; answers?: unknown; response?: unknown; timeSpentSeconds?: unknown; title?: unknown; description?: unknown; subject?: unknown; moduleId?: unknown; contentBlocks?: unknown; order?: unknown; estimatedMinutes?: unknown };
     if (payload.action === "submitQuizAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.quizId === "string" && typeof payload.answer === "string") {
       return Response.json(await CoursePlatformService.submitQuizAttempt(actor, payload.courseId, payload.lessonId, payload.quizId, payload.answer));
     }
     if (payload.action === "submitActivityAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && Array.isArray(payload.answers) && payload.answers.every((answer) => typeof answer === "string")) {
       return Response.json(await CoursePlatformService.submitActivityAttempt(actor, payload.courseId, payload.lessonId, payload.activityId, payload.answers));
+    }
+    if (payload.action === "submitShortResponse" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && typeof payload.response === "string") {
+      return Response.json(await CoursePlatformService.submitShortResponse(actor, payload.courseId, payload.lessonId, payload.activityId, payload.response));
     }
     if (payload.action === "createCourse" && typeof payload.title === "string" && typeof payload.description === "string" && ["english", "math", "science", "other"].includes(payload.subject as string)) {
       return Response.json(await CoursePlatformService.createCourse(actor, payload.title, payload.description, payload.subject as Course["subject"]));

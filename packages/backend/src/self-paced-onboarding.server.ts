@@ -7,14 +7,19 @@ const ORGANIZATION_ID = "lurexa-self-paced";
 const COURSE_ID = "english-a1-foundations";
 const MODULE_ID = "english-a1-introductions";
 const LESSON_ID = "a1-introduce-yourself";
+const A2_COURSE_ID = "english-a2-everyday-conversations";
+const A2_MODULE_ID = "english-a2-making-plans";
+const A2_LESSON_ID = "a2-make-a-plan";
 
 export type SelfPacedGoal = "daily_life" | "work" | "travel" | "study";
+export type PlacementAnswer = "nice_to_meet_you" | "fine_thanks" | "i_live_in" | "i_live" | "are" | "is" | "going_to" | "go";
 
 export interface SelfPacedOnboardingResult {
   courseId: string;
   lessonId: string;
   recommendation: {
-    level: "A1";
+    level: "A1" | "A2";
+    confidence: "low";
     rationale: string;
   };
 }
@@ -84,16 +89,27 @@ function lessonContentBlocks(): ContentBlock[] {
     },
     {
       id: "a1-create-apply",
-      type: "text",
+      type: "interactive",
       order: 5,
       data: {
-        text: "Create & Apply\n\nSay or write: “Hello, I’m [your name]. I’m from [your city]. Nice to meet you.”\n\nSpeak slowly enough to make your message clear. The goal is intelligibility, not accent imitation.",
+        activity: {
+          schemaVersion: "1",
+          type: "short_response",
+          stage: "CREATE_APPLY",
+          title: "Create your introduction",
+          instructions: "Write your own short introduction. Include your name, where you are from, and “Nice to meet you.”",
+          prompt: "Write two or three sentences to introduce yourself to a new classmate.",
+          explanation: "You submitted a real introduction. Read it aloud slowly to practise clear, confident communication.",
+          competencyIds: ["EN-A1-SPK-INTRO-01"],
+          estimatedMinutes: 3,
+          required: true,
+        },
       },
     },
   ];
 }
 
-function starterCourse(now: string): { course: Course; module: Module; lesson: Lesson } {
+function a1StarterCourse(now: string): { course: Course; module: Module; lesson: Lesson } {
   const lesson: Lesson = {
     id: LESSON_ID,
     moduleId: MODULE_ID,
@@ -127,6 +143,35 @@ function starterCourse(now: string): { course: Course; module: Module; lesson: L
   return { course, module, lesson };
 }
 
+function a2StarterCourse(now: string): { course: Course; module: Module; lesson: Lesson } {
+  const lesson: Lesson = {
+    id: A2_LESSON_ID,
+    moduleId: A2_MODULE_ID,
+    title: "Make a simple plan",
+    summary: "Invite someone, suggest a time, and respond to a plan.",
+    contentBlocks: [
+      { id: "a2-plan-text", type: "text", order: 1, data: { text: "Mission: make a simple plan with a friend.\n\nSofía: Are you free on Saturday?\nMateo: Yes, I am. What are you going to do?\nSofía: I’m going to visit the Malecón. Do you want to come?\nMateo: Sure! Let’s meet at three.\n\nUse Are you free…? to invite someone. Use going to for a plan." } },
+      { id: "a2-plan-response", type: "interactive", order: 2, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "GUIDED_PRACTICE", title: "Respond to an invitation", instructions: "Choose the most natural response.", prompt: "A friend says: “Do you want to come to the park?”", options: ["Sure, I’d like to.", "I am going yesterday.", "Nice to meet Saturday."], correctAnswers: ["Sure, I’d like to."], explanation: "Sure, I’d like to is a natural way to accept an invitation.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-builder", type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build a plan", instructions: "Select the words in the correct order.", prompt: "Make a sentence about your plan.", options: ["I’m", "going", "to", "call", "my friend."], correctAnswers: ["I’m", "going", "to", "call", "my friend."], explanation: "Use I’m going to + verb to talk about a plan.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-check", type: "quiz_embed", order: 4, data: { prompt: "Which question asks about a future plan?", options: ["What are you going to do?", "Where you yesterday?", "Nice to meet plan."], correctAnswer: "What are you going to do?", explanation: "What are you going to do? asks about a future plan." } },
+      { id: "a2-plan-create-apply", type: "interactive", order: 5, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Invite a friend", instructions: "Write two or three sentences. Invite someone, say what you are going to do, and suggest a time.", prompt: "Write a short message to make a plan with a friend.", explanation: "You created a practical invitation. Read it aloud to rehearse the conversation.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 3, required: true } } },
+    ],
+    order: 1,
+    estimatedMinutes: 12,
+  };
+  const module: Module = { id: A2_MODULE_ID, courseId: A2_COURSE_ID, title: "Everyday conversations", description: "Make plans and respond naturally in common situations.", order: 1, lessonIds: [A2_LESSON_ID] };
+  const course: Course = { id: A2_COURSE_ID, orgId: ORGANIZATION_ID, authorId: "lurexa-system", title: "English A2 Everyday Conversations", description: "A practical starter path for learners with early English foundations.", subject: "english", status: "published", isTemplate: false, moduleIds: [A2_MODULE_ID], createdAt: now, updatedAt: now };
+  return { course, module, lesson };
+}
+
+function scorePlacement(answers: PlacementAnswer[] | undefined): { level: "A1" | "A2"; confidence: "low"; rationale: string; score: number } {
+  if (!answers) return { level: "A1", confidence: "low", score: 0, rationale: "You chose the beginner path, so we are starting with a practical A1 introduction lesson. This is not a formal CEFR placement result." };
+  const expected: PlacementAnswer[] = ["nice_to_meet_you", "i_live_in", "are", "going_to"];
+  const score = answers.filter((answer, index) => answer === expected[index]).length;
+  if (score >= 3) return { level: "A2", confidence: "low", score, rationale: "Your short start check suggests that an early A2 conversation lesson is a useful next step. This is a provisional recommendation, not a CEFR certification; speaking and listening evidence can refine it later." };
+  return { level: "A1", confidence: "low", score, rationale: "Your short start check points to the A1 foundation lesson as the most useful starting step. This is a provisional recommendation, not a CEFR placement result." };
+}
+
 /**
  * Creates the smallest viable self-paced entry path. A1 is a starter-course
  * recommendation for the learner-selected beginner path, not a CEFR placement
@@ -136,17 +181,22 @@ export async function onboardSelfPacedLearner(input: {
   learnerId: string;
   email: string | null;
   goal: SelfPacedGoal;
+  placementAnswers?: PlacementAnswer[];
 }): Promise<SelfPacedOnboardingResult> {
   const database = getServerFirestore();
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const now = new Date().toISOString();
-  const { course, module, lesson } = starterCourse(now);
+  const a1 = a1StarterCourse(now);
+  const a2 = a2StarterCourse(now);
+  const recommendation = scorePlacement(input.placementAnswers);
+  const selected = recommendation.level === "A2" ? a2 : a1;
 
   const organizationReference = database.collection("organizations").doc(ORGANIZATION_ID);
   const membershipReference = organizationReference.collection("members").doc(input.learnerId);
   const userMembershipReference = database.collection("user-memberships").doc(input.learnerId).collection("organizations").doc(ORGANIZATION_ID);
   const profileReference = database.collection("learner-profiles").doc(input.learnerId);
   const goalEvidenceId = database.collection("learning-evidence").doc().id;
+  const placementEvidenceId = database.collection("learning-evidence").doc().id;
 
   await Promise.all([
     organizationReference.set({
@@ -158,9 +208,12 @@ export async function onboardSelfPacedLearner(input: {
       createdAt: now,
       updatedAt: now,
     }, { merge: true }),
-    database.collection("courses").doc(COURSE_ID).set(course, { merge: true }),
-    database.collection("modules").doc(MODULE_ID).set(module, { merge: true }),
-    database.collection("lessons").doc(LESSON_ID).set(lesson, { merge: true }),
+    database.collection("courses").doc(a1.course.id).set(a1.course, { merge: true }),
+    database.collection("modules").doc(a1.module.id).set(a1.module, { merge: true }),
+    database.collection("lessons").doc(a1.lesson.id).set(a1.lesson, { merge: true }),
+    database.collection("courses").doc(a2.course.id).set(a2.course, { merge: true }),
+    database.collection("modules").doc(a2.module.id).set(a2.module, { merge: true }),
+    database.collection("lessons").doc(a2.lesson.id).set(a2.lesson, { merge: true }),
     membershipReference.set({
       userId: input.learnerId,
       orgId: ORGANIZATION_ID,
@@ -179,9 +232,11 @@ export async function onboardSelfPacedLearner(input: {
       learnerId: input.learnerId,
       goals: [input.goal],
       onboarding: {
-        path: "self-paced-beginner",
+        path: input.placementAnswers ? "self-paced-start-check" : "self-paced-beginner",
         completedAt: now,
-        recommendation: "A1 starter course",
+        recommendation: `${recommendation.level} starter course`,
+        recommendedCourseId: selected.course.id,
+        confidence: recommendation.confidence,
       },
       updatedAt: now,
     }, { merge: true }),
@@ -191,14 +246,14 @@ export async function onboardSelfPacedLearner(input: {
       organizationId: ORGANIZATION_ID,
       source: {
         product: "learn",
-        courseId: COURSE_ID,
-        lessonId: LESSON_ID,
+        courseId: selected.course.id,
+        lessonId: selected.lesson.id,
       },
       type: "goal_update",
       observedAt: now,
       payload: {
         goal: input.goal,
-        startingPath: "self-paced-beginner",
+        startingPath: input.placementAnswers ? "self-paced-start-check" : "self-paced-beginner",
       },
       provenance: {
         method: "learner_reported",
@@ -206,6 +261,16 @@ export async function onboardSelfPacedLearner(input: {
         confidence: 1,
       },
     }),
+    ...(input.placementAnswers ? [evidenceRepository.append({
+      id: placementEvidenceId,
+      learnerId: input.learnerId,
+      organizationId: ORGANIZATION_ID,
+      source: { product: "learn", courseId: selected.course.id, lessonId: selected.lesson.id, activityId: "self-paced-start-check" },
+      type: "assessment_result",
+      observedAt: now,
+      payload: { answers: input.placementAnswers, score: recommendation.score, recommendation: recommendation.level, confidence: recommendation.confidence, scope: "short_start_check" },
+      provenance: { method: "system_observed", actorId: input.learnerId, confidence: 0.25 },
+    })] : []),
   ]);
 
   try {
@@ -219,11 +284,12 @@ export async function onboardSelfPacedLearner(input: {
   }
 
   return {
-    courseId: COURSE_ID,
-    lessonId: LESSON_ID,
+    courseId: selected.course.id,
+    lessonId: selected.lesson.id,
     recommendation: {
-      level: "A1",
-      rationale: "You chose the beginner path, so we are starting with a practical A1 introduction lesson. This is not a formal CEFR placement result.",
+      level: recommendation.level,
+      confidence: recommendation.confidence,
+      rationale: recommendation.rationale,
     },
   };
 }

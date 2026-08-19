@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -13,16 +13,19 @@ import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
 export default function CoursePlayerPage() {
   const params = useParams<{ courseId: string; lessonId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [completed, setCompleted] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [nextLesson, setNextLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [quizFeedback, setQuizFeedback] = useState<Record<string, { passed: boolean; explanation: string | null }>>({});
   const [submittingQuizId, setSubmittingQuizId] = useState<string | null>(null);
   const [activityAnswers, setActivityAnswers] = useState<Record<string, string[]>>({});
+  const [shortResponses, setShortResponses] = useState<Record<string, string>>({});
   const [activityFeedback, setActivityFeedback] = useState<Record<string, { passed: boolean; explanation: string | null }>>({});
   const [submittingActivityId, setSubmittingActivityId] = useState<string | null>(null);
 
@@ -45,15 +48,17 @@ export default function CoursePlayerPage() {
       return;
     }
     setSyncing(true);
+    setCompletionError(null);
     try {
       const response = await authenticatedFetch("/api/learning", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseId: params.courseId, lessonId: params.lessonId, timeSpentSeconds: 180 }),
       });
-      if (!response.ok) throw new Error("Unable to save progress.");
+      const payload = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Unable to save progress.");
       setCompleted(true);
-    } catch {
-      alert("Failed to sync progress.");
+    } catch (cause) {
+      setCompletionError(cause instanceof Error ? cause.message : "Unable to save progress.");
     } finally {
       setSyncing(false);
     }
@@ -85,6 +90,19 @@ export default function CoursePlayerPage() {
     finally { setSubmittingActivityId(null); }
   };
 
+  const handleSubmitShortResponse = async (activityId: string) => {
+    const responseText = shortResponses[activityId]?.trim() ?? "";
+    if (!responseText) return;
+    setSubmittingActivityId(activityId);
+    try {
+      const response = await authenticatedFetch("/api/learning", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "submitShortResponse", courseId: params.courseId, lessonId: params.lessonId, activityId, response: responseText }) });
+      const payload = await response.json() as { attempt?: { passed: boolean }; explanation?: string | null; error?: string };
+      if (!response.ok || !payload.attempt) throw new Error(payload.error ?? "Unable to submit your response.");
+      setActivityFeedback((current) => ({ ...current, [activityId]: { passed: true, explanation: payload.explanation ?? null } }));
+    } catch (cause) { alert(cause instanceof Error ? cause.message : "Unable to submit your response."); }
+    finally { setSubmittingActivityId(null); }
+  };
+
   if (loading) return <div className="min-h-screen bg-[var(--learn-canvas)] p-8 text-[#6677a5]">Loading lesson...</div>;
   if (error || !lesson) return <div className="min-h-screen bg-[var(--learn-canvas)] p-8 text-red-600">{error ?? "Lesson not found."}</div>;
   const text = lesson.contentBlocks.filter((block) => block.type === "text")
@@ -103,6 +121,7 @@ export default function CoursePlayerPage() {
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content (2 Cols) */}
         <div className="lg:col-span-2 space-y-6">
+          {searchParams.get("startingLevel") && <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-950"><strong>Provisional starting recommendation: {searchParams.get("startingLevel")}</strong><p className="mt-1">This short start check guides your first path. It is not a CEFR certification; later speaking, listening, and lesson evidence can refine what Lurexa recommends next.</p></div>}
           <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
             <div>
               <h1 className="text-2xl font-bold text-[#071d67]">{lesson.title}</h1>
@@ -126,16 +145,18 @@ export default function CoursePlayerPage() {
 
           {activities.map(({ id, activity }) => {
             const selected = activityAnswers[id] ?? [];
+            const shortResponse = shortResponses[id] ?? "";
             const feedback = activityFeedback[id];
             const isMultiSelect = activity.type === "multiple_selection";
             const isSentenceBuilder = activity.type === "sentence_builder";
+            const isShortResponse = activity.type === "short_response";
             const toggleAnswer = (option: string) => setActivityAnswers((current) => {
               const currentAnswers = current[id] ?? [];
               if (isSentenceBuilder) return { ...current, [id]: currentAnswers.includes(option) ? currentAnswers.filter((answer) => answer !== option) : [...currentAnswers, option] };
               if (isMultiSelect) return { ...current, [id]: currentAnswers.includes(option) ? currentAnswers.filter((answer) => answer !== option) : [...currentAnswers, option] };
               return { ...current, [id]: [option] };
             });
-            return <Card key={id} title={activity.title} subtitle={`${activity.stage.replaceAll("_", " ")} · ${activity.estimatedMinutes} min`}><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-[#071d67]">{activity.prompt}</legend><p className="text-sm text-[#5d6f9d]">{activity.instructions}</p>{isSentenceBuilder && selected.length > 0 && <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">Your sentence: {selected.join(" ")}</div>}<div className="space-y-2">{activity.options?.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dfe7fb] p-3 text-sm text-[#314b88]"><input type={isMultiSelect || isSentenceBuilder ? "checkbox" : "radio"} name={id} value={option} checked={selected.includes(option)} onChange={() => toggleAnswer(option)} />{option}</label>)}</div><Button type="button" onClick={() => handleSubmitActivity(id)} isLoading={submittingActivityId === id} disabled={!selected.length}>Check answer</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
+            return <Card key={id} title={activity.title} subtitle={`${activity.stage.replaceAll("_", " ")} · ${activity.estimatedMinutes} min`}><fieldset className="space-y-3 pt-3"><legend className="font-semibold text-[#071d67]">{activity.prompt}</legend><p className="text-sm text-[#5d6f9d]">{activity.instructions}</p>{isShortResponse ? <textarea className="min-h-32 w-full rounded-xl border border-[#dfe7fb] p-3 text-sm text-[#314b88] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" value={shortResponse} maxLength={1000} onChange={(event) => setShortResponses((current) => ({ ...current, [id]: event.target.value }))} aria-label={activity.title} placeholder="Hello, I'm…" /> : <>{isSentenceBuilder && selected.length > 0 && <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">Your sentence: {selected.join(" ")}</div>}<div className="space-y-2">{activity.options?.map((option) => <label key={option} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dfe7fb] p-3 text-sm text-[#314b88]"><input type={isMultiSelect || isSentenceBuilder ? "checkbox" : "radio"} name={id} value={option} checked={selected.includes(option)} onChange={() => toggleAnswer(option)} />{option}</label>)}</div></>}<Button type="button" onClick={() => isShortResponse ? handleSubmitShortResponse(id) : handleSubmitActivity(id)} isLoading={submittingActivityId === id} disabled={isShortResponse ? shortResponse.trim().length < 8 : !selected.length}>{isShortResponse ? "Submit my introduction" : "Check answer"}</Button>{feedback && <p className={feedback.passed ? "text-sm font-medium text-emerald-700" : "text-sm font-medium text-red-700"}>{isShortResponse ? "Submitted." : feedback.passed ? "Correct — well done." : "Not quite. Try again."}{feedback.explanation ? ` ${feedback.explanation}` : ""}</p>}</fieldset></Card>;
           })}
 
           <div className="flex justify-end pt-4">
@@ -148,6 +169,7 @@ export default function CoursePlayerPage() {
               {completed ? (nextLesson ? "Continue to next lesson →" : "Course completed ✓") : "Mark lesson complete"}
             </Button>
           </div>
+          {completionError && <p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm font-medium text-amber-900">{completionError}</p>}
         </div>
 
         {/* AI Tutor Sidebar (1 Col) */}

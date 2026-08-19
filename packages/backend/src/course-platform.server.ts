@@ -109,13 +109,15 @@ function readQuizData(value: Record<string, unknown>): QuizContentBlockData | nu
 }
 
 const lessonStages: LessonStage[] = ["HOOK", "MISSION", "VOCABULARY_BUILDER", "CONTEXTUAL_INPUT", "COMPREHENSION", "LANGUAGE_NOTICING", "GRAMMAR_FOCUS", "PHONETICS_FOCUS", "GUIDED_PRACTICE", "CONVERSATION", "CREATE_APPLY", "REVIEW", "QUIZ", "REFLECTION"];
-const scoredActivityTypes = ["single_choice", "multiple_selection", "sentence_builder"] as const;
+const activityTypes = ["single_choice", "multiple_selection", "sentence_builder", "short_response"] as const;
 
 function readLearningActivityData(value: Record<string, unknown>): LearningActivity | null {
   const activity = value.activity;
   if (typeof activity !== "object" || activity === null || Array.isArray(activity)) return null;
   const candidate = activity as Record<string, unknown>;
-  if (candidate.schemaVersion !== "1" || !scoredActivityTypes.includes(candidate.type as (typeof scoredActivityTypes)[number]) || !lessonStages.includes(candidate.stage as LessonStage) || typeof candidate.title !== "string" || typeof candidate.instructions !== "string" || typeof candidate.prompt !== "string" || !Array.isArray(candidate.options) || !candidate.options.every((option) => typeof option === "string") || !Array.isArray(candidate.correctAnswers) || !candidate.correctAnswers.every((answer) => typeof answer === "string") || !Array.isArray(candidate.competencyIds) || !candidate.competencyIds.every((competencyId) => typeof competencyId === "string") || typeof candidate.estimatedMinutes !== "number" || typeof candidate.required !== "boolean") return null;
+  if (candidate.schemaVersion !== "1" || !activityTypes.includes(candidate.type as (typeof activityTypes)[number]) || !lessonStages.includes(candidate.stage as LessonStage) || typeof candidate.title !== "string" || typeof candidate.instructions !== "string" || typeof candidate.prompt !== "string" || !Array.isArray(candidate.competencyIds) || !candidate.competencyIds.every((competencyId) => typeof competencyId === "string") || typeof candidate.estimatedMinutes !== "number" || typeof candidate.required !== "boolean") return null;
+  const isScored = candidate.type !== "short_response";
+  if (isScored && (!Array.isArray(candidate.options) || !candidate.options.every((option) => typeof option === "string") || !Array.isArray(candidate.correctAnswers) || !candidate.correctAnswers.every((answer) => typeof answer === "string"))) return null;
   return {
     schemaVersion: "1",
     type: candidate.type as LearningActivity["type"],
@@ -123,8 +125,8 @@ function readLearningActivityData(value: Record<string, unknown>): LearningActiv
     title: candidate.title,
     instructions: candidate.instructions,
     prompt: candidate.prompt,
-    options: candidate.options,
-    correctAnswers: candidate.correctAnswers,
+    ...(Array.isArray(candidate.options) ? { options: candidate.options as string[] } : {}),
+    ...(Array.isArray(candidate.correctAnswers) ? { correctAnswers: candidate.correctAnswers as string[] } : {}),
     competencyIds: candidate.competencyIds,
     estimatedMinutes: candidate.estimatedMinutes,
     required: candidate.required,
@@ -233,12 +235,18 @@ export const CoursePlatformService = {
 
   async getLearnerCourses(actor: AuthenticatedActor): Promise<LearnerCourseSummary[]> {
     const database = getServerFirestore();
-    const memberships = await database.collection("user-memberships").doc(actor.uid).collection("organizations").get();
+    const [memberships, profileSnapshot] = await Promise.all([
+      database.collection("user-memberships").doc(actor.uid).collection("organizations").get(),
+      database.collection("learner-profiles").doc(actor.uid).get(),
+    ]);
+    const recommendedCourseId = profileSnapshot.exists
+      ? (profileSnapshot.data()?.onboarding as { recommendedCourseId?: unknown } | undefined)?.recommendedCourseId
+      : undefined;
     const organizationIds = memberships.docs.map((membership) => membership.id);
     const courses = (await Promise.all(organizationIds.map(async (orgId) => {
       const snapshots = await database.collection("courses").where("orgId", "==", orgId).get();
       return snapshots.docs.map((snapshot) => asCourse(snapshot.data())).filter((course) => course.status === "published");
-    }))).flat();
+    }))).flat().filter((course) => course.orgId !== "lurexa-self-paced" || typeof recommendedCourseId !== "string" || course.id === recommendedCourseId);
 
     return Promise.all(courses.map(async (course) => {
       const lessons = await getCourseLessons(course);
@@ -309,9 +317,21 @@ export const CoursePlatformService = {
   async completeLesson(actor: AuthenticatedActor, courseId: string, lessonId: string, timeSpentSeconds: number): Promise<StudentProgress> {
     const course = await getCourseOrThrow(courseId);
     const { lesson } = await this.getLesson(actor, courseId, lessonId);
+    const existing = await getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`).get();
+    const previous = existing.exists ? (existing.data() as StudentProgress) : null;
+    const requiredActivityIds = lesson.contentBlocks
+      .filter((block) => block.type === "interactive")
+      .flatMap((block) => {
+        const activity = block.data.activity;
+        return typeof activity === "object" && activity !== null && (activity as { required?: unknown }).required === true ? [block.id] : [];
+      });
+    const quizIds = lesson.contentBlocks.filter((block) => block.type === "quiz_embed").map((block) => block.id);
+    const submittedIds = new Set(previous?.attempts.map((attempt) => attempt.quizId) ?? []);
+    const missingIds = [...requiredActivityIds, ...quizIds].filter((id) => !submittedIds.has(id));
+    if (missingIds.length) throw new Error("Complete each required activity and the quick check before finishing this lesson.");
     const record: StudentProgress = {
       id: `${actor.uid}_${lessonId}`, studentId: actor.uid, lessonId, moduleId: lesson.moduleId, courseId,
-      completed: true, timeSpentSeconds: Math.max(0, Math.min(Math.round(timeSpentSeconds), 86_400)), attempts: [],
+      completed: true, timeSpentSeconds: Math.max(0, Math.min(Math.round(timeSpentSeconds), 86_400)), attempts: previous?.attempts ?? [],
       lastAccessedAt: new Date().toISOString(),
     };
     await getServerFirestore().collection("progress").doc(record.id).set({ ...record, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
@@ -395,6 +415,36 @@ export const CoursePlatformService = {
         competencyIds: activity.competencyIds,
         activityType: activity.type,
       },
+      observedAt: completedAt,
+      idempotencyKey: `${actor.uid}:${lessonId}:${activityId}:${attempt.attemptNumber}`,
+    });
+    return { attempt, explanation: activity.explanation ?? null };
+  },
+
+  async submitShortResponse(actor: AuthenticatedActor, courseId: string, lessonId: string, activityId: string, response: string): Promise<{ attempt: StudentProgress["attempts"][number]; explanation: string | null }> {
+    const course = await getCourseOrThrow(courseId);
+    if (course.status !== "published") throw new Error("This course is not published.");
+    await requireMembership(actor.uid, course.orgId);
+    const entry = (await getCourseLessons(course)).find(({ lesson }) => lesson.id === lessonId);
+    if (!entry) throw new Error("Lesson not found in this course.");
+    const block = entry.lesson.contentBlocks.find((item) => item.id === activityId && item.type === "interactive");
+    const activity = block ? readLearningActivityData(block.data) : null;
+    const submitted = response.trim();
+    if (!activity || activity.type !== "short_response") throw new Error("Writing activity not found.");
+    if (submitted.length < 8 || submitted.length > 1_000) throw new Error("Write a short response between 8 and 1,000 characters.");
+    const completedAt = new Date().toISOString();
+    const reference = getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`);
+    const existing = await reference.get();
+    const previous = existing.exists ? (existing.data() as StudentProgress) : null;
+    const previousAttempts = previous?.attempts.filter((item) => item.quizId === activityId) ?? [];
+    const attempt = { quizId: activityId, score: 0, maxScore: 0, passed: true, completedAt, activityType: activity.type, attemptNumber: previousAttempts.length + 1, firstAttempt: previousAttempts.length === 0, competencyIds: activity.competencyIds };
+    await reference.set({ id: reference.id, studentId: actor.uid, lessonId, moduleId: entry.lesson.moduleId, courseId, completed: previous?.completed ?? false, timeSpentSeconds: previous?.timeSpentSeconds ?? 0, attempts: [...(previous?.attempts ?? []), attempt], bestScore: previous?.bestScore ?? 0, lastAccessedAt: completedAt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await appendPlatformEvidence({
+      learnerId: actor.uid,
+      organizationId: course.orgId,
+      type: "activity_result",
+      source: { courseId, lessonId, activityId },
+      payload: { response: submitted, submitted: true, firstAttempt: attempt.firstAttempt, attemptNumber: attempt.attemptNumber, competencyIds: activity.competencyIds, activityType: activity.type },
       observedAt: completedAt,
       idempotencyKey: `${actor.uid}:${lessonId}:${activityId}:${attempt.attemptNumber}`,
     });

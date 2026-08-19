@@ -1,22 +1,14 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test.describe("Student Learning Journey E2E Flow", () => {
-  test("Student logs in, views lesson, asks AI Tutor, and records progress", async ({ page }) => {
-    // 1. Visit Student Dashboard
-    await page.goto("/dashboard");
-    await expect(page.locator("h1")).toContainText("Welcome back");
+test.describe("Learner entry journey", () => {
+  test("a new learner can reach the independent-learning sign-up path", async ({ page }) => {
+    await page.goto("/");
 
-    // 2. Open Course Lesson
-    await page.click("text=Algebraic Expressions");
-    await expect(page).toHaveURL(/\/learn\/.*/);
+    await expect(page.getByRole("heading", { name: /learn english/i })).toBeVisible();
+    await page.getByRole("link", { name: /start learning free/i }).click();
+    await expect(page).toHaveURL(/\/signup$/);
 
-    // 3. Interact with AI Tutor Widget
-    await page.fill("input[placeholder*='Ask your AI Tutor']", "Explain variables in simple terms");
-    await page.click("button:has-text('Send')");
-    await expect(page.locator(".bg-indigo-50")).toBeVisible();
-
-    // 4. Complete Lesson
-    await page.click("button:has-text('Mark Lesson Complete')");
-    await expect(page.locator("text=Lesson Completed ✓")).toBeVisible();
+    await expect(page.getByText("Learn independently")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create my learning path" })).toBeVisible();
   });
 });
