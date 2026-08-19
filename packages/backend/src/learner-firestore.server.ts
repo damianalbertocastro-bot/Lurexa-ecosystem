@@ -100,7 +100,7 @@ export class FirestoreLearningEvidenceRepository {
     return evidence;
   }
 
-  async listByLearner(learnerId: string): Promise<LearningEvidence[]> {
+  async listByLearner(learnerId: string, organizationId?: string): Promise<LearningEvidence[]> {
     const snapshots = await getServerFirestore()
       .collection("learning-evidence")
       .where("learnerId", "==", learnerId)
@@ -109,6 +109,7 @@ export class FirestoreLearningEvidenceRepository {
     return snapshots.docs
       .map((snapshot) => normalizeEvidenceDocument(snapshot.id, snapshot.data()))
       .filter((evidence): evidence is LearningEvidence => evidence !== null)
+      .filter((evidence) => !organizationId || evidence.organizationId === organizationId)
       .sort((first, second) => first.observedAt.localeCompare(second.observedAt));
   }
 }
@@ -120,7 +121,7 @@ export class FirestoreLearnerInsightRepository {
     return insight;
   }
 
-  async listActiveByLearner(learnerId: string): Promise<LearnerInsight[]> {
+  async listActiveByLearner(learnerId: string, organizationId?: string): Promise<LearnerInsight[]> {
     const snapshots = await getServerFirestore()
       .collection("learner-insights")
       .where("learnerId", "==", learnerId)
@@ -131,13 +132,14 @@ export class FirestoreLearnerInsightRepository {
       ...snapshot.data(),
       id: snapshot.id,
     }) as LearnerInsight);
+    const inScope = insights.filter((insight) => !organizationId || insight.organizationId === organizationId);
     const superseded = new Set(
-      insights
+      inScope
         .map((insight) => insight.validity?.supersedesInsightId)
         .filter((id): id is string => Boolean(id)),
     );
 
-    return insights
+    return inScope
       .filter((insight) => !superseded.has(insight.id))
       .filter((insight) => !insight.validity?.expiresAt || insight.validity.expiresAt > now)
       .sort((first, second) => first.generatedAt.localeCompare(second.generatedAt));
