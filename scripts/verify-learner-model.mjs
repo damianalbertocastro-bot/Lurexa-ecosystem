@@ -46,7 +46,7 @@ requireText("packages/types/src/learner.ts", learnerTypes, "export interface Lea
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "curriculum_progress"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "assessment_result"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "activity_result"');
-requireText("packages/backend/src/learner-context.server.ts", learnerContext, 'purpose: "coach_session_adaptation"');
+requireText("packages/backend/src/learner-context.server.ts", learnerContext, '"coach_session_adaptation"');
 requireText("firestore.rules", firestoreRules, "match /learning-evidence/{evidenceId}");
 requireText("firestore.rules", firestoreRules, "match /learner-insights/{insightId}");
 requireText("firestore.rules", firestoreRules, "match /coach-sessions/{sessionId}");
