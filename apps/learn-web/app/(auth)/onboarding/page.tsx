@@ -28,22 +28,28 @@ export default function OnboardingPage() {
   const [goal, setGoal] = useState<Goal>("daily_life");
   const [startingPoint, setStartingPoint] = useState<StartingPoint>("beginner");
   const [placementAnswers, setPlacementAnswers] = useState<PlacementAnswer[]>([]);
+  const [currentUser, setCurrentUser] = useState<unknown | null>(null);
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => AuthService.onUserChanged((user) => {
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
+    setCurrentUser(user);
     setReady(true);
-  }), [router]);
+  }), []);
 
   async function startLearning() {
     setSubmitting(true);
     setError("");
     try {
+      if (!currentUser) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("lurexa_onboarding_intent", JSON.stringify({ goal, placementAnswers }));
+        }
+        router.push("/signup");
+        return;
+      }
+
       const response = await authenticatedFetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
