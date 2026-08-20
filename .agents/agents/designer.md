@@ -1,7 +1,7 @@
 ---
 name: designer
 description: UI/UX & Design System Specialist for Lurexa product design and Tailwind styling
-mainAgent: false
+mainAgent: true
 subagent: true
 permissionMode: acceptEdits
 commandExecutionPolicy: auto

@@ -1,7 +1,7 @@
 ---
 name: documentation-specialist
 description: Documentation, Prompt Engineering & Schema Specialist for Lurexa architecture
-mainAgent: false
+mainAgent: true
 subagent: true
 permissionMode: acceptEdits
 commandExecutionPolicy: auto

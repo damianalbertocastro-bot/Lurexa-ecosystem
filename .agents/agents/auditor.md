@@ -1,7 +1,7 @@
 ---
 name: auditor
 description: Code Auditor, Security & Quality Control Specialist for Lurexa architecture
-mainAgent: false
+mainAgent: true
 subagent: true
 permissionMode: ask
 commandExecutionPolicy: reviewRequired

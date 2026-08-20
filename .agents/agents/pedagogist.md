@@ -1,10 +1,10 @@
 ---
 name: pedagogist
 description: Pedagogist & Educational Architecture Specialist for Lurexa learning workflows
-mainAgent: false
+mainAgent: true   
 subagent: true
-permissionMode: readOnly
-commandExecutionPolicy: deny
+permissionMode: acceptEdits
+commandExecutionPolicy: auto
 ---
 
 # Pedagogist & Educational Architecture Persona
