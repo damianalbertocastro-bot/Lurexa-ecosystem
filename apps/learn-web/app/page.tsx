@@ -17,7 +17,7 @@ export default function HomePage() {
           <div className="flex items-center gap-1 sm:gap-3">
             <a href={ecosystemUrl} className="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm">Lurexa ecosystem</a>
             <Link href="/login" className="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm">Sign in</Link>
-            <Link href="/signup" className="rounded-full bg-white px-3.5 py-2 text-xs font-bold text-slate-950 transition hover:bg-sky-100 sm:px-4 sm:text-sm">Start free</Link>
+            <Link href="/onboarding" className="rounded-full bg-sky-400 px-3.5 py-2 text-xs font-bold text-slate-950 transition hover:bg-sky-300 sm:px-4 sm:text-sm">Start free</Link>
           </div>
         </nav>
         <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-20 pt-12 sm:px-8 lg:grid-cols-[1.1fr_.9fr] lg:pb-28 lg:pt-20">
@@ -27,7 +27,7 @@ export default function HomePage() {
             <h1 className="mt-6 max-w-3xl text-5xl font-bold leading-[.95] tracking-tight sm:text-7xl">Learn English.<br /><span className="text-sky-300">Feel ready to use it.</span></h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-slate-300">Lurexa Learn turns meaningful practice into a clear, personal path—so every lesson moves confidence forward.</p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="/signup" className="rounded-xl bg-indigo-500 px-6 py-3 text-center font-bold shadow-lg shadow-indigo-900/50 transition hover:bg-indigo-400">Start learning free</Link>
+              <Link href="/onboarding" className="rounded-xl bg-sky-400 px-6 py-3 text-center font-bold text-slate-950 shadow-lg shadow-sky-900/40 transition hover:bg-sky-300">Start learning free</Link>
               <Link href="/signup?role=educator" className="rounded-xl border border-white/20 px-6 py-3 text-center font-bold text-slate-100 transition hover:bg-white/10">I&apos;m an educator</Link>
             </div>
             <p className="mt-5 text-sm text-slate-400">No credit card. Start with the English you want to use.</p>
