@@ -4,6 +4,16 @@ import React, { useState } from "react";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
+
+// MessageBubble component for chat messages
+function MessageBubble({ sender, text }: { sender: "coach" | "learner"; text: string }) {
+  const isCoach = sender === "coach";
+  return (
+    <div className={`rounded-lg p-3 text-sm ${isCoach ? "border border-indigo-100 bg-indigo-50 text-indigo-900" : "border border-slate-200 bg-white text-slate-800"}`}>
+      <strong>{isCoach ? "🤖 Coach" : "🗣️ You"}:</strong> {text}
+    </div>
+  );
+}
 import type { CoachSession, CoachSessionStartResult, LearnerContext } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
@@ -121,16 +131,7 @@ export default function LurexaCoachPage() {
                 <div className="space-y-2 pt-2">
                   <h4 className="text-xs font-bold uppercase text-slate-500">Session transcript</h4>
                   {session.transcript.map((message, index) => (
-                    <div
-                      key={`${message.timestamp}-${index}`}
-                      className={`rounded-lg p-3 text-xs ${
-                        message.sender === "coach"
-                          ? "border border-indigo-100 bg-indigo-50 text-indigo-900"
-                          : "border border-slate-200 bg-white text-slate-800"
-                      }`}
-                    >
-                      <strong>{message.sender === "coach" ? "🤖 Coach" : "🗣️ You"}:</strong> {message.text}
-                    </div>
+                    <MessageBubble key={`${message.timestamp}-${index}`} sender={message.sender as "coach" | "learner"} text={message.text} />
                   ))}
                 </div>
               </div>
