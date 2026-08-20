@@ -1,5 +1,6 @@
 'use client';
 import React from "react";
+import Link from "next/link";
 import { ConversationWindow } from "../../components/ConversationWindow";
 // Sign‑out handled locally; remove next‑auth import
 
@@ -23,9 +24,9 @@ export default function ChatPage({ session }: { session?: any }) {
       <ConversationWindow />
       {/* Action buttons */}
       <div className="mt-4 flex gap-4">
-        <button className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
-          Create Course
-        </button>
+          <button type="button" className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700" aria-label="Create a new course">
+            Create Course
+          </button>
         <button
           onClick={() => console.log("Sign out clicked")}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -36,17 +37,14 @@ export default function ChatPage({ session }: { session?: any }) {
       {/* Related Section */}
       <section className="mt-8 w-full border-t pt-4">
         <h3 className="mb-2 text-md font-medium text-gray-600">Related</h3>
-        <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
           {/* Lurexa Teach logo placeholder */}
           <img src="/assets/lurexa-teach-logo.svg" alt="Lurexa Teach" className="h-12 w-12" />
           {/* Main Lurexa logo button */}
-          <a
-            href="https://lurexa.com"
-            className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
+          <Link href="https://lurexa.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" aria-label="Visit Lurexa ecosystem">
             <img src="/assets/lurexa-logo.svg" alt="Lurexa" className="h-6 w-6" />
             <span>Lurexa Ecosystem</span>
-          </a>
+          </Link>
         </div>
       </section>
     </main>

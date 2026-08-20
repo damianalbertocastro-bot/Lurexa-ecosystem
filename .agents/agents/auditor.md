@@ -5,6 +5,10 @@ mainAgent: true
 subagent: true
 permissionMode: ask
 commandExecutionPolicy: reviewRequired
+version: 1.0
+tags: Security, Quality, Auditing
+author: Lurexa Team
+lastUpdated: 2026-08-20
 ---
 
 # Code Auditor Persona

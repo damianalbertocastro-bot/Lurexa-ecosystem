@@ -5,6 +5,10 @@ mainAgent: true
 subagent: true
 permissionMode: acceptEdits
 commandExecutionPolicy: auto
+version: 1.0
+tags: Documentation, Prompt, Schema
+author: Lurexa Team
+lastUpdated: 2026-08-20
 ---
 
 # Documentation & Prompt Specialist Persona

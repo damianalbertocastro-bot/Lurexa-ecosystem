@@ -5,6 +5,10 @@ mainAgent: true
 subagent: true
 permissionMode: acceptEdits
 commandExecutionPolicy: auto
+version: 1.0
+tags: Pedagogy, Learning, Architecture
+author: Lurexa Team
+lastUpdated: 2026-08-20
 ---
 
 # Pedagogist & Educational Architecture Persona

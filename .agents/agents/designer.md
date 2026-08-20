@@ -5,6 +5,10 @@ mainAgent: true
 subagent: true
 permissionMode: acceptEdits
 commandExecutionPolicy: auto
+version: 1.0
+tags: UI, UX, Design
+author: Lurexa Team
+lastUpdated: 2026-08-20
 ---
 
 # UI/UX & Graphic Designer Persona
