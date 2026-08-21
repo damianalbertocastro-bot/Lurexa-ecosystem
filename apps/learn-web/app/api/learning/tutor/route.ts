@@ -20,8 +20,6 @@ export async function POST(request: Request): Promise<Response> {
       || typeof payload.activityId !== "string"
       || typeof payload.learnerMessage !== "string"
       || !Array.isArray(payload.transcript)
-      || typeof payload.capability !== "object"
-      || payload.capability === null
     ) {
       throw new Error("Tutor request is incomplete.");
     }
@@ -29,7 +27,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(await LearnTutorService.respond(actor, payload as LearnTutorTurnRequest));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to continue the tutor scenario.";
-    const status = message === "Authentication is required." ? 401 : 400;
+    const status = message === "Authentication is required." ? 401 : message.toLowerCase().includes("not found") ? 404 : 400;
     return Response.json({ error: message }, { status });
   }
 }
