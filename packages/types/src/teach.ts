@@ -17,6 +17,7 @@ export interface EducatorProfile {
   displayName: string;
   headline?: string;
   cefrLevel?: TeachCefrLevel;
+  verifiedCefrLevel?: TeachCefrLevel;
   targetCefrLevel?: TeachCefrLevel;
   teachingExperienceYears?: number;
   interests: string[];
