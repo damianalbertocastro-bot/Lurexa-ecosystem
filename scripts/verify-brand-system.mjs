@@ -8,6 +8,16 @@ const fail = (message) => failures.push(message);
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
 const exists = (relative) => fs.existsSync(path.join(root, relative));
 
+function walk(relativeDir) {
+  const absolute = path.join(root, relativeDir);
+  if (!fs.existsSync(absolute)) return [];
+  return fs.readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
+    const relative = path.join(relativeDir, entry.name);
+    if (entry.isDirectory()) return walk(relative);
+    return relative;
+  });
+}
+
 const currentProducts = ["learn", "coach", "teach", "admin", "insight", "studio"];
 const currentMarks = currentProducts.map((id) => `packages/ui/brand/marks/lurexa-${id}.svg`);
 const layerMarks = ["packages/ui/brand/marks/lurexa-core.svg", "packages/ui/brand/marks/lurexa-mind.svg"];
@@ -21,7 +31,8 @@ if (failures.length === 0) pass("canonical current, layer, surface, and Communit
 
 const registry = read("packages/config/src/product-registry.ts");
 for (const id of currentProducts) {
-  if (!registry.includes(`id: "${id}"`) || !registry.includes(`name: "Lurexa ${id[0].toUpperCase()}${id.slice(1)}"`)) {
+  const displayName = id[0].toUpperCase() + id.slice(1);
+  if (!registry.includes(`id: "${id}"`) || !registry.includes(`name: "Lurexa ${displayName}"`)) {
     fail(`Current product registry entry is missing or malformed: ${id}`);
   }
 }
@@ -43,6 +54,9 @@ const requiredUrlVariables = [
   "NEXT_PUBLIC_LUREXA_STUDIO_URL",
   "NEXT_PUBLIC_LUREXA_DOCS_URL",
 ];
+const reservedFutureVariables = ["NEXT_PUBLIC_LUREXA_COMMUNITY_URL"];
+const allowedUrlVariables = new Set([...requiredUrlVariables, ...reservedFutureVariables]);
+
 for (const variable of requiredUrlVariables) {
   if (!urlContract.includes(variable)) fail(`URL contract missing ${variable}`);
 }
@@ -50,6 +64,19 @@ if (!urlContract.includes('community: "NEXT_PUBLIC_LUREXA_COMMUNITY_URL"')) {
   fail("Reserved Community URL variable is not documented in the typed contract");
 } else {
   pass("cross-product public URL names are centralized");
+}
+
+const sourceFiles = walk("apps").filter((file) => /\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(file));
+for (const file of sourceFiles) {
+  const content = read(file);
+  const matches = content.match(/NEXT_PUBLIC_LUREXA_[A-Z_]+/g) ?? [];
+  for (const variable of matches) {
+    if (!allowedUrlVariables.has(variable)) fail(`${file} uses undocumented public URL variable ${variable}`);
+    if (reservedFutureVariables.includes(variable)) fail(`${file} activates reserved future URL variable ${variable}`);
+  }
+}
+if (!failures.some((item) => item.includes("undocumented public URL") || item.includes("reserved future URL"))) {
+  pass("app URL consumers use only documented active variables");
 }
 
 const shellExpectations = [
@@ -69,6 +96,21 @@ for (const [file, expected] of shellExpectations) {
 }
 if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web shells expose canonical product/company metadata");
 
+const relatedExperiences = read("packages/ui/src/RelatedExperiences.tsx");
+if (relatedExperiences.includes('| "community"') || relatedExperiences.includes('kind === "community"')) {
+  fail("RelatedExperiences uses ambiguous community identity; use teach-community until Lurexa Community activates");
+} else if (!relatedExperiences.includes('"teach-community"')) {
+  fail("RelatedExperiences is missing explicit Teach Community identity");
+} else {
+  pass("Teach Community is visually distinct from future Lurexa Community");
+}
+
+for (const file of ["apps/mobile/app/(student)/learn.tsx", "apps/mobile/app/(student)/tutor.tsx"]) {
+  const content = read(file);
+  if (!content.includes("Lurexa") || !content.includes("Learn")) fail(`${file} does not expose Lurexa Learn identity`);
+}
+if (!failures.some((item) => item.includes("apps/mobile"))) pass("mobile learner surfaces expose Lurexa Learn identity");
+
 const deployment = read("deployment/products.json");
 if (/community/i.test(deployment)) fail("Community must not appear in current deployment/products.json before activation");
 else pass("Community is absent from active deployment topology");
@@ -79,6 +121,9 @@ if (webPage.includes('"community"') || webPage.includes("Lurexa Community")) {
 } else {
   pass("Community is absent from current ecosystem product navigation");
 }
+
+if (!exists("apps/docs/app/brand/page.tsx")) fail("Missing local brand visual QA route at apps/docs/app/brand/page.tsx");
+else pass("local Docs brand visual QA route exists");
 
 if (failures.length) {
   console.error("\nBrand-system verification failed:");
