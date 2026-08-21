@@ -1,0 +1,65 @@
+name: Reusable Product Check
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        description: pnpm workspace/package selector to validate
+        required: true
+        type: string
+      optional:
+        description: Skip cleanly when the workspace does not exist on this branch yet
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve workspace
+        id: workspace
+        shell: bash
+        run: |
+          if pnpm --filter "${{ inputs.workspace }}" exec pwd >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "${{ inputs.optional }}" = "true" ]; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Optional workspace '${{ inputs.workspace }}' is not present on this branch; skipping."
+            exit 0
+          fi
+
+          echo "Required workspace '${{ inputs.workspace }}' was not found." >&2
+          exit 1
+
+      - name: Lint
+        if: steps.workspace.outputs.exists == 'true'
+        run: pnpm --filter "${{ inputs.workspace }}" lint
+
+      - name: Type check
+        if: steps.workspace.outputs.exists == 'true'
+        run: pnpm --filter "${{ inputs.workspace }}" check-types
+
+      - name: Production build
+        if: steps.workspace.outputs.exists == 'true'
+        run: pnpm --filter "${{ inputs.workspace }}" build
