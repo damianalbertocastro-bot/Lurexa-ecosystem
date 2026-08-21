@@ -49,6 +49,10 @@ service cloud.firestore {
         && invitation.expiresAtMillis > request.time.toMillis();
     }
 
+    function ownsTeachRecord(data) {
+      return isAuthenticated() && data.userId == request.auth.uid;
+    }
+
     match /users/{userId} {
       allow read, write: if isUser(userId);
     }
@@ -78,8 +82,6 @@ service cloud.firestore {
       }
     }
 
-    // A user-scoped index supports login and dashboard routing without exposing
-    // organization membership records to other users.
     match /user-memberships/{userId}/organizations/{orgId} {
       allow get, list: if isUser(userId);
       allow create: if isUser(userId)
@@ -104,9 +106,6 @@ service cloud.firestore {
       allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin');
     }
 
-    // Progress is an authoritative Core record. Authenticated learners may read
-    // their own records and organization managers may read records for courses
-    // they manage, but all writes must go through trusted server-side Core APIs.
     match /progress/{progressId} {
       allow read: if isAuthenticated()
         && (
@@ -116,9 +115,6 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Learner Model data is intentionally server-only. Product clients must
-    // use authorized Core service boundaries rather than reading or mutating
-    // evidence and interpreted learner state directly.
     match /learning-evidence/{evidenceId} {
       allow read, write: if false;
     }
@@ -127,10 +123,82 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Coach sessions can contain learning context and future speaking evidence.
-    // They are created/read through authenticated server APIs, not direct client SDK access.
     match /coach-sessions/{sessionId} {
       allow read, write: if false;
+    }
+
+    // Lurexa Teach: educator-owned profile and activity records.
+    match /educatorProfiles/{userId} {
+      allow read: if isUser(userId);
+      allow create, update: if isUser(userId)
+        && request.resource.data.userId == userId;
+      allow delete: if false;
+    }
+
+    // Published professional learning is readable by authenticated educators.
+    // Course authoring remains trusted/server-only for the MVP.
+    match /teachCourses/{courseId} {
+      allow read: if isAuthenticated() && resource.data.published == true;
+      allow write: if false;
+    }
+
+    match /teachEnrollments/{enrollmentId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create: if ownsTeachRecord(request.resource.data);
+      allow update: if ownsTeachRecord(resource.data)
+        && ownsTeachRecord(request.resource.data)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.courseId == resource.data.courseId;
+      allow delete: if false;
+    }
+
+    match /teachCommunityPosts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if ownsTeachRecord(request.resource.data);
+      allow update: if ownsTeachRecord(resource.data)
+        && ownsTeachRecord(request.resource.data)
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if ownsTeachRecord(resource.data);
+    }
+
+    // Educators may draft and submit their own evidence. Verification fields are
+    // protected from direct client writes and must be changed by trusted Core APIs.
+    match /teachEvidence/{evidenceId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create: if ownsTeachRecord(request.resource.data)
+        && request.resource.data.status in ["draft", "submitted"]
+        && !request.resource.data.keys().hasAny(["verifiedAt", "reviewerNote"]);
+      allow update: if ownsTeachRecord(resource.data)
+        && ownsTeachRecord(request.resource.data)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "title", "description", "type", "competencyIds", "courseId", "moduleId",
+          "resourceUrl", "status", "updatedAt"
+        ])
+        && request.resource.data.status in ["draft", "submitted"];
+      allow delete: if false;
+    }
+
+    match /teachCredentialDefinitions/{credentialId} {
+      allow read: if isAuthenticated() && resource.data.active == true;
+      allow write: if false;
+    }
+
+    // Credential awards are authoritative Core records.
+    match /teachCredentialAwards/{awardId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow write: if false;
+    }
+
+    // Recommendations are advisory Mind outputs but persisted as trusted records.
+    // Educators may only dismiss/complete an existing recommendation.
+    match /teachRecommendations/{recommendationId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create, delete: if false;
+      allow update: if ownsTeachRecord(resource.data)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"])
+        && request.resource.data.status in ["active", "dismissed", "completed"];
     }
   }
 }
