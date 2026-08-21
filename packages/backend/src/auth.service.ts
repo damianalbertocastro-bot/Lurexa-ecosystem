@@ -7,6 +7,8 @@ import {
 } from "firebase/auth";
 import { auth } from "./firebase";
 
+export type AuthenticatedUser = FirebaseUser;
+
 export interface CustomUserClaims {
   orgId?: string;
   role?: "student" | "teacher" | "admin" | "super_admin";

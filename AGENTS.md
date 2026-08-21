@@ -202,3 +202,29 @@ For the MVP, prioritize a complete A1 vertical slice that proves placement/recom
 ## Source-of-truth rule
 
 When instructions conflict, prefer the newest explicit product-owner decision, then `Docs/00-Lurexa-Bible.md`, then detailed `Docs/Architecture/*` documents, then applicable `Docs/Curriculum/*` pedagogical documents, then `ROADMAP.md`, then AI helper files. Mark old assumptions as superseded instead of blending them.
+
+## Learn / Teach product-boundary guardrail
+
+This rule is authoritative for repository work. Read `Docs/Product/LUREXA_LEARN_TEACH_BOUNDARY.md` and `Docs/Architecture/LUREXA_TEACH_MVP_ARCHITECTURE.md` before changing teacher-facing product architecture.
+
+**Lurexa Learn owns:**
+
+- student dashboard;
+- teacher dashboard;
+- course/lesson experience;
+- learning management;
+- classes, assignments, learner progress and instructional delivery.
+
+**Lurexa Teach owns:**
+
+- teacher development;
+- teacher CEFR/proficiency growth;
+- professional courses;
+- training/certification;
+- teacher community;
+- peer collaboration;
+- professional evidence and educator credentials.
+
+Never brand the Lurexa Learn teacher dashboard as Lurexa Teach. `apps/teacher-portal` is a role-specific operational workspace inside Lurexa Learn. `apps/teach-web` is the independent Lurexa Teach product.
+
+A teacher may use both with one Lurexa identity. Core owns trusted identity/persistence and Mind interprets authorized evidence. Do not solve the product boundary by creating duplicate teacher identities or duplicated authoritative profiles.

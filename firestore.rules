@@ -2,135 +2,85 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() {
-      return request.auth != null;
-    }
+    function isAuthenticated() { return request.auth != null; }
+    function isUser(userId) { return isAuthenticated() && request.auth.uid == userId; }
+    function memberPath(orgId, userId) { return /databases/$(database)/documents/organizations/$(orgId)/members/$(userId); }
+    function coursePath(courseId) { return /databases/$(database)/documents/courses/$(courseId); }
+    function courseOrgId(courseId) { return get(coursePath(courseId)).data.orgId; }
+    function isOrganizationOwner(orgId) { return isAuthenticated() && get(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid && get(memberPath(orgId, request.auth.uid)).data.role == "owner"; }
+    function isOrganizationMember(orgId) { return isAuthenticated() && exists(memberPath(orgId, request.auth.uid)); }
+    function isOrganizationManager(orgId) { return isOrganizationMember(orgId) && get(memberPath(orgId, request.auth.uid)).data.role in ["owner", "admin", "teacher"]; }
+    function isInvitationOwner(invitation) { return isAuthenticated() && invitation.keys().hasAll(["email", "expiresAtMillis", "usedAt"]) && invitation.email == request.auth.token.email; }
+    function isInvitationRecipient(invitation) { return isInvitationOwner(invitation) && invitation.usedAt == null && invitation.expiresAtMillis > request.time.toMillis(); }
+    function ownsTeachRecord(data) { return isAuthenticated() && data.userId == request.auth.uid; }
 
-    function isUser(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    function memberPath(orgId, userId) {
-      return /databases/$(database)/documents/organizations/$(orgId)/members/$(userId);
-    }
-
-    function coursePath(courseId) {
-      return /databases/$(database)/documents/courses/$(courseId);
-    }
-
-    function courseOrgId(courseId) {
-      return get(coursePath(courseId)).data.orgId;
-    }
-
-    function isOrganizationOwner(orgId) {
-      return isAuthenticated()
-        && get(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid
-        && get(memberPath(orgId, request.auth.uid)).data.role == "owner";
-    }
-
-    function isOrganizationMember(orgId) {
-      return isAuthenticated() && exists(memberPath(orgId, request.auth.uid));
-    }
-
-    function isOrganizationManager(orgId) {
-      return isOrganizationMember(orgId)
-        && get(memberPath(orgId, request.auth.uid)).data.role in ["owner", "admin", "teacher"];
-    }
-
-    function isInvitationOwner(invitation) {
-      return isAuthenticated()
-        && invitation.keys().hasAll(["email", "expiresAtMillis", "usedAt"])
-        && invitation.email == request.auth.token.email;
-    }
-
-    function isInvitationRecipient(invitation) {
-      return isInvitationOwner(invitation)
-        && invitation.usedAt == null
-        && invitation.expiresAtMillis > request.time.toMillis();
-    }
-
-    match /users/{userId} {
-      allow read, write: if isUser(userId);
-    }
-
+    match /users/{userId} { allow read, write: if isUser(userId); }
     match /organizations/{orgId} {
       allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
       allow get: if isOrganizationMember(orgId) || resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isOrganizationOwner(orgId)
-        && request.resource.data.ownerId == resource.data.ownerId;
-
+      allow update, delete: if isOrganizationOwner(orgId) && request.resource.data.ownerId == resource.data.ownerId;
       match /members/{userId} {
         allow get: if isUser(userId) || isOrganizationOwner(orgId);
-        allow create: if isUser(userId)
-          && request.resource.data.userId == userId
-          && request.resource.data.orgId == orgId
-          && (
-            (request.resource.data.role == "owner"
-              && getAfter(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid)
-            || (
-              request.resource.data.invitationId is string
-              && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.orgId == orgId
-              && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.role == request.resource.data.role
-              && isInvitationRecipient(get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data)
-            )
-          );
+        allow create: if isUser(userId) && request.resource.data.userId == userId && request.resource.data.orgId == orgId && ((request.resource.data.role == "owner" && getAfter(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid) || (request.resource.data.invitationId is string && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.orgId == orgId && get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.role == request.resource.data.role && isInvitationRecipient(get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data)));
         allow update, delete: if isOrganizationOwner(orgId);
       }
     }
-
-    // A user-scoped index supports login and dashboard routing without exposing
-    // organization membership records to other users.
     match /user-memberships/{userId}/organizations/{orgId} {
       allow get, list: if isUser(userId);
-      allow create: if isUser(userId)
-        && request.resource.data.userId == userId
-        && request.resource.data.orgId == orgId
-        && getAfter(memberPath(orgId, userId)).data.userId == userId;
+      allow create: if isUser(userId) && request.resource.data.userId == userId && request.resource.data.orgId == orgId && getAfter(memberPath(orgId, userId)).data.userId == userId;
       allow update, delete: if false;
     }
-
     match /invitations/{invitationId} {
       allow get: if isInvitationOwner(resource.data) || isOrganizationManager(resource.data.orgId);
       allow list: if isOrganizationManager(resource.data.orgId);
       allow create: if isOrganizationManager(request.resource.data.orgId);
-      allow update: if isInvitationRecipient(resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"])
-        && request.resource.data.usedAt != null;
+      allow update: if isInvitationRecipient(resource.data) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"]) && request.resource.data.usedAt != null;
       allow delete: if isOrganizationManager(resource.data.orgId);
     }
+    match /courses/{courseId} { allow read: if isAuthenticated(); allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin'); }
+    match /progress/{progressId} { allow read: if isAuthenticated() && (request.auth.uid == resource.data.studentId || isOrganizationManager(courseOrgId(resource.data.courseId))); allow write: if false; }
+    match /learning-evidence/{evidenceId} { allow read, write: if false; }
+    match /learner-insights/{insightId} { allow read, write: if false; }
+    match /coach-sessions/{sessionId} { allow read, write: if false; }
 
-    match /courses/{courseId} {
+    match /educatorProfiles/{userId} {
+      allow read: if isUser(userId);
+      allow create: if isUser(userId) && request.resource.data.userId == userId && !request.resource.data.keys().hasAny(["verifiedCefrLevel", "verifiedCompetencies"]);
+      allow update: if isUser(userId) && request.resource.data.userId == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["verifiedCefrLevel", "verifiedCompetencies"]);
+      allow delete: if false;
+    }
+    match /teachCourses/{courseId} { allow read: if isAuthenticated() && resource.data.published == true; allow write: if false; }
+    match /teachEnrollments/{enrollmentId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create: if ownsTeachRecord(request.resource.data);
+      allow update: if ownsTeachRecord(resource.data) && ownsTeachRecord(request.resource.data) && request.resource.data.userId == resource.data.userId && request.resource.data.courseId == resource.data.courseId;
+      allow delete: if false;
+    }
+    match /teachCommunityPosts/{postId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin');
+      allow create: if ownsTeachRecord(request.resource.data);
+      allow update: if ownsTeachRecord(resource.data) && ownsTeachRecord(request.resource.data) && request.resource.data.userId == resource.data.userId;
+      allow delete: if ownsTeachRecord(resource.data);
     }
-
-    // Progress is an authoritative Core record. Authenticated learners may read
-    // their own records and organization managers may read records for courses
-    // they manage, but all writes must go through trusted server-side Core APIs.
-    match /progress/{progressId} {
-      allow read: if isAuthenticated()
-        && (
-          request.auth.uid == resource.data.studentId
-          || isOrganizationManager(courseOrgId(resource.data.courseId))
-        );
-      allow write: if false;
+    match /teachEvidence/{evidenceId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create: if ownsTeachRecord(request.resource.data) && request.resource.data.status in ["draft", "submitted"] && !request.resource.data.keys().hasAny(["verifiedAt", "reviewedAt", "reviewerId", "reviewerNote"]);
+      allow update: if ownsTeachRecord(resource.data) && ownsTeachRecord(request.resource.data) && request.resource.data.userId == resource.data.userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["title", "description", "type", "competencyIds", "courseId", "moduleId", "resourceUrl", "status", "updatedAt"]) && request.resource.data.status in ["draft", "submitted"];
+      allow delete: if false;
     }
-
-    // Learner Model data is intentionally server-only. Product clients must
-    // use authorized Core service boundaries rather than reading or mutating
-    // evidence and interpreted learner state directly.
-    match /learning-evidence/{evidenceId} {
-      allow read, write: if false;
+    match /teachAssessments/{assessmentId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create: if ownsTeachRecord(request.resource.data) && request.resource.data.status == "requested" && !request.resource.data.keys().hasAny(["assessorId", "startedAt", "completedAt"]);
+      allow update, delete: if false;
     }
-
-    match /learner-insights/{insightId} {
-      allow read, write: if false;
-    }
-
-    // Coach sessions can contain learning context and future speaking evidence.
-    // They are created/read through authenticated server APIs, not direct client SDK access.
-    match /coach-sessions/{sessionId} {
-      allow read, write: if false;
+    match /teachAssessmentResults/{assessmentId} { allow read: if ownsTeachRecord(resource.data); allow write: if false; }
+    match /teachCredentialDefinitions/{credentialId} { allow read: if isAuthenticated() && resource.data.active == true; allow write: if false; }
+    match /teachCredentialAwards/{awardId} { allow read: if ownsTeachRecord(resource.data); allow write: if false; }
+    match /teachPublicCredentials/{verificationCode} { allow read, write: if false; }
+    match /teachRecommendations/{recommendationId} {
+      allow read: if ownsTeachRecord(resource.data);
+      allow create, delete: if false;
+      allow update: if ownsTeachRecord(resource.data) && request.resource.data.userId == resource.data.userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"]) && request.resource.data.status in ["active", "dismissed", "completed"];
     }
   }
 }

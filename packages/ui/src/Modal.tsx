@@ -4,23 +4,32 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  ariaLabel?: string;
   children: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, ariaLabel, children }) => {
+  const titleId = React.useId();
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
-          {title && <h2 className="text-xl font-bold text-slate-900">{title}</h2>}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : ariaLabel ?? "Dialog"}
+        className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+      >
+        <div className="mb-4 flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+          {title && <h2 id={titleId} className="text-xl font-bold text-slate-900">{title}</h2>}
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 transition-colors hover:text-slate-600"
+            aria-label="Close dialog"
+            className="ml-auto grid min-h-11 min-w-11 place-items-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d5add] focus-visible:ring-offset-2 motion-reduce:transition-none"
             type="button"
           >
-            ✕
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
         <div>{children}</div>

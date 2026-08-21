@@ -11,6 +11,7 @@
   --learn-blue: #1d5add;
   --learn-cyan: #12cdd4;
   --learn-mint: #e4f8f2;
+  --focus-ring: #1d5add;
 }
 
 @theme inline {
@@ -20,6 +21,37 @@
   --font-mono: var(--font-geist-mono);
 }
 
-html { background: var(--learn-canvas); }
-body { min-height: 100vh; background: var(--learn-canvas); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
+html {
+  background: var(--learn-canvas);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--learn-canvas);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus-ring) 72%, white);
+  outline-offset: 3px;
+}
+
+:where(button, a) {
+  -webkit-tap-highlight-color: transparent;
+}
+
 ::selection { background: #dcd4ff; color: #071d67; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -20,3 +20,6 @@ export * from "./coach-linguistic-adapter.service";
 export * from "./coach-linguistic-pipeline.service";
 export * from "./linguistic-pattern-aggregator.service";
 export * from "./dominican-corpus-catalog.service";
+export * from "./teach.service";
+export * from "./teach-mind.service";
+export * from "./teach-credential";
