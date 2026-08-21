@@ -3,7 +3,7 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import {
   lurexaProducts,
   type LurexaProductId,
-} from "../../../packages/config/src/product-registry";
+} from "@lurexa/config/product-registry";
 import styles from "./page.module.css";
 
 type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
