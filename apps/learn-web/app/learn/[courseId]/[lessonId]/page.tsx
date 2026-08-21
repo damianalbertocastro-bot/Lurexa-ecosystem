@@ -1,10 +1,18 @@
 import { LessonRuntime } from "../../components/LessonRuntime";
 
-export default async function GenericLessonPage({
-  params,
-}: {
+type GenericLessonPageProps = {
   params: Promise<{ courseId: string; lessonId: string }>;
-}) {
-  const { courseId, lessonId } = await params;
-  return <LessonRuntime courseId={courseId} lessonId={lessonId} />;
+  searchParams: Promise<{ retrieval?: string | string[] }>;
+};
+
+export default async function GenericLessonPage({ params, searchParams }: GenericLessonPageProps) {
+  const [{ courseId, lessonId }, query] = await Promise.all([params, searchParams]);
+  const retrievalScheduleId = typeof query.retrieval === "string" ? query.retrieval : undefined;
+  return (
+    <LessonRuntime
+      courseId={courseId}
+      lessonId={lessonId}
+      retrievalScheduleId={retrievalScheduleId}
+    />
+  );
 }
