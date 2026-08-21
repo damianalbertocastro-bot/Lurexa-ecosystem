@@ -3,5 +3,6 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter teacher-portal build",
+  "ignoreCommand": "cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages teacher-portal --exit-code",
   "outputDirectory": ".next"
 }

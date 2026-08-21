@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lurexa.example/schemas/deployment-products.schema.json",
+  "title": "Lurexa deployment product manifest",
+  "type": "object",
+  "required": ["team", "repository", "productionBranch", "deployments", "futureProducts", "sharedLayers"],
+  "properties": {
+    "team": { "type": "string" },
+    "repository": { "type": "string" },
+    "productionBranch": { "type": "string" },
+    "principles": { "type": "object" },
+    "deployments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "product", "surface", "workspace", "rootDirectory", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "product": { "type": "string" },
+          "surface": { "type": "string" },
+          "workspace": { "type": "string" },
+          "rootDirectory": { "type": "string" },
+          "vercelProject": { "type": ["string", "null"] },
+          "status": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "futureProducts": { "type": "array" },
+    "sharedLayers": { "type": "array" }
+  },
+  "additionalProperties": false
+}
