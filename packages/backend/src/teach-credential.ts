@@ -33,7 +33,7 @@ export function evaluateTeachCredential(
     }
 
     if (requirement.type === "cefr-level") {
-      const current = profile?.cefrLevel ? cefrRank[profile.cefrLevel] : 0;
+      const current = profile?.verifiedCefrLevel ? cefrRank[profile.verifiedCefrLevel] : 0;
       const target = requirement.cefrLevel ? cefrRank[requirement.cefrLevel] : 0;
       return { requirementId: requirement.id, met: current >= target };
     }
