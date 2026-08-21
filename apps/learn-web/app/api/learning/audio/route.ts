@@ -6,17 +6,22 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    await CoursePlatformService.authenticate(request.headers.get("authorization"));
+    const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
     const body: unknown = await request.json();
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
       throw new Error("Invalid curriculum audio request.");
     }
-    const activityId = (body as { activityId?: unknown }).activityId;
-    if (typeof activityId !== "string" || !activityId) {
-      throw new Error("activityId is required.");
-    }
+    const payload = body as { courseId?: unknown; lessonId?: unknown; activityId?: unknown };
+    if (typeof payload.courseId !== "string" || !payload.courseId) throw new Error("courseId is required.");
+    if (typeof payload.lessonId !== "string" || !payload.lessonId) throw new Error("lessonId is required.");
+    if (typeof payload.activityId !== "string" || !payload.activityId) throw new Error("activityId is required.");
 
-    const audio = await LearnCurriculumAudioService.generate(activityId);
+    const audio = await LearnCurriculumAudioService.generate({
+      actor,
+      courseId: payload.courseId,
+      lessonId: payload.lessonId,
+      activityId: payload.activityId,
+    });
     return new Response(audio.bytes, {
       status: 200,
       headers: {
