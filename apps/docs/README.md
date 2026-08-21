@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Lurexa Docs Web
 
-## Getting Started
+`apps/docs` is the web experience over the Lurexa ecosystem documentation. The repository-level `Docs/` directory remains the only canonical documentation source.
 
-First, run the development server:
+## Core rule
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Do not copy canonical Markdown into `apps/docs` to make a web page. The web app discovers, indexes, renders, and searches `Docs/**/*.md` directly.
+
+When a canonical file changes, the website should reflect that change without maintaining a second body of documentation.
+
+## Documentation domains
+
+- Architecture
+- Product
+- Curriculum
+- Engineering
+- Governance
+- Design
+
+The site must not invent a competing hierarchy or silently reconcile conflicting source files. Source-of-truth precedence remains governed by `AGENTS.md`, `Docs/00-Lurexa-Bible.md`, explicit newer decisions, and the applicable detailed specifications.
+
+## Canonical content system
+
+`lib/docs-content.ts` locates the repository-level `Docs/` directory, recursively indexes Markdown files, creates stable URL slugs, extracts titles/excerpts/headings, powers full-text search, and resolves relative Markdown-to-Markdown links into Lurexa Docs routes.
+
+`app/docs/[...slug]/page.tsx` renders canonical documents.
+
+Example:
+
+```text
+Docs/Architecture/Learner Model Architecture.md
+        ↓
+/docs/architecture/learner-model-architecture
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`app/search/page.tsx` searches canonical titles, paths, and Markdown content. Search does not depend on a separately maintained index.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The Markdown presentation layer escapes raw HTML before rendering and supports headings/deep links, paragraphs, lists, blockquotes, fenced code, tables, inline emphasis/code, and links.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+## Deployment
 
-## Learn More
+`next.config.js` sets the repository as the output-file tracing root and includes `../../Docs/**/*.md` so canonical Markdown remains available in the deployed Next.js server bundle.
 
-To learn more about Next.js, take a look at the following resources:
+## Design direction
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Lurexa Docs is a first-class ecosystem experience and uses the shared Lurexa master mark, navy/violet/blue/cyan visual family, responsive navigation, accessible focus states, reduced-motion behavior, readable long-form typography, document table-of-contents navigation, and canonical source-path metadata.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Routes
 
-## Deploy on Vercel
+- `/` — documentation home and source-of-truth orientation
+- `/architecture`
+- `/product`
+- `/curriculum`
+- `/engineering`
+- `/governance`
+- `/design`
+- `/search?q=...` — full-text canonical search
+- `/docs/[...slug]` — canonical Markdown document renderer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Local development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+From repository root:
+
+```bash
+pnpm --filter docs dev
+```
+
+Before merge:
+
+```bash
+pnpm --filter docs check-types
+pnpm --filter docs lint
+pnpm --filter docs build
+```
+
+Repository CI uses a frozen pnpm lockfile. Never weaken that check to work around a stale workspace lock; regenerate and commit `pnpm-lock.yaml` with `pnpm install` when workspace dependencies change.
