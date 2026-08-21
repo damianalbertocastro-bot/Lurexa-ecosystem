@@ -3,7 +3,7 @@ import { DocsMark } from "./DocsMark";
 import { MasterMark } from "./MasterMark";
 import { ProductMark, type LurexaProduct } from "./ProductMark";
 
-export type RelatedExperienceKind = LurexaProduct | "docs" | "community" | "ecosystem";
+export type RelatedExperienceKind = LurexaProduct | "docs" | "teach-community" | "ecosystem";
 
 export type RelatedExperience = {
   kind: RelatedExperienceKind;
@@ -24,7 +24,7 @@ export interface RelatedExperiencesProps extends HTMLAttributes<HTMLElement> {
 function Mark({ kind }: { kind: RelatedExperienceKind }) {
   if (kind === "docs") return <DocsMark compact />;
   if (kind === "ecosystem") return <MasterMark compact />;
-  if (kind === "community") return <ProductMark product="teach" compact />;
+  if (kind === "teach-community") return <ProductMark product="teach" compact />;
   return <ProductMark product={kind} compact />;
 }
 
