@@ -1,92 +1,35 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import type { AIConversation, Organization, OrganizationMember, StudentProgress } from "@lurexa/types";
+import type {
+  AdminOrgOverview,
+  AIConversation,
+  PlatformMetricsSummary,
+} from "@lurexa/types";
 
-export interface PlatformMetricsSummary {
-  activeUsersMonthly: number;
-  totalOrganizations: number;
-  monthlyRecurringRevenue: number | null;
-  totalAITokensUsed: number;
-  systemErrorRatePercent: number | null;
-}
+export type { AdminOrgOverview, PlatformMetricsSummary } from "@lurexa/types";
 
-export interface AdminOrgOverview {
-  id: string;
-  name: string;
-  plan: string;
-  studentCount: number;
-  status: "active" | "suspended";
-  createdAt: string;
-}
+const trustedAdminError =
+  "Platform administration is server-only. Use the authenticated Lurexa Admin API with a verified super_admin claim.";
 
+/**
+ * @deprecated Platform-wide administration cannot run through browser Firestore
+ * reads or writes. This compatibility facade remains only to surface a clear
+ * migration error for stale consumers.
+ */
 export const AdminService = {
   async getPlatformMetrics(): Promise<PlatformMetricsSummary> {
-    const [organizations, progress, conversations] = await Promise.all([
-      getDocs(collection(db, "organizations")),
-      getDocs(collection(db, "progress")),
-      getDocs(collection(db, "ai_conversations")),
-    ]);
-
-    const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const activeLearners = new Set(
-      progress.docs
-        .map((document) => document.data() as StudentProgress)
-        .filter((record) => Date.parse(record.lastAccessedAt) >= monthAgo)
-        .map((record) => record.studentId),
-    );
-    const tokenCount = conversations.docs
-      .map((document) => document.data() as AIConversation)
-      .reduce((total, conversation) => total + (Number.isFinite(conversation.tokenCount) ? conversation.tokenCount : 0), 0);
-
-    return {
-      activeUsersMonthly: activeLearners.size,
-      totalOrganizations: organizations.size,
-      monthlyRecurringRevenue: null,
-      totalAITokensUsed: tokenCount,
-      systemErrorRatePercent: null,
-    };
+    throw new Error(trustedAdminError);
   },
 
   async getOrganizationsOverview(): Promise<AdminOrgOverview[]> {
-    const snapshot = await getDocs(collection(db, "organizations"));
-    return Promise.all(snapshot.docs.map(async (document) => {
-      const data = document.data() as Organization & { status?: "active" | "suspended" };
-      const members = await getDocs(collection(db, "organizations", document.id, "members"));
-      const studentCount = members.docs
-        .map((member) => member.data() as OrganizationMember)
-        .filter((member) => member.role === "student").length;
-      return {
-        id: data.id || document.id,
-        name: data.name,
-        plan: data.plan,
-        studentCount,
-        status: data.status ?? "active",
-        createdAt: data.createdAt,
-      };
-    }));
+    throw new Error(trustedAdminError);
   },
 
   async updateOrgStatus(orgId: string, status: "active" | "suspended"): Promise<void> {
-    await updateDoc(doc(db, "organizations", orgId), { status, updatedAt: new Date().toISOString() });
+    void orgId;
+    void status;
+    throw new Error(trustedAdminError);
   },
 
   async getFlaggedAIConversations(): Promise<AIConversation[]> {
-    const flagged = query(
-      collection(db, "ai_conversations"),
-      where("flagged", "==", true),
-      orderBy("updatedAt", "desc"),
-      limit(20),
-    );
-    const snapshot = await getDocs(flagged);
-    return snapshot.docs.map((document) => document.data() as AIConversation);
+    throw new Error(trustedAdminError);
   },
 };
