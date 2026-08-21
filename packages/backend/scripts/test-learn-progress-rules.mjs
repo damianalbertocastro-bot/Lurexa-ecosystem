@@ -53,8 +53,12 @@ function assertStatus(response, expected, description) {
 try {
   const owner = await createUser("owner");
   const other = await createUser("other");
-  const progressId = `${owner.localId}_lesson-a1-intro`;
-  const evidenceId = `learn_${owner.localId}_lesson-a1-intro_quiz-1_1`;
+  const organizationId = "org-rules-test";
+  const courseId = "course-a1";
+  const moduleId = "module-a1-1";
+  const lessonId = "lesson-a1-intro";
+  const progressId = `${owner.localId}_${lessonId}`;
+  const evidenceId = `learn_${owner.localId}_${lessonId}_quiz-1_1`;
   const insightId = `mind_next_step_${owner.localId}_lurexa-self-paced`;
   const tutorSessionId = `tutor_${owner.localId}`;
   const spokenEvidenceId = `spoken_${owner.localId}`;
@@ -62,12 +66,64 @@ try {
   const interventionId = `intervention_${owner.localId}`;
   const now = new Date().toISOString();
 
+  await database.collection("organizations").doc(organizationId).set({
+    id: organizationId,
+    ownerId: owner.localId,
+    name: "Rules Test Organization",
+    slug: "rules-test-organization",
+    plan: "free",
+    createdAt: now,
+    updatedAt: now,
+  });
+  await database.collection("organizations").doc(organizationId).collection("members").doc(owner.localId).set({
+    id: owner.localId,
+    orgId: organizationId,
+    userId: owner.localId,
+    role: "owner",
+    joinedAt: now,
+  });
+  await database.collection("user-memberships").doc(owner.localId).collection("organizations").doc(organizationId).set({
+    id: owner.localId,
+    orgId: organizationId,
+    userId: owner.localId,
+    role: "owner",
+    joinedAt: now,
+  });
+  await database.collection("courses").doc(courseId).set({
+    id: courseId,
+    orgId: organizationId,
+    authorId: owner.localId,
+    title: "Rules Test Course",
+    description: "Trusted authoring boundary fixture.",
+    subject: "english",
+    status: "draft",
+    isTemplate: false,
+    moduleIds: [moduleId],
+    createdAt: now,
+    updatedAt: now,
+  });
+  await database.collection("modules").doc(moduleId).set({
+    id: moduleId,
+    courseId,
+    title: "Module 1",
+    order: 1,
+    lessonIds: [lessonId],
+  });
+  await database.collection("lessons").doc(lessonId).set({
+    id: lessonId,
+    moduleId,
+    title: "Introduce yourself",
+    contentBlocks: [],
+    order: 1,
+    estimatedMinutes: 10,
+  });
+
   await database.collection("progress").doc(progressId).set({
     id: progressId,
     studentId: owner.localId,
-    lessonId: "lesson-a1-intro",
-    moduleId: "module-a1-1",
-    courseId: "course-a1",
+    lessonId,
+    moduleId,
+    courseId,
     completed: false,
     status: "in_progress",
     startedAt: now,
@@ -83,8 +139,8 @@ try {
     organizationId: "lurexa-self-paced",
     source: {
       product: "learn",
-      courseId: "course-a1",
-      lessonId: "lesson-a1-intro",
+      courseId,
+      lessonId,
       activityId: "quiz-1",
     },
     type: "assessment_result",
@@ -109,8 +165,8 @@ try {
         outcome: "continue",
         label: "Continue",
         reason: "Recent evidence supports normal continuation.",
-        courseId: "course-a1",
-        lessonId: "lesson-a1-intro",
+        courseId,
+        lessonId,
       }],
       interpretationVersion: "learn-next-step-v1",
     },
@@ -121,8 +177,8 @@ try {
     id: tutorSessionId,
     learnerId: owner.localId,
     organizationId: "lurexa-self-paced",
-    courseId: "course-a1",
-    lessonId: "lesson-a1-intro",
+    courseId,
+    lessonId,
     activityId: "roleplay-1",
     status: "active",
     transcript: [],
@@ -134,8 +190,8 @@ try {
     id: spokenEvidenceId,
     learnerId: owner.localId,
     organizationId: "lurexa-self-paced",
-    courseId: "course-a1",
-    lessonId: "lesson-a1-intro",
+    courseId,
+    lessonId,
     activityId: "speaking-1",
     storagePath: "server-only",
     observedAt: now,
@@ -144,8 +200,8 @@ try {
     id: retrievalId,
     learnerId: owner.localId,
     organizationId: "lurexa-self-paced",
-    courseId: "course-a1",
-    lessonId: "lesson-a1-intro",
+    courseId,
+    lessonId,
     dueAt: now,
     status: "scheduled",
   });
@@ -153,61 +209,101 @@ try {
     id: interventionId,
     learnerId: owner.localId,
     organizationId: "lurexa-self-paced",
-    courseId: "course-a1",
+    courseId,
     status: "open",
     createdAt: now,
   });
 
   assertStatus(
+    await firestoreRequest(owner.idToken, "GET", "courses", courseId),
+    200,
+    "organization member can read course metadata",
+  );
+  assertStatus(
+    await firestoreRequest(other.idToken, "GET", "courses", courseId),
+    403,
+    "non-member cannot read organization course metadata",
+  );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "PATCH", "courses", courseId, {
+      fields: { title: { stringValue: "Forged browser title" } },
+    }),
+    403,
+    "teacher browser clients cannot mutate authoritative course records",
+  );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "PATCH", "courses", "browser-created-course", {
+      fields: {
+        id: { stringValue: "browser-created-course" },
+        orgId: { stringValue: organizationId },
+        authorId: { stringValue: owner.localId },
+        title: { stringValue: "Browser created" },
+      },
+    }),
+    403,
+    "teacher browser clients cannot create authoritative course records",
+  );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "GET", "modules", moduleId),
+    403,
+    "module records remain behind the trusted Learn server boundary",
+  );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "GET", "lessons", lessonId),
+    403,
+    "lesson content remains behind the trusted Learn server boundary",
+  );
+
+  assertStatus(
     await firestoreRequest(owner.idToken, "GET", "progress", progressId),
     200,
-    "learner can read their own progress"
+    "learner can read their own progress",
   );
   assertStatus(
     await firestoreRequest(other.idToken, "GET", "progress", progressId),
     403,
-    "another learner cannot read progress"
+    "another learner cannot read progress",
   );
   assertStatus(
     await firestoreRequest(owner.idToken, "PATCH", "progress", progressId, {
       fields: { completed: { booleanValue: true } },
     }),
     403,
-    "learner clients cannot forge trusted progress writes"
+    "learner clients cannot forge trusted progress writes",
   );
   assertStatus(
     await firestoreRequest(other.idToken, "PATCH", "progress", progressId, {
       fields: { completed: { booleanValue: true } },
     }),
     403,
-    "another learner cannot write progress"
+    "another learner cannot write progress",
   );
   assertStatus(
     await firestoreRequest(owner.idToken, "GET", "learning-evidence", evidenceId),
     403,
-    "learning evidence remains server-only even for its learner"
+    "learning evidence remains server-only even for its learner",
   );
   assertStatus(
     await firestoreRequest(other.idToken, "GET", "learning-evidence", evidenceId),
     403,
-    "another learner cannot read learning evidence"
+    "another learner cannot read learning evidence",
   );
   assertStatus(
     await firestoreRequest(owner.idToken, "GET", "learner-insights", insightId),
     403,
-    "Mind recommendations remain behind the trusted Core read boundary"
+    "Mind recommendations remain behind the trusted Core read boundary",
   );
   assertStatus(
     await firestoreRequest(other.idToken, "GET", "learner-insights", insightId),
     403,
-    "another learner cannot read persisted Mind recommendations"
+    "another learner cannot read persisted Mind recommendations",
   );
   assertStatus(
     await firestoreRequest(owner.idToken, "PATCH", "learner-insights", insightId, {
       fields: { summary: { stringValue: "Forged recommendation" } },
     }),
     403,
-    "learner clients cannot manufacture trusted Mind recommendations"
+    "learner clients cannot manufacture trusted Mind recommendations",
   );
 
   for (const [collection, id, description] of [
@@ -219,16 +315,16 @@ try {
     assertStatus(
       await firestoreRequest(owner.idToken, "GET", collection, id),
       403,
-      `${description} are not directly readable by learner clients`
+      `${description} are not directly readable by learner clients`,
     );
     assertStatus(
       await firestoreRequest(owner.idToken, "PATCH", collection, id, { fields: { forged: { booleanValue: true } } }),
       403,
-      `${description} cannot be forged by learner clients`
+      `${description} cannot be forged by learner clients`,
     );
   }
 
-  console.log("Learn progress/evidence/Mind/adaptation Firestore rule checks passed.");
+  console.log("Learn course/progress/evidence/Mind/adaptation Firestore rule checks passed.");
 } finally {
   await database.terminate();
   await deleteApp(app);
