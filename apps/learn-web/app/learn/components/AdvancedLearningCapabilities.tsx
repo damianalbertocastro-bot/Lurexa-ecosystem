@@ -18,7 +18,18 @@ type CapabilityContext = {
   lessonId: string;
 };
 
-export function ModelListeningActivity({ courseId, lessonId, capability }: CapabilityContext & { capability: ModelListeningCapability }) {
+type OptionalCapabilityContext = Partial<CapabilityContext>;
+
+function currentLessonContext(context: OptionalCapabilityContext): CapabilityContext {
+  if (context.courseId && context.lessonId) return { courseId: context.courseId, lessonId: context.lessonId };
+  const segments = window.location.pathname.split("/").filter(Boolean);
+  if (segments[0] === "learn" && segments[1] && segments[2]) {
+    return { courseId: decodeURIComponent(segments[1]), lessonId: decodeURIComponent(segments[2]) };
+  }
+  throw new Error("This listening activity is not attached to a trusted lesson route.");
+}
+
+export function ModelListeningActivity({ courseId, lessonId, capability }: OptionalCapabilityContext & { capability: ModelListeningCapability }) {
   const generatedUrlRef = useRef<string | null>(null);
   const [audioSource, setAudioSource] = useState<string | null>(capability.audioUrl ?? null);
   const [loading, setLoading] = useState(false);
@@ -33,10 +44,11 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Capab
     setLoading(true);
     setError(null);
     try {
+      const context = currentLessonContext({ courseId, lessonId });
       const response = await authenticatedFetch("/api/learning/audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId, lessonId, activityId: capability.id }),
+        body: JSON.stringify({ ...context, activityId: capability.id }),
       });
       if (!response.ok) {
         const payload = await response.json() as { error?: string };
