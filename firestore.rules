@@ -127,16 +127,19 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Lurexa Teach: educator-owned profile and activity records.
+    // Lurexa Teach: educator-owned profile and activity records. Self-reported
+    // CEFR may be edited by the educator; verified CEFR is a trusted Core field.
     match /educatorProfiles/{userId} {
       allow read: if isUser(userId);
-      allow create, update: if isUser(userId)
-        && request.resource.data.userId == userId;
+      allow create: if isUser(userId)
+        && request.resource.data.userId == userId
+        && !request.resource.data.keys().hasAny(["verifiedCefrLevel"]);
+      allow update: if isUser(userId)
+        && request.resource.data.userId == userId
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["verifiedCefrLevel"]);
       allow delete: if false;
     }
 
-    // Published professional learning is readable by authenticated educators.
-    // Course authoring remains trusted/server-only for the MVP.
     match /teachCourses/{courseId} {
       allow read: if isAuthenticated() && resource.data.published == true;
       allow write: if false;
@@ -161,8 +164,6 @@ service cloud.firestore {
       allow delete: if ownsTeachRecord(resource.data);
     }
 
-    // Educators may draft and submit their own evidence. Review/verification fields
-    // are protected from direct client writes and must be changed by trusted Core APIs.
     match /teachEvidence/{evidenceId} {
       allow read: if ownsTeachRecord(resource.data);
       allow create: if ownsTeachRecord(request.resource.data)
@@ -186,14 +187,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Credential awards are authoritative Core records.
     match /teachCredentialAwards/{awardId} {
       allow read: if ownsTeachRecord(resource.data);
       allow write: if false;
     }
 
-    // Recommendations are advisory Mind outputs but persisted as trusted records.
-    // Educators may only dismiss/complete an existing recommendation.
     match /teachRecommendations/{recommendationId} {
       allow read: if ownsTeachRecord(resource.data);
       allow create, delete: if false;
