@@ -9,23 +9,28 @@ async function attachAttemptAnswer(
   activityId: string,
   answer: string | string[]
 ): Promise<void> {
-  const reference = getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`);
-  const snapshot = await reference.get();
-  if (!snapshot.exists) return;
+  const firestore = getServerFirestore();
+  const reference = firestore.collection("progress").doc(`${actor.uid}_${lessonId}`);
 
-  const progress = snapshot.data() as StudentProgress;
-  const attempts = [...progress.attempts];
-  for (let index = attempts.length - 1; index >= 0; index -= 1) {
-    if (attempts[index]?.quizId === activityId) {
-      attempts[index] = { ...attempts[index], answer };
-      break;
+  await firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    if (!snapshot.exists) return;
+
+    const progress = snapshot.data() as StudentProgress;
+    const attempts = [...progress.attempts];
+    for (let index = attempts.length - 1; index >= 0; index -= 1) {
+      if (attempts[index]?.quizId === activityId) {
+        attempts[index] = { ...attempts[index], answer };
+        break;
+      }
     }
-  }
 
-  await reference.set(
-    { attempts, updatedAt: FieldValue.serverTimestamp() },
-    { merge: true }
-  );
+    transaction.set(
+      reference,
+      { attempts, updatedAt: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+  });
 }
 
 export const LearnProgressService = {
