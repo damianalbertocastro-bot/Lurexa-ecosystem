@@ -1,8 +1,8 @@
 # Lurexa Product Ecosystem
 
-Version: 1.2  
+Version: 1.3  
 Status: Approved  
-Last updated: 2026-08-17
+Last updated: 2026-08-20
 
 ## Authoritative company and product model
 
@@ -44,15 +44,20 @@ Do not create separate learner truth per product.
 
 ## Lurexa Learn
 
-Learner-facing LMS and structured learning experience.
+Lurexa Learn is the learning-management and instructional-delivery product for learners and the teachers who operate their learning experiences.
 
-Responsibilities may include:
+Responsibilities include:
+- student dashboard;
+- teacher dashboard;
 - CEFR-aligned course delivery;
 - modules, lessons, activities and assessment;
-- progress experience;
+- classes, assignments and learning management;
+- learner progress/support workflows;
 - offline-capable learning where practical;
 - personalized learning experiences using Mind;
 - generation of trustworthy learning evidence through Core-governed contracts.
+
+The teacher dashboard inside Learn exists to manage learners, classes, lessons, assignments and instructional delivery. It must be branded Lurexa Learn, not Lurexa Teach.
 
 Learn does not own a separate personalization or learner-memory architecture.
 
@@ -83,9 +88,22 @@ Coach is a product powered by Core and Mind. Coach must not become a second Mind
 
 ## Lurexa Teach
 
-Teacher-facing product for class and learner management, assignments, scheduling, progress/intervention review and AI-assisted instructional support.
+Lurexa Teach is the independent educator professional-development product. It does not own the Lurexa Learn teacher dashboard.
 
-Teach may consume role-appropriate Learner Model summaries and contribute approved teacher observations/interventions.
+Responsibilities include:
+- teacher professional development;
+- teacher CEFR / English proficiency growth;
+- professional courses and learning pathways;
+- teaching-practice development;
+- training and competency-based certification;
+- teacher community and professional circles;
+- peer collaboration and feedback;
+- professional evidence, reflection and educator credentials;
+- personalized professional-growth recommendations through Mind.
+
+A teacher may use both Learn and Teach with one Lurexa identity. Learn is where teachers operate student learning; Teach is where teachers develop themselves professionally.
+
+Teach may use authorized educator context and professional evidence. Core owns trusted identity, persistence, evidence verification and credential awards. Mind interprets authorized educator state and evidence to recommend next steps.
 
 ## Lurexa Admin
 
@@ -126,9 +144,9 @@ This is a two-way learning loop, not profile synchronization.
 ## Product boundary rules
 
 Correct:
-- Learn delivers structured learning.
+- Learn delivers structured student learning, the student dashboard and the teacher operational dashboard.
 - Coach delivers speaking/pronunciation coaching.
-- Teach delivers teacher workflows.
+- Teach delivers educator professional development, proficiency growth, professional learning, certification and community.
 - Admin delivers administration/governance workflows.
 - Insight delivers analytics/reporting.
 - Studio delivers authoring.
@@ -136,12 +154,21 @@ Correct:
 - Core owns trust and trusted persistence.
 
 Incorrect:
+- branding the Learn teacher dashboard as Lurexa Teach;
+- placing class/learner-management ownership under Teach;
+- creating a second teacher identity to separate Learn from Teach;
 - each product creates its own learner model;
 - Coach becomes the AI platform;
 - Mind becomes the authentication/persistence authority;
 - products copy learner profiles between apps;
 - product UIs directly call model providers for persistent learner intelligence;
 - product UIs directly mutate arbitrary inferred learner state.
+
+Repository mapping:
+- `apps/teacher-portal` = Lurexa Learn teacher operational workspace.
+- `apps/teach-web` = independent Lurexa Teach professional-development product.
+
+See `Docs/Product/LUREXA_LEARN_TEACH_BOUNDARY.md` for the authoritative Learn/Teach boundary and `Docs/Architecture/LUREXA_TEACH_MVP_ARCHITECTURE.md` for Teach MVP implementation ownership.
 
 ## Commercial direction
 
