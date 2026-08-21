@@ -4,7 +4,7 @@ Status: active audit record for the `feat/ecosystem-related-experiences` branch.
 
 ## Executive finding
 
-The repository has a strong current architecture source of truth, but product identity still drifts in a few implementation and roadmap surfaces. The highest-risk pattern is **duplicated product definitions**: product ownership, product copy, deployment metadata, and SVG geometry are repeated in multiple places instead of being consumed from shared contracts.
+The repository now has a stronger single-source pattern for product identity: canonical product classification/copy lives in the typed registry, while product geometry lives in shared UI brand components. The highest-risk implementation drift identified in the first pass—the ecosystem landing maintaining its own product catalog and SVG family—has been removed.
 
 The brand direction remains:
 
@@ -24,67 +24,64 @@ Learn and Teach deliberately retain their previously approved marks. Coach, Admi
 - Updated the brand README to distinguish parent identity, products, shared layers, ecosystem surfaces and future concepts.
 - Corrected the deployment manifest brand name from `Lurexa Documentation` to **Lurexa Docs**.
 - Replaced the obsolete Teach deployment status `pending-app-merge`; the app exists, while deployment validation remains unverified.
+- Added `packages/config/src/product-registry.ts` as the typed registry for current products, shared layers, Docs and future concepts.
+- Corrected `ROADMAP.md` Phase 6 so Teach owns educator professional growth rather than classroom operations.
+- Refactored `apps/web/app/page.tsx` to consume shared `MasterMark` / `ProductMark` components and canonical product registry metadata.
+- Removed stale `Human teaching` positioning and replaced it with Teach's professional-development positioning.
+- Removed the landing page's duplicated local Master Mark and six duplicated product SVG definitions.
 
-## High-priority drift defects
+## Resolved high-priority drift defects
 
-### P0 — ROADMAP Phase 6 contradicts the authoritative Learn/Teach boundary
+### RESOLVED — ROADMAP Phase 6 contradicted the authoritative Learn/Teach boundary
 
-`ROADMAP.md` still describes Lurexa Teach with class management, learner management and assignment workflows. That is superseded.
+The roadmap now explicitly states:
 
-Authoritative ownership is:
+- **Lurexa Learn teacher workspace:** class and learner management, assignments, operational scheduling, progress/intervention workflows and instructional delivery.
+- **Lurexa Teach:** educator professional growth, professional learning pathways, evidence/reflection, trusted assessment, credentials, community and professional recommendations.
 
-- **Lurexa Learn teacher workspace:** classes, assignments, learner progress, instructional delivery and classroom operations.
-- **Lurexa Teach:** educator professional development, teacher CEFR/English growth, professional pathways, evidence/reflection, trusted assessment, credentials, community and professional recommendations.
+The Phase 6 exit condition now validates a professional-development product rather than a duplicate teacher dashboard.
 
-This roadmap section should be rewritten before future implementation agents use it for feature planning.
+### RESOLVED — Ecosystem landing contained stale Teach positioning
 
-### P0 — Ecosystem landing contains stale Teach positioning
+The landing now labels Teach around **Professional growth** and gets its canonical description from `lurexaProducts.teach`.
 
-`apps/web/app/page.tsx` currently describes Teach as `Human teaching` with learner signals and timing language. That copy reflects the older teacher-dashboard interpretation rather than the current professional-development product.
+The shared-intelligence section also now distinguishes learner continuity across Learn/Coach from educator professional growth in Teach, while explicitly keeping classroom operations in Learn.
 
-The landing page should position Teach around professional growth, evidence, credentials, development pathways and educator community.
+### RESOLVED — Ecosystem landing duplicated master/product SVG implementations
 
-### P1 — Ecosystem landing duplicates master/product SVG implementations
+`apps/web/app/page.tsx` now consumes:
 
-`apps/web/app/page.tsx` defines local `MasterMark` and `ProductIcon` SVG implementations even though canonical shared mark components exist in `@lurexa/ui`.
+- `MasterMark` from `@lurexa/ui/MasterMark`;
+- `ProductMark` from `@lurexa/ui/ProductMark`.
 
-This already caused visual drift: changing `ProductMark` does not automatically change the ecosystem landing.
+The local `MasterMark`, `ProductIcon`, and product SVG copies have been removed. Capability icons remain local because they are capability presentation, not canonical product identity.
 
-Recommended fix:
+### RESOLVED — Product metadata lacked a typed classification registry
 
-- import `MasterMark` and `ProductMark` from `@lurexa/ui`;
-- delete local product-logo SVG copies;
-- keep capability icons local or move them to a separate capability icon system if they become reusable.
+`packages/config/src/product-registry.ts` now distinguishes:
 
-### P1 — Product metadata exists in several independent sources
-
-Product identity appears in:
-
-- `Docs/00-Lurexa-Bible.md`;
-- `ROADMAP.md`;
-- `deployment/products.json`;
-- `bootstrap/repository.json`;
-- `apps/web/app/page.tsx`;
-- related-experience mappings;
-- shared UI mark types.
-
-Not all of these should be merged into one file, because they serve different responsibilities. However, product **name, classification and ownership** should derive from one typed product registry or be validated against one.
-
-Recommended future package/module:
-
-`packages/config/src/product-registry.ts`
-
-It should distinguish:
-
-- parent/company;
 - current products;
 - shared ecosystem layers;
 - ecosystem surfaces such as Docs;
 - future concepts.
 
+The ecosystem landing consumes the canonical product name, description and product ID from this registry. Landing-only concerns such as eyebrow text, CTA status, destination URL and display order remain local presentation configuration.
+
+## Remaining improvement opportunities
+
+### P1 — Formalize the `apps/web` → `@lurexa/config` package boundary
+
+The current landing consumes the canonical registry source directly so this cleanup remains lockfile-neutral on the stacked PR. The preferred final dependency boundary is for `apps/web` to declare `@lurexa/config` as a workspace dependency and import from the package export once the lockfile is regenerated and validated in the normal repository execution environment.
+
+Do not duplicate the registry locally as a workaround.
+
 ### P1 — Product URL environment variables need one documented contract
 
-Related-experience components correctly use `NEXT_PUBLIC_LUREXA_*_URL` variables, but their expected names and deployment ownership should be documented centrally and validated in deployment configuration.
+Related-experience components and the ecosystem landing use `NEXT_PUBLIC_LUREXA_*_URL` variables, but their expected names, ownership and fallback rules should be documented centrally and validated in deployment configuration.
+
+### P1 — Validate registry consumers rather than allowing parallel catalogs to return
+
+`deployment/products.json`, `bootstrap/repository.json`, related-experience mappings and future navigation still serve different responsibilities and should not be collapsed blindly. However, automated validation should ensure that any entry presented as a top-level product matches the typed registry classification and canonical name.
 
 ### P2 — Storybook coverage should include identity components
 
@@ -97,6 +94,10 @@ Shared brand components should have visual stories for:
 - `RelatedExperiences`.
 
 This would make accidental geometry or contrast regressions much easier to catch.
+
+### P2 — Audit mark sizing after replacing local SVGs
+
+The shared mark components intentionally own their geometry and currently render at their standard compact size. The ecosystem orbit/cards previously used local SVGs with page-specific dimensions. A visual verification pass should decide whether shared marks need a semantic `size` prop rather than reintroducing page-specific SVGs or brittle descendant CSS.
 
 ### P2 — Future-concept naming must remain non-authoritative
 
@@ -113,12 +114,12 @@ Concept assets under `packages/ui/brand/concepts/` must never be added to applic
 - Core and Mind are correctly represented as shared layers rather than Vercel end-user websites.
 - Mobile currently belongs to Lurexa Learn in deployment metadata; a future native-mobile identity concept must not silently turn it into a separate product.
 
-## Recommended implementation order
+## Recommended implementation order from here
 
-1. Rewrite the stale `ROADMAP.md` Phase 6 Teach section.
-2. Refactor `apps/web` to consume shared brand components and update Teach copy.
-3. Add the typed product registry and validate deployment/navigation metadata against it.
-4. Document and validate cross-product URL environment variables.
-5. Add Storybook visual coverage for the identity system.
-6. Audit every product header/sidebar/favicon/metadata surface for canonical marks.
+1. Formalize and validate the `apps/web` dependency on `@lurexa/config` when lockfile regeneration is available.
+2. Document and validate cross-product URL environment variables.
+3. Add automated registry validation for deployment/navigation surfaces.
+4. Add Storybook visual coverage for the identity system.
+5. Audit every product header/sidebar/favicon/metadata surface for canonical marks.
+6. Add a semantic shared-mark sizing API if visual verification shows the ecosystem landing needs larger mark variants.
 7. After PR retargeting, run full lint/typecheck/build and deployment validation before marking the brand rollout complete.
