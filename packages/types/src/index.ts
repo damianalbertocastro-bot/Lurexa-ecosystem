@@ -10,3 +10,4 @@ export * from "./linguistic-intelligence";
 export * from "./teach";
 export * from "./learning-experience";
 export * from "./analytics";
+export * from "./admin";
