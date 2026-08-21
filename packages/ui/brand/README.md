@@ -25,11 +25,16 @@ Design principle: **shared grammar + distinct personalities**.
 
 ## Future identity concepts
 
-Files under `concepts/` are roadmap-backed identity explorations only. They are **not approved top-level Lurexa products** and must not be added to `LurexaProduct`, product navigation, pricing, or product architecture without an explicit product-owner decision.
+Files under `concepts/` are design-ready future directions and must not be added to current product navigation, pricing or deployment without an explicit activation decision.
 
-Current explorations:
+### Future product concept
 
-- `concepts/lurexa-community-concept.svg` — future cross-ecosystem social/community space for learners and educators; social, welcoming and participatory. The concept mark uses overlapping conversation spaces and a participation signal so it feels like a learning network rather than a generic chat feature.
+- `concepts/lurexa-community-concept.svg` — **Lurexa Community**, a future cross-ecosystem social learning product for learners and educators. Personality: social, welcoming and participatory. The mark uses overlapping conversation spaces and a participation signal so it reads as a network of contribution rather than a single chat interaction.
+
+Community has a stronger architectural status than the capability/offering concepts below: its name, product vision and boundaries are reserved now, while implementation remains deferred.
+
+### Other future ecosystem concepts
+
 - `concepts/lurexa-marketplace-concept.svg` — marketplace-capability direction.
 - `concepts/lurexa-api-concept.svg` — public/partner API direction.
 - `concepts/lurexa-mobile-concept.svg` — native-mobile direction.
@@ -37,11 +42,13 @@ Current explorations:
 
 ### Community naming boundary
 
-**Lurexa Community** is reserved for the future cross-ecosystem social experience where learners and educators can share posts, ask questions, discuss learning, form groups and participate in interest-based communities.
+**Lurexa Community** is reserved for the future cross-ecosystem social product where learners and educators can share posts, ask questions, discuss learning, discover communities, form study groups and exchange resources.
 
-**Teach Community** remains an educator-only professional collaboration feature inside **Lurexa Teach**. It inherits the Teach identity and should not use the standalone Lurexa Community concept mark.
+**Teach Community** remains an educator-only professional collaboration feature inside **Lurexa Teach**. It inherits the Teach identity and must not use the standalone Lurexa Community concept mark.
 
-This separation lets a future Lurexa Community evolve into a Reddit-like learning network without turning every collaboration feature into a separate product.
+**Learn discussions** remain class/course/lesson discussion features inside **Lurexa Learn** and inherit the Learn identity.
+
+This separation allows Lurexa Community to become a broader learning network later without turning every collaboration feature into a separate product.
 
 ## Usage
 
@@ -53,4 +60,8 @@ Learn and Teach are deliberate exceptions to the latest logo exploration: their 
 
 ## Canonical editable design
 
-The editable Canva board is maintained as **Lurexa Brand System v2 — Product Personalities** in the **Lurexa Brand System** folder. Keep Canva exports visually aligned with these SVG masters and preserve the distinction between current products, shared layers, ecosystem surfaces, and future concepts.
+The current editable board is **Lurexa Brand System v3 — Community Future Product Concept** in the **Lurexa Brand System** Canva folder. It preserves current products, shared layers and ecosystem surfaces on one page and separates Community plus other future concepts on the future-concepts page.
+
+Canva design ID: `DAHS5ZNcP7s`.
+
+Keep Canva exports visually aligned with these SVG masters and preserve the distinction between current products, shared layers, ecosystem surfaces, future product concepts and other future capability/offering concepts.
