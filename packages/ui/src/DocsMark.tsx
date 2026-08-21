@@ -6,20 +6,22 @@ export interface DocsMarkProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 function DocsGlyph() {
-  return <svg viewBox="0 0 64 64" className="h-full w-full" aria-hidden="true">
-    <path d="M10 12h19c6 0 11 5 11 11v28H21c-6 0-11-5-11-11V12Z" fill="currentColor"/>
-    <path d="M54 12H35c-6 0-11 5-11 11v28h19c6 0 11-5 11-11V12Z" fill="#315fd7" opacity=".92"/>
-    <path d="M32 20v31" stroke="#12cdd4" strokeWidth="4" strokeLinecap="round"/>
-    <path d="M17 24h9M17 31h9M38 24h9M38 31h9" stroke="white" strokeWidth="3" strokeLinecap="round" opacity=".9"/>
-    <circle cx="46" cy="44" r="5" fill="#12cdd4"/>
-    <path d="m49.5 47.5 5 5" stroke="#12cdd4" strokeWidth="3" strokeLinecap="round"/>
+  return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
+    <path d="M14 9h34l18 18v44H14V9Z" fill="#071d67" />
+    <path d="M48 9v18h18" fill="#2160df" />
+    <path d="M25 35h29M25 45h29M25 55h18" stroke="white" strokeWidth="5" strokeLinecap="round" />
+    <circle cx="57" cy="59" r="10" fill="#12cdd4" />
+    <path d="m64 66 8 8" stroke="#592bd6" strokeWidth="5" strokeLinecap="round" />
   </svg>;
 }
 
 export function DocsMark({ inverse = false, compact = false, className = "", ...props }: DocsMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
   return <span className={`inline-flex items-center gap-2.5 ${className}`} {...props}>
-    <span className="grid h-9 w-9 shrink-0 place-items-center text-[#592bd6]"><DocsGlyph /></span>
-    {!compact && <span className="leading-none"><span className={`block text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span><span className="mt-1 block text-[10px] font-extrabold uppercase tracking-[.17em] text-[#12aab0]">Docs</span></span>}
+    <span className="grid h-9 w-9 shrink-0 place-items-center"><DocsGlyph /></span>
+    {!compact && <span className="leading-none">
+      <span className={`block text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
+      <span className="mt-1 block text-[10px] font-extrabold uppercase tracking-[.17em] text-[#0ba5a8]">Docs</span>
+    </span>}
   </span>;
 }
