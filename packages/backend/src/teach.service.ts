@@ -39,14 +39,18 @@ export const TeachService = {
     try {
       const snap = await getDocs(query(collection(db, "teachCourses"), where("published", "==", true)));
       if (!snap.empty) return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachCourse));
-    } catch {}
+    } catch {
+      // The code-first catalog keeps the MVP usable before Firestore course seeding is deployed.
+    }
     return TEACH_MVP_COURSES;
   },
   async getCourse(courseId: string): Promise<TeachCourse | null> {
     try {
       const snap = await getDoc(doc(db, "teachCourses", courseId));
       if (snap.exists()) return { id: snap.id, ...snap.data() } as TeachCourse;
-    } catch {}
+    } catch {
+      // Fall through to the code-first catalog until trusted course seeding is deployed.
+    }
     return TEACH_MVP_COURSES.find((course) => course.id === courseId) ?? null;
   },
   async listEnrollments(userId: string): Promise<TeachEnrollment[]> {
@@ -101,7 +105,9 @@ export const TeachService = {
     try {
       const snap = await getDocs(query(collection(db, "teachCredentialDefinitions"), where("active", "==", true)));
       if (!snap.empty) return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachCredentialDefinition));
-    } catch {}
+    } catch {
+      // Use the canonical MVP definitions until credential authoring is server-backed.
+    }
     return TEACH_MVP_CREDENTIALS;
   },
   async listCredentialAwards(userId: string): Promise<TeachCredentialAward[]> {
