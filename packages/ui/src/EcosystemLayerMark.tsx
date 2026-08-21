@@ -30,7 +30,7 @@ function LayerGlyph({ layer }: { layer: LurexaEcosystemLayer }) {
   return (
     <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
       <path d="M25 14c-9 0-16 7-16 16 0 5 2 9 6 12-4 3-6 7-6 12 0 9 7 16 16 16 6 0 11-3 14-8 3 5 8 8 14 8 9 0 16-7 16-16 0-5-2-9-6-12 4-3 6-7 6-12 0-9-7-16-16-16-6 0-11 3-14 8-3-5-8-8-14-8Z" fill="#592bd6" />
-      <path d="M40 20v40M24 31c8 0 10 6 10 10M56 31c-8 0-10 6-10 10M24 54c7 0 10-4 10-8M56 54c-7 0-10-4 10-8" fill="none" stroke="#12cdd4" strokeWidth="4" strokeLinecap="round" />
+      <path d="M40 20v40M24 31c8 0 10 6 10 10M56 31c-8 0-10 6-10 10M24 54c7 0 10-4 10-8M56 54c-7 0-10-4-10-8" fill="none" stroke="#12cdd4" strokeWidth="4" strokeLinecap="round" />
       <circle cx="40" cy="40" r="5" fill="white" />
     </svg>
   );
