@@ -44,9 +44,11 @@ async function requireLearnerMembership(learnerId: string, organizationId: strin
 
 function activeTargetSummaries(insights: Awaited<ReturnType<FirestoreLearnerInsightRepository["listActiveByLearner"]>>): string[] {
   return insights
-    .flatMap((insight) => insight.data?.kind === "learning_targets"
-      ? insight.data.targets.map((target) => `${insight.data!.domain}: ${target}`)
-      : [])
+    .flatMap((insight) => {
+      const data = insight.data;
+      if (data?.kind !== "learning_targets") return [];
+      return data.targets.map((target) => `${data.domain}: ${target}`);
+    })
     .slice(0, 12);
 }
 
