@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { TeachService } from "@lurexa/backend";
 import type { TeachEvidenceSubmission } from "@lurexa/types";
@@ -8,7 +8,7 @@ import { TeachShell } from "../components/TeachShell";
 import { TeachPrivate } from "../components/TeachPrivate";
 import { useTeachAuth } from "../components/TeachAuthProvider";
 
-export default function GrowthPage(){
+function GrowthContent(){
   const {user,profile}=useTeachAuth();
   const search=useSearchParams();
   const [evidence,setEvidence]=useState<TeachEvidenceSubmission[]>([]);
@@ -49,4 +49,8 @@ export default function GrowthPage(){
 {error&&<p role="alert" className="mt-5 rounded-2xl bg-[#fff0f2] p-4 text-sm font-bold text-[#b52c49]">{error}</p>}
 
 <section className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_.8fr]"><article className="rounded-[28px] border border-[#dfe6f8] bg-white p-7">{evidence.length?evidence.map((item)=><div key={item.id} className="mt-4 first:mt-0 border-t first:border-t-0 border-[#edf1fb] pt-4 first:pt-0"><div className="flex flex-wrap items-start justify-between gap-3"><div><b>{item.title}</b><p className="mt-1 text-sm leading-6 text-[#6677a5]">{item.description}</p><p className="mt-2 text-xs font-bold text-[#8994b4]">{item.type.replaceAll("-"," ")} · {new Date(item.createdAt).toLocaleDateString()}</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-extrabold capitalize ${item.status==="verified"?"bg-[#e4f8f2] text-[#137867]":item.status==="rejected"?"bg-[#fff0f2] text-[#b52c49]":"bg-[#f0ecff] text-[#6b2bd9]"}`}>{item.status}</span></div></div>):<p className="rounded-2xl bg-[#f7f9ff] p-5 text-sm leading-6 text-[#6677a5]">No professional evidence has been submitted yet.</p>}</article><aside className="rounded-[28px] bg-[#fffaf2] p-7"><p className="text-[10px] font-extrabold tracking-[.17em] text-[#a05e20]">GOALS</p><h2 className="mt-2 text-2xl font-black">What matters next?</h2>{profile?.goals.length?profile.goals.map((goal)=><div key={goal} className="mt-5 border-t border-[#eadfcb] pt-5"><b>{goal}</b></div>):<><p className="mt-3 text-sm leading-6 text-[#76664e]">No goals yet. Add goals to your educator profile so recommendations can become more precise.</p><a href="/profile" className="mt-5 inline-flex min-h-11 items-center font-extrabold text-[#a05e20]">Edit professional profile →</a></>}</aside></section></main></TeachPrivate></TeachShell>;
+}
+
+export default function GrowthPage(){
+  return <Suspense fallback={<div role="status" className="min-h-screen bg-[#f5f7ff] px-5 py-20 text-center text-sm font-bold text-[#6677a5]">Loading educator growth…</div>}><GrowthContent /></Suspense>;
 }
