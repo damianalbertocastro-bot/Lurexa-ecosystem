@@ -41,10 +41,12 @@ export function TeacherGuidanceBanner() {
     return unsubscribe;
   }, [pathname]);
 
-  if (pathname.startsWith("/teacher") || !guidance?.response) return null;
+  if (pathname.startsWith("/teacher") || !guidance) return null;
 
   const currentGuidance = guidance;
   const response = currentGuidance.response;
+  if (!response) return null;
+
   const lessonHref = currentGuidance.recentLessonId
     ? `/learn/${currentGuidance.courseId}/${currentGuidance.recentLessonId}`
     : null;
