@@ -2,6 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
+import { parseLearningCapability, readLearningCapability } from "./learning-capability-validation";
 import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
 
 type TeacherRole = "owner" | "admin" | "teacher";
@@ -157,13 +158,15 @@ function sanitizeLessonForLearner(lesson: Lesson): Lesson {
     contentBlocks: lesson.contentBlocks.map((block) => {
       if (block.type === "quiz_embed") {
         const quiz = readQuizData(block.data);
-        if (!quiz) return block;
+        if (!quiz) return { ...block, data: {} };
         const learnerQuiz: LearnerQuizContentBlockData = { prompt: quiz.prompt, options: quiz.options };
         return { ...block, data: learnerQuiz };
       }
       if (block.type === "interactive") {
+        const capability = readLearningCapability(block.data);
+        if (capability) return { ...block, data: { capability } };
         const activity = readLearningActivityData(block.data);
-        if (!activity) return block;
+        if (!activity) return { ...block, data: {} };
         const learnerActivity: LearnerLearningActivityContentBlockData = { activity: sanitizeLearningActivity(activity) };
         return { ...block, data: learnerActivity };
       }
@@ -172,16 +175,47 @@ function sanitizeLessonForLearner(lesson: Lesson): Lesson {
   };
 }
 
-function validateLessonContentBlocks(contentBlocks: ContentBlock[]): void {
+function normalizeLessonContentBlocks(contentBlocks: ContentBlock[]): ContentBlock[] {
   if (!contentBlocks.length) throw new Error("A lesson needs at least one content block.");
   const blockIds = new Set<string>();
-  for (const block of contentBlocks) {
+  const capabilityIds = new Set<string>();
+
+  return contentBlocks.map((block) => {
     if (!block.id || blockIds.has(block.id) || !Number.isFinite(block.order)) throw new Error("Lesson content contains an invalid block.");
     blockIds.add(block.id);
-    if (block.type === "text" && typeof block.data.text !== "string") throw new Error("Text blocks require text content.");
-    if (block.type === "quiz_embed" && !readQuizData(block.data)) throw new Error("Quiz blocks need valid answer data.");
-    if (block.type === "interactive" && !readLearningActivityData(block.data)) throw new Error("Interactive activities need valid stage, options, answers, and competency metadata.");
-  }
+
+    if (block.type === "text") {
+      if (typeof block.data.text !== "string") throw new Error("Text blocks require text content.");
+      return { ...block, data: { text: block.data.text } };
+    }
+
+    if (block.type === "quiz_embed") {
+      const quiz = readQuizData(block.data);
+      if (!quiz) throw new Error("Quiz blocks need valid answer data.");
+      return { ...block, data: quiz };
+    }
+
+    if (block.type === "interactive") {
+      const hasActivity = Object.prototype.hasOwnProperty.call(block.data, "activity");
+      const hasCapability = Object.prototype.hasOwnProperty.call(block.data, "capability");
+      if (hasActivity === hasCapability) {
+        throw new Error("Interactive blocks must contain exactly one activity or learning capability.");
+      }
+
+      if (hasCapability) {
+        const capability = parseLearningCapability(block.data.capability);
+        if (capabilityIds.has(capability.id)) throw new Error("Learning capability IDs must be unique within a lesson.");
+        capabilityIds.add(capability.id);
+        return { ...block, data: { capability } };
+      }
+
+      const activity = readLearningActivityData(block.data);
+      if (!activity) throw new Error("Interactive activities need valid stage, options, answers, and competency metadata.");
+      return { ...block, data: { activity } };
+    }
+
+    return block;
+  });
 }
 
 function evidenceIdFromKey(idempotencyKey: string): string {
@@ -278,7 +312,7 @@ export const CoursePlatformService = {
     return Promise.all(courses.map(async (course) => ({
       course,
       lessons: (await getCourseLessons(course)).map(({ module, lesson }) => ({ moduleTitle: module.title, lesson })),
-    })));
+    }));
   },
 
   async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
@@ -488,9 +522,9 @@ export const CoursePlatformService = {
     const module = asModule(moduleSnapshot.data()!);
     const course = await getCourseOrThrow(module.courseId);
     await requireTeacher(actor.uid, course.orgId);
-    validateLessonContentBlocks(contentBlocks);
+    const normalizedContentBlocks = normalizeLessonContentBlocks(contentBlocks);
     const reference = getServerFirestore().collection("lessons").doc();
-    const lesson: Lesson = { id: reference.id, moduleId, title, contentBlocks, order, estimatedMinutes };
+    const lesson: Lesson = { id: reference.id, moduleId, title, contentBlocks: normalizedContentBlocks, order, estimatedMinutes };
     await getServerFirestore().runTransaction(async (transaction) => {
       transaction.set(reference, lesson);
       transaction.update(moduleSnapshot.ref, { lessonIds: FieldValue.arrayUnion(reference.id) });
@@ -507,8 +541,8 @@ export const CoursePlatformService = {
     const module = asModule(moduleSnapshot.data()!);
     const course = await getCourseOrThrow(module.courseId);
     await requireTeacher(actor.uid, course.orgId);
-    validateLessonContentBlocks(contentBlocks);
-    const updatedLesson: Lesson = { ...lesson, title, contentBlocks };
+    const normalizedContentBlocks = normalizeLessonContentBlocks(contentBlocks);
+    const updatedLesson: Lesson = { ...lesson, title, contentBlocks: normalizedContentBlocks };
     await getServerFirestore().runTransaction(async (transaction) => {
       transaction.set(lessonSnapshot.ref, updatedLesson);
       transaction.update(getServerFirestore().collection("courses").doc(course.id), { updatedAt: new Date().toISOString() });
