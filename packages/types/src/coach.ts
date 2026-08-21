@@ -1,4 +1,4 @@
-import type { CefrLevel, LearnerContext } from "./learner";
+import type { CefrLevel, LearnerContext, LearnerRecommendationAction } from "./learner";
 
 export interface CoachSessionFocus {
   cefr?: CefrLevel;
@@ -7,6 +7,7 @@ export interface CoachSessionFocus {
   goals?: string[];
   pronunciationTargets?: string[];
   fluencyTargets?: string[];
+  recommendedActions?: LearnerRecommendationAction[];
 }
 
 export interface CoachTranscriptMessage {
