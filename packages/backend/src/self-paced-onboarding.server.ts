@@ -11,6 +11,12 @@ const A2_COURSE_ID = "english-a2-everyday-conversations";
 const A2_MODULE_ID = "english-a2-making-plans";
 const A2_LESSON_ID = "a2-make-a-plan";
 
+const A1_INTRO_COMPETENCIES = [
+  "EN.A1.SPEAK.INTRODUCE_SELF",
+  "EN.A1.CONV.PERSONAL_INTRODUCTION",
+  "EN.A1.PRAG.BASIC_POLITENESS",
+] as const;
+
 export type SelfPacedGoal = "daily_life" | "work" | "travel" | "study";
 export type PlacementAnswer = "nice_to_meet_you" | "fine_thanks" | "i_live_in" | "i_live" | "are" | "is" | "going_to" | "go";
 
@@ -35,9 +41,30 @@ function lessonContentBlocks(): ContentBlock[] {
       },
     },
     {
-      id: "a1-greeting-response",
+      id: "a1-model-listening",
       type: "interactive",
       order: 2,
+      data: {
+        capability: {
+          schemaVersion: "1",
+          id: "a1-m1-u1-l1-model-listening-production",
+          kind: "model_listening",
+          stage: "CONTEXTUAL_INPUT",
+          title: "Listen to a natural first meeting",
+          instructions: "Listen first for meaning. Then notice how the greeting, name question, and polite response sound as connected chunks.",
+          competencyIds: ["EN.A1.LISTEN.BASIC_SOCIAL_EXCHANGES", "EN.A1.CONV.PERSONAL_INTRODUCTION"],
+          estimatedMinutes: 2,
+          required: true,
+          modelText: "Carlos: Hello, I'm Carlos. What's your name? Elena: I'm Elena. Nice to meet you. Carlos: Nice to meet you too, Elena!",
+          locale: "en-US",
+          playbackGoal: "noticing",
+        },
+      },
+    },
+    {
+      id: "a1-greeting-response",
+      type: "interactive",
+      order: 3,
       data: {
         activity: {
           schemaVersion: "1",
@@ -49,7 +76,7 @@ function lessonContentBlocks(): ContentBlock[] {
           options: ["Nice to meet you.", "I am fine, thank you.", "See you yesterday."],
           correctAnswers: ["Nice to meet you."],
           explanation: "Nice to meet you is the natural response when you meet someone for the first time.",
-          competencyIds: ["EN-A1-SPK-INTRO-01"],
+          competencyIds: [...A1_INTRO_COMPETENCIES],
           estimatedMinutes: 2,
           required: true,
         },
@@ -58,7 +85,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-build-introduction",
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -70,16 +97,69 @@ function lessonContentBlocks(): ContentBlock[] {
           options: ["Hello,", "I’m", "Ana."],
           correctAnswers: ["Hello,", "I’m", "Ana."],
           explanation: "Use Hello, then I’m, then your name.",
-          competencyIds: ["EN-A1-SPK-INTRO-01"],
+          competencyIds: ["EN.A1.SPEAK.INTRODUCE_SELF"],
           estimatedMinutes: 2,
           required: true,
         },
       },
     },
     {
+      id: "a1-recorded-speaking",
+      type: "interactive",
+      order: 5,
+      data: {
+        capability: {
+          schemaVersion: "1",
+          id: "a1-m1-u1-l1-recorded-greeting",
+          kind: "recorded_speaking",
+          stage: "PHONETICS_FOCUS",
+          title: "Record your greeting",
+          instructions: "Say the greeting in one natural short turn. Focus on clear meaning and useful stress, not accent erasure.",
+          competencyIds: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.PHON.WORD_STRESS"],
+          estimatedMinutes: 3,
+          required: true,
+          prompt: "Greet the listener, say your name, and say ‘Nice to meet you.’",
+          targetText: "Hello, I'm [your name]. Nice to meet you.",
+          locale: "en-US",
+          minimumSeconds: 3,
+          maximumSeconds: 30,
+          evidencePurpose: "performance",
+        },
+      },
+    },
+    {
+      id: "a1-ai-roleplay",
+      type: "interactive",
+      order: 6,
+      data: {
+        capability: {
+          schemaVersion: "1",
+          id: "a1-m1-u1-l1-ai-greeting-roleplay",
+          kind: "ai_roleplay",
+          stage: "CONVERSATION",
+          title: "Meet a new classmate",
+          instructions: "Continue the short conversation. Introduce yourself and respond naturally. The tutor keeps the exchange at A1 level.",
+          competencyIds: [...A1_INTRO_COMPETENCIES],
+          estimatedMinutes: 4,
+          required: true,
+          cefr: "A1",
+          language: "English",
+          scenario: {
+            role: "a friendly new classmate",
+            situation: "You meet for the first time before an English class.",
+            learnerGoal: "Greet the classmate, say your name, respond politely, and sustain a very short first-meeting exchange.",
+            openingLine: "Hi! I'm Alex. Nice to meet you. What's your name?",
+            minimumTurns: 2,
+            maximumTurns: 5,
+          },
+          correctionPolicy: "post_turn_salient",
+        },
+      },
+    },
+    {
       id: "a1-intro-check",
       type: "quiz_embed",
-      order: 4,
+      order: 7,
       data: {
         prompt: "Which sentence introduces your name?",
         options: ["I’m Daniela.", "Nice yesterday.", "I am fine name."],
@@ -90,7 +170,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-create-apply",
       type: "interactive",
-      order: 5,
+      order: 8,
       data: {
         activity: {
           schemaVersion: "1",
@@ -100,7 +180,7 @@ function lessonContentBlocks(): ContentBlock[] {
           instructions: "Write your own short introduction. Include your name, where you are from, and “Nice to meet you.”",
           prompt: "Write two or three sentences to introduce yourself to a new classmate.",
           explanation: "You submitted a real introduction. Read it aloud slowly to practise clear, confident communication.",
-          competencyIds: ["EN-A1-SPK-INTRO-01"],
+          competencyIds: ["EN.A1.WRITE.PERSONAL_SENTENCES", "EN.A1.CREATE.PERSONAL_INTRODUCTION"],
           estimatedMinutes: 3,
           required: true,
         },
@@ -114,10 +194,10 @@ function a1StarterCourse(now: string): { course: Course; module: Module; lesson:
     id: LESSON_ID,
     moduleId: MODULE_ID,
     title: "Introduce yourself",
-    summary: "Greet someone, say your name, and give a short introduction.",
+    summary: "Greet someone, say your name, listen to a first meeting, speak, interact, and create a short introduction.",
     contentBlocks: lessonContentBlocks(),
     order: 1,
-    estimatedMinutes: 12,
+    estimatedMinutes: 22,
   };
   const module: Module = {
     id: MODULE_ID,
@@ -151,10 +231,10 @@ function a2StarterCourse(now: string): { course: Course; module: Module; lesson:
     summary: "Invite someone, suggest a time, and respond to a plan.",
     contentBlocks: [
       { id: "a2-plan-text", type: "text", order: 1, data: { text: "Mission: make a simple plan with a friend.\n\nSofía: Are you free on Saturday?\nMateo: Yes, I am. What are you going to do?\nSofía: I’m going to visit the Malecón. Do you want to come?\nMateo: Sure! Let’s meet at three.\n\nUse Are you free…? to invite someone. Use going to for a plan." } },
-      { id: "a2-plan-response", type: "interactive", order: 2, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "GUIDED_PRACTICE", title: "Respond to an invitation", instructions: "Choose the most natural response.", prompt: "A friend says: “Do you want to come to the park?”", options: ["Sure, I’d like to.", "I am going yesterday.", "Nice to meet Saturday."], correctAnswers: ["Sure, I’d like to."], explanation: "Sure, I’d like to is a natural way to accept an invitation.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 2, required: true } } },
-      { id: "a2-plan-builder", type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build a plan", instructions: "Select the words in the correct order.", prompt: "Make a sentence about your plan.", options: ["I’m", "going", "to", "call", "my friend."], correctAnswers: ["I’m", "going", "to", "call", "my friend."], explanation: "Use I’m going to + verb to talk about a plan.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-response", type: "interactive", order: 2, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "GUIDED_PRACTICE", title: "Respond to an invitation", instructions: "Choose the most natural response.", prompt: "A friend says: “Do you want to come to the park?”", options: ["Sure, I’d like to.", "I am going yesterday.", "Nice to meet Saturday."], correctAnswers: ["Sure, I’d like to."], explanation: "Sure, I’d like to is a natural way to accept an invitation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-builder", type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build a plan", instructions: "Select the words in the correct order.", prompt: "Make a sentence about your plan.", options: ["I’m", "going", "to", "call", "my friend."], correctAnswers: ["I’m", "going", "to", "call", "my friend."], explanation: "Use I’m going to + verb to talk about a plan.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
       { id: "a2-plan-check", type: "quiz_embed", order: 4, data: { prompt: "Which question asks about a future plan?", options: ["What are you going to do?", "Where you yesterday?", "Nice to meet plan."], correctAnswer: "What are you going to do?", explanation: "What are you going to do? asks about a future plan." } },
-      { id: "a2-plan-create-apply", type: "interactive", order: 5, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Invite a friend", instructions: "Write two or three sentences. Invite someone, say what you are going to do, and suggest a time.", prompt: "Write a short message to make a plan with a friend.", explanation: "You created a practical invitation. Read it aloud to rehearse the conversation.", competencyIds: ["EN-A2-SPK-PLANS-01"], estimatedMinutes: 3, required: true } } },
+      { id: "a2-plan-create-apply", type: "interactive", order: 5, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Invite a friend", instructions: "Write two or three sentences. Invite someone, say what you are going to do, and suggest a time.", prompt: "Write a short message to make a plan with a friend.", explanation: "You created a practical invitation. Read it aloud to rehearse the conversation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN", "EN.A2.WRITE.PLAN_ARRANGEMENT"], estimatedMinutes: 3, required: true } } },
     ],
     order: 1,
     estimatedMinutes: 12,

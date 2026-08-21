@@ -56,6 +56,11 @@ try {
   const progressId = `${owner.localId}_lesson-a1-intro`;
   const evidenceId = `learn_${owner.localId}_lesson-a1-intro_quiz-1_1`;
   const insightId = `mind_next_step_${owner.localId}_lurexa-self-paced`;
+  const tutorSessionId = `tutor_${owner.localId}`;
+  const spokenEvidenceId = `spoken_${owner.localId}`;
+  const retrievalId = `retrieval_${owner.localId}`;
+  const interventionId = `intervention_${owner.localId}`;
+  const now = new Date().toISOString();
 
   await database.collection("progress").doc(progressId).set({
     id: progressId,
@@ -65,10 +70,10 @@ try {
     courseId: "course-a1",
     completed: false,
     status: "in_progress",
-    startedAt: new Date().toISOString(),
+    startedAt: now,
     timeSpentSeconds: 0,
     attempts: [],
-    lastAccessedAt: new Date().toISOString(),
+    lastAccessedAt: now,
   });
 
   await database.collection("learning-evidence").doc(evidenceId).set({
@@ -82,7 +87,7 @@ try {
       activityId: "quiz-1",
     },
     type: "assessment_result",
-    observedAt: new Date().toISOString(),
+    observedAt: now,
     payload: { correct: true, attemptNumber: 1 },
     provenance: { method: "system_observed", actorId: owner.localId },
   });
@@ -107,7 +112,48 @@ try {
       }],
       interpretationVersion: "learn-next-step-v1",
     },
-    generatedAt: new Date().toISOString(),
+    generatedAt: now,
+  });
+
+  await database.collection("learn-tutor-sessions").doc(tutorSessionId).set({
+    id: tutorSessionId,
+    learnerId: owner.localId,
+    organizationId: "lurexa-self-paced",
+    courseId: "course-a1",
+    lessonId: "lesson-a1-intro",
+    activityId: "roleplay-1",
+    status: "active",
+    transcript: [],
+    provider: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await database.collection("spoken-evidence").doc(spokenEvidenceId).set({
+    id: spokenEvidenceId,
+    learnerId: owner.localId,
+    organizationId: "lurexa-self-paced",
+    courseId: "course-a1",
+    lessonId: "lesson-a1-intro",
+    activityId: "speaking-1",
+    storagePath: "server-only",
+    observedAt: now,
+  });
+  await database.collection("retrieval-schedules").doc(retrievalId).set({
+    id: retrievalId,
+    learnerId: owner.localId,
+    organizationId: "lurexa-self-paced",
+    courseId: "course-a1",
+    lessonId: "lesson-a1-intro",
+    dueAt: now,
+    status: "scheduled",
+  });
+  await database.collection("teacher-interventions").doc(interventionId).set({
+    id: interventionId,
+    learnerId: owner.localId,
+    organizationId: "lurexa-self-paced",
+    courseId: "course-a1",
+    status: "open",
+    createdAt: now,
   });
 
   assertStatus(
@@ -162,7 +208,25 @@ try {
     "learner clients cannot manufacture trusted Mind recommendations"
   );
 
-  console.log("Learn progress/evidence/Mind Firestore rule checks passed.");
+  for (const [collection, id, description] of [
+    ["learn-tutor-sessions", tutorSessionId, "server-owned tutor sessions"],
+    ["spoken-evidence", spokenEvidenceId, "spoken evidence records"],
+    ["retrieval-schedules", retrievalId, "retrieval schedules"],
+    ["teacher-interventions", interventionId, "teacher intervention records"],
+  ]) {
+    assertStatus(
+      await firestoreRequest(owner.idToken, "GET", collection, id),
+      403,
+      `${description} are not directly readable by learner clients`
+    );
+    assertStatus(
+      await firestoreRequest(owner.idToken, "PATCH", collection, id, { fields: { forged: { booleanValue: true } } }),
+      403,
+      `${description} cannot be forged by learner clients`
+    );
+  }
+
+  console.log("Learn progress/evidence/Mind/adaptation Firestore rule checks passed.");
 } finally {
   await database.terminate();
   await deleteApp(app);

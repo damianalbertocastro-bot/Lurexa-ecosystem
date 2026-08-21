@@ -7,7 +7,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { AuthService } from "@lurexa/backend";
-import type { Course, LearnerRecommendationAction, Lesson } from "@lurexa/types";
+import type { Course, LearnerRecommendationAction, Lesson, NextLearningAction } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { LurexaLearnLogo } from "../components/LurexaLearnLogo";
 
@@ -38,23 +38,38 @@ function nextStepBadge(outcome: LearnerRecommendationAction["outcome"]): string 
   return "Reinforce";
 }
 
+function nextActionSource(action: NextLearningAction): string {
+  if (action.kind === "retrieval") return "Delayed retrieval";
+  if (action.kind === "teacher_recommendation") return "Teacher guidance";
+  if (action.kind === "mind_recommendation") return "Lurexa Mind";
+  return "Curriculum sequence";
+}
+
 export default function StudentDashboardPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<LearnerCourseSummary[]>([]);
   const [gamification, setGamification] = useState<LearnerGamificationSummary | null>(null);
-  const [nextStep, setNextStep] = useState<LearnerRecommendationAction | null>(null);
+  const [nextAction, setNextAction] = useState<NextLearningAction | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
       try {
         if (user) {
-          const response = await authenticatedFetch("/api/learning?studentDashboard=1");
-          if (!response.ok) throw new Error("Unable to load dashboard.");
-          const dashboard = await response.json() as LearnerDashboardSummary;
+          const [dashboardResponse, adaptationResponse] = await Promise.all([
+            authenticatedFetch("/api/learning?studentDashboard=1"),
+            authenticatedFetch("/api/learning/adaptation"),
+          ]);
+          if (!dashboardResponse.ok) throw new Error("Unable to load dashboard.");
+          const dashboard = await dashboardResponse.json() as LearnerDashboardSummary;
           setCourses(dashboard.courses);
           setGamification(dashboard.gamification);
-          setNextStep(dashboard.nextStep);
+
+          if (adaptationResponse.ok) {
+            setNextAction(await adaptationResponse.json() as NextLearningAction);
+          } else if (dashboard.nextStep) {
+            setNextAction({ kind: "mind_recommendation", recommendation: dashboard.nextStep });
+          }
         }
       } catch (error: unknown) {
         alert(error instanceof Error ? error.message : "Unable to load dashboard.");
@@ -65,8 +80,11 @@ export default function StudentDashboardPage() {
     return unsubscribe;
   }, []);
 
-  const recommendationHref = nextStep?.courseId && nextStep.lessonId
-    ? `/learn/${nextStep.courseId}/${nextStep.lessonId}`
+  const recommendation = nextAction?.recommendation ?? null;
+  const recommendationHref = recommendation?.courseId && recommendation.lessonId
+    ? nextAction?.kind === "retrieval"
+      ? `/learn/${recommendation.courseId}/${recommendation.lessonId}?retrieval=${encodeURIComponent(nextAction.scheduleId)}`
+      : `/learn/${recommendation.courseId}/${recommendation.lessonId}`
     : null;
 
   return (
@@ -88,24 +106,26 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        {nextStep && (
+        {nextAction && recommendation && (
           <Card
             className="border-0 bg-white shadow-lg shadow-indigo-100/70"
             title="Recommended next step"
-            subtitle="Lurexa Mind uses your recent learning evidence to suggest a useful next move."
-            action={<Badge variant="info">{nextStepBadge(nextStep.outcome)}</Badge>}
+            subtitle={`${nextActionSource(nextAction)} · evidence-informed guidance`}
+            action={<Badge variant="info">{nextStepBadge(recommendation.outcome)}</Badge>}
           >
             <div className="space-y-4 pt-2">
               <div>
-                <p className="text-base font-semibold text-[var(--learn-ink)]">{nextStep.label}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{nextStep.reason}</p>
+                <p className="text-base font-semibold text-[var(--learn-ink)]">{recommendation.label}</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{recommendation.reason}</p>
               </div>
-              {nextStep.competencyIds?.length ? (
-                <p className="text-xs font-medium text-indigo-700">Focus: {nextStep.competencyIds.slice(0, 3).join(" · ")}</p>
+              {recommendation.competencyIds?.length ? (
+                <p className="text-xs font-medium text-indigo-700">Focus: {recommendation.competencyIds.slice(0, 3).join(" · ")}</p>
               ) : null}
               <div className="flex flex-wrap items-center gap-3">
                 {recommendationHref ? (
-                  <Button variant="primary" onClick={() => router.push(recommendationHref)}>Use this next step</Button>
+                  <Button variant="primary" onClick={() => router.push(recommendationHref)}>
+                    {nextAction.kind === "retrieval" ? "Retrieve now" : "Use this next step"}
+                  </Button>
                 ) : null}
                 <span className="text-xs text-slate-500">This is guidance, not a mastery or proficiency decision.</span>
               </div>
@@ -137,7 +157,7 @@ export default function StudentDashboardPage() {
             <p className="text-slate-500">Loading your courses...</p>
           ) : courses.length === 0 ? (
             <Card title="No Courses Enrolled">
-              <p className="text-sm text-slate-500 mb-4">
+              <p className="mb-4 text-sm text-slate-500">
                 Start a self-paced A1 path, or ask your teacher for a class code.
               </p>
               <Button variant="primary" onClick={() => router.push("/onboarding")}>Start my A1 path</Button>

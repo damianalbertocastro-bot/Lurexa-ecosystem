@@ -25,6 +25,11 @@ Integrated modes:
 - CREATE — applied production
 - PRAG — pragmatic competence
 - STRAT — learning/communication strategies
+- MED — mediation: relaying, summarizing, reframing, facilitating understanding and co-constructing meaning
+- ONLINE — online interaction across synchronous/asynchronous and multimodal communication
+- PLURI — plurilingual/pluricultural competence: using linguistic/cultural repertoires and navigating perspectives appropriately
+
+`MED`, `ONLINE`, and `PLURI` operationalize relevant CEFR Companion Volume dimensions. They should normally be integrated into authentic tasks rather than taught as isolated school subjects.
 
 ## 3. ID convention
 
@@ -37,7 +42,11 @@ Examples:
 - `EN.A1.SPEAK.INTRODUCE_SELF`
 - `EN.A1.LISTEN.PERSONAL_INFORMATION`
 - `EN.A1.PHON.FINAL_CONSONANTS`
+- `EN.A2.MED.RELAY_SIMPLE_INFORMATION`
+- `EN.B1.ONLINE.MANAGE_ROUTINE_EXCHANGE`
 - `EN.B1.CONV.EXPRESS_OPINION`
+- `EN.B2.MED.SUMMARIZE_ACCESSIBLE_SOURCES`
+- `EN.C1.PLURI.NAVIGATE_MULTIPLE_PERSPECTIVES`
 - `EN.C1.WRITE.ARGUMENTATIVE_ANALYSIS`
 
 IDs are stable internal identifiers. UI titles can change without changing historical competency evidence.
@@ -64,6 +73,9 @@ Where relevant, a competency may track separate evidence for:
 - recall;
 - guided production;
 - independent production;
+- interaction;
+- mediation;
+- online/multimodal performance;
 - transfer to new context;
 - retention over time;
 - teacher validation;
@@ -169,24 +181,41 @@ Where relevant, a competency may track separate evidence for:
 - `EN.A1.STRAT.LISTEN_FOR_KEYWORDS`
 - `EN.A1.STRAT.USE_CHUNKS`
 
+### Mediation, online interaction and pluricultural foundations
+
+At A1 these modes remain simple and highly scaffolded.
+
+- `EN.A1.MED.RELAY_PERSONAL_DETAIL` — relay a simple name, number, time, place or other highly familiar detail.
+- `EN.A1.MED.SHOW_OR_POINT_KEY_INFORMATION` — help another person identify straightforward information using words plus contextual support.
+- `EN.A1.ONLINE.SHORT_SOCIAL_EXCHANGE` — participate in a very short predictable digital greeting/message exchange.
+- `EN.A1.ONLINE.SHARE_BASIC_INFORMATION` — send or respond to simple personal/logistical information in a supported digital format.
+- `EN.A1.PLURI.USE_L1_STRATEGICALLY` — use available linguistic resources strategically to clarify meaning without replacing the English-learning objective.
+- `EN.A1.PLURI.RECOGNIZE_CULTURAL_DIFFERENCE` — notice that familiar social conventions may differ across contexts without evaluating one as inherently superior.
+
 ## 7. Cross-level progression anchors
 
-A2 should move from formulaic survival language to routine independent communication.  
-B1 should move to connected discourse, sustained interaction, narration and supported argument/opinion.  
-B2 should move to flexible spontaneous interaction, academic/professional functions and more authentic input.  
-C1 should move to complex argumentation, precision, register and nuanced discourse.  
-C2 should move to adaptive mastery across domains, accents, registers and abstract content.
+A2 should move from formulaic survival language to routine independent communication. Mediation expands to relaying straightforward practical information; online interaction expands to routine messages and coordination.
+
+B1 should move to connected discourse, sustained interaction, narration and supported argument/opinion. Mediation expands to summarizing accessible information and helping others follow familiar ideas; online interaction becomes independently manageable in familiar social/work/study contexts.
+
+B2 should move to flexible spontaneous interaction, academic/professional functions and more authentic input. Mediation includes synthesizing accessible sources and explaining specialist information for non-specialists; online interaction includes collaborative and audience-aware participation.
+
+C1 should move to complex argumentation, precision, register and nuanced discourse. Mediation includes facilitating complex discussion, reframing perspectives and synthesizing demanding material; pluricultural competence includes nuanced perspective-taking.
+
+C2 should move to adaptive mastery across domains, accents, registers and abstract content. Mediation includes strategic facilitation, expert reframing and audience-sensitive transformation of complex meaning across domains.
 
 Do not overload A1 with competencies better suited to A2 simply to make lessons richer.
 
 ## 8. Competency mastery rule
 
-A competency should not become MASTERED solely because a learner passed one multiple-choice item. Productive competencies require productive evidence. Conversation requires interaction evidence. Phonetics requires perception and/or production evidence appropriate to the target.
+A competency should not become MASTERED solely because a learner passed one multiple-choice item. Productive competencies require productive evidence. Conversation requires interaction evidence. Phonetics requires perception and/or production evidence appropriate to the target. Mediation requires evidence that meaning was successfully relayed, reformulated, facilitated or co-constructed for a defined purpose. Online interaction requires actual or simulated interactive digital performance.
 
 ## 9. Retention rule
 
 Important competencies should be retrieved after the original unit. Strong later performance increases retention confidence; repeated later difficulty can move a competency to NEEDS_REVALIDATION.
 
-## 10. MVP expansion rule
+## 10. A2-C2 matrix expansion rule
 
-A1 is production-ready first. A2-C2 competency matrices should be expanded before those levels are released. The ID system and state model should be implemented in a way that does not require redesign when later levels are added.
+A1 is production-ready first. A2-C2 competency matrices must be expanded before those levels are released. Each matrix should include all relevant skill and integrated families, prerequisites, evidence types, mastery expectations, transfer contexts and planned retrieval points.
+
+The full macro-curriculum direction is defined in `11-ENGLISH-PROGRAM-MAP-A1-C2.md`.
