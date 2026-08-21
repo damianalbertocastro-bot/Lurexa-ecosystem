@@ -1,7 +1,11 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { StudentProgress } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
-import { CoursePlatformService, type AuthenticatedActor } from "./course-platform.server";
+import {
+  CoursePlatformService,
+  type AuthenticatedActor,
+  type LearnerDashboardSummary,
+} from "./course-platform.server";
 
 async function attachAttemptAnswer(
   actor: AuthenticatedActor,
@@ -34,6 +38,31 @@ async function attachAttemptAnswer(
 }
 
 export const LearnProgressService = {
+  async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
+    const dashboard = await CoursePlatformService.getLearnerDashboard(actor);
+    const progressSnapshots = await getServerFirestore()
+      .collection("progress")
+      .where("studentId", "==", actor.uid)
+      .get();
+    const resumable = progressSnapshots.docs
+      .map((snapshot) => snapshot.data() as StudentProgress)
+      .filter((entry) => !entry.completed && (entry.status === "in_progress" || typeof entry.startedAt === "string"))
+      .sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt));
+
+    for (const entry of resumable) {
+      const courseSummary = dashboard.courses.find(({ course }) => course.id === entry.courseId);
+      if (!courseSummary) continue;
+      try {
+        const { lesson } = await CoursePlatformService.getLesson(actor, entry.courseId, entry.lessonId);
+        courseSummary.nextLesson = lesson;
+      } catch {
+        // Ignore stale progress that no longer points to an accessible published lesson.
+      }
+    }
+
+    return dashboard;
+  },
+
   async startLesson(
     actor: AuthenticatedActor,
     courseId: string,
