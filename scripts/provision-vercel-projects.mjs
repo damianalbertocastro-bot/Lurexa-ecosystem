@@ -59,9 +59,9 @@ function projectConfig(entry) {
     rootDirectory: entry.rootDirectory,
     installCommand: "cd ../.. && pnpm install --frozen-lockfile",
     buildCommand: `cd ../.. && pnpm --filter ${selector} build`,
-    // VERCEL_GIT_PREVIOUS_SHA is not guaranteed to exist for every preview.
-    // turbo-ignore handles that case safely with the documented HEAD^1 fallback.
-    commandForIgnoringBuildStep: "npx --yes turbo-ignore --fallback=HEAD^1",
+    // Vercel now provides native affected-project skipping for Turborepo monorepos.
+    // Clear any legacy/custom ignored-build command so the built-in mechanism owns this behavior.
+    commandForIgnoringBuildStep: null,
     enableAffectedProjectsDeployments: true,
     nodeVersion: "24.x",
   };
