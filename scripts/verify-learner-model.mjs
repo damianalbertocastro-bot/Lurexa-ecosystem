@@ -23,9 +23,13 @@ function forbidText(path, content, forbidden) {
 const [
   typeIndex,
   learnerTypes,
+  learningExperienceTypes,
   coursePlatform,
   learnerContext,
   mindIntelligence,
+  capabilityBoundary,
+  tutorRoute,
+  spokenEvidenceRoute,
   coachPlatform,
   learnDashboard,
   firestoreRules,
@@ -34,9 +38,13 @@ const [
 ] = await Promise.all([
   source("packages/types/src/index.ts"),
   source("packages/types/src/learner.ts"),
+  source("packages/types/src/learning-experience.ts"),
   source("packages/backend/src/course-platform.server.ts"),
   source("packages/backend/src/learner-context.server.ts"),
   source("packages/backend/src/mind-learning-intelligence.server.ts"),
+  source("packages/backend/src/learning-capability.server.ts"),
+  source("apps/learn-web/app/api/learning/tutor/route.ts"),
+  source("apps/learn-web/app/api/learning/spoken-evidence/route.ts"),
   source("packages/backend/src/coach-platform.server.ts"),
   source("apps/learn-web/app/dashboard/page.tsx"),
   source("firestore.rules"),
@@ -50,6 +58,8 @@ requireText("packages/types/src/learner.ts", learnerTypes, "export interface Lea
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerContext");
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerInsight");
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerRecommendationAction");
+requireText("packages/types/src/learning-experience.ts", learningExperienceTypes, "The server resolves the authoritative AI-roleplay capability");
+forbidText("packages/types/src/learning-experience.ts", learningExperienceTypes, "capability: AIRoleplayCapability;");
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "curriculum_progress"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "assessment_result"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "activity_result"');
@@ -58,6 +68,10 @@ requireText("packages/backend/src/learner-context.server.ts", learnerContext, "c
 requireText("packages/backend/src/learner-context.server.ts", learnerContext, "activeOrganizationId");
 requireText("packages/backend/src/mind-learning-intelligence.server.ts", mindIntelligence, 'const interpretationVersion = "learn-next-step-v1"');
 requireText("packages/backend/src/mind-learning-intelligence.server.ts", mindIntelligence, 'outcome: "continue"');
+requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "resolveLearningCapability");
+requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "persisted lesson object");
+forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.capability");
+forbidText("apps/learn-web/app/api/learning/spoken-evidence/route.ts", spokenEvidenceRoute, "capabilityValue");
 requireText("packages/backend/src/coach-platform.server.ts", coachPlatform, "recommendedActions");
 requireText("apps/learn-web/app/dashboard/page.tsx", learnDashboard, "Recommended next step");
 requireText("firestore.rules", firestoreRules, "match /learning-evidence/{evidenceId}");
