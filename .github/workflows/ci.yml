@@ -49,6 +49,9 @@ jobs:
       - name: Verify Learn Teacher Workspace Boundary
         run: pnpm verify:teacher-workspace
 
+      - name: Verify Production Honesty
+        run: pnpm verify:production-honesty
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 
