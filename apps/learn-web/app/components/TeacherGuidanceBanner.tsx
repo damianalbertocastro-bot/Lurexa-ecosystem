@@ -43,9 +43,10 @@ export function TeacherGuidanceBanner() {
 
   if (pathname.startsWith("/teacher") || !guidance?.response) return null;
 
-  const response = guidance.response;
-  const lessonHref = guidance.recentLessonId
-    ? `/learn/${guidance.courseId}/${guidance.recentLessonId}`
+  const currentGuidance = guidance;
+  const response = currentGuidance.response;
+  const lessonHref = currentGuidance.recentLessonId
+    ? `/learn/${currentGuidance.courseId}/${currentGuidance.recentLessonId}`
     : null;
 
   async function acknowledge() {
@@ -56,7 +57,7 @@ export function TeacherGuidanceBanner() {
       const result = await authenticatedFetch("/api/learning/teacher-intervention", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "acknowledge", interventionId: guidance.id }),
+        body: JSON.stringify({ action: "acknowledge", interventionId: currentGuidance.id }),
       });
       const body: unknown = await result.json();
       if (!result.ok) throw new Error(readError(body, "Unable to mark teacher guidance as reviewed."));
