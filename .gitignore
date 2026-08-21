@@ -12,6 +12,9 @@ out/
 .vercel
 .env*
 
+# Generated local repository inspection artifacts
+repo_snapshot.txt
+
 # Firebase Local Emulator Suite diagnostics
 firebase-debug.log
 firestore-debug.log
