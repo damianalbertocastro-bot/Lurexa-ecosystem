@@ -21,6 +21,7 @@
     "verify:phase0": "pnpm phase0:lint && pnpm phase0:check-types && pnpm phase0:build",
     "verify:linguistic-intelligence": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && node scripts/verify-linguistic-intelligence.mjs",
     "verify:learner-model": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && pnpm --filter learn-web check-types && node scripts/verify-learner-model.mjs",
+    "verify:mind-recommendations": "node scripts/verify-mind-recommendations.mjs",
     "firebase:emulators": "firebase emulators:start --only auth,firestore"
   },
   "pnpm": {

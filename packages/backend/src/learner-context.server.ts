@@ -3,6 +3,8 @@ import type {
   LearnerDomain,
   LearnerInsight,
   LearnerPattern,
+  LearnerRecommendationAction,
+  LearningEvidence,
   StudentProgress,
 } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
@@ -48,9 +50,19 @@ function pushUnique(target: string[], values: string[]): void {
   for (const value of values) if (!target.includes(value)) target.push(value);
 }
 
+function scopeEvidence(evidence: LearningEvidence[], organizationId: string | null): LearningEvidence[] {
+  return evidence.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
+}
+
+function scopeInsights(insights: LearnerInsight[], organizationId: string | null): LearnerInsight[] {
+  return insights.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
+}
+
 /**
  * Trusted Core read boundary for learner context. It intentionally returns a
  * small purpose-scoped projection and never exposes raw evidence payloads.
+ * Organization-scoped evidence follows the learner's most recently accessed
+ * Learn course so institution-specific signals are never mixed implicitly.
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
@@ -68,7 +80,7 @@ export async function getScopedLearnerContext(input: {
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const insightRepository = new FirestoreLearnerInsightRepository();
 
-  const [progressSnapshot, evidence, insights, profileSnapshot] = await Promise.all([
+  const [progressSnapshot, allEvidence, allInsights, profileSnapshot] = await Promise.all([
     database.collection("progress").where("studentId", "==", input.learnerId).get(),
     evidenceRepository.listByLearner(input.learnerId),
     insightRepository.listActiveByLearner(input.learnerId),
@@ -79,6 +91,14 @@ export async function getScopedLearnerContext(input: {
     .map((snapshot) => snapshot.data() as StudentProgress)
     .sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt));
   const latestProgress = progress[0];
+  const latestCourseSnapshot = latestProgress
+    ? await database.collection("courses").doc(latestProgress.courseId).get()
+    : null;
+  const activeOrganizationId = latestCourseSnapshot?.exists && typeof latestCourseSnapshot.data()?.orgId === "string"
+    ? latestCourseSnapshot.data()!.orgId as string
+    : null;
+  const evidence = scopeEvidence(allEvidence, activeOrganizationId);
+  const insights = scopeInsights(allInsights, activeOrganizationId);
   const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
 
   const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
@@ -90,6 +110,7 @@ export async function getScopedLearnerContext(input: {
 
   const context: LearnerContext = {
     learnerId: input.learnerId,
+    ...(activeOrganizationId ? { organizationId: activeOrganizationId } : {}),
     generatedAt: new Date().toISOString(),
   };
 
@@ -139,6 +160,18 @@ export async function getScopedLearnerContext(input: {
     .sort((first, second) => (second.confidence ?? 0) - (first.confidence ?? 0));
   if (recurringPatterns.length > 0) context.recurringPatterns = recurringPatterns;
 
+  if (domainSet.has("recommendation")) {
+    const recommendationInsight = latestInsight(filteredInsights, "recommendation");
+    if (recommendationInsight?.data?.kind === "recommendation") {
+      const recommendations: LearnerRecommendationAction[] = recommendationInsight.data.recommendations ?? recommendationInsight.data.actions.map((label) => ({
+        outcome: "reinforce",
+        label,
+        reason: recommendationInsight.summary,
+      }));
+      if (recommendations.length > 0) context.recommendations = recommendations.slice(0, 3);
+    }
+  }
+
   const recentActivityIds = evidence
     .slice()
     .sort((first, second) => second.observedAt.localeCompare(first.observedAt))
@@ -161,7 +194,9 @@ export async function getScopedLearnerContext(input: {
     },
     limitations: [
       "Context is purpose-scoped and excludes raw learner responses.",
+      "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
+      "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
       "Recent activity is evidence of participation, not a mastery determination.",
       "Legacy Learn evidence is normalized at the repository boundary until its producer is migrated.",
     ],

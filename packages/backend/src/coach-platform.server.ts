@@ -20,6 +20,11 @@ function buildOpeningMessage(result: CoachSessionStartResult["learnerContext"]):
     parts.push("We'll prioritize intelligibility, naturalness, and useful speaking practice rather than accent erasure.");
   }
 
+  const recommendation = result.recommendations?.[0];
+  if (recommendation) {
+    parts.push(`Your current Lurexa next step is: ${recommendation.label}. I'll keep that in mind without treating it as a mastery judgment.`);
+  }
+
   return parts.join(" ");
 }
 
@@ -58,6 +63,9 @@ export const CoachPlatformService = {
           : {}),
         ...(scoped.context.activeTargets?.fluency?.length
           ? { fluencyTargets: scoped.context.activeTargets.fluency }
+          : {}),
+        ...(scoped.context.recommendations?.length
+          ? { recommendedActions: scoped.context.recommendations }
           : {}),
       },
       transcript: [

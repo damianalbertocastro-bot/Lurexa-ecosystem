@@ -7,7 +7,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { AuthService } from "@lurexa/backend";
-import { Course, Lesson } from "@lurexa/types";
+import type { Course, LearnerRecommendationAction, Lesson } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { LurexaLearnLogo } from "../components/LurexaLearnLogo";
 
@@ -28,12 +28,21 @@ interface LearnerGamificationSummary {
 interface LearnerDashboardSummary {
   courses: LearnerCourseSummary[];
   gamification: LearnerGamificationSummary;
+  nextStep: LearnerRecommendationAction | null;
+}
+
+function nextStepBadge(outcome: LearnerRecommendationAction["outcome"]): string {
+  if (outcome === "continue") return "Continue";
+  if (outcome === "retry") return "Retry";
+  if (outcome === "targeted_practice") return "Targeted practice";
+  return "Reinforce";
 }
 
 export default function StudentDashboardPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<LearnerCourseSummary[]>([]);
   const [gamification, setGamification] = useState<LearnerGamificationSummary | null>(null);
+  const [nextStep, setNextStep] = useState<LearnerRecommendationAction | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,6 +54,7 @@ export default function StudentDashboardPage() {
           const dashboard = await response.json() as LearnerDashboardSummary;
           setCourses(dashboard.courses);
           setGamification(dashboard.gamification);
+          setNextStep(dashboard.nextStep);
         }
       } catch (error: unknown) {
         alert(error instanceof Error ? error.message : "Unable to load dashboard.");
@@ -55,10 +65,13 @@ export default function StudentDashboardPage() {
     return unsubscribe;
   }, []);
 
+  const recommendationHref = nextStep?.courseId && nextStep.lessonId
+    ? `/learn/${nextStep.courseId}/${nextStep.lessonId}`
+    : null;
+
   return (
     <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header with Gamification */}
         <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4"><LurexaLearnLogo /><div>
             <p className="text-xs font-bold tracking-[.16em] text-indigo-700">YOUR LEARNING SPACE</p>
@@ -74,6 +87,31 @@ export default function StudentDashboardPage() {
             </button>
           </div>
         </div>
+
+        {nextStep && (
+          <Card
+            className="border-0 bg-white shadow-lg shadow-indigo-100/70"
+            title="Recommended next step"
+            subtitle="Lurexa Mind uses your recent learning evidence to suggest a useful next move."
+            action={<Badge variant="info">{nextStepBadge(nextStep.outcome)}</Badge>}
+          >
+            <div className="space-y-4 pt-2">
+              <div>
+                <p className="text-base font-semibold text-[var(--learn-ink)]">{nextStep.label}</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{nextStep.reason}</p>
+              </div>
+              {nextStep.competencyIds?.length ? (
+                <p className="text-xs font-medium text-indigo-700">Focus: {nextStep.competencyIds.slice(0, 3).join(" · ")}</p>
+              ) : null}
+              <div className="flex flex-wrap items-center gap-3">
+                {recommendationHref ? (
+                  <Button variant="primary" onClick={() => router.push(recommendationHref)}>Use this next step</Button>
+                ) : null}
+                <span className="text-xs text-slate-500">This is guidance, not a mastery or proficiency decision.</span>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Courses" subtitle="Your active learning paths">
@@ -94,7 +132,6 @@ export default function StudentDashboardPage() {
           </Card>
         </div>
 
-        {/* Course Cards Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {loading ? (
             <p className="text-slate-500">Loading your courses...</p>

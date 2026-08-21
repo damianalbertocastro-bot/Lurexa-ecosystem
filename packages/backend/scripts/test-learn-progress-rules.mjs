@@ -55,6 +55,7 @@ try {
   const other = await createUser("other");
   const progressId = `${owner.localId}_lesson-a1-intro`;
   const evidenceId = `learn_${owner.localId}_lesson-a1-intro_quiz-1_1`;
+  const insightId = `mind_next_step_${owner.localId}_lurexa-self-paced`;
 
   await database.collection("progress").doc(progressId).set({
     id: progressId,
@@ -84,6 +85,29 @@ try {
     observedAt: new Date().toISOString(),
     payload: { correct: true, attemptNumber: 1 },
     provenance: { method: "system_observed", actorId: owner.localId },
+  });
+
+  await database.collection("learner-insights").doc(insightId).set({
+    id: insightId,
+    learnerId: owner.localId,
+    organizationId: "lurexa-self-paced",
+    domain: "recommendation",
+    summary: "Continue with supported practice.",
+    confidence: 0.7,
+    basedOnEvidenceIds: [evidenceId],
+    data: {
+      kind: "recommendation",
+      actions: ["Continue"],
+      recommendations: [{
+        outcome: "continue",
+        label: "Continue",
+        reason: "Recent evidence supports normal continuation.",
+        courseId: "course-a1",
+        lessonId: "lesson-a1-intro",
+      }],
+      interpretationVersion: "learn-next-step-v1",
+    },
+    generatedAt: new Date().toISOString(),
   });
 
   assertStatus(
@@ -120,8 +144,25 @@ try {
     403,
     "another learner cannot read learning evidence"
   );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "GET", "learner-insights", insightId),
+    403,
+    "Mind recommendations remain behind the trusted Core read boundary"
+  );
+  assertStatus(
+    await firestoreRequest(other.idToken, "GET", "learner-insights", insightId),
+    403,
+    "another learner cannot read persisted Mind recommendations"
+  );
+  assertStatus(
+    await firestoreRequest(owner.idToken, "PATCH", "learner-insights", insightId, {
+      fields: { summary: { stringValue: "Forged recommendation" } },
+    }),
+    403,
+    "learner clients cannot manufacture trusted Mind recommendations"
+  );
 
-  console.log("Learn progress/evidence Firestore rule checks passed.");
+  console.log("Learn progress/evidence/Mind Firestore rule checks passed.");
 } finally {
   await database.terminate();
   await deleteApp(app);

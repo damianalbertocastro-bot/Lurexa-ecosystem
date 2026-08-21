@@ -46,6 +46,9 @@ jobs:
       - name: Verify Learner Model Architecture
         run: pnpm verify:learner-model
 
+      - name: Verify Mind Recommendations
+        run: pnpm verify:mind-recommendations
+
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules
 
