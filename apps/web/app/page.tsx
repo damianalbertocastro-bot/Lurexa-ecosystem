@@ -63,7 +63,7 @@ function CapabilityIcon({ name }: { name: CapabilityName }) {
 export default function Home() {
   return <main className={styles.page}>
     <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
-      <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark compact /><span>Lurexa</span></a>
+      <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark compact size="sm" /><span>Lurexa</span></a>
       <div className={styles.navLinks}><a href="#products">Products</a><a href="#shared-intelligence">How it works</a><a href="#values">Values</a></div>
       <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
     </nav>
@@ -77,8 +77,8 @@ export default function Home() {
         <p className={styles.microcopy}>One learner. One evolving model. Every experience adapts around it.</p>
       </div>
       <div className={styles.orbit} aria-label="Interactive Lurexa product map">
-        <div className={styles.orbitCore}><MasterMark compact /><span>Learn.<br/>Connect.<br/><b>Grow.</b></span></div>
-        {products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductMark product={product.id} compact /><span>{product.shortName}</span></a>)}
+        <div className={styles.orbitCore}><MasterMark compact size="lg" /><span>Learn.<br/>Connect.<br/><b>Grow.</b></span></div>
+        {products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductMark product={product.id} compact size="lg" /><span>{product.shortName}</span></a>)}
       </div>
     </section>
 
@@ -92,7 +92,7 @@ export default function Home() {
 
     <section id="products" className={styles.products}>
       <div className={styles.sectionHeading}><p className={styles.kicker}>THE PRODUCT FAMILY</p><h2>Distinct experiences.<br/><em>One intelligent relationship.</em></h2><p>Every product has its own role, visual signature, and purpose—while contributing to the same evolving learner model.</p></div>
-      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductMark product={product.id} compact /></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.shortName}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
+      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductMark product={product.id} compact size="lg" /></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.shortName}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">
@@ -101,12 +101,12 @@ export default function Home() {
     </section>
 
     <section id="shared-intelligence" className={styles.intelligence}>
-      <div className={styles.intelligenceVisual}><div className={styles.signalOne}/><div className={styles.signalTwo}/><div className={styles.signalThree}/><div className={styles.intelligenceCore}><MasterMark compact /><span>ONE<br/>LEARNER</span></div></div>
+      <div className={styles.intelligenceVisual}><div className={styles.signalOne}/><div className={styles.signalTwo}/><div className={styles.signalThree}/><div className={styles.intelligenceCore}><MasterMark compact size="lg" /><span>ONE<br/>LEARNER</span></div></div>
       <div className={styles.intelligenceCopy}><p className={styles.kicker}>SHARED INTELLIGENCE, HUMANLY USED</p><h2>Progress should not reset when the experience changes.</h2><p>Learners can move between Learn and Coach without starting over because authorized context can travel through the shared Core/Mind foundation. Educators use that same trusted foundation in Teach for professional growth, evidence, credentials, and community—while classroom operations remain in Learn.</p><div className={styles.principles}><span>Trusted by Core</span><span>Interpreted by Mind</span><span>Experienced through products</span></div></div>
     </section>
 
     <section id="values" className={styles.values}><div className={styles.valueIntro}><p className={styles.kicker}>WHAT GUIDES US</p><h2>Technology should make education feel more personal, not less.</h2></div><div className={styles.valueList}><article><span>♡</span><h3>Learner first</h3><p>We design around real goals, confidence, and dignity.</p></article><article><span>✦</span><h3>Connected by design</h3><p>Useful context moves with people across their learning life.</p></article><article><span>✓</span><h3>Trust is essential</h3><p>Safety, clarity, and responsible data use are not optional.</p></article><article><span>↗</span><h3>Growth with impact</h3><p>We measure progress by what learners can meaningfully do.</p></article></div></section>
 
-    <footer className={styles.footer}><div className={styles.footerBrand}><MasterMark compact /><b>Lurexa</b></div><p>Learn. Connect. Grow.</p><a href="#top">Back to top ↑</a><span>© 2026 Lurexa Learning Technologies</span></footer>
+    <footer className={styles.footer}><div className={styles.footerBrand}><MasterMark compact size="sm" /><b>Lurexa</b></div><p>Learn. Connect. Grow.</p><a href="#top">Back to top ↑</a><span>© 2026 Lurexa Learning Technologies</span></footer>
   </main>;
 }
