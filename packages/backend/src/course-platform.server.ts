@@ -312,7 +312,7 @@ export const CoursePlatformService = {
     return Promise.all(courses.map(async (course) => ({
       course,
       lessons: (await getCourseLessons(course)).map(({ module, lesson }) => ({ moduleTitle: module.title, lesson })),
-    }));
+    })));
   },
 
   async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
