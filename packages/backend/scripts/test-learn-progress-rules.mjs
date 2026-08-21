@@ -1,3 +1,5 @@
+/* eslint-disable no-undef, turbo/no-undeclared-env-vars */
+
 import { initializeApp, deleteApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
