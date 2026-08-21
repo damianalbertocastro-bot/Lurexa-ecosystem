@@ -96,6 +96,20 @@ for (const [file, expected] of shellExpectations) {
 }
 if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web shells expose canonical product/company metadata");
 
+const appIcons = [
+  "apps/web/app/icon.svg",
+  "apps/learn-web/app/icon.svg",
+  "apps/teacher-portal/app/icon.svg",
+  "apps/teach-web/app/icon.svg",
+  "apps/admin-portal/app/icon.svg",
+  "apps/docs/app/icon.svg",
+];
+for (const icon of appIcons) {
+  if (!exists(icon)) fail(`Missing canonical shell icon: ${icon}`);
+}
+if (exists("apps/web/app/favicon.ico")) fail("Legacy ecosystem favicon.ico must not override the canonical master icon.svg");
+if (!failures.some((item) => item.includes("icon") || item.includes("favicon"))) pass("current web shells use canonical app icons");
+
 const relatedExperiences = read("packages/ui/src/RelatedExperiences.tsx");
 if (relatedExperiences.includes('| "community"') || relatedExperiences.includes('kind === "community"')) {
   fail("RelatedExperiences uses ambiguous community identity; use teach-community until Lurexa Community activates");
