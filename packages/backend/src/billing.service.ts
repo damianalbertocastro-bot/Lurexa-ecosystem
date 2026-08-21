@@ -1,10 +1,10 @@
-import { doc, getDoc, setDoc, increment } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, increment, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { Subscription, PricingPlan } from "@lurexa/types";
+import type { OrganizationMember, PricingPlan, Subscription } from "@lurexa/types";
 
 export interface PlanLimits {
   maxStudents: number;
-  maxCourses: number; // -1 for unlimited
+  maxCourses: number;
   aiQueriesPerStudentMonth: number;
   offlineSupport: boolean;
   advancedAnalytics: boolean;
@@ -42,51 +42,35 @@ export const PLAN_CONFIGS: Record<PricingPlan, PlanLimits> = {
 };
 
 export const BillingService = {
-  /**
-   * Get subscription details for an organization
-   */
   async getSubscription(orgId: string): Promise<Subscription | null> {
-    const ref = doc(db, "subscriptions", orgId);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-    return snap.data() as Subscription;
+    const snapshot = await getDoc(doc(db, "subscriptions", orgId));
+    return snapshot.exists() ? snapshot.data() as Subscription : null;
   },
 
-  /**
-   * Get effective plan limits for an organization
-   */
   async getOrgPlanLimits(orgId: string): Promise<PlanLimits> {
-    const sub = await this.getSubscription(orgId);
-    const plan = sub?.plan || "free";
-    return PLAN_CONFIGS[plan];
+    const subscription = await this.getSubscription(orgId);
+    return PLAN_CONFIGS[subscription?.plan ?? "free"];
   },
 
-  /**
-   * Create checkout session stub for upgrading plans (Stripe)
-   */
-  async createCheckoutSession(orgId: string, targetPlan: PricingPlan): Promise<{ checkoutUrl: string }> {
-    // Calls Stripe API via server action or Cloud Function
-    return {
-      checkoutUrl: `https://checkout.stripe.com/pay/demo_${orgId}_${targetPlan}`,
-    };
+  async getStudentSeatUsage(orgId: string): Promise<number> {
+    const members = await getDocs(collection(db, "organizations", orgId, "members"));
+    return members.docs
+      .map((member) => member.data() as OrganizationMember)
+      .filter((member) => member.role === "student").length;
   },
 
-  /**
-   * Track usage for a metric (e.g. AI queries)
-   */
+  async createCheckoutSession(_orgId: string, _targetPlan: PricingPlan): Promise<{ checkoutUrl: string }> {
+    throw new Error("Paid checkout is not configured yet. No payment has been initiated.");
+  },
+
   async recordUsage(orgId: string, metric: "ai_queries" | "students" | "courses", amount = 1): Promise<void> {
-    const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
-    const ref = doc(db, "usage_records", `${orgId}_${metric}_${currentPeriod}`);
-    
-    await setDoc(
-      ref,
-      {
-        orgId,
-        metric,
-        count: increment(amount),
-        periodStart: `${currentPeriod}-01`,
-      },
-      { merge: true }
-    );
+    const currentPeriod = new Date().toISOString().slice(0, 7);
+    const reference = doc(db, "usage_records", `${orgId}_${metric}_${currentPeriod}`);
+    await setDoc(reference, {
+      orgId,
+      metric,
+      count: increment(amount),
+      periodStart: `${currentPeriod}-01`,
+    }, { merge: true });
   },
 };
