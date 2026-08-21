@@ -18,6 +18,16 @@ if (!token || !teamId) {
   process.exit(1);
 }
 
+if (token === "YOUR_VERCEL_TOKEN" || token.includes("YOUR_")) {
+  console.error("VERCEL_TOKEN is still a placeholder. Set a real Vercel access token locally before continuing.");
+  process.exit(1);
+}
+
+if (!teamId.startsWith("team_")) {
+  console.error("VERCEL_TEAM_ID must be a Vercel team ID beginning with 'team_'.");
+  process.exit(1);
+}
+
 const headers = {
   Authorization: `Bearer ${token}`,
   "Content-Type": "application/json",
@@ -49,8 +59,9 @@ function projectConfig(entry) {
     rootDirectory: entry.rootDirectory,
     installCommand: "cd ../.. && pnpm install --frozen-lockfile",
     buildCommand: `cd ../.. && pnpm --filter ${selector} build`,
-    outputDirectory: ".next",
-    commandForIgnoringBuildStep: `cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages ${selector} --exit-code`,
+    // Vercel now provides native affected-project skipping for Turborepo monorepos.
+    // Clear any legacy/custom ignored-build command so the built-in mechanism owns this behavior.
+    commandForIgnoringBuildStep: null,
     enableAffectedProjectsDeployments: true,
     nodeVersion: "24.x",
   };
