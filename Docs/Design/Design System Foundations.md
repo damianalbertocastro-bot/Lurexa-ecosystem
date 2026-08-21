@@ -19,14 +19,53 @@ Lurexa should feel calm, capable and human—not like a generic quiz app or an o
 
 ## Product expression
 
-| Product | Interaction emphasis |
+| Product / surface | Interaction emphasis |
 | --- | --- |
-| Learn | focus, progress, clear next action, low cognitive load |
+| Learn — learner experience | focus, progress, clear next action, low cognitive load |
+| Learn — teacher workspace | scanning, class operations, learner support, context before action |
 | Coach | safety to speak, turn-taking, understandable feedback, visible privacy context |
-| Teach | scanning, instructional decisions, context before action |
+| Teach | professional growth, reflection, evidence, credentials, community, clear developmental next steps |
 | Admin | safety, permissions, auditability, destructive-action clarity |
 | Insight | comparison and interpretation without false precision |
 | Studio | structured authoring, preview, validation and version status |
+| Docs | authority, discoverability, long-form readability, source provenance, navigation between canonical knowledge and product behavior |
+
+The Learn teacher workspace must not be visually or conceptually relabeled as Lurexa Teach. Teach is the educator professional-development product; Learn owns operational teaching and learner management.
+
+## Brand-family marks
+
+Lurexa uses a family system rather than repeating the master mark for every surface.
+
+- The **Master Mark** represents Lurexa Learning Technologies and the ecosystem as a whole.
+- Product marks should preserve family resemblance through geometry, weight, spacing and the shared navy/violet/blue/cyan language while expressing a distinct product idea.
+- A product or major ecosystem surface must not simply reuse the Master Mark with a different text label when a differentiated symbol improves recognition.
+- Learn, Coach, Teach, Admin, Insight and Studio use their dedicated product glyphs from `@lurexa/ui/ProductMark`.
+- Docs uses its dedicated knowledge/documentation glyph from `@lurexa/ui/DocsMark`; the Master Mark remains the appropriate link back to the parent ecosystem.
+- Feature identities such as Teach Community should inherit their parent-product identity rather than being promoted into a false top-level product.
+
+A new product mark should be recognizable at compact icon size, work without the wordmark, remain legible on light/dark surfaces, and avoid copying the silhouette of an existing Lurexa mark.
+
+## Related Lurexa experiences
+
+Main product landing pages and primary dashboards should end with a contextual **Related Lurexa Experiences** section when there are useful adjacent experiences.
+
+The goal is ecosystem continuity, not cross-selling. Recommendations must be role-aware and task-aware:
+
+- learners should see the most relevant practice or learning continuation first;
+- teachers operating inside Learn should see Teach, Teach Community, Coach and Docs where relevant;
+- educators inside Teach should be able to return to the Learn teacher workspace without confusing product ownership;
+- administrators should receive context from Insight, Docs and the products they govern;
+- Docs should connect source-of-truth material back to the products where those decisions become behavior.
+
+Rules:
+
+1. Use the shared `@lurexa/ui/RelatedExperiences` component rather than rebuilding local card grids.
+2. Prioritize the highest-value adjacent experience in the first, visually dominant card.
+3. Do not show every Lurexa product to every user; relevance beats catalog completeness.
+4. Clearly distinguish a product from a feature (for example, **Teach Community** is a Teach feature, not a seventh product).
+5. Preserve the current product's primary task hierarchy. Related experiences belong near the bottom of landing/dashboard surfaces, not above the user's main work.
+6. Cross-product links should use deployment environment variables with a safe ecosystem fallback rather than hard-coded environment-specific hosts.
+7. The section should reinforce the principle: **One learner. One evolving model. Every Lurexa experience adapts around it.** For educator experiences, the same continuity principle applies without creating duplicate identities or profiles.
 
 ## Tokens and components
 
