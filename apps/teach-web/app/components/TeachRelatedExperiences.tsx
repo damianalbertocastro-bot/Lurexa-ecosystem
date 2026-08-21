@@ -15,14 +15,14 @@ export function TeachRelatedExperiences() {
 
   const items: RelatedExperience[] = pathname === "/dashboard"
     ? [
-        { kind: "community", title: "Teach Community", description: "Exchange classroom practice, evidence, resources, and feedback with educators who are growing too.", href: "/community", badge: "Inside Teach", cta: "Join the community" },
+        { kind: "teach-community", title: "Teach Community", description: "Exchange classroom practice, evidence, resources, and feedback with educators who are growing too.", href: "/community", badge: "Inside Teach", cta: "Join the community" },
         { kind: "learn", title: "Lurexa Learn · Teacher workspace", description: "Move from professional growth back into class operations, assignments, learner progress, and instructional support.", href: teacherWorkspaceUrl, cta: "Open teacher workspace" },
         { kind: "docs", title: "Lurexa Docs", description: "Use the canonical methodology, architecture, curriculum, and product documentation behind the ecosystem.", href: docsUrl, cta: "Open Docs" },
         { kind: "coach", title: "Lurexa Coach", description: "Strengthen your own speaking and pronunciation with guided practice connected to your Lurexa profile.", href: coachUrl, cta: "Practice with Coach" },
       ]
     : [
         { kind: "learn", title: "Lurexa Learn · Teacher workspace", description: "Teach owns your professional growth. Learn remains the place to manage classes, assignments, and learner progress.", href: teacherWorkspaceUrl, badge: "Operational workspace", cta: "Go to Learn" },
-        { kind: "community", title: "Teach Community", description: "Professional growth is stronger when reflection, evidence, and peer exchange happen together.", href: "/community", cta: "Meet the community" },
+        { kind: "teach-community", title: "Teach Community", description: "Professional growth is stronger when reflection, evidence, and peer exchange happen together.", href: "/community", cta: "Meet the community" },
         { kind: "docs", title: "Lurexa Docs", description: "Explore the source-of-truth methodology and architecture that shape Lurexa learning experiences.", href: docsUrl, cta: "Explore Docs" },
       ];
 
