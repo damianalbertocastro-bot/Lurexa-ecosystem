@@ -1,12 +1,12 @@
 ---
 title: Lurexa Bible
 subtitle: Authoritative Guide to the Lurexa Ecosystem
-version: 1.2.0
+version: 1.3.0
 status: Approved
 owner: Lurexa Learning Technologies
 author: Damian + AI collaborators
 created: 2026-07-23
-last_updated: 2026-08-17
+last_updated: 2026-08-20
 ---
 
 # Lurexa Bible
@@ -167,7 +167,21 @@ A learner moving from Learn to Coach should not need to restate reliable authori
 
 ### Lurexa Learn
 
-Learner-facing LMS and structured learning experience. It delivers courses, lessons, activities, assessment, progress and adaptive learning experiences while contributing trustworthy learning evidence through Core-governed contracts.
+Lurexa Learn is the learning-management and instructional-delivery product for learners and the teachers who operate their learning experiences.
+
+Learn owns:
+
+- student dashboard;
+- teacher dashboard;
+- course and lesson experience;
+- learning management;
+- classes and assignments;
+- learner progress and support workflows;
+- assessment and structured learning delivery;
+- adaptive learning experiences;
+- trustworthy learning evidence generated through Core-governed contracts.
+
+The teacher dashboard inside Learn exists so teachers can manage student learning. It must be branded Lurexa Learn. It is not the Lurexa Teach product.
 
 ### Lurexa Coach
 
@@ -195,7 +209,32 @@ Coach is a product that consumes Core and Mind. It must not become a second Mind
 
 ### Lurexa Teach
 
-Teacher-facing product for class/learner management, assignments, scheduling, progress review, interventions and AI-assisted instructional support. Teach receives role-appropriate learner intelligence rather than unrestricted model internals.
+Lurexa Teach is the independent educator professional-development product.
+
+Teach owns:
+
+- teacher professional development;
+- teacher CEFR / English proficiency growth;
+- professional learning pathways and courses;
+- teaching-practice development;
+- training and competency-based certification;
+- teacher community and professional circles;
+- peer collaboration and feedback;
+- professional evidence and reflection;
+- persistent educator growth profile;
+- professional credentials;
+- personalized professional-growth recommendations through Mind.
+
+A teacher may use both Learn and Teach through one Lurexa identity. **Learn is where teachers operate student learning; Teach is where teachers develop themselves professionally.**
+
+Teach may use authorized educator context and professional evidence. Core owns trusted identity, persistence, evidence verification and credential awards. Mind interprets authorized educator state and evidence to recommend next steps.
+
+Repository mapping:
+
+- `apps/teacher-portal` = Lurexa Learn teacher operational workspace.
+- `apps/teach-web` = independent Lurexa Teach product.
+
+See `Docs/Product/LUREXA_LEARN_TEACH_BOUNDARY.md` and `Docs/Architecture/LUREXA_TEACH_MVP_ARCHITECTURE.md`.
 
 ### Lurexa Admin
 
@@ -327,6 +366,7 @@ The following are obsolete unless explicitly reintroduced:
 - Coach as merely a generic chatbot feature;
 - accent erasure as a Coach objective;
 - Dominican Spanish as Coach's permanent technical limit;
+- Lurexa Teach as the class/learner-management teacher dashboard;
 - direct product-to-model-provider coupling for production learner intelligence.
 
 ## 21. End-state principle
