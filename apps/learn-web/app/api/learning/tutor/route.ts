@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<Response> {
       || typeof payload.lessonId !== "string"
       || typeof payload.activityId !== "string"
       || typeof payload.learnerMessage !== "string"
-      || !Array.isArray(payload.transcript)
+      || (payload.sessionId !== undefined && typeof payload.sessionId !== "string")
     ) {
       throw new Error("Tutor request is incomplete.");
     }
