@@ -1,6 +1,7 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 const SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE = "FIREBASE_SERVICE_ACCOUNT_JSON";
 
@@ -95,4 +96,12 @@ export function getServerFirestore(): Firestore {
 
 export function getServerFirebaseAuth(): Auth {
   return getAuth(getFirebaseAdminApp());
+}
+
+export function getServerStorageBucket() {
+  const bucketName = process.env.FIREBASE_STORAGE_BUCKET ?? process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  if (!bucketName) {
+    throw new Error("FIREBASE_STORAGE_BUCKET must be configured for trusted spoken-evidence storage.");
+  }
+  return getStorage(getFirebaseAdminApp()).bucket(bucketName);
 }
