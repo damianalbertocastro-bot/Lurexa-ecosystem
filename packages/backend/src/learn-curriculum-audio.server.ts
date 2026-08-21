@@ -15,6 +15,12 @@ function instructionsFor(playbackGoal: "meaning" | "noticing" | "pronunciation_m
   return "Speak naturally and clearly for comprehension. Use a warm tone and an accessible pace while preserving authentic English rhythm and connected speech.";
 }
 
+function resolveOpenAIApiKey(): string | null {
+  return process.env.OPENAI_KEY_tutor?.trim()
+    || process.env.OPENAI_API_KEY?.trim()
+    || null;
+}
+
 export const LearnCurriculumAudioService = {
   async generate(input: {
     actor: AuthenticatedActor;
@@ -38,7 +44,7 @@ export const LearnCurriculumAudioService = {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = resolveOpenAIApiKey();
     if (!apiKey) throw new Error("Production curriculum audio is not configured yet.");
 
     const response = await fetch(SPEECH_ENDPOINT, {
