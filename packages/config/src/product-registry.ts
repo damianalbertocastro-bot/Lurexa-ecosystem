@@ -1,7 +1,7 @@
 export type LurexaProductId = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
 export type LurexaLayerId = "core" | "mind";
 export type LurexaSurfaceId = "docs";
-export type LurexaConceptId = "marketplace" | "api" | "mobile" | "enterprise";
+export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "enterprise";
 
 export type LurexaRegistryEntry = {
   id: string;
@@ -94,6 +94,14 @@ export const lurexaSurfaces: Record<LurexaSurfaceId, LurexaRegistryEntry> = {
 };
 
 export const lurexaFutureConcepts: Record<LurexaConceptId, LurexaRegistryEntry> = {
+  community: {
+    id: "community",
+    name: "Lurexa Community concept",
+    classification: "future-concept",
+    personality: "social, welcoming and participatory",
+    description: "A future cross-ecosystem community space where learners and educators can share, discuss, ask questions, form interest groups and learn from one another. Distinct from Teach Community, which remains educator-only professional collaboration inside Lurexa Teach.",
+    canonicalMark: "lurexa-community-concept.svg",
+  },
   marketplace: {
     id: "marketplace",
     name: "Marketplace concept",
