@@ -56,6 +56,22 @@ if (quizBuilder.includes("AI Question Generator")) fail("deterministic quiz samp
 if (!quizBuilder.includes("not Lurexa Mind or a live AI generator")) fail("quiz prototype must disclose its current non-AI status");
 else pass("prototype content generation is represented honestly");
 
+const courseService = read("packages/backend/src/course.service.ts");
+if (courseService.includes("setDoc(") || courseService.includes("updateDoc(")) {
+  fail("legacy CourseService must not mutate authoritative course records directly from product/browser code");
+}
+if (!courseService.includes("Direct course writes are disabled")) {
+  fail("legacy CourseService must fail closed and direct callers to the trusted Learn API boundary");
+} else pass("legacy CourseService mutations fail closed");
+
+const courseBuilder = read("packages/backend/src/course-builder.service.ts");
+for (const forbidden of ["setDoc(", "updateDoc(", "arrayUnion(", "collection(db"]) {
+  if (courseBuilder.includes(forbidden)) fail(`legacy CourseBuilderService still contains direct Firestore mutation primitive: ${forbidden}`);
+}
+if (!courseBuilder.includes("Legacy CourseBuilderService writes are disabled")) {
+  fail("legacy CourseBuilderService must fail closed and direct callers to the trusted CoursePlatform boundary");
+} else pass("legacy CourseBuilderService mutations fail closed");
+
 if (failures.length) {
   console.error("\nProduction-honesty verification failed:");
   failures.forEach((message) => console.error(`- ${message}`));
