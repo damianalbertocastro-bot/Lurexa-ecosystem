@@ -1,3 +1,5 @@
+export * from "./product-registry";
+
 export type AppEnv = "development" | "staging" | "production";
 
 export type AppConfig = {

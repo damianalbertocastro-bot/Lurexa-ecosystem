@@ -232,19 +232,22 @@ Exit condition: learners experience continuity across Learn and Coach without du
 
 # Phase 6 — Lurexa Teach
 
-Goal: provide educators with a professional workspace powered by the same Core and Mind capabilities.
+Goal: ship the independent educator professional-development product on Core and Mind without duplicating the Learn teacher operational workspace.
 
-- [ ] Class and learner management.
-- [ ] Assignment workflows.
-- [ ] Progress and intervention views.
-- [ ] Scheduling workflows.
-- [ ] AI-assisted instructional support.
-- [ ] Role-appropriate Learner Model summaries.
-- [ ] Interpretable recommendations and learner-risk signals.
-- [ ] Privacy controls preventing unnecessary learner-data exposure.
-- [ ] Approved teacher observations/interventions as evidence where appropriate.
+- [ ] Complete educator onboarding and the persistent professional-growth profile.
+- [ ] Complete teacher English / CEFR development pathways.
+- [ ] Deliver professional learning courses and competency-based pathways.
+- [ ] Complete professional evidence submission and reflection workflows.
+- [ ] Complete trusted evidence review and assessor workflows.
+- [ ] Complete credential award, public verification, revocation and expiry policy.
+- [ ] Deliver Teach Community / professional circles and peer collaboration.
+- [ ] Provide Mind-based professional-growth recommendations using authorized educator evidence.
+- [ ] Provide clear bridges back to the Lurexa Learn teacher workspace for class operations.
+- [ ] Preserve one Lurexa identity across Learn and Teach without duplicate profiles.
 
-Exit condition: teachers can manage learning and use appropriate intelligence without a separate learner/profile foundation.
+**Guardrail:** Lurexa Learn owns class and learner management, assignments, operational scheduling, progress/intervention workflows and instructional delivery. Lurexa Teach owns educator professional growth, evidence, credentials and community.
+
+Exit condition: an educator can develop professionally, submit and review trusted evidence, earn and verify credentials, participate in professional community and receive growth recommendations without Teach becoming the Learn teacher dashboard.
 
 ---
 
@@ -352,7 +355,7 @@ Dominican Spanish is the first deep linguistic profile, not a permanent technica
 - Keep architecture documentation current as ownership changes.
 - Do not rename packages solely to match branding.
 - Prevent products from bypassing Core trust boundaries.
-- Prevent product UIs from calling AI providers directly for persistent learning intelligence.
+- Prevent product UIs from calling AI providers directly for persistent learner intelligence.
 - Prevent multiple apps from creating competing learner truth.
 - Keep Lurexa Insight as the analytics/intelligence/reporting product name.
 - Treat conceptual architecture changes separately from implementation status.
