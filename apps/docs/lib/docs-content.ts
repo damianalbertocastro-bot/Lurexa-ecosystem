@@ -12,6 +12,8 @@ export type CanonicalDoc = {
   headings: Array<{ level: number; text: string; id: string }>;
 };
 
+let canonicalDocsCache: CanonicalDoc[] | null = null;
+
 const slugify = (value: string) => value
   .normalize("NFKD")
   .replace(/[\u0300-\u036f]/g, "")
@@ -92,8 +94,10 @@ function toDoc(root: string, filePath: string): CanonicalDoc {
 }
 
 export function getAllDocs(): CanonicalDoc[] {
+  if (canonicalDocsCache) return canonicalDocsCache;
   const root = findDocsRoot();
-  return walkMarkdown(root).map((filePath) => toDoc(root, filePath));
+  canonicalDocsCache = walkMarkdown(root).map((filePath) => toDoc(root, filePath));
+  return canonicalDocsCache;
 }
 
 export function getDocBySlug(slug: string[]): CanonicalDoc | null {
