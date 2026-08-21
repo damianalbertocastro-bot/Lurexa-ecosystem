@@ -21,6 +21,7 @@ function parseArgs(argv) {
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (arg === "--") continue;
     if (arg === "--product") options.productId = argv[++index] ?? null;
     else if (arg === "--target") options.target = argv[++index] ?? "preview";
     else if (arg === "--ref") options.ref = argv[++index] ?? null;
@@ -35,7 +36,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`Usage:\n  node scripts/deploy-vercel-product.mjs --product <deployment-id> [options]\n\nOptions:\n  --target preview|production   Deployment target. Default: preview\n  --ref <git-ref>               Git branch/tag to deploy. Default: manifest productionBranch\n  --sha <commit-sha>            Exact Git commit to deploy\n  --apply                       Create the deployment. Without this flag, dry-run only\n  --no-force-new                Allow Vercel deployment deduplication\n  -h, --help                    Show this help\n\nExamples:\n  node scripts/deploy-vercel-product.mjs --product learn-web --sha <sha>\n  node scripts/deploy-vercel-product.mjs --product learn-web --sha <sha> --apply\n  node scripts/deploy-vercel-product.mjs --product learn-web --sha <sha> --target production --apply\n`);
+  console.log(`Usage:\n  node scripts/deploy-vercel-product.mjs --product <deployment-id> [options]\n\nOptions:\n  --target preview|production   Deployment target. Default: preview\n  --ref <git-ref>               Git branch/tag to deploy. Preview apply requires a non-production ref\n  --sha <commit-sha>            Exact Git commit to deploy\n  --apply                       Create the deployment. Without this flag, dry-run only\n  --no-force-new                Allow Vercel deployment deduplication\n  -h, --help                    Show this help\n\nNotes:\n  Vercel REST does not accept target=preview. Preview requests omit the API target and must use a non-production Git ref so Vercel cannot infer Production from the production branch.\n\nExamples:\n  node scripts/deploy-vercel-product.mjs --product learn-web --target preview --ref preview/learn-<sha> --sha <sha>\n  node scripts/deploy-vercel-product.mjs --product learn-web --target preview --ref preview/learn-<sha> --sha <sha> --apply\n  node scripts/deploy-vercel-product.mjs --product learn-web --target production --sha <sha> --apply\n`);
 }
 
 async function readManifest() {
@@ -71,7 +72,16 @@ async function main() {
   const [org, repo] = String(manifest.repository).split("/");
   if (!org || !repo) throw new Error("deployment/products.json repository must be owner/name.");
 
-  const ref = options.ref ?? manifest.productionBranch ?? "main";
+  const productionBranch = manifest.productionBranch ?? "main";
+  const ref = options.ref ?? productionBranch;
+  const isPreviewOnProductionBranch = options.target === "preview" && ref === productionBranch;
+
+  if (options.apply && isPreviewOnProductionBranch) {
+    throw new Error(
+      `Preview deployment requires a non-production --ref. ${productionBranch} is the production branch; create/use a preview ref at the same SHA and pass --ref <preview-branch>.`,
+    );
+  }
+
   const gitSource = {
     type: "github",
     org,
@@ -83,7 +93,7 @@ async function main() {
   const body = {
     name: deployment.vercelProject,
     project: deployment.vercelProject,
-    target: options.target,
+    ...(options.target === "production" ? { target: "production" } : {}),
     gitSource,
     meta: {
       lurexaDeploymentId: deployment.id,
@@ -100,7 +110,11 @@ async function main() {
     vercelProject: deployment.vercelProject,
     workspace: deployment.workspace,
     target: options.target,
+    apiTarget: options.target === "production" ? "production" : null,
     gitSource,
+    previewSafety: isPreviewOnProductionBranch
+      ? `dry-run only: use a non-production --ref before --apply`
+      : "ok",
     forceNew: options.forceNew,
   };
 
