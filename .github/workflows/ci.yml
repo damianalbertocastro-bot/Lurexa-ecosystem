@@ -40,5 +40,8 @@ jobs:
       - name: Verify Learner Model Architecture
         run: pnpm verify:learner-model
 
+      - name: Verify Learn Firestore Security Rules
+        run: pnpm test:learn-rules
+
       - name: Verify Phase 0
         run: pnpm verify:phase0
