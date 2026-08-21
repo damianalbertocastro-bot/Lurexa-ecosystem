@@ -1,9 +1,9 @@
-import type { RecordedSpeakingCapability, SpokenEvidenceRecord } from "@lurexa/types";
+import type { SpokenEvidenceRecord } from "@lurexa/types";
 import type { AuthenticatedActor } from "./course-platform.server";
-import { CoursePlatformService } from "./course-platform.server";
 import { getServerFirestore, getServerStorageBucket } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
+import { resolveRecordedSpeakingCapability } from "./learning-capability.server";
 
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const ALLOWED_AUDIO_TYPES = new Set([
@@ -27,38 +27,27 @@ function extensionFor(contentType: string): string {
   return "webm";
 }
 
-function validateCapability(capability: RecordedSpeakingCapability): RecordedSpeakingCapability {
-  if (capability.schemaVersion !== "1" || capability.kind !== "recorded_speaking") {
-    throw new Error("Unsupported speaking capability.");
-  }
-  if (!capability.id || !capability.prompt || !capability.competencyIds.length) {
-    throw new Error("Speaking capability is incomplete.");
-  }
-  if (capability.minimumSeconds < 0 || capability.maximumSeconds <= 0 || capability.maximumSeconds > 180) {
-    throw new Error("Speaking duration limits are invalid.");
-  }
-  return capability;
-}
-
 export const SpokenEvidenceService = {
   async persist(input: {
     actor: AuthenticatedActor;
     courseId: string;
     lessonId: string;
     activityId: string;
-    capability: RecordedSpeakingCapability;
     audio: File;
     durationMs: number;
   }): Promise<SpokenEvidenceRecord> {
-    const capability = validateCapability(input.capability);
-    if (capability.id !== input.activityId) throw new Error("Speaking activity ID does not match the capability.");
+    const capability = await resolveRecordedSpeakingCapability({
+      actor: input.actor,
+      courseId: input.courseId,
+      lessonId: input.lessonId,
+      activityId: input.activityId,
+    });
     if (!ALLOWED_AUDIO_TYPES.has(input.audio.type)) throw new Error("Unsupported audio format.");
     if (input.audio.size <= 0 || input.audio.size > MAX_AUDIO_BYTES) throw new Error("Audio recording must be between 1 byte and 8 MB.");
-    if (!Number.isFinite(input.durationMs) || input.durationMs < 0 || input.durationMs > capability.maximumSeconds * 1_000 + 5_000) {
-      throw new Error("Audio duration is outside the activity limit.");
+    if (!Number.isFinite(input.durationMs) || input.durationMs < capability.minimumSeconds * 1_000 || input.durationMs > capability.maximumSeconds * 1_000 + 5_000) {
+      throw new Error("Audio duration is outside the trusted activity limits.");
     }
 
-    await CoursePlatformService.getLesson(input.actor, input.courseId, input.lessonId);
     const courseSnapshot = await getServerFirestore().collection("courses").doc(input.courseId).get();
     if (!courseSnapshot.exists) throw new Error("Course not found.");
     const organizationId = courseSnapshot.data()?.orgId;
