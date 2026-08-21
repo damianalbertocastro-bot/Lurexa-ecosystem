@@ -25,6 +25,22 @@
       ]
     },
     {
+      "collectionGroup": "teachAssessments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "requestedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "teachAssessments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "requestedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "teachRecommendations",
       "queryScope": "COLLECTION",
       "fields": [
