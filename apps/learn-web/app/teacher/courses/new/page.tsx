@@ -8,8 +8,14 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Modal } from "@lurexa/ui/Modal";
 import { AuthService, OrganizationService } from "@lurexa/backend";
-import type { ContentBlock, Course, LearningActivity, LearningActivityType, Lesson, LessonStage, Module } from "@lurexa/types";
+import type { ContentBlock, Course, Lesson, Module } from "@lurexa/types";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+import {
+  buildActivityBlocks,
+  LearningActivityEditor,
+  readActivityDrafts,
+  type ActivityDraft,
+} from "./LearningActivityEditor";
 import {
   buildLearningCapabilityBlocks,
   LearningCapabilityEditor,
@@ -19,62 +25,36 @@ import {
 
 async function saveCourseChange<T>(body: Record<string, unknown>): Promise<T> {
   const response = await authenticatedFetch("/api/learning", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
   const payload = await response.json() as T & { error?: string };
   if (!response.ok) throw new Error(payload.error ?? "Unable to save course changes.");
   return payload;
 }
 
-type ActivityDraft = { id: string; type: LearningActivityType; stage: LessonStage; title: string; instructions: string; prompt: string; options: string; correctAnswers: string; explanation: string; competencyIds: string; estimatedMinutes: number };
-const defaultActivity = (): ActivityDraft => ({ id: crypto.randomUUID(), type: "single_choice", stage: "GUIDED_PRACTICE", title: "Quick check", instructions: "Choose the best answer.", prompt: "", options: "", correctAnswers: "", explanation: "", competencyIds: "", estimatedMinutes: 2 });
+type ModuleSummary = { id: string; title: string };
 
-function normalizeAuthoringAnswer(value: string): string {
-  return value.trim().toLocaleLowerCase().replace(/^[a-z]\s*[.)-]\s*/i, "").replace(/[.!?]+$/, "").trim();
-}
-
-function resolveCorrectAnswers(options: string[], answers: string[]): string[] {
-  return answers.map((answer) => options.find((option) => normalizeAuthoringAnswer(option) === normalizeAuthoringAnswer(answer)) ?? answer);
-}
-
-function readActivityBlocks(lesson: Lesson): ActivityDraft[] {
-  return lesson.contentBlocks.filter((block) => block.type === "interactive").flatMap((block) => {
-    const activity = block.data.activity;
-    if (typeof activity !== "object" || activity === null || Array.isArray(activity)) return [];
-    const value = activity as Record<string, unknown>;
-    if (!["single_choice", "multiple_selection", "sentence_builder", "short_response"].includes(value.type as string) || typeof value.title !== "string" || typeof value.instructions !== "string" || typeof value.prompt !== "string") return [];
-    const isShortResponse = value.type === "short_response";
-    if (!isShortResponse && (!Array.isArray(value.options) || !value.options.every((option) => typeof option === "string") || !Array.isArray(value.correctAnswers) || !value.correctAnswers.every((answer) => typeof answer === "string"))) return [];
-    return [{
-      id: block.id,
-      type: value.type as LearningActivityType,
-      stage: typeof value.stage === "string" ? value.stage as LessonStage : "GUIDED_PRACTICE",
-      title: value.title,
-      instructions: value.instructions,
-      prompt: value.prompt,
-      options: Array.isArray(value.options) ? value.options.filter((option): option is string => typeof option === "string").join("\n") : "",
-      correctAnswers: Array.isArray(value.correctAnswers) ? value.correctAnswers.filter((answer): answer is string => typeof answer === "string").join("\n") : "",
-      explanation: typeof value.explanation === "string" ? value.explanation : "",
-      competencyIds: Array.isArray(value.competencyIds) ? value.competencyIds.filter((id): id is string => typeof id === "string").join(", ") : "",
-      estimatedMinutes: typeof value.estimatedMinutes === "number" ? value.estimatedMinutes : 2,
-    }];
-  });
-}
+type TeacherCoursePayload = Array<{
+  course: Course;
+  lessons: Array<{ moduleTitle: string; lesson: Lesson }>;
+}> & { error?: string };
 
 export default function CourseBuilderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedCourseId = searchParams.get("courseId");
   const requestedLessonId = searchParams.get("lessonId");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const subject = "english" as const;
-  const [modules, setModules] = useState<Array<{ id: string; title: string }>>([]);
+  const [modules, setModules] = useState<ModuleSummary[]>([]);
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [teacherContext, setTeacherContext] = useState<{ orgId: string; userId: string } | null>(null);
-  const [activeModule, setActiveModule] = useState<{ id: string; title: string } | null>(null);
+  const [activeModule, setActiveModule] = useState<ModuleSummary | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonContent, setLessonContent] = useState("");
@@ -85,59 +65,73 @@ export default function CourseBuilderPage() {
   const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = AuthService.onUserChanged(async (user) => {
+    return AuthService.onUserChanged(async (user) => {
       if (!user) return;
-
       const memberships = await OrganizationService.getMembershipsForUser(user.uid);
-      const membership = memberships.find((item) =>
-        ["owner", "admin", "teacher"].includes(item.role),
-      );
+      const membership = memberships.find((item) => ["owner", "admin", "teacher"].includes(item.role));
       if (membership) setTeacherContext({ orgId: membership.orgId, userId: user.uid });
     });
-
-    return unsubscribe;
   }, []);
 
   useEffect(() => {
     if (!requestedCourseId) return;
-    const unsubscribe = AuthService.onUserChanged(async (user) => {
+    return AuthService.onUserChanged(async (user) => {
       if (!user) return;
       try {
         const response = await authenticatedFetch("/api/learning?teacherDashboard=1");
-        const payload = await response.json() as Array<{ course: Course; lessons: Array<{ moduleTitle: string; lesson: Lesson }> }> & { error?: string };
+        const payload = await response.json() as TeacherCoursePayload;
         if (!response.ok) throw new Error(payload.error ?? "Unable to load this course.");
         const selected = payload.find((item) => item.course.id === requestedCourseId);
         if (!selected) throw new Error("Course not found or unavailable to this teacher.");
+
         setActiveCourseId(selected.course.id);
         setTitle(selected.course.title);
         setDescription(selected.course.description);
-        const groupedLessons = selected.lessons.reduce<Record<string, Lesson[]>>((current, entry) => ({ ...current, [entry.lesson.moduleId]: [...(current[entry.lesson.moduleId] ?? []), entry.lesson] }), {});
-        setLessonsByModule(groupedLessons);
+
+        const grouped = selected.lessons.reduce<Record<string, Lesson[]>>((current, entry) => ({
+          ...current,
+          [entry.lesson.moduleId]: [...(current[entry.lesson.moduleId] ?? []), entry.lesson],
+        }), {});
+        setLessonsByModule(grouped);
+
         const moduleNames = new Map(selected.lessons.map((entry) => [entry.lesson.moduleId, entry.moduleTitle]));
         setModules([...moduleNames.entries()].map(([id, moduleTitle]) => ({ id, title: moduleTitle })));
+
         if (requestedLessonId) {
           const requested = selected.lessons.find((entry) => entry.lesson.id === requestedLessonId)?.lesson;
           if (!requested) throw new Error("Lesson not found in this course.");
-          const moduleTitle = moduleNames.get(requested.moduleId) ?? "Module";
-          setEditingLesson(requested);
-          setLessonTitle(requested.title);
-          setLessonContent(String(requested.contentBlocks.find((block) => block.type === "text")?.data.text ?? ""));
-          setActivityDrafts(readActivityBlocks(requested));
-          setCapabilityDrafts(readLearningCapabilityDrafts(requested));
-          setActiveModule({ id: requested.moduleId, title: moduleTitle });
+          openLessonEditor({ id: requested.moduleId, title: moduleNames.get(requested.moduleId) ?? "Module" }, requested);
         }
-      } catch (error: unknown) { alert(error instanceof Error ? error.message : "Unable to load this course."); }
+      } catch (error: unknown) {
+        alert(error instanceof Error ? error.message : "Unable to load this course.");
+      }
     });
-    return unsubscribe;
   }, [requestedCourseId, requestedLessonId]);
 
-  const handleCreateCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  function openLessonEditor(module: ModuleSummary, lesson?: Lesson) {
+    setActiveModule(module);
+    setEditingLesson(lesson ?? null);
+    setLessonTitle(lesson?.title ?? "");
+    setLessonContent(String(lesson?.contentBlocks.find((block) => block.type === "text")?.data.text ?? ""));
+    setActivityDrafts(lesson ? readActivityDrafts(lesson) : []);
+    setCapabilityDrafts(lesson ? readLearningCapabilityDrafts(lesson) : []);
+  }
 
+  function closeLessonEditor() {
+    setActiveModule(null);
+    setEditingLesson(null);
+    setLessonTitle("");
+    setLessonContent("");
+    setActivityDrafts([]);
+    setCapabilityDrafts([]);
+  }
+
+  async function handleCreateCourse(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true);
     try {
       if (!teacherContext) throw new Error("A teacher organization is required.");
-      const course = await saveCourseChange<Course>({ action: "createCourse", title, description, subject });
+      const course = await saveCourseChange<Course>({ action: "createCourse", title, description, subject: "english" });
       setActiveCourseId(course.id);
       alert("Course draft created successfully!");
     } catch (error: unknown) {
@@ -145,76 +139,66 @@ export default function CourseBuilderPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleSaveLesson = async (event: React.FormEvent) => {
+  async function handleSaveLesson(event: React.FormEvent) {
     event.preventDefault();
     if (!activeModule || !lessonTitle.trim() || !lessonContent.trim()) return;
-
     setIsSavingLesson(true);
     try {
-      const contentBlocks: ContentBlock[] = [{
+      const textBlock: ContentBlock = {
         id: editingLesson?.contentBlocks.find((block) => block.type === "text")?.id ?? crypto.randomUUID(),
         type: "text",
         data: { text: lessonContent.trim() },
         order: 1,
-      }];
-
-      for (const [index, draft] of activityDrafts.entries()) {
-        const competencyIds = [...new Set(draft.competencyIds.split(",").map((id) => id.trim()).filter(Boolean))];
-        if (!draft.title.trim() || !draft.instructions.trim() || !draft.prompt.trim() || !competencyIds.length) throw new Error(`Activity ${index + 1} needs a title, instructions, prompt, and at least one competency ID.`);
-
-        if (draft.type === "short_response") {
-          const activity: LearningActivity = { schemaVersion: "1", type: "short_response", stage: draft.stage, title: draft.title.trim(), instructions: draft.instructions.trim(), prompt: draft.prompt.trim(), competencyIds, estimatedMinutes: Math.max(1, Math.round(draft.estimatedMinutes)), required: true, ...(draft.explanation.trim() ? { explanation: draft.explanation.trim() } : {}) };
-          contentBlocks.push({ id: draft.id, type: "interactive", data: { activity }, order: index + 2 });
-          continue;
-        }
-
-        const options = draft.options.split("\n").map((option) => option.trim()).filter(Boolean);
-        const correctAnswers = resolveCorrectAnswers(options, draft.correctAnswers.split("\n").map((answer) => answer.trim()).filter(Boolean));
-        if (options.length < 2 || !correctAnswers.length || correctAnswers.some((answer) => !options.includes(answer))) throw new Error(`Activity ${index + 1} needs at least two options and correct answers from the option list.`);
-        if (draft.type === "single_choice" && correctAnswers.length !== 1) throw new Error(`Activity ${index + 1} is single choice, so it needs exactly one correct answer.`);
-        const activity: LearningActivity = { schemaVersion: "1", type: draft.type, stage: draft.stage, title: draft.title.trim(), instructions: draft.instructions.trim(), prompt: draft.prompt.trim(), options, correctAnswers, competencyIds, estimatedMinutes: Math.max(1, Math.round(draft.estimatedMinutes)), required: true, ...(draft.explanation.trim() ? { explanation: draft.explanation.trim() } : {}) };
-        contentBlocks.push({ id: draft.id, type: "interactive", data: { activity }, order: index + 2 });
-      }
-
-      contentBlocks.push(...buildLearningCapabilityBlocks(capabilityDrafts));
-      contentBlocks.sort((first, second) => first.order - second.order);
-      const estimatedMinutes = Math.max(5, Math.round(3 + activityDrafts.reduce((sum, item) => sum + item.estimatedMinutes, 0) + capabilityDrafts.reduce((sum, item) => sum + item.estimatedMinutes, 0)));
+      };
+      const contentBlocks = [textBlock, ...buildActivityBlocks(activityDrafts), ...buildLearningCapabilityBlocks(capabilityDrafts)]
+        .sort((first, second) => first.order - second.order);
+      const estimatedMinutes = Math.max(5, Math.round(
+        3
+        + activityDrafts.reduce((sum, item) => sum + item.estimatedMinutes, 0)
+        + capabilityDrafts.reduce((sum, item) => sum + item.estimatedMinutes, 0),
+      ));
 
       const lesson = editingLesson
         ? await saveCourseChange<Lesson>({ action: "updateLesson", lessonId: editingLesson.id, title: lessonTitle.trim(), contentBlocks })
-        : await saveCourseChange<Lesson>({ action: "saveLesson", moduleId: activeModule.id, title: lessonTitle.trim(), contentBlocks, order: (lessonsByModule[activeModule.id]?.length ?? 0) + 1, estimatedMinutes });
+        : await saveCourseChange<Lesson>({
+            action: "saveLesson",
+            moduleId: activeModule.id,
+            title: lessonTitle.trim(),
+            contentBlocks,
+            order: (lessonsByModule[activeModule.id]?.length ?? 0) + 1,
+            estimatedMinutes,
+          });
+
       setLessonsByModule((current) => ({
         ...current,
         [activeModule.id]: editingLesson
-          ? (current[activeModule.id] ?? []).map((currentLesson) => currentLesson.id === lesson.id ? lesson : currentLesson)
+          ? (current[activeModule.id] ?? []).map((item) => item.id === lesson.id ? lesson : item)
           : [...(current[activeModule.id] ?? []), lesson],
       }));
-      setLessonTitle("");
-      setLessonContent("");
-      setActivityDrafts([]);
-      setCapabilityDrafts([]);
-      setActiveModule(null);
-      setEditingLesson(null);
+      closeLessonEditor();
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to save lesson.");
     } finally {
       setIsSavingLesson(false);
     }
-  };
+  }
 
-  const handleDeleteLesson = async (moduleId: string, lesson: Lesson) => {
+  async function handleDeleteLesson(moduleId: string, lesson: Lesson) {
     if (!window.confirm(`Delete the lesson “${lesson.title}”?`)) return;
     try {
       await saveCourseChange<{ ok: true }>({ action: "deleteLesson", lessonId: lesson.id });
-      setLessonsByModule((current) => ({ ...current, [moduleId]: (current[moduleId] ?? []).filter((item) => item.id !== lesson.id) }));
+      setLessonsByModule((current) => ({
+        ...current,
+        [moduleId]: (current[moduleId] ?? []).filter((item) => item.id !== lesson.id),
+      }));
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to delete lesson.");
     }
-  };
+  }
 
-  const handlePublish = async () => {
+  async function handlePublish() {
     if (!activeCourseId) return;
     setIsPublishing(true);
     try {
@@ -225,92 +209,103 @@ export default function CourseBuilderPage() {
     } finally {
       setIsPublishing(false);
     }
-  };
+  }
 
-  const handleAddModule = async () => {
-    if (!activeCourseId || !newModuleTitle) return;
-
+  async function handleAddModule() {
+    if (!activeCourseId || !newModuleTitle.trim()) return;
     try {
-      const mod = await saveCourseChange<Module>({ action: "addModule", courseId: activeCourseId, title: newModuleTitle, order: modules.length + 1 });
-      setModules([...modules, { id: mod.id, title: mod.title }]);
+      const module = await saveCourseChange<Module>({
+        action: "addModule",
+        courseId: activeCourseId,
+        title: newModuleTitle.trim(),
+        order: modules.length + 1,
+      });
+      setModules((current) => [...current, { id: module.id, title: module.title }]);
       setNewModuleTitle("");
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to add module.");
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
+        <div className="flex flex-col gap-4 border-b border-[#dfe7fb] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-[#071d67]">Course Builder</h1>
-            <p className="text-[#6677a5]">Design modules, lessons, evidence, and AI-assisted learning experiences</p>
+            <p className="text-[#6677a5]">Design modules, lessons, evidence, and AI-assisted learning experiences.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant={activeCourseId ? "success" : "warning"}>
-              {activeCourseId ? "Draft Created" : "Unsaved"}
-            </Badge>
-            {activeCourseId && (
-              <Button variant="primary" onClick={handlePublish} isLoading={isPublishing}>
-                Publish Course
-              </Button>
-            )}
-            <Button variant="secondary" onClick={() => router.push("/teacher/courses")}>
-              Return to courses
-            </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge variant={activeCourseId ? "success" : "warning"}>{activeCourseId ? "Draft Created" : "Unsaved"}</Badge>
+            {activeCourseId ? <Button variant="primary" onClick={handlePublish} isLoading={isPublishing}>Publish Course</Button> : null}
+            <Button variant="secondary" onClick={() => router.push("/teacher/courses")}>Return to courses</Button>
           </div>
         </div>
 
         <Card title="1. Course Overview" subtitle="General course configuration">
           <form onSubmit={handleCreateCourse} className="space-y-4 pt-2">
-            <Input label="Course Title" placeholder="e.g. English B1 — Conversational Basics" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!!activeCourseId} required />
-            <Input label="Description" placeholder="Summary of learning goals..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={!!activeCourseId} required />
-            {!activeCourseId && <Button type="submit" variant="primary" isLoading={loading}>Create Course Shell</Button>}
+            <Input label="Course Title" placeholder="e.g. English B1 — Conversational Basics" value={title} onChange={(event) => setTitle(event.target.value)} disabled={Boolean(activeCourseId)} required />
+            <Input label="Description" placeholder="Summary of learning goals..." value={description} onChange={(event) => setDescription(event.target.value)} disabled={Boolean(activeCourseId)} required />
+            {!activeCourseId ? <Button type="submit" variant="primary" isLoading={loading}>Create Course Shell</Button> : null}
           </form>
         </Card>
 
-        {activeCourseId && (
+        {activeCourseId ? (
           <Card title="2. Course Modules" subtitle="Organize lessons into sequential modules">
             <div className="space-y-4 pt-2">
-              <div className="flex gap-3"><Input placeholder="Module Title (e.g. Unit 1: Present Tense)" value={newModuleTitle} onChange={(e) => setNewModuleTitle(e.target.value)} /><Button variant="secondary" onClick={handleAddModule}>+ Add Module</Button></div>
-              <div className="space-y-2 pt-4">
-                {modules.map((mod, index) => (
-                  <div key={mod.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dfe7fb] bg-white p-4">
-                    <div><span className="text-xs font-semibold uppercase tracking-wider text-[#592bd6]">Module {index + 1}</span><h4 className="font-semibold text-[#071d67]">{mod.title}</h4></div>
-                    <Button variant="ghost" size="sm" onClick={() => { setEditingLesson(null); setLessonTitle(""); setLessonContent(""); setActivityDrafts([]); setCapabilityDrafts([]); setActiveModule(mod); }}>+ Add Lesson</Button>
-                    <p className="text-xs text-[#6677a5]">{lessonsByModule[mod.id]?.length ?? 0} lesson(s)</p>
-                    {(lessonsByModule[mod.id] ?? []).map((lesson) => (
-                      <div key={lesson.id} className="flex w-full items-center justify-between border-t border-[#edf1fb] pt-3 text-sm">
-                        <span>{lesson.title}</span>
-                        <span className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setEditingLesson(lesson); setLessonTitle(lesson.title); setLessonContent(String(lesson.contentBlocks.find((block) => block.type === "text")?.data.text ?? "")); setActivityDrafts(readActivityBlocks(lesson)); setCapabilityDrafts(readLearningCapabilityDrafts(lesson)); setActiveModule(mod); }}>Edit</Button><Button variant="destructive" size="sm" onClick={() => handleDeleteLesson(mod.id, lesson)}>Delete</Button></span>
+              <div className="flex gap-3">
+                <Input placeholder="Module title" value={newModuleTitle} onChange={(event) => setNewModuleTitle(event.target.value)} />
+                <Button variant="secondary" onClick={handleAddModule}>+ Add Module</Button>
+              </div>
+
+              <div className="space-y-3 pt-4">
+                {modules.map((module, index) => (
+                  <section key={module.id} className="rounded-xl border border-[#dfe7fb] bg-white p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[#592bd6]">Module {index + 1}</span>
+                        <h2 className="font-semibold text-[#071d67]">{module.title}</h2>
+                        <p className="text-xs text-[#6677a5]">{lessonsByModule[module.id]?.length ?? 0} lesson(s)</p>
                       </div>
-                    ))}
-                  </div>
+                      <Button variant="ghost" size="sm" onClick={() => openLessonEditor(module)}>+ Add Lesson</Button>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {(lessonsByModule[module.id] ?? []).map((lesson) => (
+                        <div key={lesson.id} className="flex items-center justify-between border-t border-[#edf1fb] pt-3 text-sm">
+                          <span>{lesson.title}</span>
+                          <span className="flex gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => openLessonEditor(module, lesson)}>Edit</Button>
+                            <Button variant="destructive" size="sm" onClick={() => void handleDeleteLesson(module.id, lesson)}>Delete</Button>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             </div>
           </Card>
-        )}
+        ) : null}
       </div>
 
       <Modal
         isOpen={activeModule !== null}
-        onClose={() => { setActiveModule(null); setEditingLesson(null); setCapabilityDrafts([]); }}
+        onClose={closeLessonEditor}
         title={activeModule ? `${editingLesson ? "Edit" : "Add"} lesson ${editingLesson ? "in" : "to"} ${activeModule.title}` : "Add lesson"}
       >
         <form onSubmit={handleSaveLesson} className="space-y-4">
           <Input label="Lesson title" value={lessonTitle} onChange={(event) => setLessonTitle(event.target.value)} required />
-          <label className="block text-sm font-medium text-[#314b88]">Lesson content<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={lessonContent} onChange={(event) => setLessonContent(event.target.value)} rows={8} required /></label>
+          <label className="block text-sm font-medium text-[#314b88]">
+            Lesson content
+            <textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={lessonContent} onChange={(event) => setLessonContent(event.target.value)} rows={8} required />
+          </label>
 
-          <div className="space-y-3 rounded-xl border border-[#dfe7fb] bg-[var(--learn-canvas)] p-4">
-            <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-[#071d67]">Learning activities</p><p className="text-xs text-[#5d6f9d]">Add scored practice or learner-created responses. Core scores objective activities server-side and preserves open responses as evidence.</p></div><Button type="button" size="sm" variant="secondary" onClick={() => setActivityDrafts((current) => [...current, defaultActivity()])}>+ Add activity</Button></div>
-            {activityDrafts.map((draft, index) => <div key={draft.id} className="space-y-3 rounded-xl border border-[#dfe7fb] bg-white p-3"><div className="flex items-center justify-between"><p className="text-sm font-semibold text-[#071d67]">Activity {index + 1}</p><Button type="button" size="sm" variant="destructive" onClick={() => setActivityDrafts((current) => current.filter((activity) => activity.id !== draft.id))}>Remove</Button></div><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><label className="text-sm font-medium text-[#314b88]">Activity type<select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[#071d67]" value={draft.type} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, type: event.target.value as LearningActivityType } : activity))}><option value="single_choice">Single-choice question</option><option value="multiple_selection">Multiple selection</option><option value="sentence_builder">Sentence builder</option><option value="short_response">Short response / Create & Apply</option></select></label><label className="text-sm font-medium text-[#314b88]">Lesson stage<select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[#071d67]" value={draft.stage} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, stage: event.target.value as LessonStage } : activity))}>{["HOOK", "MISSION", "VOCABULARY_BUILDER", "CONTEXTUAL_INPUT", "COMPREHENSION", "LANGUAGE_NOTICING", "GRAMMAR_FOCUS", "PHONETICS_FOCUS", "GUIDED_PRACTICE", "CONVERSATION", "CREATE_APPLY", "REVIEW", "QUIZ", "REFLECTION"].map((stage) => <option key={stage} value={stage}>{stage.replaceAll("_", " ")}</option>)}</select></label></div><Input label="Activity title" value={draft.title} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, title: event.target.value } : activity))} /><Input label="Student instructions" value={draft.instructions} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, instructions: event.target.value } : activity))} /><Input label="Prompt" value={draft.prompt} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, prompt: event.target.value } : activity))} />{draft.type !== "short_response" ? <><label className="block text-sm font-medium text-[#314b88]">Options, one per line<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={draft.options} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, options: event.target.value } : activity))} rows={4} /></label><label className="block text-sm font-medium text-[#314b88]">Correct answer{draft.type === "multiple_selection" ? "s, one per line" : ""}<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={draft.correctAnswers} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, correctAnswers: event.target.value } : activity))} rows={draft.type === "multiple_selection" ? 3 : 1} /></label></> : null}<Input label="Feedback explanation" value={draft.explanation} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, explanation: event.target.value } : activity))} /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><Input label="Competency IDs (comma separated)" value={draft.competencyIds} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, competencyIds: event.target.value }))} placeholder="EN.A1.SPEAK.INTRODUCE_SELF" /><Input label="Estimated minutes" type="number" min="1" value={String(draft.estimatedMinutes)} onChange={(event) => setActivityDrafts((current) => current.map((activity) => activity.id === draft.id ? { ...activity, estimatedMinutes: Number(event.target.value) || 1 } : activity))} /></div></div>)}
-          </div>
-
+          <LearningActivityEditor drafts={activityDrafts} onChange={setActivityDrafts} />
           <LearningCapabilityEditor drafts={capabilityDrafts} onChange={setCapabilityDrafts} />
 
-          <div className="rounded-xl bg-indigo-50 p-3 text-xs leading-5 text-indigo-900">Lesson content is validated again on the trusted server boundary. Advanced capabilities cannot supply provider models, API credentials, arbitrary system prompts, or storage configuration.</div>
+          <div className="rounded-xl bg-indigo-50 p-3 text-xs leading-5 text-indigo-900">
+            Lesson content is validated again on the trusted server boundary. Advanced capabilities cannot supply provider models, API credentials, arbitrary system prompts, or storage configuration.
+          </div>
           <Button type="submit" className="w-full" isLoading={isSavingLesson}>{editingLesson ? "Save changes" : "Save lesson"}</Button>
         </form>
       </Modal>
