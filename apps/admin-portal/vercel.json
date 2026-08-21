@@ -3,5 +3,6 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter admin-portal build",
+  "ignoreCommand": "cd ../.. && npx turbo-ignore admin-portal --fallback=HEAD^1",
   "outputDirectory": ".next"
 }
