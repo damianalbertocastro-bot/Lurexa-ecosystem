@@ -1,11 +1,16 @@
 import { FieldValue } from "firebase-admin/firestore";
-import type { StudentProgress } from "@lurexa/types";
+import type { LearnerRecommendationAction, StudentProgress } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
+import { getScopedLearnerContext } from "./learner-context.server";
 import {
   CoursePlatformService,
   type AuthenticatedActor,
   type LearnerDashboardSummary,
 } from "./course-platform.server";
+
+export interface IntelligentLearnerDashboardSummary extends LearnerDashboardSummary {
+  nextStep: LearnerRecommendationAction | null;
+}
 
 async function attachAttemptAnswer(
   actor: AuthenticatedActor,
@@ -45,8 +50,16 @@ async function attachAttemptAnswer(
 }
 
 export const LearnProgressService = {
-  async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
-    const dashboard = await CoursePlatformService.getLearnerDashboard(actor);
+  async getLearnerDashboard(actor: AuthenticatedActor): Promise<IntelligentLearnerDashboardSummary> {
+    const [dashboard, scopedContext] = await Promise.all([
+      CoursePlatformService.getLearnerDashboard(actor),
+      getScopedLearnerContext({
+        actorId: actor.uid,
+        learnerId: actor.uid,
+        purpose: "learn_adaptive_practice",
+        domains: ["recommendation"],
+      }),
+    ]);
     const progressSnapshots = await getServerFirestore()
       .collection("progress")
       .where("studentId", "==", actor.uid)
@@ -67,7 +80,17 @@ export const LearnProgressService = {
       }
     }
 
-    return dashboard;
+    const candidate = scopedContext.context.recommendations?.[0] ?? null;
+    let nextStep: LearnerRecommendationAction | null = candidate;
+    if (candidate?.courseId && candidate.lessonId) {
+      try {
+        await CoursePlatformService.getLesson(actor, candidate.courseId, candidate.lessonId);
+      } catch {
+        nextStep = null;
+      }
+    }
+
+    return { ...dashboard, nextStep };
   },
 
   async startLesson(
