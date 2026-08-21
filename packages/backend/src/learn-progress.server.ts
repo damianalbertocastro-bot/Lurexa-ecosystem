@@ -9,6 +9,7 @@ import {
 
 async function attachAttemptAnswer(
   actor: AuthenticatedActor,
+  courseId: string,
   lessonId: string,
   activityId: string,
   answer: string | string[]
@@ -24,7 +25,13 @@ async function attachAttemptAnswer(
     const attempts = [...progress.attempts];
     for (let index = attempts.length - 1; index >= 0; index -= 1) {
       if (attempts[index]?.quizId === activityId) {
-        attempts[index] = { ...attempts[index], answer };
+        attempts[index] = {
+          ...attempts[index],
+          activityId,
+          courseId,
+          lessonId,
+          answer,
+        };
         break;
       }
     }
@@ -104,7 +111,7 @@ export const LearnProgressService = {
     answer: string
   ) {
     const result = await CoursePlatformService.submitQuizAttempt(actor, courseId, lessonId, quizId, answer);
-    await attachAttemptAnswer(actor, lessonId, quizId, answer);
+    await attachAttemptAnswer(actor, courseId, lessonId, quizId, answer);
     return result;
   },
 
@@ -116,7 +123,7 @@ export const LearnProgressService = {
     answers: string[]
   ) {
     const result = await CoursePlatformService.submitActivityAttempt(actor, courseId, lessonId, activityId, answers);
-    await attachAttemptAnswer(actor, lessonId, activityId, answers);
+    await attachAttemptAnswer(actor, courseId, lessonId, activityId, answers);
     return result;
   },
 
@@ -128,7 +135,7 @@ export const LearnProgressService = {
     response: string
   ) {
     const result = await CoursePlatformService.submitShortResponse(actor, courseId, lessonId, activityId, response);
-    await attachAttemptAnswer(actor, lessonId, activityId, response);
+    await attachAttemptAnswer(actor, courseId, lessonId, activityId, response);
     return result;
   },
 
