@@ -68,20 +68,35 @@ export interface LearnTutorTurn {
   timestamp: string;
 }
 
+export interface LearnTutorSession {
+  id: string;
+  learnerId: string;
+  organizationId: string;
+  courseId: string;
+  lessonId: string;
+  activityId: string;
+  status: "active" | "completed";
+  transcript: LearnTutorTurn[];
+  provider: "openai" | "deterministic_fallback" | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
- * The learner client submits only stable identifiers and learner-authored text.
- * The server resolves the authoritative AI-roleplay capability from the trusted
- * lesson object before constructing a tutor scenario or learning evidence.
+ * The learner client submits only stable identifiers, optional trusted session
+ * identity, and the new learner-authored message. Prior roleplay turns are
+ * owned by the server and cannot be rewritten by the browser.
  */
 export interface LearnTutorTurnRequest {
   courseId: string;
   lessonId: string;
   activityId: string;
+  sessionId?: string;
   learnerMessage: string;
-  transcript: LearnTutorTurn[];
 }
 
 export interface LearnTutorTurnResult {
+  sessionId: string;
   reply: LearnTutorTurn;
   transcript: LearnTutorTurn[];
   learnerContextUsed: {
