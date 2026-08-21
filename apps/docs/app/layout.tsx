@@ -2,30 +2,14 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+const geistSans = localFont({ src: "./fonts/GeistVF.woff", variable: "--font-geist-sans" });
+const geistMono = localFont({ src: "./fonts/GeistMonoVF.woff", variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "Lurexa Docs",
-  description: "Guidance for building connected learning experiences with Lurexa.",
+  title: { default: "Lurexa Docs | Ecosystem Knowledge Base", template: "%s | Lurexa Docs" },
+  description: "Authoritative architecture, product, curriculum, engineering, governance, and design documentation for the Lurexa ecosystem.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="en"><body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body></html>;
 }
