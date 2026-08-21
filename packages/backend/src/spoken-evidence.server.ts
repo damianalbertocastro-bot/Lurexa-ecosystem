@@ -15,6 +15,10 @@ const ALLOWED_AUDIO_TYPES = new Set([
   "audio/x-wav",
 ]);
 
+function normalizeAudioType(contentType: string): string {
+  return contentType.split(";", 1)[0]?.trim().toLowerCase() || "";
+}
+
 function safeSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 160);
 }
@@ -42,7 +46,8 @@ export const SpokenEvidenceService = {
       lessonId: input.lessonId,
       activityId: input.activityId,
     });
-    if (!ALLOWED_AUDIO_TYPES.has(input.audio.type)) throw new Error("Unsupported audio format.");
+    const normalizedContentType = normalizeAudioType(input.audio.type);
+    if (!ALLOWED_AUDIO_TYPES.has(normalizedContentType)) throw new Error("Unsupported audio format.");
     if (input.audio.size <= 0 || input.audio.size > MAX_AUDIO_BYTES) throw new Error("Audio recording must be between 1 byte and 8 MB.");
     if (!Number.isFinite(input.durationMs) || input.durationMs < capability.minimumSeconds * 1_000 || input.durationMs > capability.maximumSeconds * 1_000 + 5_000) {
       throw new Error("Audio duration is outside the trusted activity limits.");
@@ -61,14 +66,14 @@ export const SpokenEvidenceService = {
       safeSegment(input.courseId),
       safeSegment(input.lessonId),
       safeSegment(input.activityId),
-      `${safeSegment(id)}.${extensionFor(input.audio.type)}`,
+      `${safeSegment(id)}.${extensionFor(normalizedContentType)}`,
     ].join("/");
 
     const bytes = Buffer.from(await input.audio.arrayBuffer());
     await getServerStorageBucket().file(storagePath).save(bytes, {
       resumable: false,
       metadata: {
-        contentType: input.audio.type,
+        contentType: normalizedContentType,
         cacheControl: "private, max-age=0, no-store",
         metadata: {
           learnerId: input.actor.uid,
@@ -87,7 +92,7 @@ export const SpokenEvidenceService = {
       lessonId: input.lessonId,
       activityId: input.activityId,
       storagePath,
-      contentType: input.audio.type,
+      contentType: normalizedContentType,
       durationMs: Math.round(input.durationMs),
       byteLength: input.audio.size,
       evidencePurpose: capability.evidencePurpose,
@@ -99,6 +104,7 @@ export const SpokenEvidenceService = {
       ...record,
       organizationId,
       createdBy: input.actor.uid,
+      sourceContentType: input.audio.type,
     });
 
     const repository = new FirestoreLearningEvidenceRepository();
