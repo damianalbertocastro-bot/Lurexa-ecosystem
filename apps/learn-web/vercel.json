@@ -3,6 +3,5 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter learn-web build",
-  "ignoreCommand": "npx --yes turbo-ignore --fallback=HEAD^1",
   "outputDirectory": ".next"
 }
