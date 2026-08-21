@@ -45,7 +45,7 @@
       "workspace": "@lurexa/teach-web",
       "rootDirectory": "apps/teach-web",
       "vercelProject": "lurexa-teach-web",
-      "status": "pending-app-merge"
+      "status": "deployment-unverified"
     },
     {
       "id": "admin-web",
@@ -58,7 +58,7 @@
     },
     {
       "id": "docs-web",
-      "product": "Lurexa Documentation",
+      "product": "Lurexa Docs",
       "surface": "documentation",
       "workspace": "docs",
       "rootDirectory": "apps/docs",
