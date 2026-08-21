@@ -61,6 +61,9 @@ service cloud.firestore {
     match /api_keys/{keyId} { allow read, write: if false; }
     match /marketplace_listings/{listingId} { allow read, write: if false; }
     match /purchases/{purchaseId} { allow read, write: if false; }
+    match /subscriptions/{subscriptionId} { allow read, write: if false; }
+    match /usage_records/{usageId} { allow read, write: if false; }
+    match /ai_conversations/{conversationId} { allow read, write: if false; }
 
     match /educatorProfiles/{userId} {
       allow read: if isUser(userId);
