@@ -2,21 +2,21 @@ import {
   collection,
   doc,
   getDocs,
-  updateDoc,
-  query,
-  where,
-  orderBy,
   limit,
+  orderBy,
+  query,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { Organization, AIConversation } from "@lurexa/types";
+import type { AIConversation, Organization, OrganizationMember, StudentProgress } from "@lurexa/types";
 
 export interface PlatformMetricsSummary {
   activeUsersMonthly: number;
   totalOrganizations: number;
-  monthlyRecurringRevenue: number;
+  monthlyRecurringRevenue: number | null;
   totalAITokensUsed: number;
-  systemErrorRatePercent: number;
+  systemErrorRatePercent: number | null;
 }
 
 export interface AdminOrgOverview {
@@ -29,87 +29,64 @@ export interface AdminOrgOverview {
 }
 
 export const AdminService = {
-  /**
-   * Fetch global platform KPIs
-   */
   async getPlatformMetrics(): Promise<PlatformMetricsSummary> {
-    // In production, aggregated via nightly Cloud Functions or Firebase Admin SDK
+    const [organizations, progress, conversations] = await Promise.all([
+      getDocs(collection(db, "organizations")),
+      getDocs(collection(db, "progress")),
+      getDocs(collection(db, "ai_conversations")),
+    ]);
+
+    const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const activeLearners = new Set(
+      progress.docs
+        .map((document) => document.data() as StudentProgress)
+        .filter((record) => Date.parse(record.lastAccessedAt) >= monthAgo)
+        .map((record) => record.studentId),
+    );
+    const tokenCount = conversations.docs
+      .map((document) => document.data() as AIConversation)
+      .reduce((total, conversation) => total + (Number.isFinite(conversation.tokenCount) ? conversation.tokenCount : 0), 0);
+
     return {
-      activeUsersMonthly: 1420,
-      totalOrganizations: 38,
-      monthlyRecurringRevenue: 2840,
-      totalAITokensUsed: 1250000,
-      systemErrorRatePercent: 0.04,
+      activeUsersMonthly: activeLearners.size,
+      totalOrganizations: organizations.size,
+      monthlyRecurringRevenue: null,
+      totalAITokensUsed: tokenCount,
+      systemErrorRatePercent: null,
     };
   },
 
-  /**
-   * Fetch list of all registered organizations across the platform
-   */
   async getOrganizationsOverview(): Promise<AdminOrgOverview[]> {
-    const snap = await getDocs(collection(db, "organizations"));
-
-    if (snap.empty) {
-      return [
-        {
-          id: "org_1",
-          name: "Colegio San Pedro",
-          plan: "pro",
-          studentCount: 140,
-          status: "active",
-          createdAt: "2026-01-15",
-        },
-        {
-          id: "org_2",
-          name: "Instituto Educativo Duarte",
-          plan: "basic",
-          studentCount: 45,
-          status: "active",
-          createdAt: "2026-02-01",
-        },
-        {
-          id: "org_3",
-          name: "Escuela Secundaria Central",
-          plan: "free",
-          studentCount: 18,
-          status: "suspended",
-          createdAt: "2026-02-10",
-        },
-      ];
-    }
-
-    return snap.docs.map((d) => {
-      const data = d.data() as Organization;
+    const snapshot = await getDocs(collection(db, "organizations"));
+    return Promise.all(snapshot.docs.map(async (document) => {
+      const data = document.data() as Organization & { status?: "active" | "suspended" };
+      const members = await getDocs(collection(db, "organizations", document.id, "members"));
+      const studentCount = members.docs
+        .map((member) => member.data() as OrganizationMember)
+        .filter((member) => member.role === "student").length;
       return {
-        id: data.id,
+        id: data.id || document.id,
         name: data.name,
         plan: data.plan,
-        studentCount: 25, // Computed count
-        status: "active",
+        studentCount,
+        status: data.status ?? "active",
         createdAt: data.createdAt,
       };
-    });
+    }));
   },
 
-  /**
-   * Suspend or reactivate an organization
-   */
   async updateOrgStatus(orgId: string, status: "active" | "suspended"): Promise<void> {
-    const ref = doc(db, "organizations", orgId);
-    await updateDoc(ref, { status, updatedAt: new Date().toISOString() });
+    await updateDoc(doc(db, "organizations", orgId), { status, updatedAt: new Date().toISOString() });
   },
 
-  /**
-   * Fetch flagged AI messages requiring moderation review
-   */
   async getFlaggedAIConversations(): Promise<AIConversation[]> {
-    const q = query(
+    const flagged = query(
       collection(db, "ai_conversations"),
       where("flagged", "==", true),
       orderBy("updatedAt", "desc"),
-      limit(20)
+      limit(20),
     );
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => d.data() as AIConversation);
+    const snapshot = await getDocs(flagged);
+    return snapshot.docs.map((document) => document.data() as AIConversation);
   },
 };
