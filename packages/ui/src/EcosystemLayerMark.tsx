@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
 export type LurexaEcosystemLayer = "core" | "mind";
 
@@ -6,6 +7,7 @@ export interface EcosystemLayerMarkProps extends HTMLAttributes<HTMLSpanElement>
   layer: LurexaEcosystemLayer;
   inverse?: boolean;
   compact?: boolean;
+  size?: BrandMarkSize;
 }
 
 const labels: Record<LurexaEcosystemLayer, string> = {
@@ -34,17 +36,18 @@ function LayerGlyph({ layer }: { layer: LurexaEcosystemLayer }) {
   );
 }
 
-export function EcosystemLayerMark({ layer, inverse = false, compact = false, className = "", ...props }: EcosystemLayerMarkProps) {
+export function EcosystemLayerMark({ layer, inverse = false, compact = false, size = "md", className = "", ...props }: EcosystemLayerMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
   const label = layer === "core" ? "text-[#2160df]" : "text-[#592bd6]";
+  const classes = brandMarkSizeClasses[size];
 
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`} {...props}>
-      <span className="grid h-9 w-9 shrink-0 place-items-center"><LayerGlyph layer={layer} /></span>
+    <span className={`inline-flex items-center ${classes.rootGap} ${className}`} {...props}>
+      <span className={`grid shrink-0 place-items-center ${classes.glyph}`}><LayerGlyph layer={layer} /></span>
       {!compact && (
         <span className="leading-none">
-          <span className={`block text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
-          <span className={`mt-1 block text-[10px] font-extrabold uppercase tracking-[.17em] ${label}`}>{labels[layer]}</span>
+          <span className={`block ${classes.wordmark} font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
+          <span className={`mt-1 block ${classes.label} font-extrabold uppercase tracking-[.17em] ${label}`}>{labels[layer]}</span>
         </span>
       )}
     </span>
