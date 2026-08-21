@@ -1,12 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { User } from "firebase/auth";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AuthService, TeachService } from "@lurexa/backend";
+import type { AuthenticatedUser } from "@lurexa/backend";
 import type { EducatorProfile } from "@lurexa/types";
 
 type TeachAuthContextValue = {
-  user: User | null;
+  user: AuthenticatedUser | null;
   profile: EducatorProfile | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
@@ -16,11 +16,11 @@ type TeachAuthContextValue = {
 const TeachAuthContext = createContext<TeachAuthContextValue | null>(null);
 
 export function TeachAuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [profile, setProfile] = useState<EducatorProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProfile = async (activeUser: User) => {
+  const loadProfile = useCallback(async (activeUser: AuthenticatedUser) => {
     let nextProfile = await TeachService.getEducatorProfile(activeUser.uid);
     if (!nextProfile) {
       const timestamp = new Date().toISOString();
@@ -36,7 +36,7 @@ export function TeachAuthProvider({ children }: { children: React.ReactNode }) {
       await TeachService.upsertEducatorProfile(nextProfile);
     }
     setProfile(nextProfile);
-  };
+  }, []);
 
   useEffect(() => AuthService.onUserChanged(async (nextUser) => {
     setUser(nextUser);
@@ -46,7 +46,7 @@ export function TeachAuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }), []);
+  }), [loadProfile]);
 
   const value = useMemo<TeachAuthContextValue>(() => ({
     user,
@@ -54,7 +54,7 @@ export function TeachAuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     refreshProfile: async () => { if (user) await loadProfile(user); },
     logout: async () => { await AuthService.logout(); },
-  }), [user, profile, loading]);
+  }), [user, profile, loading, loadProfile]);
 
   return <TeachAuthContext.Provider value={value}>{children}</TeachAuthContext.Provider>;
 }
