@@ -6,10 +6,16 @@ import { AuthService } from "@lurexa/backend";
 import type {
   LearnerLearningActivity,
   LearnerQuizContentBlockData,
+  LearningCapability,
   Lesson,
   StudentProgress,
 } from "@lurexa/types";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import {
+  AIRoleplayActivity,
+  ModelListeningActivity,
+  RecordedSpeakingActivity,
+} from "./AdvancedLearningCapabilities";
 
 type LessonPayload = {
   lesson: Lesson;
@@ -20,6 +26,12 @@ type LessonPayload = {
 type Feedback = {
   passed: boolean;
   message: string;
+};
+
+type LessonRuntimeProps = {
+  courseId: string;
+  lessonId: string;
+  retrievalScheduleId?: string;
 };
 
 function readError(payload: unknown, fallback: string): string {
@@ -54,9 +66,25 @@ function readActivity(data: Record<string, unknown>): LearnerLearningActivity | 
   return candidate as LearnerLearningActivity;
 }
 
-export function LessonRuntime({ courseId, lessonId }: { courseId: string; lessonId: string }) {
+function readCapability(data: Record<string, unknown>): LearningCapability | null {
+  const capability = data.capability;
+  if (typeof capability !== "object" || capability === null || Array.isArray(capability)) return null;
+  const candidate = capability as Partial<LearningCapability>;
+  if (
+    candidate.schemaVersion !== "1"
+    || !["model_listening", "recorded_speaking", "ai_roleplay"].includes(candidate.kind ?? "")
+    || typeof candidate.id !== "string"
+    || typeof candidate.title !== "string"
+    || typeof candidate.instructions !== "string"
+    || !Array.isArray(candidate.competencyIds)
+    || !candidate.competencyIds.every((id) => typeof id === "string")
+  ) return null;
+  return candidate as LearningCapability;
+}
+
+export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: LessonRuntimeProps) {
   const router = useRouter();
-  const openedAt = useRef(Date.now());
+  const openedAt = useRef<number | null>(null);
   const [payload, setPayload] = useState<LessonPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +93,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
   const [feedback, setFeedback] = useState<Record<string, Feedback>>({});
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [retrievalCompleted, setRetrievalCompleted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
@@ -74,6 +103,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
         return;
       }
 
+      openedAt.current = Date.now();
       try {
         const response = await authenticatedFetch(`/api/learning?courseId=${encodeURIComponent(courseId)}&lessonId=${encodeURIComponent(lessonId)}`);
         const body: unknown = await response.json();
@@ -171,11 +201,25 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
     }
   }
 
-  async function completeLesson() {
-    if (!payload) return;
+  async function finish() {
+    if (!payload || completing) return;
     setCompleting(true);
     try {
-      const timeSpentSeconds = Math.max(0, Math.round((Date.now() - openedAt.current) / 1000));
+      if (retrievalScheduleId) {
+        const response = await authenticatedFetch("/api/learning/adaptation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "completeRetrieval", scheduleId: retrievalScheduleId }),
+        });
+        const body: unknown = await response.json();
+        if (!response.ok) throw new Error(readError(body, "Unable to complete this retrieval check."));
+        setRetrievalCompleted(true);
+        setFeedback((current) => ({ ...current, completion: { passed: true, message: "Retrieval evidence saved. This strengthens retention evidence without changing mastery by itself." } }));
+        return;
+      }
+
+      const startedAt = openedAt.current ?? Date.now();
+      const timeSpentSeconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
       const response = await authenticatedFetch("/api/learning", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -184,9 +228,30 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body, "Unable to complete this lesson."));
       setPayload((current) => current ? { ...current, progress: body as StudentProgress } : current);
-      setFeedback((current) => ({ ...current, completion: { passed: true, message: "Lesson complete. Your progress and learning evidence are saved." } }));
+
+      let retrievalScheduled = false;
+      try {
+        const retrievalResponse = await authenticatedFetch("/api/learning/adaptation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "scheduleLessonRetrieval", courseId, lessonId }),
+        });
+        retrievalScheduled = retrievalResponse.ok;
+      } catch {
+        retrievalScheduled = false;
+      }
+
+      setFeedback((current) => ({
+        ...current,
+        completion: {
+          passed: true,
+          message: retrievalScheduled
+            ? "Lesson complete. Progress is saved and delayed retrieval has been scheduled; completion is not a mastery claim."
+            : "Lesson complete. Progress is saved; delayed retrieval scheduling can be retried later.",
+        },
+      }));
     } catch (caught) {
-      setFeedback((current) => ({ ...current, completion: { passed: false, message: caught instanceof Error ? caught.message : "Unable to complete this lesson." } }));
+      setFeedback((current) => ({ ...current, completion: { passed: false, message: caught instanceof Error ? caught.message : "Unable to finish this learning step." } }));
     } finally {
       setCompleting(false);
     }
@@ -209,6 +274,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
 
   const { lesson, progress, nextLesson } = payload;
   const blocks = [...lesson.contentBlocks].sort((first, second) => first.order - second.order);
+  const inRetrievalMode = Boolean(retrievalScheduleId);
 
   return (
     <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-8 sm:px-8">
@@ -217,7 +283,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button className="text-sm font-semibold text-indigo-700" onClick={() => router.push("/dashboard")}>← Dashboard</button>
             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase tracking-[.12em] text-indigo-700">
-              {progress?.completed ? "Completed" : "In progress"}
+              {inRetrievalMode ? "Retrieval review" : progress?.completed ? "Completed" : "In progress"}
             </span>
           </div>
           <p className="mt-8 text-xs font-bold uppercase tracking-[.18em] text-indigo-600">Production lesson</p>
@@ -225,6 +291,14 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
           {lesson.summary ? <p className="mt-3 max-w-2xl text-slate-600">{lesson.summary}</p> : null}
           <p className="mt-4 text-sm text-slate-500">About {lesson.estimatedMinutes} minutes · progress saves automatically</p>
         </header>
+
+        {inRetrievalMode ? (
+          <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-amber-800">Delayed retrieval</p>
+            <h2 className="mt-2 text-xl font-bold text-slate-950">Recall before you review.</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-700">Complete at least one activity from memory now. Lurexa will only close this retrieval check after fresh activity or assessment evidence is captured.</p>
+          </section>
+        ) : null}
 
         {blocks.map((block) => {
           const text = readText(block.data);
@@ -253,13 +327,18 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
                 <div className="mt-5 grid gap-3">
                   {quiz.options.map((option) => <button key={option} type="button" onClick={() => toggleOption(block.id, option, "quiz")} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
                 </div>
-                <button disabled={submittingId === block.id} onClick={() => submitBlock(block.id, "quiz")} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Check answer"}</button>
+                <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "quiz")} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Check answer"}</button>
                 {feedback[block.id] ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback[block.id].passed ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{feedback[block.id].message}</p> : null}
               </section>
             );
           }
 
           if (block.type === "interactive") {
+            const capability = readCapability(block.data);
+            if (capability?.kind === "model_listening") return <ModelListeningActivity key={block.id} capability={capability} />;
+            if (capability?.kind === "recorded_speaking") return <RecordedSpeakingActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+            if (capability?.kind === "ai_roleplay") return <AIRoleplayActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+
             const activity = readActivity(block.data);
             if (!activity) return null;
             const selected = selections[block.id] ?? [];
@@ -276,7 +355,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
                 {activity.type === "short_response" ? (
                   <>
                     <textarea value={responses[block.id] ?? ""} onChange={(event) => setResponses((current) => ({ ...current, [block.id]: event.target.value }))} className="mt-4 min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-slate-800 outline-none focus:border-indigo-500" placeholder="Write your response…" />
-                    <button disabled={submittingId === block.id} onClick={() => submitShortResponse(block.id)} className="mt-4 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Save response"}</button>
+                    <button disabled={submittingId === block.id} onClick={() => void submitShortResponse(block.id)} className="mt-4 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Save response"}</button>
                   </>
                 ) : (
                   <>
@@ -284,7 +363,7 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
                     <div className="mt-4 grid gap-3">
                       {(activity.options ?? []).map((option) => <button key={option} type="button" onClick={() => toggleOption(block.id, option, activity.type)} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
                     </div>
-                    <button disabled={submittingId === block.id} onClick={() => submitBlock(block.id, "activity", activity)} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Submit activity"}</button>
+                    <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "activity", activity)} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Submit activity"}</button>
                   </>
                 )}
                 {feedback[block.id] ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback[block.id].passed ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{feedback[block.id].message}</p> : null}
@@ -296,13 +375,18 @@ export function LessonRuntime({ courseId, lessonId }: { courseId: string; lesson
         })}
 
         <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-300">Finish the lesson</p>
-          <h2 className="mt-2 text-2xl font-bold">Save what you accomplished.</h2>
-          <p className="mt-2 text-sm text-slate-300">Completing a lesson records progress; it does not claim mastery by itself.</p>
-          {!progress?.completed ? <button disabled={completing} onClick={completeLesson} className="mt-5 rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{completing ? "Saving…" : "Complete lesson"}</button> : null}
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-300">{inRetrievalMode ? "Finish retrieval" : "Finish the lesson"}</p>
+          <h2 className="mt-2 text-2xl font-bold">{inRetrievalMode ? "Save the recall you demonstrated." : "Save what you accomplished."}</h2>
+          <p className="mt-2 text-sm text-slate-300">{inRetrievalMode ? "Retrieval completion requires fresh evidence from this review session." : "Completing a lesson records progress; it does not claim mastery by itself."}</p>
+          {inRetrievalMode ? (
+            !retrievalCompleted ? <button disabled={completing} onClick={() => void finish()} className="mt-5 rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{completing ? "Checking evidence…" : "Complete retrieval check"}</button> : null
+          ) : !progress?.completed ? (
+            <button disabled={completing} onClick={() => void finish()} className="mt-5 rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{completing ? "Saving…" : "Complete lesson"}</button>
+          ) : null}
           {feedback.completion ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback.completion.passed ? "bg-emerald-950 text-emerald-100" : "bg-amber-950 text-amber-100"}`}>{feedback.completion.message}</p> : null}
-          {progress?.completed && nextLesson ? <button onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Continue to next lesson →</button> : null}
-          {progress?.completed && !nextLesson ? <button onClick={() => router.push("/dashboard")} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Return to dashboard</button> : null}
+          {retrievalCompleted ? <button onClick={() => router.push("/dashboard")} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Return to dashboard</button> : null}
+          {!inRetrievalMode && progress?.completed && nextLesson ? <button onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Continue to next lesson →</button> : null}
+          {!inRetrievalMode && progress?.completed && !nextLesson ? <button onClick={() => router.push("/dashboard")} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Return to dashboard</button> : null}
         </section>
       </div>
     </main>
