@@ -38,14 +38,20 @@ export default function NativeLearnScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
+      <View style={styles.productBar}>
+        <View style={styles.productGlyph} />
+        <View>
+          <Text style={styles.productMaster}>Lurexa</Text>
+          <Text style={styles.productName}>Learn</Text>
+        </View>
+      </View>
+
       <View style={styles.header}>
-        <Text style={styles.badgeText}>Mobile Offline Ready</Text>
+        <Text style={styles.badgeText}>Mobile • Offline ready</Text>
         <Text style={styles.title}>Lesson 1: Algebraic Expressions</Text>
         <Text style={styles.subtitle}>Mathematics B1 • Module 1</Text>
       </View>
 
-      {/* Lesson Body */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Core Concept</Text>
         <Text style={styles.cardBody}>
@@ -55,11 +61,12 @@ export default function NativeLearnScreen() {
         <Text style={styles.example}>Example: 3x + 5 = 20</Text>
       </View>
 
-      {/* Actions */}
       <TouchableOpacity
         style={[styles.button, completed && styles.buttonDisabled]}
         onPress={handleMarkComplete}
         disabled={loading || completed}
+        accessibilityRole="button"
+        accessibilityLabel={completed ? "Lesson completed" : "Mark lesson as finished"}
       >
         <Text style={styles.buttonText}>
           {completed ? "Completed ✓" : loading ? "Syncing..." : "Mark as Finished →"}
@@ -71,41 +78,19 @@ export default function NativeLearnScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8FAFC", padding: 20 },
-  header: { marginBottom: 20, marginTop: 40 },
-  badgeText: {
-    color: "#4F46E5",
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  title: { fontSize: 24, fontWeight: "bold", color: "#0F172A" },
-  subtitle: { fontSize: 14, color: "#64748B", marginTop: 2 },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginBottom: 20,
-  },
-  cardTitle: { fontSize: 16, fontWeight: "bold", color: "#0F172A", marginBottom: 8 },
+  productBar: { marginTop: 34, marginBottom: 24, flexDirection: "row", alignItems: "center", gap: 10 },
+  productGlyph: { width: 34, height: 34, borderRadius: 11, backgroundColor: "#592BD6", borderRightWidth: 10, borderRightColor: "#2160DF" },
+  productMaster: { color: "#071D67", fontSize: 17, lineHeight: 17, fontWeight: "900", letterSpacing: -0.7 },
+  productName: { color: "#592BD6", fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.5, marginTop: 3 },
+  header: { marginBottom: 20 },
+  badgeText: { color: "#0B8F93", fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 6 },
+  title: { fontSize: 24, fontWeight: "bold", color: "#071D67" },
+  subtitle: { fontSize: 14, color: "#64748B", marginTop: 3 },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 18, padding: 20, borderWidth: 1, borderColor: "#DFE6F8", marginBottom: 20 },
+  cardTitle: { fontSize: 16, fontWeight: "bold", color: "#071D67", marginBottom: 8 },
   cardBody: { fontSize: 14, color: "#334155", lineHeight: 22 },
-  example: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#4F46E5",
-    marginTop: 12,
-    backgroundColor: "#EEF2FF",
-    padding: 10,
-    borderRadius: 8,
-  },
-  button: {
-    backgroundColor: "#4F46E5",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  buttonDisabled: { backgroundColor: "#10B981" },
+  example: { fontSize: 14, fontWeight: "bold", color: "#592BD6", marginTop: 12, backgroundColor: "#F1EDFF", padding: 10, borderRadius: 10 },
+  button: { backgroundColor: "#315FD7", minHeight: 52, paddingVertical: 16, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  buttonDisabled: { backgroundColor: "#137867" },
   buttonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold" },
 });

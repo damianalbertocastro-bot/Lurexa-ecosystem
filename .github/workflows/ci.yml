@@ -40,6 +40,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify Brand System
+        run: pnpm verify:brand-system
+
       - name: Verify Linguistic Intelligence
         run: pnpm verify:linguistic-intelligence
 

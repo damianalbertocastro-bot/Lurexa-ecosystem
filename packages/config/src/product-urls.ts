@@ -1,0 +1,53 @@
+export const lurexaPublicUrlEnv = {
+  ecosystem: "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL",
+  learn: "NEXT_PUBLIC_LUREXA_LEARN_URL",
+  teacher: "NEXT_PUBLIC_LUREXA_TEACHER_URL",
+  coach: "NEXT_PUBLIC_LUREXA_COACH_URL",
+  teach: "NEXT_PUBLIC_LUREXA_TEACH_URL",
+  admin: "NEXT_PUBLIC_LUREXA_ADMIN_URL",
+  insight: "NEXT_PUBLIC_LUREXA_INSIGHT_URL",
+  studio: "NEXT_PUBLIC_LUREXA_STUDIO_URL",
+  docs: "NEXT_PUBLIC_LUREXA_DOCS_URL",
+} as const;
+
+export type LurexaPublicExperienceId = keyof typeof lurexaPublicUrlEnv;
+export type LurexaPublicUrlMap = Record<LurexaPublicExperienceId, string>;
+
+type PublicEnv = Partial<Record<(typeof lurexaPublicUrlEnv)[LurexaPublicExperienceId], string | undefined>>;
+
+const canonicalFallbacks = {
+  ecosystem: "https://lurexa.com",
+  learn: "https://learn.lurexa.com",
+} as const;
+
+function cleanUrl(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith("#") || trimmed.startsWith("/")) return trimmed;
+  try {
+    return new URL(trimmed).toString().replace(/\/$/, "");
+  } catch {
+    throw new Error(`Invalid Lurexa public URL: ${trimmed}`);
+  }
+}
+
+export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPublicUrlMap {
+  const ecosystem = cleanUrl(env[lurexaPublicUrlEnv.ecosystem]) ?? canonicalFallbacks.ecosystem;
+  const learn = cleanUrl(env[lurexaPublicUrlEnv.learn]) ?? canonicalFallbacks.learn;
+
+  return {
+    ecosystem,
+    learn,
+    teacher: cleanUrl(env[lurexaPublicUrlEnv.teacher]) ?? learn,
+    coach: cleanUrl(env[lurexaPublicUrlEnv.coach]) ?? `${learn}/coach`,
+    teach: cleanUrl(env[lurexaPublicUrlEnv.teach]) ?? ecosystem,
+    admin: cleanUrl(env[lurexaPublicUrlEnv.admin]) ?? ecosystem,
+    insight: cleanUrl(env[lurexaPublicUrlEnv.insight]) ?? ecosystem,
+    studio: cleanUrl(env[lurexaPublicUrlEnv.studio]) ?? ecosystem,
+    docs: cleanUrl(env[lurexaPublicUrlEnv.docs]) ?? ecosystem,
+  };
+}
+
+export const inactivePublicProductUrlEnv = {
+  community: "NEXT_PUBLIC_LUREXA_COMMUNITY_URL",
+} as const;
