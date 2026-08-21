@@ -1,24 +1,28 @@
-type CurriculumAudioDefinition = {
-  text: string;
-  instructions: string;
-  voice: string;
-};
+import type { AuthenticatedActor } from "./course-platform.server";
+import { resolveModelListeningCapability } from "./learning-capability.server";
 
 const SPEECH_ENDPOINT = "https://api.openai.com/v1/audio/speech";
 const SPEECH_MODEL = "gpt-4o-mini-tts";
+const SPEECH_VOICE = "coral";
 
-const CURRICULUM_AUDIO: Record<string, CurriculumAudioDefinition> = {
-  "a1-m1-u1-l1-model-listening-production": {
-    text: "Carlos: Hello, I'm Carlos. What's your name? Elena: I'm Elena. Nice to meet you. Carlos: Nice to meet you too, Elena!",
-    instructions: "Speak clearly and naturally for an A1 English learner. Use a warm classroom tone, moderate pace, clear phrase boundaries, and natural English stress. Do not exaggerate or use an artificial teaching cadence.",
-    voice: "coral",
-  },
-};
+function instructionsFor(playbackGoal: "meaning" | "noticing" | "pronunciation_model"): string {
+  if (playbackGoal === "pronunciation_model") {
+    return "Speak clearly and naturally as an English pronunciation model. Preserve natural connected speech, stress, rhythm, and intonation without exaggeration or accent-erasure framing.";
+  }
+  if (playbackGoal === "noticing") {
+    return "Speak clearly and naturally for an English learner. Use a warm tone, moderate pace, clear phrase boundaries, and natural English stress so the learner can notice useful language patterns.";
+  }
+  return "Speak naturally and clearly for comprehension. Use a warm tone and an accessible pace while preserving authentic English rhythm and connected speech.";
+}
 
 export const LearnCurriculumAudioService = {
-  async generate(activityId: string): Promise<{ bytes: ArrayBuffer; contentType: string }> {
-    const definition = CURRICULUM_AUDIO[activityId];
-    if (!definition) throw new Error("Curriculum audio activity is not available.");
+  async generate(input: {
+    actor: AuthenticatedActor;
+    courseId: string;
+    lessonId: string;
+    activityId: string;
+  }): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+    const capability = await resolveModelListeningCapability(input);
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("Production curriculum audio is not configured yet.");
@@ -31,9 +35,9 @@ export const LearnCurriculumAudioService = {
       },
       body: JSON.stringify({
         model: SPEECH_MODEL,
-        input: definition.text,
-        voice: definition.voice,
-        instructions: definition.instructions,
+        input: capability.modelText,
+        voice: SPEECH_VOICE,
+        instructions: instructionsFor(capability.playbackGoal),
         response_format: "mp3",
       }),
     });
