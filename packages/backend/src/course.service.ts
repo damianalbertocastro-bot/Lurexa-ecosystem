@@ -5,16 +5,18 @@ import {
   getDocs,
   query,
   where,
-  setDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Course, Lesson } from "@lurexa/types";
+
+const trustedWriteError =
+  "Direct course writes are disabled. Use the trusted Learn /api/learning CoursePlatform boundary.";
 
 export const CourseService = {
   async getCoursesByOrg(orgId: string): Promise<Course[]> {
     const q = query(collection(db, "courses"), where("orgId", "==", orgId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Course));
+    return snapshot.docs.map((courseDoc) => ({ id: courseDoc.id, ...courseDoc.data() } as Course));
   },
 
   async getCourseById(courseId: string): Promise<Course | null> {
@@ -31,8 +33,12 @@ export const CourseService = {
     return { id: snap.id, ...snap.data() } as Lesson;
   },
 
+  /**
+   * @deprecated Course is an authoritative Core record. Browser-side writes are
+   * intentionally blocked; product code must use the trusted Learn API route.
+   */
   async saveCourse(course: Course): Promise<void> {
-    const ref = doc(db, "courses", course.id);
-    await setDoc(ref, course, { merge: true });
+    void course;
+    throw new Error(trustedWriteError);
   },
 };
