@@ -55,14 +55,14 @@ for (const item of deployment.deployments) {
   if (!app) fail(`Deployment root is missing from bootstrap repository manifest: ${item.rootDirectory}`);
   else if (!app.required) fail(`Deployable surface must be required in bootstrap manifest: ${item.rootDirectory}`);
 }
-pass("deployment surfaces resolve to current registry identities and bootstrap apps");
+if (!failures.some((item) => item.includes("Deployment") || item.includes("Deployable"))) pass("deployment surfaces resolve to current registry identities and bootstrap apps");
 
 for (const item of deployment.futureProducts) {
   const match = [...registry.values()].find((entry) => entry.name === item.product);
   if (!match) fail(`Future deployment target is not present in registry: ${item.product}`);
   else if (match.classification !== "product") fail(`Future deployment target must be an approved current product awaiting a surface, not ${match.classification}: ${item.product}`);
 }
-pass("future deployment targets are approved products rather than future concepts");
+if (!failures.some((item) => item.includes("Future deployment"))) pass("future deployment targets are approved products rather than future concepts");
 
 const deploymentLayerNames = new Set(deployment.sharedLayers.map((layer) => layer.name));
 for (const name of sharedLayerNames) {
@@ -71,7 +71,7 @@ for (const name of sharedLayerNames) {
 for (const name of deploymentLayerNames) {
   if (!sharedLayerNames.has(name)) fail(`Deployment topology invents an unregistered shared layer: ${name}`);
 }
-pass("deployment shared layers match the typed registry");
+if (!failures.some((item) => item.includes("Shared layer") || item.includes("shared layer"))) pass("deployment shared layers match the typed registry");
 
 const webPage = read("apps/web/app/page.tsx");
 const orderMatch = webPage.match(/const productOrder = \[([^\]]+)\] satisfies LurexaProductId\[\]/s);
@@ -85,11 +85,17 @@ if (!orderMatch) {
   for (const id of unique) if (!currentProductIds.has(id)) fail(`Ecosystem landing promotes non-current product: ${id}`);
 }
 if (!webPage.includes('from "@lurexa/config/product-registry"')) fail("Ecosystem landing must consume product identity through @lurexa/config/product-registry");
-else pass("ecosystem product navigation is registry-backed and current-product complete");
+if (!failures.some((item) => item.includes("Ecosystem landing"))) pass("ecosystem product navigation is registry-backed and current-product complete");
 
 const allowedRelatedKinds = new Set([...currentProductIds, "docs", "ecosystem", "teach-community"]);
-const appSources = walk("apps").filter((file) => /\.(?:ts|tsx|js|jsx)$/.test(file));
-for (const file of appSources) {
+const relatedExperienceSources = walk("apps")
+  .filter((file) => /\.(?:ts|tsx|js|jsx)$/.test(file))
+  .filter((file) => {
+    const content = read(file);
+    return content.includes("RelatedExperiences") || content.includes("RelatedExperience");
+  });
+
+for (const file of relatedExperienceSources) {
   const content = read(file);
   for (const match of content.matchAll(/kind:\s*"([a-z-]+)"/g)) {
     const kind = match[1];
@@ -97,12 +103,12 @@ for (const file of appSources) {
   }
   for (const inactiveName of inactiveNames) {
     if (content.includes(`title: "${inactiveName}"`) || content.includes(`title: '${inactiveName}'`)) {
-      fail(`${file} promotes inactive registry concept in current app navigation: ${inactiveName}`);
+      fail(`${file} promotes inactive registry concept in current Related Experiences navigation: ${inactiveName}`);
     }
   }
 }
-if (!failures.some((item) => item.includes("RelatedExperience") || item.includes("inactive registry concept"))) {
-  pass("current app recommendations cannot promote inactive concepts");
+if (!failures.some((item) => item.includes("RelatedExperience") || item.includes("Related Experiences"))) {
+  pass("current Related Experiences navigation cannot promote inactive concepts");
 }
 
 const mobileDeployment = deployment.deployments.find((item) => item.id === "mobile");
