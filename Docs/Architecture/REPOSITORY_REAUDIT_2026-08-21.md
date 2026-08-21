@@ -1,14 +1,16 @@
 # Lurexa Repository Re-Audit — 2026-08-21
 
-Status: **Post-consolidation audit — implementation branch**
+Status: **Post-consolidation + production-hardening audit — implementation branch**
 
-Scope: repository topology, current deployable apps, Learn/Teach product boundaries, product-shell identity, shared UI portability, visible placeholder data, commerce stubs, security-sensitive future services, GitHub validation topology, and Vercel project ownership.
+Branch: `design/teach-led-ecosystem-unification`
 
-This audit evaluates the repository after the Teach-led design/consolidation work on `design/teach-led-ecosystem-unification`. It does not treat stale production deployments as repository truth.
+This audit evaluates repository truth after the Teach-led ecosystem redesign and the subsequent production-hardening pass. Stale production deployments are not treated as source of truth.
 
 ## Executive assessment
 
-The repository is materially cleaner than at the start of this audit. The largest structural defect — two independent Lurexa Learn teacher applications — has been removed from the repository. Current app topology is now:
+The repository is materially cleaner and safer than at the start of this audit. The major structural, trust, and product-boundary defects found during the audit have been corrected on this branch.
+
+Current app topology:
 
 - `apps/web` — Lurexa Learning Technologies ecosystem site;
 - `apps/learn-web` — Lurexa Learn learner + teacher operational experience;
@@ -17,306 +19,291 @@ The repository is materially cleaner than at the start of this audit. The larges
 - `apps/docs` — Lurexa Docs;
 - `apps/mobile` — Lurexa Learn mobile surface.
 
-There is no longer a repository-level `apps/teacher-portal` application on this branch.
+`apps/teacher-portal` no longer exists on this branch.
 
-The highest remaining risks are no longer visual. They are release/configuration drift, legacy browser-write services, incomplete commerce/telemetry infrastructure, and the need for a real executable validation run after repeated GitHub Actions runner-start failures.
+The highest remaining blockers are now release/execution issues rather than unresolved repository architecture:
+
+1. regenerate the pnpm lockfile so the deleted teacher-portal importer disappears through pnpm rather than hand-editing generated dependency data;
+2. obtain a real executable CI run after repeated GitHub Actions runner-start failures;
+3. apply/verify Vercel affected-project settings remotely and retire the orphaned `lurexa-teacher` Vercel project after route verification;
+4. add real commerce/observability infrastructure before activating paid plans, MRR, or production error-rate reporting.
 
 ## Fixed — product ownership and teacher architecture
 
-### Duplicate teacher application removed
+### Duplicate teacher application retired
 
-`apps/teacher-portal` duplicated functionality already owned by `apps/learn-web/app/teacher/*`. It contained no unique trusted course/invitation/backend implementation requiring preservation.
+The standalone `apps/teacher-portal` duplicated the operational teacher experience already owned by `apps/learn-web/app/teacher/*`.
 
-Correction:
+Corrections:
 
 - deleted `apps/teacher-portal`;
-- removed it from `bootstrap/repository.json`;
-- removed it as an independent deployment-validation surface;
-- `deployment/products.json` assigns the teacher workspace to `apps/learn-web` / `lurexa-learn-web`;
+- removed it from bootstrap and deployment ownership;
+- canonical teacher deployment belongs to `apps/learn-web` / `lurexa-learn-web`;
 - added `scripts/verify-teacher-workspace-boundary.mjs`;
-- added `pnpm verify:teacher-workspace` to local and CI verification.
+- added `pnpm verify:teacher-workspace` to local/CI verification.
 
-### Canonical `/teacher/*` routes corrected to Lurexa Learn
+### Learn / Teach identity corrected
 
-A P0 identity defect was found in `apps/learn-web/app/teacher/layout.tsx`: the entire Learn teacher route tree was wrapped in `ProductShell product="teach"`.
+The canonical `/teacher/*` layout incorrectly rendered `ProductShell product="teach"`.
 
-Correction: canonical teacher routes now render `product="learn"`.
+It now renders Lurexa Learn. Operational teaching remains in Learn; educator professional development remains in Teach.
 
-This enforces the product boundary:
+## Fixed — Teach-led visual system rollout
 
-- Learn owns classes, courses, lessons, learners, assignments, progress, interventions and instructional operations;
-- Teach owns educator professional development, growth, evidence, credentials and educator professional community.
+Teach remains the ecosystem quality reference without becoming a universal visual template.
 
-## Fixed — Teach-led visual-system rollout
-
-Lurexa Teach remains the quality reference for shared interaction grammar without forcing products to share one personality.
-
-Updated Learn surfaces:
+Updated Learn surfaces include:
 
 - student dashboard;
 - teacher dashboard;
-- login;
-- signup;
-- onboarding;
+- login/signup/onboarding;
 - teacher course management;
-- teacher student access management;
-- teacher insights;
-- teacher assessment builder;
-- teacher plan/billing surface;
+- learner-access management;
+- teacher Insights;
+- assessment builder;
+- organization plan surface;
 - Learn Scenario Lab prototype.
 
-Shared improvements include:
+Shared improvements include one product identity per hierarchy, clearer heroes/actions, consistent card/button grammar, responsive navigation, honest empty/error states, and preservation of product-specific personality.
 
-- one product identity per screen hierarchy;
-- sticky product shell instead of repeated logos;
-- title/subtitle moved into strong content heroes;
-- navy/violet gradient hero language;
-- cyan participation/intelligence accents;
-- 12px action buttons;
-- 24–34px content/card radius hierarchy;
-- clearer primary/secondary actions;
-- better empty/loading/error honesty.
+## Fixed — non-Tailwind brand rendering
 
-Teach login/profile, Admin and Docs were reviewed and already substantially followed the target grammar; broad rewrites were intentionally avoided.
+`MasterMark` and `ProductMark` previously depended on Tailwind for essential SVG dimensions, which allowed marks to collapse in `apps/web`.
 
-## Fixed — ecosystem logo rendering
+Brand glyph geometry is now self-contained and portable across consumers.
 
-Root cause: `apps/web` does not run Tailwind, while shared `MasterMark` and `ProductMark` components previously relied on Tailwind utility classes for essential SVG dimensions.
+## Fixed — authoritative Learn course-write boundary
 
-Correction:
-
-- brand mark sizes now include explicit pixel geometry;
-- SVG glyphs use explicit width/height behavior;
-- compact product marks render without depending on a Tailwind consumer.
-
-Shared UI follow-up: essential geometry/accessibility in reusable primitives must not depend on an app-specific CSS framework unless that dependency is explicitly part of the component contract.
-
-## Fixed — teacher analytics trust defects
-
-The old teacher analytics flow had multiple trust violations:
-
-- UI queried hard-coded `org_demo`;
-- analytics service returned a fabricated 24-student class when no data existed;
-- roster returned three fabricated named students regardless of organization;
-- recommendation copy was labeled AI without a governed Mind boundary.
+Legacy browser services could write course/module/lesson records directly.
 
 Corrections:
 
-- teacher organization resolved from authenticated membership;
-- org-scoped course progress is used for available aggregate metrics;
-- no-data returns zero/empty rather than demo data;
-- roster returns empty until Core-owned learner identity/profile data can be joined safely;
-- recommendations are labeled class-data recommendations, not Mind output.
+- `CourseService.saveCourse()` fails closed;
+- all `CourseBuilderService` mutations fail closed;
+- canonical Learn authoring uses `/api/learning` + `CoursePlatformService` on Firebase Admin;
+- Firestore client rules deny create/update/delete for `courses` and deny direct module/lesson access;
+- emulator rule tests verify that browser teacher clients cannot create or mutate authoritative course records.
 
-Remaining architecture task: create a trusted org-scoped analytics projection/read model that joins membership identity, course enrollment/progress and validated learning evidence without requiring expensive client aggregation.
+Core therefore owns the trusted course-authoring write path.
 
-## Fixed — Admin fabricated metrics
+## Fixed — teacher analytics projection
 
-The old Admin service hard-coded:
+Earlier teacher analytics contained hard-coded demo organization/data and later relied on broad browser aggregation.
 
-- monthly active users;
-- monthly recurring revenue;
-- AI token volume;
-- system error rate;
-- demo organizations;
-- a fake 25-student count per real organization.
+Current architecture:
 
-Corrections:
+- `OrganizationAnalyticsService` runs on Firebase Admin;
+- organization context is derived from trusted educator membership;
+- learner identity comes from Core organization membership/user records;
+- signals come from organization-scoped course progress;
+- `/api/teacher/insights` returns a private no-store projection;
+- the UI consumes only that authenticated API;
+- legacy browser `AnalyticsService` fails closed.
 
-- organization count is read from stored organizations;
-- monthly active learners are derived from recent progress activity;
-- AI token count uses recorded AI-conversation telemetry;
-- organization student count uses actual student membership subcollections;
-- unavailable MRR/error telemetry remains unavailable instead of fabricated;
-- empty organization collections render empty states rather than fake institutions.
+Recommendations remain deterministic support prompts, not Lurexa Mind decisions or mastery claims.
 
-Remaining architecture task: move global operational metrics to trusted server-side aggregated projections rather than broad browser reads.
+Current implementation is suitable for early-stage scale. If query volume grows materially, replace on-demand aggregation with Core-maintained materialized projections rather than returning to browser aggregation.
 
-## Fixed — billing and commerce honesty
+## Fixed — Lurexa Admin trust and authorization
 
-The old teacher billing surface:
+Earlier Admin code used fabricated operational metrics and then broad browser Firestore reads.
 
-- used `org_demo`;
-- showed a hard-coded `18` seats used;
-- displayed unapproved `$9` and `$29` prices;
-- redirected upgrade actions to fake Stripe `demo_*` checkout URLs.
+Current architecture:
 
-Corrections:
+- dedicated `/login` surface;
+- no public Admin registration flow;
+- ID token must contain `role: "super_admin"`;
+- `/api/admin` verifies the claim server-side;
+- `PlatformAdminService` uses Firebase Admin for platform metrics, organization directory, and organization status changes;
+- browser `AdminService` fails closed;
+- unavailable MRR/error-rate telemetry remains unavailable rather than estimated.
 
-- organization comes from authenticated membership;
-- student seat usage is counted from real org members;
-- stored subscriptions determine current plan;
-- no paid prices are presented as authoritative;
-- paid checkout throws an explicit not-configured error and performs no payment action;
-- UI explains that commerce requires pricing source of truth, server checkout, webhooks, billing-state reconciliation, tax/refund policy and audit contracts before activation.
+A local privileged maintenance command is provided through `@lurexa/backend`:
+
+```bash
+pnpm --filter @lurexa/backend admin:superadmin -- --uid <firebase-uid> --enable --confirm
+```
+
+The command requires `FIREBASE_SERVICE_ACCOUNT_JSON`, refuses unconfirmed changes, and refuses to overwrite another existing role unless `--replace-role` is explicitly supplied. Dedicated platform-admin accounts are preferred.
+
+## Fixed — organization plan / billing boundary
+
+Earlier billing used `org_demo`, invented seat usage/pricing, and a fake Stripe checkout URL. Later it still attempted browser reads of trusted subscription/member data.
+
+Current architecture:
+
+- `OrganizationPlanService` resolves educator organization membership on Firebase Admin;
+- stored organization/subscription state determines the active plan;
+- actual organization student membership determines seat usage;
+- `/api/teacher/plan` returns the private authenticated projection;
+- the Learn plan UI consumes that projection;
+- legacy browser subscription/seat reads fail closed;
+- usage-ledger writes are server-only;
+- Firestore explicitly protects `subscriptions` and `usage_records`;
+- paid checkout remains unavailable and performs no payment action.
+
+No paid price or upgrade flow should appear until pricing authority, Stripe/server checkout, webhooks, subscription reconciliation, tax/refund policy, and audit contracts exist.
 
 ## Fixed — future Marketplace transactions
 
-Marketplace is a future concept, but legacy `MarketplaceService` could:
+Marketplace remains a future concept.
 
-- publish listings;
-- fabricate listings when empty;
-- record purchases as `completed` without a payment processor.
+Legacy behavior that could publish listings, fabricate a catalog, and record completed purchases without payment is disabled. The compatibility service cannot execute commerce transactions, and Marketplace/purchase collections are server-only in Firestore rules.
 
-Correction:
+## Fixed — sensitive future service boundaries
 
-- listing publication is disabled;
-- catalog returns empty while inactive;
-- purchase operations throw an explicit future-concept error;
-- no fake transaction or revenue split is persisted.
+The historical `EcosystemService` previously mixed Studio, Coach, classroom, and API mutations in a client Firestore abstraction.
 
-Activation must be an explicit product/architecture decision.
+It is now a deprecated compatibility facade whose mutations fail closed.
 
-## Fixed — institutional API-key storage
+Institutional API credentials moved to `institutional-api-key.server.ts`:
 
-Legacy `EcosystemService.generateAPIKey()` stored the raw key value in a field named `apiKeyHash` and used `Math.random()` key material.
+- server/Admin SDK only;
+- owner/admin organization authorization;
+- cryptographically random key material;
+- SHA-256 digest persisted instead of raw secret;
+- raw key returned once;
+- revocation supported.
 
-Correction:
+Public API activation still requires scopes, rotation policy, usage enforcement, audit logs, and secure secret UX.
 
-- key material uses cryptographic random bytes;
-- only a SHA-256 digest is persisted;
-- raw secret is returned exactly once to the caller.
-
-Future production API activation still needs server-only issuance, scoped permissions, revocation, rotation, audit logging, usage enforcement and secure secret-display UX.
-
-## Fixed — prototype product-boundary defects
+## Fixed — prototype honesty
 
 ### Learn Scenario Lab
 
-`/teacher/studio` previously called itself `Lurexa Studio` and saved a hard-coded chemistry scenario to `crs_studio_chem`.
+The Learn teacher route no longer impersonates the standalone Lurexa Studio product and no longer writes hard-coded demo scenarios.
 
-Correction:
+### Prototype content generation
 
-- renamed conceptually to Learn Scenario Lab prototype;
-- explicitly separated from standalone Lurexa Studio;
-- demo persistence disabled;
-- production authoring must use authenticated course/lesson context and governed learning-activity contracts.
+The deterministic assessment helper is canonically `PrototypeContentService`, not an AI provider boundary. The old `AIGeneratorService` name remains only as a deprecated compatibility alias.
 
-### Quiz sample generator
+Production generation must eventually use an approved Mind/provider server boundary plus educator review.
 
-The assessment builder presented `AIGeneratorService.generateLessonDraft()` as an AI Question Generator even though the service currently returns deterministic placeholder content.
+## Fixed — Firestore sensitive-data posture
 
-Correction:
+Explicit client-deny rules now protect authoritative or server-owned records including:
 
-- UI labels it a prototype sample helper;
-- explicit note says it is not Lurexa Mind or live AI;
-- production generation must use approved server-side intelligence/provider orchestration plus educator review.
+- modules;
+- lessons;
+- progress writes;
+- learning evidence;
+- learner insights;
+- tutor/spoken/retrieval/intervention records;
+- Studio/classroom future records;
+- institutional API keys;
+- Marketplace listings/purchases;
+- subscriptions;
+- usage records;
+- AI conversation telemetry.
 
-## Reviewed — lesson runtime
+Course metadata remains readable only in organization-member context; authoring writes are server-only.
 
-`LessonRuntime` remains a large but substantive production path:
+## Fixed — production-honesty verification
 
-- authenticated load;
-- trusted server-side start/attempt/response/complete actions;
-- retrieval scheduling/completion;
-- structured activities;
-- advanced listening/speaking/roleplay capability boundaries;
-- completion explicitly does not claim mastery.
+`scripts/verify-production-honesty.mjs` now protects against recurrence of the audit’s most important failure classes:
 
-It already runs inside the canonical Learn `ProductShell`. A broad visual rewrite is lower value than preserving its learning-evidence behavior. Future improvements should extract reusable visual activity containers rather than rewrite the runtime wholesale.
+- hard-coded demo organizations;
+- fabricated analytics/admin data;
+- browser organization analytics;
+- browser platform administration;
+- browser subscription/usage access;
+- fake checkout;
+- inactive Marketplace commerce;
+- client future-service persistence;
+- weak/plaintext API-key handling;
+- deterministic content presented as live AI;
+- legacy direct course writes;
+- missing Firestore server-ownership rules.
 
-## Reviewed — Teach, Admin and Docs UI
+`pnpm verify:production-honesty` is included in local verification and as an explicit GitHub Actions step.
 
-### Teach
+## Reviewed — lesson runtime, Teach and Docs
 
-The Teach landing, shell, login and professional profile remain the reference-quality product implementation. Their professional-development ownership is consistent with the canonical boundary.
+The Learn lesson runtime already uses authenticated trusted APIs for lesson state, attempts, evidence and completion, and explicitly avoids treating completion as mastery. A wholesale visual rewrite is lower value than preserving that evidence path.
 
-### Admin
-
-The shell is visually consistent and accessible; data-trust defects were fixed in the service/UI as described above.
-
-### Docs
-
-Docs has its own structured knowledge-base personality, canonical mark, sticky navigation, mobile navigation, search entry and repository-backed documentation model. No Teach-style homogenization is required.
+Teach remains the reference-quality professional-development product. Docs remains a distinct structured knowledge-base experience. Neither should be homogenized into a universal dashboard template.
 
 ## Remote configuration still required — Vercel
 
-The repository already contains the intended project-provisioning behavior in `scripts/provision-vercel-projects.mjs`:
+Repository configuration already intends:
 
-- legacy ignored-build command cleared;
-- native affected-project deployments enabled;
+- clear legacy custom ignored-build commands;
+- Vercel native affected-project deployments;
 - one project per actual deployable surface.
 
-Current connected Vercel tooling in this session does not expose the project-setting mutation or project-deletion actions required to apply/verify all remote changes.
+Remaining remote actions:
 
-Required remote actions:
-
-1. apply/verify affected-project deployment settings for each active Vercel project;
+1. apply/verify affected-project settings on every active Vercel project;
 2. verify `/teacher/*` is served by `lurexa-learn-web` after release;
-3. migrate any externally used teacher-specific domain/alias if one exists;
-4. delete/retire the orphaned `lurexa-teacher` Vercel project;
-5. confirm production SHA after intentional production release.
+3. migrate any externally used teacher-specific alias/domain if one exists;
+4. retire/delete orphaned `lurexa-teacher` after route verification;
+5. compare production Git SHA with `main` after intentional release.
 
-Do not create extra hosted previews merely for visual review; local-first verification remains the default policy.
+The connected Vercel surface available during this audit exposes project/deployment inspection but not the settings-update/project-delete actions required for those operations. Repository truth should not be confused with remote configuration truth.
 
-## Remaining P0/P1 repository risks
+## Remaining P0 — executable validation
 
-### P0 — executable validation signal
+Repeated PR #48 GitHub Actions attempts have failed before executing workflow steps. Until a runner actually executes the workflow, the branch cannot be called green.
 
-Repeated PR #48 GitHub Actions runs failed before executing any workflow step. Jobs contained zero steps and produced no useful code-level logs. This is a runner/start infrastructure failure pattern, not evidence that source verification failed.
-
-Before merge, obtain one executable run of:
+Required executable release signal:
 
 - frozen install;
 - brand verification;
-- product registry verification;
+- product-registry verification;
 - teacher-workspace verification;
-- Vercel release-contract verification;
+- production-honesty verification;
+- Vercel release contract;
 - linguistic intelligence;
 - learner model;
 - Mind recommendations;
-- Firestore rules;
+- Firestore emulator rules;
 - Phase 0 lint/type/build;
 - affected product builds.
 
-### P1 — stale lock importer
+## Remaining P0/P1 — generated lockfile drift
 
-Because the duplicate app was retired through repository tree operations in this session, `pnpm-lock.yaml` still contains an `apps/teacher-portal` importer block. It should be removed by a normal pnpm lock regeneration, not by manually rewriting unrelated generated lock data.
+`pnpm-lock.yaml` still contains the importer for the deleted `apps/teacher-portal` workspace. Do not manually rewrite generated dependency resolution data.
 
-Required cleanup:
+Regenerate using pnpm 10.3.0:
 
 ```bash
 pnpm install --lockfile-only
-# or normal pnpm install using pnpm 10.3.0
+pnpm install --frozen-lockfile
 ```
 
-Then verify no `apps/teacher-portal` importer remains and run `pnpm install --frozen-lockfile`.
+Then verify `apps/teacher-portal` no longer appears as an importer.
 
-### P1 — legacy direct browser write services
+This is the principal repository-generated-file blocker before merge.
 
-`CourseService.saveCourse` and `CourseBuilderService` still expose client-side Firestore mutation paths while canonical Learn authoring now uses trusted CoursePlatform/API routes.
+## Remaining P1 — real telemetry and commerce
 
-Recommended next cleanup:
+The repository intentionally does **not** fabricate:
 
-1. find remaining consumers;
-2. migrate them to the trusted server boundary;
-3. disable/remove direct browser writes;
-4. make Firestore rules enforce the same ownership boundary.
+- MRR;
+- platform error rate;
+- paid pricing;
+- checkout success;
+- Marketplace transactions.
 
-### P1 — analytics projection architecture
+Before activation, build authoritative server integrations and audit contracts for those capabilities.
 
-Current honest analytics are still client-side aggregations. Build Core-owned projections for:
+## Remaining P2 — scale optimizations
 
-- organization learner count;
+At current early-stage scale, teacher analytics/Admin projections use trusted server-side aggregation. When data volume makes those reads costly, introduce Core-maintained materialized read models for:
+
+- organization learner counts;
 - active learners;
 - course/lesson completion;
-- assessment evidence summaries;
-- intervention queues;
+- assessment summaries;
+- support/intervention queues;
+- product usage;
 - operational telemetry.
 
-### P1 — telemetry and commerce activation contracts
+This is a scale optimization, not a reason to reintroduce browser-wide queries.
 
-MRR and system error rate are deliberately unavailable until supported by authoritative telemetry. Paid commerce is deliberately unavailable until Stripe/server contracts exist.
+## Remaining P2 — shared shell extraction
 
-### P2 — legacy service naming and prototype debt
-
-`AIGeneratorService` is a deterministic placeholder despite its historical name. Keep current UI honesty, then either replace it with approved Mind/provider orchestration or rename/remove the legacy service.
-
-`EcosystemService` is a broad historical catch-all spanning Studio, Coach, classroom and API concepts. Continue decomposing it into product/layer-specific trusted services as those capabilities mature.
-
-### P2 — shared shell primitives
-
-Once the current Learn/Teach implementations settle, consider extracting narrowly scoped family primitives:
+After this branch is validated, narrow reusable family primitives can be extracted where repetition is proven:
 
 - ProductHeader;
 - ProductHero;
@@ -324,12 +311,15 @@ Once the current Learn/Teach implementations settle, consider extracting narrowl
 - MetricCard;
 - ActionPanel.
 
-Do not create a universal dashboard template that erases product personality.
+Do not create a universal dashboard abstraction that erases product personality.
 
-## Current release recommendation
+## Release recommendation
 
-Do **not** merge PR #48 solely on GitHub’s current red indicator because the observed failures did not execute steps. Also do not declare the branch green.
+Keep PR #48 draft until:
 
-Merge only after one real executable CI run (or an equivalent local `pnpm verify:local`) confirms the post-retirement lock/workspace state and affected app builds.
+1. the lockfile is regenerated through pnpm;
+2. one real CI/local verification run executes successfully;
+3. affected app builds complete;
+4. Vercel release ownership/settings are verified for deployment.
 
-After merge, release intentionally and verify production SHA before judging the live Vercel UI.
+After merge, release intentionally and verify the production Git SHA before judging the live UI.
