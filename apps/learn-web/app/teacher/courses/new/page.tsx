@@ -214,13 +214,13 @@ export default function CourseBuilderPage() {
   async function handleAddModule() {
     if (!activeCourseId || !newModuleTitle.trim()) return;
     try {
-      const module = await saveCourseChange<Module>({
+      const createdModule = await saveCourseChange<Module>({
         action: "addModule",
         courseId: activeCourseId,
         title: newModuleTitle.trim(),
         order: modules.length + 1,
       });
-      setModules((current) => [...current, { id: module.id, title: module.title }]);
+      setModules((current) => [...current, { id: createdModule.id, title: createdModule.title }]);
       setNewModuleTitle("");
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Failed to add module.");
