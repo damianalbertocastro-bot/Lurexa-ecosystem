@@ -3,6 +3,6 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter @lurexa/teach-web build",
-  "ignoreCommand": "cd ../.. && npx turbo-ignore @lurexa/teach-web --fallback=HEAD^1",
+  "ignoreCommand": "cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages @lurexa/teach-web --exit-code",
   "outputDirectory": ".next"
 }
