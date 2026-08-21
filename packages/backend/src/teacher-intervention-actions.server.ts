@@ -5,7 +5,19 @@ import { TeacherInterventionService } from "./teacher-intervention.server";
 
 export const TeacherInterventionActions = {
   async createForRecentCourse(actor: AuthenticatedActor, learnerId: string): Promise<TeacherInterventionBrief> {
-    const snapshot = await getServerFirestore()
+    const database = getServerFirestore();
+    const existingSnapshot = await database
+      .collection("teacher-interventions")
+      .where("teacherId", "==", actor.uid)
+      .where("learnerId", "==", learnerId)
+      .get();
+    const existingOpen = existingSnapshot.docs
+      .map((doc) => ({ ...doc.data(), id: doc.id }) as TeacherInterventionBrief)
+      .filter((item) => item.status === "open")
+      .sort((first, second) => second.createdAt.localeCompare(first.createdAt))[0];
+    if (existingOpen) return existingOpen;
+
+    const snapshot = await database
       .collection("progress")
       .where("studentId", "==", learnerId)
       .get();
