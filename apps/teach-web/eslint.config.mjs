@@ -23,8 +23,7 @@ export default defineConfig([
   {
     files: [
       "app/components/TeachShell.tsx",
-      "app/courses/[courseId]/page.tsx",
-      "app/courses/pronunciation-for-clearer-instruction/page.tsx",
+      "app/courses/**/page.tsx",
       "app/dashboard/page.tsx",
       "app/page.tsx",
     ],
