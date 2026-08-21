@@ -4,58 +4,25 @@ Status: MVP implementation contract
 
 ## Product goal
 
-Turn Lurexa Teach from a static professional-development experience into a persistent educator platform where progress, evidence, community participation, credentials and recommendations are saved and interpreted over time.
+Turn Lurexa Teach into a persistent educator platform where professional learning, evidence, trusted assessment, credentials, community participation and recommendations evolve over time without confusing self-reported growth with verified capability.
 
 ## Product boundary
 
 Lurexa Learn owns student/teacher operational learning workflows: dashboards, classes, assignments, lessons, learner progress and learning management.
 
-Lurexa Teach owns educator professional growth: teacher CEFR/proficiency development, professional courses, training/certification, professional evidence, teacher community and peer collaboration.
+Lurexa Teach owns educator professional growth: teacher CEFR/proficiency development, professional courses, training/certification, trusted professional evidence, teacher community, peer collaboration and educator credentials.
 
-## MVP capabilities
+## Trust model
 
-1. Authentication
-   - Reuse shared Lurexa authentication.
-   - Teachers use one Lurexa identity across Learn and Teach.
+Teach distinguishes three kinds of state:
 
-2. Persistent educator profile
-   - Self-reported English CEFR level and goals support personalization.
-   - `verifiedCefrLevel` is separate trusted Core state and is required for credential requirements that claim verified CEFR attainment.
-   - Teaching-practice competencies, interests, goals and professional contribution remain part of the educator profile.
+1. **Educator-owned product state** — goals, interests, self-reported CEFR, learning progress and draft/submitted evidence.
+2. **Trusted Core state** — verified evidence, verified CEFR, verified competencies, credential awards, review provenance and assessment results.
+3. **Mind interpretation** — next-step recommendations derived from authorized state and persisted through Core-governed boundaries.
 
-3. Professional course/content model
-   - Courses, modules and learning activities.
-   - Competency targets and evidence requirements.
-   - CEFR/proficiency and teaching-practice tracks.
+Self-reported state can personalize the experience. It cannot independently create a trustworthy external claim.
 
-4. Enrollment and progress
-   - Per-educator enrollment.
-   - Module/course progress and timestamps.
-   - Product progress supports learning UX; credential-relevant high-stakes claims must not rely on completion alone.
-
-5. Community
-   - Professional posts, circles and peer exchange.
-   - Contributions are attributed to educators.
-   - Community activity becomes professional evidence only through an explicit evidence flow.
-
-6. Evidence submissions
-   - Artifact, reflection, practice and peer-contribution evidence.
-   - States: `draft`, `submitted`, `verified`, `rejected`.
-   - Educators may create draft/submitted evidence only.
-   - Reviewer identity, notes, review timestamps and verification state are trusted server fields.
-
-7. Credentials
-   - Rule-based requirements.
-   - Awards are created only by trusted server-side Core logic.
-   - Award IDs are deterministic (`userId_credentialId`) to keep reconciliation idempotent.
-   - Verified evidence and trusted CEFR state are distinguished from self-reported/product state.
-
-8. Lurexa Mind recommendations
-   - Recommendations interpret authorized educator state.
-   - Persisted recommendations are trusted server-created records.
-   - Mind does not verify evidence, grant credentials or own authoritative persistence.
-
-## Trusted professional-growth vertical slice
+## Trusted evidence-review vertical slice
 
 ```text
 Educator submits evidence
@@ -68,33 +35,80 @@ Core records review provenance
   ↓
 Credential reconciliation
   ↓
-Create any newly eligible deterministic credential awards
+Create missing eligible deterministic credential awards
+  ↓
+Create safe public verification records
   ↓
 Lurexa Mind next-step interpretation
   ↓
 Core persists recommendation
-  ↓
-Teach dashboard / credential wallet / growth experience
 ```
 
-### Reviewer authorization
+Reviewers authenticate through Firebase Admin, cannot verify their own evidence, and must provide an audit note. Educator clients cannot write reviewer metadata, verification timestamps, credential awards or recommendation creation state.
 
-- Review endpoints authenticate Firebase ID tokens with Firebase Admin.
-- Reviewer role must be `admin` or `super_admin`.
-- Reviewers cannot verify their own evidence.
-- Reviewer notes are required for auditability.
+## Trusted CEFR and competency assessment
 
-### Server boundary
+Teach now supports a separate assessment workflow for claims that require independent verification.
 
-The trusted workflow is implemented in `TeachReviewServerService` and exposed narrowly through `/api/teach/review`.
+```text
+Educator requests assessment
+  ↓
+teachAssessments/{assessmentId} = requested
+  ↓
+Trusted assessor (admin/super_admin)
+  ↓
+Assessment performed against declared rubric
+  ↓
+teachAssessmentResults/{assessmentId}
+  ↓
+Core updates educatorProfiles verified state
+  ├── verifiedCefrLevel
+  └── verifiedCompetencies[]
+  ↓
+Credential reconciliation
+  ↓
+Persisted Mind recommendation
+```
 
-The client may request a review operation, but it cannot write verification fields, credential awards, verified CEFR state or new recommendation records directly.
+### Assessment rules
 
-### Reconciliation behavior
+- Educators may create their own assessment request but cannot complete or alter trusted assessment results.
+- Assessors cannot verify their own assessment.
+- A result must include an assessor summary and rubric version.
+- `verifiedCefrLevel` is separate from self-reported `cefrLevel`.
+- `verifiedCompetencies` are separate from educator-managed competency progress.
+- Credential `cefr-level` requirements use `verifiedCefrLevel` only.
+- Credential `competency-level` requirements use `verifiedCompetencies` only.
+- Completing an assessment automatically reruns credential reconciliation and next-step recommendation persistence.
 
-After evidence is verified, the server reloads the educator profile, enrollments, evidence, credential definitions and existing awards. It evaluates each credential, creates only missing eligible awards, then persists the next recommendation.
+## Credential awards and public verification
 
-Rejected evidence produces a persisted revision recommendation using the reviewer note as rationale.
+Credential awards remain private trusted Core records in `teachCredentialAwards`.
+
+When a credential is awarded, Core also writes a deliberately minimized public record to:
+
+`teachPublicCredentials/{verificationCode}`
+
+Public records contain only:
+
+- verification code;
+- credential ID/name/description;
+- educator display name;
+- issuer;
+- awarded date;
+- validity status.
+
+They intentionally exclude:
+
+- educator user ID;
+- internal evidence IDs;
+- reviewer/assessor identity;
+- assessment notes;
+- private profile fields.
+
+The public verification page is `/verify/{verificationCode}`. Verification records are read through a server boundary rather than direct Firestore public access.
+
+Verification codes are deterministic per educator + credential in the MVP, which keeps repeated reconciliation idempotent. Credential award document IDs are also deterministic (`userId_credentialId`).
 
 ## Firestore collections
 
@@ -103,49 +117,54 @@ Rejected evidence produces a persisted revision recommendation using the reviewe
 - `teachEnrollments/{enrollmentId}`
 - `teachCommunityPosts/{postId}`
 - `teachEvidence/{evidenceId}`
+- `teachAssessments/{assessmentId}`
+- `teachAssessmentResults/{assessmentId}`
 - `teachCredentialDefinitions/{credentialId}`
 - `teachCredentialAwards/{awardId}`
+- `teachPublicCredentials/{verificationCode}`
 - `teachRecommendations/{recommendationId}`
 
-## Trust rules
+## Server boundaries
 
-- Every educator-owned document stores `userId`.
-- `verifiedCefrLevel` cannot be written by the educator client.
-- Evidence verification metadata cannot be written by the educator client.
-- Credential awards cannot be created/updated/deleted by product clients.
-- Recommendation creation remains server-only; educators may only update supported recommendation status fields.
-- Course authoring remains trusted/server-only.
-- Product UI never calls an AI/model provider directly for persistent professional intelligence.
+- `TeachReviewServerService` — evidence review, credential reconciliation, public credential publication and persisted recommendation refresh.
+- `TeachAssessmentServerService` — trusted CEFR/competency assessment completion and verified educator-state updates.
+- `/api/teach/review` — narrow authenticated reviewer API.
+- `/api/teach/assessment` — narrow authenticated assessor API.
+- `/api/teach/credentials/{verificationCode}` — safe public verification API.
+
+Product UIs do not call model providers directly and do not create authoritative verification records.
 
 ## Current trust limitation
 
-Course progress/completion is still educator-owned product state in this MVP. It is appropriate for learning UX but should not become the sole basis for an externally meaningful credential. Current competency credentials use verified professional evidence as the trust gate; CEFR credentials additionally require `verifiedCefrLevel`.
+Course progress/completion remains educator-owned product state in the current MVP. It is useful for professional-learning UX but should not become the sole basis for a high-stakes external credential. Current competency credentials require verified evidence; verified CEFR and competency claims come from the trusted assessment flow.
 
-If course completion itself becomes a high-stakes claim, migrate credential-relevant completion/assessment into a trusted Core server record before relying on it independently.
+If course completion or assessment performance itself becomes externally meaningful, migrate the relevant completion/score into a trusted server-generated Core record before allowing it to independently satisfy a credential requirement.
 
-## MVP implementation state
+## Implementation state
 
 Implemented:
 
-1. Domain types and Firestore service layer.
-2. Authentication and educator-profile bootstrap.
-3. Persisted dashboard/profile data.
-4. Course enrollment and progress.
-5. Evidence submission.
-6. Community persistence.
-7. Trusted evidence-review server pipeline.
-8. Credential reconciliation and deterministic awards.
-9. Persisted rule-based Lurexa Mind recommendations.
-10. Firestore security rules and required query indexes.
+1. Authentication and persistent educator profiles.
+2. Professional course catalog, enrollment and progress.
+3. Community persistence.
+4. Professional evidence submission.
+5. Trusted evidence review.
+6. Trusted CEFR/competency assessment request and completion model.
+7. Separate verified CEFR and verified competency state.
+8. Credential reconciliation and deterministic award records.
+9. Safe public credential verification records and verification page.
+10. Persisted rule-based Lurexa Mind recommendations.
+11. Firestore client trust restrictions and required query indexes.
 
-Still required before merge/production use:
+Still required before production use:
 
-1. Regenerate workspace lockfile.
-2. Run typecheck, lint and build for Teach plus backend/types checks.
-3. Run Firebase Emulator security-rule tests.
-4. Verify Firebase Admin environment configuration and reviewer custom claims.
-5. Add trusted CEFR assessment/update workflow before issuing CEFR credentials in production.
+1. Regenerate the workspace lockfile after Teach workspace changes.
+2. Run Teach/backend/types typecheck, lint and build verification.
+3. Add Firebase Emulator tests covering assessment requests, blocked trusted-field writes, public-record isolation and reviewer/assessor flows.
+4. Configure Firebase Admin credentials and reviewer/assessor custom claims in deployment.
+5. Formalize production CEFR and competency rubrics beyond the MVP rubric identifier.
+6. Add credential revocation/expiry policy before credentials requiring renewal are introduced.
 
-## Definition of MVP
+## Definition of the trusted Teach MVP
 
-A teacher can sign in, maintain a persistent growth profile, enroll in professional learning, record progress, submit evidence, participate in a professional community, have evidence reviewed by an authorized reviewer, receive qualifying trusted credential awards, and receive a persisted next-step recommendation based on authorized Teach state.
+An educator can sign in, maintain a professional-growth profile, complete professional learning, submit evidence, request trusted assessment, receive independently verified CEFR/competency outcomes, earn qualifying credentials, share a privacy-minimized credential verification record, and receive a persisted next-step recommendation based on authorized professional state.
