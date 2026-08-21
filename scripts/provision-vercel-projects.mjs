@@ -56,6 +56,11 @@ function projectConfig(entry) {
   };
 }
 
+async function getProject(name, query) {
+  const encodedName = encodeURIComponent(name);
+  return vercelRequest(`/v9/projects/${encodedName}?${query}`);
+}
+
 async function ensureProject(entry) {
   if (!entry.vercelProject || entry.status === "non-vercel") return;
 
@@ -67,23 +72,26 @@ async function ensureProject(entry) {
     return;
   }
 
-  const name = entry.vercelProject;
-  const encodedName = encodeURIComponent(name);
+  const targetName = entry.vercelProject;
   const query = `teamId=${encodeURIComponent(teamId)}`;
-  const { response, data: existing } = await vercelRequest(
-    `/v9/projects/${encodedName}?${query}`,
-  );
-
   const config = projectConfig(entry);
 
+  let { response, data: existing } = await getProject(targetName, query);
+  let lookupName = targetName;
+
+  if (response.status === 404 && entry.existingVercelProject) {
+    lookupName = entry.existingVercelProject;
+    ({ response, data: existing } = await getProject(lookupName, query));
+  }
+
   if (response.status === 404) {
-    console.log(`CREATE ${name} -> ${entry.rootDirectory}`);
+    console.log(`CREATE ${targetName} -> ${entry.rootDirectory}`);
     if (!apply) return;
 
     await vercelRequest(`/v11/projects?${query}`, {
       method: "POST",
       body: JSON.stringify({
-        name,
+        name: targetName,
         ...config,
         gitRepository: {
           type: "github",
@@ -91,18 +99,25 @@ async function ensureProject(entry) {
         },
       }),
     });
-    console.log(`CREATED ${name}`);
+    console.log(`CREATED ${targetName}`);
     return;
   }
 
-  console.log(`UPDATE ${existing.name} -> ${entry.rootDirectory}`);
+  const rename = existing.name !== targetName;
+  console.log(
+    `${rename ? "REUSE" : "UPDATE"} ${existing.name}${rename ? ` -> ${targetName}` : ""} -> ${entry.rootDirectory}`,
+  );
   if (!apply) return;
 
-  await vercelRequest(`/v9/projects/${encodedName}?${query}`, {
+  const projectId = encodeURIComponent(existing.id ?? lookupName);
+  await vercelRequest(`/v9/projects/${projectId}?${query}`, {
     method: "PATCH",
-    body: JSON.stringify(config),
+    body: JSON.stringify({
+      ...(rename ? { name: targetName } : {}),
+      ...config,
+    }),
   });
-  console.log(`UPDATED ${name}`);
+  console.log(`${rename ? "REUSED" : "UPDATED"} ${targetName}`);
 }
 
 console.log(

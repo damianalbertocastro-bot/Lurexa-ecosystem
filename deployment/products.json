@@ -34,7 +34,8 @@
       "surface": "teacher-workspace",
       "workspace": "teacher-portal",
       "rootDirectory": "apps/teacher-portal",
-      "vercelProject": "lurexa-learn-teacher",
+      "vercelProject": "lurexa-teacher",
+      "existingVercelProject": "lurexa-xigf",
       "status": "provisioning"
     },
     {

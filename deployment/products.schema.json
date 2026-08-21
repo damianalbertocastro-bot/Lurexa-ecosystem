@@ -21,6 +21,7 @@
           "workspace": { "type": "string" },
           "rootDirectory": { "type": "string" },
           "vercelProject": { "type": ["string", "null"] },
+          "existingVercelProject": { "type": ["string", "null"] },
           "status": { "type": "string" }
         },
         "additionalProperties": false
