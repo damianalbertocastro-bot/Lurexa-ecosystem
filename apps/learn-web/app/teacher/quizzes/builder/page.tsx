@@ -5,7 +5,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Badge } from "@lurexa/ui/Badge";
 import type { Question, QuestionType } from "@lurexa/types";
-import { AIGeneratorService } from "@lurexa/backend";
+import { PrototypeContentService } from "@lurexa/backend";
 
 export default function QuizBuilderPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -36,7 +36,7 @@ export default function QuizBuilderPage() {
   async function addPrototypeSample() {
     setIsGeneratingSample(true);
     try {
-      const draft = await AIGeneratorService.generateLessonDraft("Grammar & Tenses", "B1");
+      const draft = await PrototypeContentService.generateLessonDraft("Grammar & Tenses", "B1");
       setQuestions((current) => [...current, ...draft.suggestedQuestions.map((question) => ({ ...question, id: `${question.id}_${Date.now()}` }))]);
     } catch {
       alert("The prototype sample could not be loaded.");
