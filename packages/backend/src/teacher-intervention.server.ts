@@ -8,6 +8,14 @@ import { FirestoreLearnerInsightRepository, FirestoreLearningEvidenceRepository 
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 
 type TeacherRole = "owner" | "admin" | "teacher";
+const interventionPriorities: TeacherInterventionResponse["priority"][] = [
+  "confidence",
+  "communication",
+  "accuracy",
+  "fluency",
+  "pronunciation",
+  "strategy",
+];
 
 function sanitizeText(value: string, maxLength: number): string {
   return value.trim().replace(/\s+/g, " ").slice(0, maxLength);
@@ -40,6 +48,46 @@ async function requireLearnerMembership(learnerId: string, organizationId: strin
     .doc(organizationId)
     .get();
   if (!membership.exists) throw new Error("Learner is not part of this organization.");
+}
+
+async function validateRecommendedActivityTarget(
+  courseId: string,
+  lessonId: string | null,
+  activityId: string | undefined,
+): Promise<string | undefined> {
+  if (!activityId) return undefined;
+  if (!lessonId) throw new Error("A teacher recommendation cannot target an activity without a recent course lesson.");
+  const cleanedActivityId = sanitizeText(activityId, 160);
+  if (!cleanedActivityId) throw new Error("Recommended activity ID is invalid.");
+
+  const database = getServerFirestore();
+  const lessonSnapshot = await database.collection("lessons").doc(lessonId).get();
+  if (!lessonSnapshot.exists) throw new Error("Recommended lesson no longer exists.");
+  const lesson = lessonSnapshot.data() as { moduleId?: unknown; contentBlocks?: unknown };
+  if (typeof lesson.moduleId !== "string" || !Array.isArray(lesson.contentBlocks)) {
+    throw new Error("Recommended lesson is invalid.");
+  }
+  const moduleSnapshot = await database.collection("modules").doc(lesson.moduleId).get();
+  if (!moduleSnapshot.exists || moduleSnapshot.data()?.courseId !== courseId) {
+    throw new Error("Recommended activity is not part of this course.");
+  }
+
+  const activityExists = lesson.contentBlocks.some((value) => {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+    const block = value as { id?: unknown; data?: unknown };
+    if (block.id === cleanedActivityId) return true;
+    if (typeof block.data !== "object" || block.data === null || Array.isArray(block.data)) return false;
+    const data = block.data as Record<string, unknown>;
+    for (const key of ["activity", "capability"]) {
+      const nested = data[key];
+      if (typeof nested === "object" && nested !== null && !Array.isArray(nested) && (nested as { id?: unknown }).id === cleanedActivityId) {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!activityExists) throw new Error("Recommended activity is not part of the learner's recent lesson.");
+  return cleanedActivityId;
 }
 
 function activeTargetSummaries(insights: Awaited<ReturnType<FirestoreLearnerInsightRepository["listActiveByLearner"]>>): string[] {
@@ -121,6 +169,8 @@ export const TeacherInterventionService = {
     const brief = { ...snapshot.data(), id: snapshot.id } as TeacherInterventionBrief;
     const organizationId = await requireTeacherCourseAccess(actor, brief.courseId);
     if (organizationId !== brief.organizationId) throw new Error("Intervention organization does not match the course.");
+    if (!interventionPriorities.includes(input.priority)) throw new Error("Teacher intervention priority is invalid.");
+    if (typeof input.expertEscalationRequested !== "boolean") throw new Error("Expert escalation must be explicitly selected.");
 
     const teacherNote = sanitizeText(input.teacherNote, 2_000);
     const recommendedAction = sanitizeText(input.recommendedAction, 600);
@@ -131,12 +181,17 @@ export const TeacherInterventionService = {
     if (input.expertEscalationRequested && !expertEscalationReason) {
       throw new Error("Explain why expert educator support is requested.");
     }
+    const recommendedActivityId = await validateRecommendedActivityTarget(
+      brief.courseId,
+      brief.recentLessonId,
+      input.recommendedActivityId,
+    );
 
     const response: TeacherInterventionResponse = {
       priority: input.priority,
       teacherNote,
       recommendedAction,
-      ...(input.recommendedActivityId ? { recommendedActivityId: sanitizeText(input.recommendedActivityId, 160) } : {}),
+      ...(recommendedActivityId ? { recommendedActivityId } : {}),
       expertEscalationRequested: input.expertEscalationRequested,
       ...(expertEscalationReason ? { expertEscalationReason } : {}),
       respondedAt: new Date().toISOString(),
