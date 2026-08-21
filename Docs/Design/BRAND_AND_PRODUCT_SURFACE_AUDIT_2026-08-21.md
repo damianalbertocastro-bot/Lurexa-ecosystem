@@ -1,6 +1,6 @@
 # Lurexa Brand and Product-Surface Repository Audit — 2026-08-21
 
-Status: active audit record for the `feat/ecosystem-related-experiences` branch.
+Status: active repository audit aligned to current `main`.
 
 ## Executive finding
 
@@ -35,8 +35,10 @@ Learn and Teach deliberately retain their previously approved marks. Coach, Admi
 - Added `packages/config/src/product-registry.ts` as the typed registry for current products, shared layers, Docs and future concepts.
 - Corrected `ROADMAP.md` Phase 6 so Teach owns educator professional growth rather than classroom operations.
 - Refactored `apps/web/app/page.tsx` to consume shared `MasterMark` / `ProductMark` components and canonical product registry metadata.
+- Formalized `apps/web` → `@lurexa/config` as an explicit workspace package dependency and regenerated `pnpm-lock.yaml`.
 - Removed stale `Human teaching` positioning and replaced it with Teach's professional-development positioning.
 - Removed the landing page's duplicated local Master Mark and six duplicated product SVG definitions.
+- Adopted local-first verification as the normal pre-production gate so automatic Vercel preview deployments are not required for every repository change.
 
 ## Community concept guardrails
 
@@ -98,17 +100,19 @@ The local `MasterMark`, `ProductIcon`, and product SVG copies have been removed.
 
 The ecosystem landing consumes the canonical current-product name, description and product ID from this registry. Landing-only concerns such as eyebrow text, CTA status, destination URL and display order remain local presentation configuration.
 
+### RESOLVED — `apps/web` consumed repository source instead of the config package boundary
+
+`apps/web` now declares `@lurexa/config` as a `workspace:*` dependency, consumes the product registry through the package export, and has the corresponding workspace link recorded in `pnpm-lock.yaml`.
+
+This removes the temporary direct source-path import and restores the intended monorepo package boundary without duplicating registry data.
+
 ## Remaining improvement opportunities
-
-### P1 — Formalize the `apps/web` → `@lurexa/config` package boundary
-
-The current landing consumes the canonical registry source directly so this cleanup remains lockfile-neutral on the stacked PR. The preferred final dependency boundary is for `apps/web` to declare `@lurexa/config` as a workspace dependency and import from the package export once the lockfile is regenerated and validated in the normal repository execution environment.
-
-Do not duplicate the registry locally as a workaround.
 
 ### P1 — Product URL environment variables need one documented contract
 
-Related-experience components and the ecosystem landing use `NEXT_PUBLIC_LUREXA_*_URL` variables, but their expected names, ownership and fallback rules should be documented centrally and validated in deployment configuration.
+Related-experience components and the ecosystem landing use `NEXT_PUBLIC_LUREXA_*_URL` variables, but their expected names, ownership and fallback rules should be documented centrally and validated in configuration.
+
+The contract should support local development first and must not require automatic preview deployments to validate ordinary navigation behavior.
 
 ### P1 — Validate registry consumers rather than allowing parallel catalogs to return
 
@@ -145,16 +149,30 @@ Do not create `apps/community` simply because the brand and architecture are now
 - `apps/teach-web` exists as the independent Lurexa Teach application.
 - Community has no app mapping yet by design.
 - `deployment/products.json` correctly lists Coach, Insight and Studio as future dedicated deployable web products when matching apps exist.
-- Core and Mind are correctly represented as shared layers rather than Vercel end-user websites.
+- Core and Mind are correctly represented as shared layers rather than ordinary end-user websites.
 - Mobile currently belongs to Lurexa Learn in deployment metadata; a future native-mobile identity concept must not silently turn it into a separate product.
+
+## Validation policy
+
+Lurexa uses a local-first pre-production workflow to avoid unnecessary automatic hosting builds.
+
+The repository-level gate is:
+
+```bash
+pnpm verify:local
+```
+
+This runs repository lint, type checks, tests and builds using the pinned workspace toolchain. Product-specific local development and browser verification should happen before an intentional production or hosted preview deployment.
+
+GitHub CI remains useful as a repository integration gate. A green CI run does not require or imply that an automatic Vercel preview was created.
 
 ## Recommended implementation order from here
 
 1. Keep Community implementation deferred while preserving the new brand/product/architecture contracts.
-2. Formalize and validate the `apps/web` dependency on `@lurexa/config` when lockfile regeneration is available.
-3. Document and validate cross-product URL environment variables.
-4. Add automated registry validation for deployment/navigation surfaces, including rejection of inactive future concepts.
-5. Add Storybook visual coverage for the identity system.
-6. Audit every product header/sidebar/favicon/metadata surface for canonical marks.
-7. Add a semantic shared-mark sizing API if visual verification shows the ecosystem landing needs larger mark variants.
-8. After PR retargeting, run full lint/typecheck/build and deployment validation before marking the brand rollout complete.
+2. Document and validate cross-product URL environment variables with local-development fallbacks.
+3. Add automated registry validation for deployment/navigation surfaces, including rejection of inactive future concepts.
+4. Add Storybook visual coverage for the identity system.
+5. Audit every product header/sidebar/favicon/metadata surface for canonical marks.
+6. Add a semantic shared-mark sizing API if visual verification shows the ecosystem landing needs larger mark variants.
+7. Use `pnpm verify:local` plus product-level local browser verification as the normal pre-production gate.
+8. Deploy intentionally only when a hosted preview or production release is actually needed.
