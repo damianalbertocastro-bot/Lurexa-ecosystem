@@ -8,10 +8,11 @@ const uidIndex = args.indexOf("--uid");
 const enable = args.includes("--enable");
 const disable = args.includes("--disable");
 const confirmed = args.includes("--confirm");
+const replaceRole = args.includes("--replace-role");
 const uid = uidIndex >= 0 ? args[uidIndex + 1] : undefined;
 
 if (!uid || enable === disable) {
-  console.error("Usage: node packages/backend/scripts/manage-superadmin-claim.mjs --uid <firebase-uid> (--enable|--disable) --confirm");
+  console.error("Usage: node packages/backend/scripts/manage-superadmin-claim.mjs --uid <firebase-uid> (--enable|--disable) --confirm [--replace-role]");
   process.exit(1);
 }
 if (!confirmed) {
@@ -51,10 +52,21 @@ const app = getApps()[0] ?? initializeApp({
 const auth = getAuth(app);
 const user = await auth.getUser(uid);
 const current = user.customClaims ?? {};
+const currentRole = typeof current.role === "string" ? current.role : undefined;
 const next = { ...current };
+
+if (enable && currentRole && currentRole !== "super_admin" && !replaceRole) {
+  console.error(`Refusing to replace existing role '${currentRole}' with super_admin.`);
+  console.error("Use a dedicated platform-admin account, or repeat with --replace-role only after reviewing the role impact.");
+  process.exit(1);
+}
 
 if (enable) next.role = "super_admin";
 else if (next.role === "super_admin") delete next.role;
+else {
+  console.error("This account does not currently have the super_admin role. No change was made.");
+  process.exit(1);
+}
 
 await auth.setCustomUserClaims(uid, next);
 console.log(`${enable ? "Granted" : "Revoked"} Lurexa super_admin claim for Firebase user ${uid}.`);
