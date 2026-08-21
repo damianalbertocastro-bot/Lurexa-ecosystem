@@ -3,6 +3,7 @@ import type {
   LearnerDomain,
   LearnerInsight,
   LearnerPattern,
+  LearnerRecommendationAction,
   StudentProgress,
 } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
@@ -139,6 +140,18 @@ export async function getScopedLearnerContext(input: {
     .sort((first, second) => (second.confidence ?? 0) - (first.confidence ?? 0));
   if (recurringPatterns.length > 0) context.recurringPatterns = recurringPatterns;
 
+  if (domainSet.has("recommendation")) {
+    const recommendationInsight = latestInsight(filteredInsights, "recommendation");
+    if (recommendationInsight?.data?.kind === "recommendation") {
+      const recommendations: LearnerRecommendationAction[] = recommendationInsight.data.recommendations ?? recommendationInsight.data.actions.map((label) => ({
+        outcome: "reinforce",
+        label,
+        reason: recommendationInsight.summary,
+      }));
+      if (recommendations.length > 0) context.recommendations = recommendations.slice(0, 3);
+    }
+  }
+
   const recentActivityIds = evidence
     .slice()
     .sort((first, second) => second.observedAt.localeCompare(first.observedAt))
@@ -162,6 +175,7 @@ export async function getScopedLearnerContext(input: {
     limitations: [
       "Context is purpose-scoped and excludes raw learner responses.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
+      "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
       "Recent activity is evidence of participation, not a mastery determination.",
       "Legacy Learn evidence is normalized at the repository boundary until its producer is migrated.",
     ],
