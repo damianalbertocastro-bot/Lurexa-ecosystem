@@ -7,6 +7,10 @@
 
 Lurexa should feel calm, capable and human—not like a generic quiz app or an opaque AI interface. The design system must help learners focus, help teachers act quickly, and keep administrative complexity contained.
 
+The governing visual principle is **shared grammar + distinct personalities**. Lurexa products must clearly belong to one ecosystem without becoming visually interchangeable. Shared components establish family resemblance; product-specific expression communicates purpose.
+
+See `Docs/Design/PRODUCT_PERSONALITY_SYSTEM.md` for the normative personality contract for Master Lurexa, Learn, Coach, Teach, Admin, Insight, Studio and Docs.
+
 ## Core rules
 
 1. Use design tokens and shared components before introducing local visual values.
@@ -16,19 +20,22 @@ Lurexa should feel calm, capable and human—not like a generic quiz app or an o
 5. Provide robust loading, empty, error, offline-pending and success states.
 6. Support mobile-first learning without reducing essential meaning or access.
 7. Do not use colour as the only carrier of status, correctness or urgency.
+8. Do not force visual sameness across products. Reuse component anatomy and interaction standards while allowing product-specific palette emphasis, density, shape language, motion character, and hierarchy.
+9. A user should be able to recognize both that a surface belongs to Lurexa and which Lurexa product they are using.
 
 ## Product expression
 
-| Product / surface | Interaction emphasis |
-| --- | --- |
-| Learn — learner experience | focus, progress, clear next action, low cognitive load |
-| Learn — teacher workspace | scanning, class operations, learner support, context before action |
-| Coach | safety to speak, turn-taking, understandable feedback, visible privacy context |
-| Teach | professional growth, reflection, evidence, credentials, community, clear developmental next steps |
-| Admin | safety, permissions, auditability, destructive-action clarity |
-| Insight | comparison and interpretation without false precision |
-| Studio | structured authoring, preview, validation and version status |
-| Docs | authority, discoverability, long-form readability, source provenance, navigation between canonical knowledge and product behavior |
+| Product / surface | Personality | Interaction emphasis |
+| --- | --- | --- |
+| Master Lurexa | institutional, foundational | ecosystem orientation, trust, company-level narrative, product discovery |
+| Learn — learner experience | inviting, progressive | focus, progress, clear next action, low cognitive load |
+| Learn — teacher workspace | operational, calm | scanning, class operations, learner support, context before action |
+| Coach | conversational, alive | safety to speak, turn-taking, understandable feedback, visible privacy context |
+| Teach | professional, developmental | professional growth, reflection, evidence, credentials, community, clear developmental next steps |
+| Admin | authoritative, controlled | safety, permissions, auditability, destructive-action clarity |
+| Insight | analytical, interpretive | comparison and interpretation without false precision |
+| Studio | creative, constructive | structured authoring, preview, validation and version status |
+| Docs | structured, knowledge-oriented | authority, discoverability, long-form readability, source provenance, navigation between canonical knowledge and product behavior |
 
 The Learn teacher workspace must not be visually or conceptually relabeled as Lurexa Teach. Teach is the educator professional-development product; Learn owns operational teaching and learner management.
 
@@ -70,6 +77,8 @@ Rules:
 ## Tokens and components
 
 Color, typography, spacing, elevation, radii, motion and semantic states belong in `@lurexa/tokens`. Reusable UI primitives belong in `@lurexa/ui`. Product code must not fork a component solely for a local aesthetic preference when a composable variant can serve the need.
+
+Product personality contracts live in `@lurexa/tokens/product-personality`. They are semantic design guardrails, not a requirement to make every product consume the same theme object at runtime.
 
 New tokens/components require: a reusable need, semantic name, light/dark and accessible-state consideration, responsive behavior, and Storybook/documentation coverage when the component is shared.
 
