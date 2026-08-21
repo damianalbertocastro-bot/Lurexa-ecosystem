@@ -2,6 +2,9 @@ export type LessonProgressStatus = "not_started" | "in_progress" | "completed";
 
 export interface QuizAttempt {
   quizId: string;
+  activityId?: string;
+  courseId?: string;
+  lessonId?: string;
   score: number;
   maxScore: number;
   passed: boolean;
