@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { TeachEvidenceReviewDecision, TeachEvidenceReviewResult, TeachEvidenceSubmission } from "@lurexa/types";
 import { TeachPrivate } from "../components/TeachPrivate";
 import { TeachShell } from "../components/TeachShell";
@@ -15,7 +15,7 @@ export default function TeachReviewPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const loadQueue = async () => {
+  const loadQueue = useCallback(async () => {
     if (!user) return;
     setError("");
     setLoading(true);
@@ -33,11 +33,11 @@ export default function TeachReviewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     void loadQueue();
-  }, [user]);
+  }, [loadQueue]);
 
   const review = async (item: TeachEvidenceSubmission, decision: TeachEvidenceReviewDecision) => {
     if (!user) return;
