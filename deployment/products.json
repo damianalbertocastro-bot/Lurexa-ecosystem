@@ -45,6 +45,7 @@
       "workspace": "@lurexa/teach-web",
       "rootDirectory": "apps/teach-web",
       "vercelProject": "lurexa-teach-web",
+      "existingVercelProject": "teach-web",
       "status": "provisioning"
     },
     {
