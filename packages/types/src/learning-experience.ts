@@ -68,11 +68,15 @@ export interface LearnTutorTurn {
   timestamp: string;
 }
 
+/**
+ * The learner client submits only stable identifiers and learner-authored text.
+ * The server resolves the authoritative AI-roleplay capability from the trusted
+ * lesson object before constructing a tutor scenario or learning evidence.
+ */
 export interface LearnTutorTurnRequest {
   courseId: string;
   lessonId: string;
   activityId: string;
-  capability: AIRoleplayCapability;
   learnerMessage: string;
   transcript: LearnTutorTurn[];
 }
