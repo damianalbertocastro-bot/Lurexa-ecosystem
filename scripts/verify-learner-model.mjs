@@ -31,6 +31,8 @@ const [
   capabilityBoundary,
   tutorService,
   teacherIntervention,
+  teacherInterventionActions,
+  teacherGuidanceBanner,
   tutorRoute,
   spokenEvidenceRoute,
   coachPlatform,
@@ -49,6 +51,8 @@ const [
   source("packages/backend/src/learning-capability.server.ts"),
   source("packages/backend/src/learn-tutor.server.ts"),
   source("packages/backend/src/teacher-intervention.server.ts"),
+  source("packages/backend/src/teacher-intervention-actions.server.ts"),
+  source("apps/learn-web/app/components/TeacherGuidanceBanner.tsx"),
   source("apps/learn-web/app/api/learning/tutor/route.ts"),
   source("apps/learn-web/app/api/learning/spoken-evidence/route.ts"),
   source("packages/backend/src/coach-platform.server.ts"),
@@ -86,6 +90,11 @@ requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "Tutor s
 forbidText("packages/backend/src/learn-tutor.server.ts", tutorService, "request.transcript");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "validateRecommendedActivityTarget");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "Recommended activity is not part of the learner's recent lesson.");
+requireText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "createForRecentCourse");
+requireText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "acknowledgeForLearner");
+forbidText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "LearningEvidence");
+requireText("apps/learn-web/app/components/TeacherGuidanceBanner.tsx", teacherGuidanceBanner, "Teacher guidance");
+requireText("apps/learn-web/app/components/TeacherGuidanceBanner.tsx", teacherGuidanceBanner, 'action: "acknowledge"');
 forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.capability");
 forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.transcript");
 forbidText("apps/learn-web/app/api/learning/spoken-evidence/route.ts", spokenEvidenceRoute, "capabilityValue");
