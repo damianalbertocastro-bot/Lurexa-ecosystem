@@ -3,6 +3,6 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter admin-portal build",
-  "ignoreCommand": "cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages admin-portal --exit-code",
+  "ignoreCommand": "npx --yes turbo-ignore --fallback=HEAD^1",
   "outputDirectory": ".next"
 }
