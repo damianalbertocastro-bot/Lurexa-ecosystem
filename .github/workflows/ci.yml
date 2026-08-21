@@ -46,6 +46,9 @@ jobs:
       - name: Verify Product Registry Consumers
         run: pnpm verify:product-registry
 
+      - name: Verify Vercel Release Contract
+        run: pnpm verify:vercel-release
+
       - name: Verify Linguistic Intelligence
         run: pnpm verify:linguistic-intelligence
 
