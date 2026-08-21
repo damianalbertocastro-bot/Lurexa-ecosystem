@@ -7,7 +7,13 @@ import { useTeachAuth } from "./TeachAuthProvider";
 
 const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 const nav = [
-  ["Home", "/"], ["Dashboard", "/dashboard"], ["Learn", "/courses"], ["Community", "/community"], ["Growth", "/growth"], ["Credentials", "/certifications"],
+  ["Home", "/"],
+  ["Dashboard", "/dashboard"],
+  ["Learn", "/courses"],
+  ["Community", "/community"],
+  ["Growth", "/growth"],
+  ["Assessment", "/assessment"],
+  ["Credentials", "/certifications"],
 ] as const;
 
 export function TeachShell({ active, children }: { active: string; children: React.ReactNode }) {
@@ -28,6 +34,6 @@ export function TeachShell({ active, children }: { active: string; children: Rea
       <nav className="mx-auto flex max-w-[1440px] gap-2 overflow-x-auto px-5 pb-3 lg:hidden" aria-label="Lurexa Teach mobile navigation">{nav.map(([label,href])=><a key={label} href={href} aria-current={active===label?"page":undefined} className={`shrink-0 rounded-full border px-4 py-2 text-sm font-extrabold ${active===label?"border-[#592bd6] bg-[#592bd6] text-white":"border-[#d7e0f6] bg-white text-[#3450a8]"}`}>{label}</a>)}</nav>
     </header>
     {children}
-    <footer className="border-t border-[#dfe6f8] bg-white"><div className="mx-auto grid max-w-[1440px] gap-7 px-5 py-10 sm:px-8 md:grid-cols-[1fr_auto]"><div><ProductMark product="teach"/><p className="mt-4 max-w-xl text-sm leading-6 text-[#6677a5]">Grow your language, teaching practice, professional evidence, and professional network in one connected educator experience.</p></div><div className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-bold text-[#53679f]"><a href="/courses">Learning</a><a href="/community">Community</a><a href="/growth">Growth</a><a href="/certifications">Credentials</a><a href={ecosystemUrl}>Lurexa ecosystem ↗</a></div></div></footer>
+    <footer className="border-t border-[#dfe6f8] bg-white"><div className="mx-auto grid max-w-[1440px] gap-7 px-5 py-10 sm:px-8 md:grid-cols-[1fr_auto]"><div><ProductMark product="teach"/><p className="mt-4 max-w-xl text-sm leading-6 text-[#6677a5]">Grow your language, teaching practice, professional evidence, and professional network in one connected educator experience.</p></div><div className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-bold text-[#53679f]"><a href="/courses">Learning</a><a href="/community">Community</a><a href="/growth">Growth</a><a href="/assessment">Assessment</a><a href="/certifications">Credentials</a><a href={ecosystemUrl}>Lurexa ecosystem ↗</a></div></div></footer>
   </div>;
 }
