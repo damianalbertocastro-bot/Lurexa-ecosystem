@@ -200,9 +200,9 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
 }
 
 export function AIRoleplayActivity({ courseId, lessonId, capability }: CapabilityContext & { capability: AIRoleplayCapability }) {
-  const [transcript, setTranscript] = useState<LearnTutorTurn[]>([
-    { sender: "tutor", text: capability.scenario.openingLine, timestamp: "scenario-opening" },
-  ]);
+  const openingTurn: LearnTutorTurn = { sender: "tutor", text: capability.scenario.openingLine, timestamp: "scenario-opening" };
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<LearnTutorTurn[]>([openingTurn]);
   const [learnerMessage, setLearnerMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [provider, setProvider] = useState<LearnTutorTurnResult["provider"] | null>(null);
@@ -217,11 +217,18 @@ export function AIRoleplayActivity({ courseId, lessonId, capability }: Capabilit
       const response = await authenticatedFetch("/api/learning/tutor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId, lessonId, activityId: capability.id, learnerMessage: message, transcript }),
+        body: JSON.stringify({
+          courseId,
+          lessonId,
+          activityId: capability.id,
+          ...(sessionId ? { sessionId } : {}),
+          learnerMessage: message,
+        }),
       });
       const result = await response.json() as LearnTutorTurnResult & { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Unable to continue the roleplay.");
-      setTranscript(result.transcript);
+      setSessionId(result.sessionId);
+      setTranscript([openingTurn, ...result.transcript]);
       setProvider(result.provider);
       setLearnerMessage("");
     } catch (sendError) {
