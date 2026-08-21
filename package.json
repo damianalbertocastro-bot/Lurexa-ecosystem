@@ -13,6 +13,7 @@
     "typecheck": "pnpm -r --if-present check-types",
     "check-types": "pnpm -r --if-present check-types",
     "test": "pnpm -r --if-present test",
+    "verify:local": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "phase0:lint": "pnpm --filter learn-web... lint",
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",
