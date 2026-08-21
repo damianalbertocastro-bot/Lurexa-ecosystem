@@ -18,7 +18,7 @@ type CapabilityContext = {
   lessonId: string;
 };
 
-export function ModelListeningActivity({ capability }: { capability: ModelListeningCapability }) {
+export function ModelListeningActivity({ courseId, lessonId, capability }: CapabilityContext & { capability: ModelListeningCapability }) {
   const generatedUrlRef = useRef<string | null>(null);
   const [audioSource, setAudioSource] = useState<string | null>(capability.audioUrl ?? null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export function ModelListeningActivity({ capability }: { capability: ModelListen
       const response = await authenticatedFetch("/api/learning/audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activityId: capability.id }),
+        body: JSON.stringify({ courseId, lessonId, activityId: capability.id }),
       });
       if (!response.ok) {
         const payload = await response.json() as { error?: string };
@@ -87,6 +87,11 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
   const [durationMs, setDurationMs] = useState(0);
   const [status, setStatus] = useState<"idle" | "ready" | "uploading" | "saved" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => () => {
+    if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
 
   async function startRecording() {
     if (recording) return;
@@ -144,7 +149,6 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
       formData.append("lessonId", lessonId);
       formData.append("activityId", capability.id);
       formData.append("durationMs", String(durationMs));
-      formData.append("capability", JSON.stringify(capability));
       const response = await authenticatedFetch("/api/learning/spoken-evidence", { method: "POST", body: formData });
       const result = await response.json() as SpokenEvidenceRecord & { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Unable to save spoken evidence.");
@@ -201,7 +205,7 @@ export function AIRoleplayActivity({ courseId, lessonId, capability }: Capabilit
       const response = await authenticatedFetch("/api/learning/tutor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId, lessonId, activityId: capability.id, capability, learnerMessage: message, transcript }),
+        body: JSON.stringify({ courseId, lessonId, activityId: capability.id, learnerMessage: message, transcript }),
       });
       const result = await response.json() as LearnTutorTurnResult & { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Unable to continue the roleplay.");
