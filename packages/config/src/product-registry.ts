@@ -6,7 +6,7 @@ export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "
 export type LurexaRegistryEntry = {
   id: string;
   name: string;
-  classification: "product" | "shared-layer" | "ecosystem-surface" | "future-concept";
+  classification: "product" | "shared-layer" | "ecosystem-surface" | "future-concept" | "future-product-concept";
   personality: string;
   description: string;
   canonicalMark: string;
@@ -96,10 +96,10 @@ export const lurexaSurfaces: Record<LurexaSurfaceId, LurexaRegistryEntry> = {
 export const lurexaFutureConcepts: Record<LurexaConceptId, LurexaRegistryEntry> = {
   community: {
     id: "community",
-    name: "Lurexa Community concept",
-    classification: "future-concept",
+    name: "Lurexa Community",
+    classification: "future-product-concept",
     personality: "social, welcoming and participatory",
-    description: "A future cross-ecosystem community space where learners and educators can share, discuss, ask questions, form interest groups and learn from one another. Distinct from Teach Community, which remains educator-only professional collaboration inside Lurexa Teach.",
+    description: "Future cross-ecosystem social product for learners and educators to share, discuss, ask questions, discover communities, form study groups and exchange useful resources. Distinct from Teach Community, which remains educator-only professional collaboration inside Lurexa Teach.",
     canonicalMark: "lurexa-community-concept.svg",
   },
   marketplace: {
