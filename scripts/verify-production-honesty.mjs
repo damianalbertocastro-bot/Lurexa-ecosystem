@@ -41,9 +41,7 @@ const admin = read("packages/backend/src/admin.service.ts");
 for (const forbidden of ["firebase/firestore", "1420", "2840", "1250000", "Colegio San Pedro", "Instituto Educativo Duarte"]) {
   if (admin.includes(forbidden)) fail(`legacy admin service contains a forbidden browser/demo pattern: ${forbidden}`);
 }
-if (!admin.includes("Platform administration is server-only")) {
-  fail("legacy AdminService must fail closed");
-}
+if (!admin.includes("Platform administration is server-only")) fail("legacy AdminService must fail closed");
 const adminServer = read("packages/backend/src/platform-admin.server.ts");
 if (!adminServer.includes('token.role !== "super_admin"') || !adminServer.includes("getServerFirestore")) {
   fail("platform Admin server boundary must verify the super_admin claim and use Firebase Admin");
@@ -57,9 +55,25 @@ if (!fs.existsSync(path.join(root, "apps/admin-portal/app/login/page.tsx"))) {
 } else pass("platform administration is protected behind a superadmin server boundary");
 
 const billing = read("packages/backend/src/billing.service.ts");
+for (const forbidden of ["firebase/firestore", "getDoc(", "getDocs(", "setDoc(", "increment("]) {
+  if (billing.includes(forbidden)) fail(`legacy BillingService contains a forbidden browser persistence pattern: ${forbidden}`);
+}
+if (!billing.includes("Organization subscription and usage data are server-only")) {
+  fail("legacy BillingService must fail closed for subscription and seat reads");
+}
+if (!billing.includes("Usage ledger writes are server-only")) {
+  fail("legacy BillingService must fail closed for usage-ledger writes");
+}
 if (billing.includes("checkout.stripe.com/pay/demo_")) fail("billing service must never return a fake Stripe checkout URL");
 if (!billing.includes("Paid checkout is not configured yet")) fail("billing service must fail closed while paid checkout is inactive");
-else pass("billing fails closed until real commerce is configured");
+const planServer = read("packages/backend/src/organization-plan.server.ts");
+if (!planServer.includes("getServerFirestore") || !planServer.includes("user-memberships") || !planServer.includes("subscriptions")) {
+  fail("organization plan projection must derive plan and seat state through the trusted server boundary");
+}
+const billingPage = read("apps/learn-web/app/teacher/billing/page.tsx");
+if (!billingPage.includes('authenticatedFetch("/api/teacher/plan")') || billingPage.includes("BillingService") || billingPage.includes("OrganizationService")) {
+  fail("teacher billing page must consume the authenticated organization-plan projection");
+} else pass("billing and seat data use a trusted server projection and paid commerce fails closed");
 
 const marketplace = read("packages/backend/src/marketplace.service.ts");
 if (marketplace.includes("marketplace_listings") || marketplace.includes("collection(db") || marketplace.includes("setDoc(")) {
@@ -117,7 +131,7 @@ const firestoreRules = read("firestore.rules");
 if (!firestoreRules.includes("match /courses/{courseId}") || !firestoreRules.includes("allow create, update, delete: if false")) {
   fail("Firestore rules must deny direct client mutation of authoritative course records");
 }
-for (const collection of ["modules", "lessons", "studio_scenarios", "classroom_sessions", "api_keys", "marketplace_listings", "purchases"]) {
+for (const collection of ["modules", "lessons", "studio_scenarios", "classroom_sessions", "api_keys", "marketplace_listings", "purchases", "subscriptions", "usage_records", "ai_conversations"]) {
   if (!firestoreRules.includes(`match /${collection}/`)) fail(`Firestore rules must explicitly protect ${collection}`);
 }
 if (!failures.some((item) => item.includes("Firestore rules"))) pass("Firestore rules mirror trusted server ownership for sensitive records");
