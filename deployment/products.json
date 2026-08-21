@@ -57,7 +57,7 @@
     },
     {
       "id": "docs-web",
-      "product": "Lurexa Docs",
+      "product": "Lurexa Documentation",
       "surface": "documentation",
       "workspace": "docs",
       "rootDirectory": "apps/docs",
