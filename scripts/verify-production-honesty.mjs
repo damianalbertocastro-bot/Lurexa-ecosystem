@@ -21,16 +21,40 @@ for (const file of teacherFiles) {
 if (!failures.some((item) => item.includes("demo organization"))) pass("teacher operations contain no hard-coded demo organization");
 
 const analytics = read("packages/backend/src/analytics.service.ts");
-for (const forbidden of ["Fallback demo", "Carlos Ramirez", "Ana Gomez", "Mateo Diaz"]) {
-  if (analytics.includes(forbidden)) fail(`analytics service contains fabricated learner data: ${forbidden}`);
+for (const forbidden of ["firebase/firestore", "Fallback demo", "Carlos Ramirez", "Ana Gomez", "Mateo Diaz"]) {
+  if (analytics.includes(forbidden)) fail(`legacy analytics service contains a forbidden browser/demo pattern: ${forbidden}`);
 }
-if (!failures.some((item) => item.includes("fabricated learner data"))) pass("analytics service contains no fabricated learner roster fallback");
+if (!analytics.includes("Organization-wide analytics are server-only")) {
+  fail("legacy analytics service must fail closed and redirect callers to the trusted projection");
+} else pass("browser organization analytics aggregation is retired");
+
+const analyticsServer = read("packages/backend/src/organization-analytics.server.ts");
+if (!analyticsServer.includes("getServerFirestore") || !analyticsServer.includes("user-memberships") || !analyticsServer.includes("organizations")) {
+  fail("teacher analytics projection must run on the server and derive identity/organization context from Core records");
+}
+const teacherInsights = read("apps/learn-web/app/teacher/insights/page.tsx");
+if (!teacherInsights.includes('authenticatedFetch("/api/teacher/insights")') || teacherInsights.includes("AnalyticsService")) {
+  fail("teacher Insights must consume the authenticated server analytics projection rather than browser aggregation");
+} else pass("teacher analytics uses a trusted server projection");
 
 const admin = read("packages/backend/src/admin.service.ts");
-for (const forbidden of ["1420", "2840", "1250000", "Colegio San Pedro", "Instituto Educativo Duarte"]) {
-  if (admin.includes(forbidden)) fail(`admin service contains a known fabricated operational value: ${forbidden}`);
+for (const forbidden of ["firebase/firestore", "1420", "2840", "1250000", "Colegio San Pedro", "Instituto Educativo Duarte"]) {
+  if (admin.includes(forbidden)) fail(`legacy admin service contains a forbidden browser/demo pattern: ${forbidden}`);
 }
-if (!failures.some((item) => item.includes("fabricated operational value"))) pass("admin metrics are not backed by known demo constants");
+if (!admin.includes("Platform administration is server-only")) {
+  fail("legacy AdminService must fail closed");
+}
+const adminServer = read("packages/backend/src/platform-admin.server.ts");
+if (!adminServer.includes('token.role !== "super_admin"') || !adminServer.includes("getServerFirestore")) {
+  fail("platform Admin server boundary must verify the super_admin claim and use Firebase Admin");
+}
+const adminPage = read("apps/admin-portal/app/page.tsx");
+if (adminPage.includes("AdminService") || !adminPage.includes('authenticatedFetch("/api/admin")')) {
+  fail("Lurexa Admin dashboard must use the authenticated server API instead of browser AdminService reads");
+}
+if (!fs.existsSync(path.join(root, "apps/admin-portal/app/login/page.tsx"))) {
+  fail("Lurexa Admin requires a dedicated sign-in route");
+} else pass("platform administration is protected behind a superadmin server boundary");
 
 const billing = read("packages/backend/src/billing.service.ts");
 if (billing.includes("checkout.stripe.com/pay/demo_")) fail("billing service must never return a fake Stripe checkout URL");
