@@ -1,38 +1,130 @@
-name: Learn Web Production Validation
+name: Product Deployment Validation
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: product-validation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  validate-learn-web:
+  changes:
+    name: Detect affected deployment surfaces
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      ecosystem: ${{ steps.filter.outputs.ecosystem }}
+      learn_web: ${{ steps.filter.outputs.learn_web }}
+      learn_teacher: ${{ steps.filter.outputs.learn_teacher }}
+      teach: ${{ steps.filter.outputs.teach }}
+      admin: ${{ steps.filter.outputs.admin }}
+      docs: ${{ steps.filter.outputs.docs }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          version: 10.3.0
+          filters: |
+            ecosystem:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            learn_web:
+              - 'apps/learn-web/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            learn_teacher:
+              - 'apps/teacher-portal/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            teach:
+              - 'apps/teach-web/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            admin:
+              - 'apps/admin-portal/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            docs:
+              - 'apps/docs/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
 
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+  ecosystem:
+    name: Ecosystem Web
+    needs: changes
+    if: needs.changes.outputs.ecosystem == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: web
 
-      - name: Install Workspace Dependencies
-        run: pnpm install --frozen-lockfile
+  learn-web:
+    name: Lurexa Learn Web
+    needs: changes
+    if: needs.changes.outputs.learn_web == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: learn-web
 
-      - name: Type Check Learn Web
-        run: pnpm --filter learn-web check-types
+  learn-teacher:
+    name: Lurexa Learn Teacher Workspace
+    needs: changes
+    if: needs.changes.outputs.learn_teacher == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: teacher-portal
 
-      - name: Build Learn Web
-        run: pnpm --filter learn-web build
+  teach:
+    name: Lurexa Teach Web
+    needs: changes
+    if: needs.changes.outputs.teach == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: '@lurexa/teach-web'
+      optional: true
 
-# Production deployment is intentionally handled by Vercel's Git integration.
-# Vercel watches main and deploys the repository using vercel.json after this push.
+  admin:
+    name: Lurexa Admin
+    needs: changes
+    if: needs.changes.outputs.admin == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: admin-portal
+
+  docs:
+    name: Lurexa Docs
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: docs
