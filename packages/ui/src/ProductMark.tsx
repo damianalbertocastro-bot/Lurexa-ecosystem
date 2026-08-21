@@ -28,11 +28,10 @@ const productLabelClass: Record<LurexaProduct, string> = {
 
 function ProductGlyph({ product }: { product: LurexaProduct }) {
   if (product === "learn") {
-    return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
-      <path d="M12 58 28 42l10 10 17-17 9 9-26 26L12 58Z" fill="#592bd6" />
-      <path d="M18 22h28a8 8 0 0 1 8 8v11l-8 8V31H18v27H8V32c0-6 4-10 10-10Z" fill="#071d67" />
-      <path d="M49 13h18v18h-9V27L45 40l-7-7 13-13h-2v-7Z" fill="#12cdd4" />
-      <circle cx="28" cy="42" r="4" fill="#2160df" />
+    return <svg viewBox="0 0 64 64" className="h-full w-full" aria-hidden="true">
+      <path d="M7 33 31 9l11 11L29 33 43 47 32 58 7 33Z" fill="#592bd6" />
+      <path d="m31 9 11-6v17L31 9Z" fill="#2160df" />
+      <path d="M43 20 57 6v47H43V20Z" fill="#592bd6" />
     </svg>;
   }
 
@@ -47,11 +46,11 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   }
 
   if (product === "teach") {
-    return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
-      <path d="M15 63V27h9v36h-9Zm21 0V17h9v46h-9Zm21 0V8h9v55h-9Z" fill="#071d67" />
-      <path d="M14 52 38 38l12 7 18-18" fill="none" stroke="#592bd6" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="68" cy="27" r="8" fill="#12cdd4" />
-      <path d="m64 27 3 3 6-7" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    return <svg viewBox="0 0 64 64" className="h-full w-full" aria-hidden="true">
+      <path d="M7 23h50l-9-11H16L7 23Z" fill="#071d67" />
+      <path d="M15 25h34v7H15z" fill="#071d67" />
+      <path d="M30 32v15" stroke="#071d67" strokeWidth="4" />
+      <circle cx="30" cy="51" r="3" fill="#12cdd4" />
     </svg>;
   }
 
