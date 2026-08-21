@@ -1,108 +1,62 @@
-import {
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
-import { db } from "./firebase";
 import { Course, Module, Lesson, ContentBlock } from "@lurexa/types";
 
+const trustedWriteError =
+  "Legacy CourseBuilderService writes are disabled. Use the trusted Learn /api/learning CoursePlatform boundary.";
+
+/**
+ * @deprecated
+ *
+ * Course authoring is an authoritative Core workflow. The canonical Learn
+ * teacher experience now writes through `/api/learning`, where authentication,
+ * organization ownership, validation, evidence contracts, and future audit
+ * requirements can be enforced consistently.
+ *
+ * These methods remain temporarily for import compatibility, but all mutation
+ * attempts fail closed. Remove the service after all legacy consumers have been
+ * migrated to the trusted CoursePlatform boundary.
+ */
 export const CourseBuilderService = {
-  /**
-   * Create a new empty course draft
-   */
   async createCourse(
     orgId: string,
     authorId: string,
     title: string,
     description: string,
-    subject: Course["subject"]
+    subject: Course["subject"],
   ): Promise<Course> {
-    const courseId = doc(collection(db, "courses")).id;
-
-    const newCourse: Course = {
-      id: courseId,
-      orgId,
-      authorId,
-      title,
-      description,
-      subject,
-      status: "draft",
-      isTemplate: false,
-      moduleIds: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await setDoc(doc(db, "courses", courseId), newCourse);
-    return newCourse;
+    void orgId;
+    void authorId;
+    void title;
+    void description;
+    void subject;
+    throw new Error(trustedWriteError);
   },
 
-  /**
-   * Add a module to a course
-   */
   async addModule(courseId: string, title: string, order: number): Promise<Module> {
-    const moduleId = doc(collection(db, "modules")).id;
-
-    const newModule: Module = {
-      id: moduleId,
-      courseId,
-      title,
-      order,
-      lessonIds: [],
-    };
-
-    await setDoc(doc(db, "modules", moduleId), newModule);
-
-    // Link module to course
-    const courseRef = doc(db, "courses", courseId);
-    await updateDoc(courseRef, {
-      moduleIds: arrayUnion(moduleId),
-      updatedAt: new Date().toISOString(),
-    });
-
-    return newModule;
+    void courseId;
+    void title;
+    void order;
+    throw new Error(trustedWriteError);
   },
 
-  /**
-   * Save or update a lesson with content blocks
-   */
   async saveLesson(
     moduleId: string,
     lessonId: string | null,
     title: string,
     contentBlocks: ContentBlock[],
     order: number,
-    estimatedMinutes: number
+    estimatedMinutes: number,
   ): Promise<Lesson> {
-    const finalLessonId = lessonId || doc(collection(db, "lessons")).id;
-
-    const lesson: Lesson = {
-      id: finalLessonId,
-      moduleId,
-      title,
-      contentBlocks,
-      order,
-      estimatedMinutes,
-    };
-
-    await setDoc(doc(db, "lessons", finalLessonId), lesson, { merge: true });
-
-    if (!lessonId) {
-      const moduleRef = doc(db, "modules", moduleId);
-      await updateDoc(moduleRef, {
-        lessonIds: arrayUnion(finalLessonId),
-      });
-    }
-
-    return lesson;
+    void moduleId;
+    void lessonId;
+    void title;
+    void contentBlocks;
+    void order;
+    void estimatedMinutes;
+    throw new Error(trustedWriteError);
   },
 
   async publishCourse(courseId: string): Promise<void> {
-    await updateDoc(doc(db, "courses", courseId), {
-      status: "published",
-      updatedAt: new Date().toISOString(),
-    });
+    void courseId;
+    throw new Error(trustedWriteError);
   },
 };
