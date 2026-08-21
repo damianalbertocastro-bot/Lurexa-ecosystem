@@ -30,6 +30,8 @@ const [
   capabilityValidation,
   capabilityBoundary,
   tutorService,
+  curriculumAudio,
+  advancedCapabilities,
   teacherIntervention,
   teacherInterventionActions,
   teacherGuidanceBanner,
@@ -50,6 +52,8 @@ const [
   source("packages/backend/src/learning-capability-validation.ts"),
   source("packages/backend/src/learning-capability.server.ts"),
   source("packages/backend/src/learn-tutor.server.ts"),
+  source("packages/backend/src/learn-curriculum-audio.server.ts"),
+  source("apps/learn-web/app/learn/components/AdvancedLearningCapabilities.tsx"),
   source("packages/backend/src/teacher-intervention.server.ts"),
   source("packages/backend/src/teacher-intervention-actions.server.ts"),
   source("apps/learn-web/app/components/TeacherGuidanceBanner.tsx"),
@@ -87,11 +91,20 @@ requireText("packages/backend/src/learning-capability.server.ts", capabilityBoun
 requireText("packages/backend/src/learn-tutor.server.ts", tutorService, 'const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions"');
 requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "loadOrCreateSession");
 requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "Tutor session does not match this learner activity.");
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "scenarioPhase");
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "Never ask a question that the learner already answered.");
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, 'scenarioPhase: scenarioPhase(input.capability, input.turnIndex)');
 forbidText("packages/backend/src/learn-tutor.server.ts", tutorService, "request.transcript");
+requireText("packages/backend/src/learn-curriculum-audio.server.ts", curriculumAudio, "resolveLearningCapability");
+requireText("packages/backend/src/learn-curriculum-audio.server.ts", curriculumAudio, 'capability.kind === "recorded_speaking"');
+requireText("packages/backend/src/learn-curriculum-audio.server.ts", curriculumAudio, "capability.targetText?.trim()");
+requireText("apps/learn-web/app/learn/components/AdvancedLearningCapabilities.tsx", advancedCapabilities, "Generate & play model audio");
+requireText("apps/learn-web/app/learn/components/AdvancedLearningCapabilities.tsx", advancedCapabilities, "Hear model pronunciation");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "validateRecommendedActivityTarget");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "Recommended activity is not part of the learner's recent lesson.");
 requireText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "createForRecentCourse");
 requireText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "acknowledgeForLearner");
+requireText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, 'item.status === "open"');
 forbidText("packages/backend/src/teacher-intervention-actions.server.ts", teacherInterventionActions, "LearningEvidence");
 requireText("apps/learn-web/app/components/TeacherGuidanceBanner.tsx", teacherGuidanceBanner, "Teacher guidance");
 requireText("apps/learn-web/app/components/TeacherGuidanceBanner.tsx", teacherGuidanceBanner, 'action: "acknowledge"');
