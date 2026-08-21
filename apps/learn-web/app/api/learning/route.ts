@@ -43,13 +43,13 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json(await LearnProgressService.startLesson(actor, payload.courseId, payload.lessonId));
     }
     if (payload.action === "submitQuizAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.quizId === "string" && typeof payload.answer === "string") {
-      return Response.json(await CoursePlatformService.submitQuizAttempt(actor, payload.courseId, payload.lessonId, payload.quizId, payload.answer));
+      return Response.json(await LearnProgressService.submitQuizAttempt(actor, payload.courseId, payload.lessonId, payload.quizId, payload.answer));
     }
     if (payload.action === "submitActivityAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && Array.isArray(payload.answers) && payload.answers.every((answer) => typeof answer === "string")) {
-      return Response.json(await CoursePlatformService.submitActivityAttempt(actor, payload.courseId, payload.lessonId, payload.activityId, payload.answers));
+      return Response.json(await LearnProgressService.submitActivityAttempt(actor, payload.courseId, payload.lessonId, payload.activityId, payload.answers));
     }
     if (payload.action === "submitShortResponse" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && typeof payload.response === "string") {
-      return Response.json(await CoursePlatformService.submitShortResponse(actor, payload.courseId, payload.lessonId, payload.activityId, payload.response));
+      return Response.json(await LearnProgressService.submitShortResponse(actor, payload.courseId, payload.lessonId, payload.activityId, payload.response));
     }
     if (payload.action === "createCourse" && typeof payload.title === "string" && typeof payload.description === "string" && ["english", "math", "science", "other"].includes(payload.subject as string)) {
       return Response.json(await CoursePlatformService.createCourse(actor, payload.title, payload.description, payload.subject as Course["subject"]));
@@ -77,6 +77,6 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof payload.courseId !== "string" || typeof payload.lessonId !== "string" || typeof payload.timeSpentSeconds !== "number") {
       throw new Error("courseId, lessonId, and timeSpentSeconds are required.");
     }
-    return Response.json(await CoursePlatformService.completeLesson(actor, payload.courseId, payload.lessonId, payload.timeSpentSeconds));
+    return Response.json(await LearnProgressService.completeLesson(actor, payload.courseId, payload.lessonId, payload.timeSpentSeconds));
   } catch (error) { return failure(error); }
 }
