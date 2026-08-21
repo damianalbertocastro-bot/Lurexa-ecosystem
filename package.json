@@ -14,7 +14,7 @@
     "check-types": "pnpm -r --if-present check-types",
     "test": "pnpm -r --if-present test",
     "test:learn-rules": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-rules\"",
-    "verify:brand-system": "node scripts/verify-brand-system.mjs",
+    "verify:brand-system": "node scripts/run-brand-system-verifier.mjs",
     "verify:product-registry": "node scripts/verify-product-registry-consumers.mjs",
     "verify:vercel-release": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview --sha 0000000000000000000000000000000000000000",
     "verify:local": "pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:vercel-release && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
