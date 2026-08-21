@@ -7,3 +7,4 @@ export * from "./api";
 export * from "./learner";
 export * from "./coach";
 export * from "./linguistic-intelligence";
+export * from "./teach";
