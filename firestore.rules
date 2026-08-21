@@ -37,7 +37,17 @@ service cloud.firestore {
       allow update: if isInvitationRecipient(resource.data) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"]) && request.resource.data.usedAt != null;
       allow delete: if isOrganizationManager(resource.data.orgId);
     }
-    match /courses/{courseId} { allow read: if isAuthenticated(); allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin'); }
+
+    // Course content and authoring are Core-owned records. Clients may only read
+    // course metadata for organizations they belong to; all mutation goes through
+    // the trusted Learn server API / Firebase Admin boundary.
+    match /courses/{courseId} {
+      allow get, list: if isAuthenticated() && isOrganizationMember(resource.data.orgId);
+      allow create, update, delete: if false;
+    }
+    match /modules/{moduleId} { allow read, write: if false; }
+    match /lessons/{lessonId} { allow read, write: if false; }
+
     match /progress/{progressId} { allow read: if isAuthenticated() && (request.auth.uid == resource.data.studentId || isOrganizationManager(courseOrgId(resource.data.courseId))); allow write: if false; }
     match /learning-evidence/{evidenceId} { allow read, write: if false; }
     match /learner-insights/{insightId} { allow read, write: if false; }
@@ -46,6 +56,11 @@ service cloud.firestore {
     match /spoken-evidence/{evidenceId} { allow read, write: if false; }
     match /retrieval-schedules/{scheduleId} { allow read, write: if false; }
     match /teacher-interventions/{interventionId} { allow read, write: if false; }
+    match /studio_scenarios/{scenarioId} { allow read, write: if false; }
+    match /classroom_sessions/{sessionId} { allow read, write: if false; }
+    match /api_keys/{keyId} { allow read, write: if false; }
+    match /marketplace_listings/{listingId} { allow read, write: if false; }
+    match /purchases/{purchaseId} { allow read, write: if false; }
 
     match /educatorProfiles/{userId} {
       allow read: if isUser(userId);
