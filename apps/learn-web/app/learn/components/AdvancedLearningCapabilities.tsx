@@ -34,12 +34,13 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
   const [audioSource, setAudioSource] = useState<string | null>(capability.audioUrl ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generated, setGenerated] = useState(Boolean(capability.audioUrl));
 
   useEffect(() => () => {
     if (generatedUrlRef.current) URL.revokeObjectURL(generatedUrlRef.current);
   }, []);
 
-  async function loadProductionAudio() {
+  async function generateModelAudio() {
     if (audioSource || loading) return;
     setLoading(true);
     setError(null);
@@ -52,15 +53,17 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
       });
       if (!response.ok) {
         const payload = await response.json() as { error?: string };
-        throw new Error(payload.error ?? "Production listening audio is unavailable.");
+        throw new Error(payload.error ?? "Model audio could not be generated.");
       }
       const blob = await response.blob();
+      if (!blob.size) throw new Error("Model audio returned an empty response.");
       const objectUrl = URL.createObjectURL(blob);
       if (generatedUrlRef.current) URL.revokeObjectURL(generatedUrlRef.current);
       generatedUrlRef.current = objectUrl;
       setAudioSource(objectUrl);
+      setGenerated(true);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Production listening audio is unavailable.");
+      setError(loadError instanceof Error ? loadError.message : "Model audio could not be generated.");
     } finally {
       setLoading(false);
     }
@@ -68,21 +71,29 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
 
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
-      <p className="text-xs font-bold tracking-[0.14em] text-sky-700">LISTEN &amp; NOTICE</p>
-      <h2 className="mt-2 text-xl font-bold text-slate-950">{capability.title}</h2>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold tracking-[0.14em] text-sky-700">LISTEN &amp; NOTICE</p>
+          <h2 className="mt-2 text-xl font-bold text-slate-950">{capability.title}</h2>
+        </div>
+        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">Text-to-speech model</span>
+      </div>
       <p className="mt-2 text-sm leading-6 text-slate-600">{capability.instructions}</p>
       {audioSource ? (
-        <audio className="mt-5 w-full" controls preload="metadata" src={audioSource}>
-          Your browser does not support audio playback.
-        </audio>
+        <div className="mt-5 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
+          <p className="mb-3 text-sm font-semibold text-sky-950">{generated ? "Model audio is ready. Press play and listen before continuing." : "Approved lesson audio is ready."}</p>
+          <audio className="w-full" controls autoPlay preload="metadata" src={audioSource}>
+            Your browser does not support audio playback.
+          </audio>
+        </div>
       ) : (
-        <button type="button" onClick={() => void loadProductionAudio()} disabled={loading} className="mt-5 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-500 disabled:opacity-50">
-          {loading ? "Preparing audio…" : "Load listening audio"}
+        <button type="button" onClick={() => void generateModelAudio()} disabled={loading} className="mt-5 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-500 disabled:opacity-50">
+          {loading ? "Generating model audio…" : "Generate & play model audio"}
         </button>
       )}
-      {error && <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900" role="alert">{error} This activity must not be counted as listening evidence until audio plays successfully.</p>}
+      {error && <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening audio is unavailable.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">This block is not counted as listening evidence until real audio is successfully available.</p></div>}
       <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Model</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
         <p className="mt-2 text-base font-semibold text-slate-900">{capability.modelText}</p>
       </div>
     </section>
