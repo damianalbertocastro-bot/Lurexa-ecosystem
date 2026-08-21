@@ -22,6 +22,12 @@ function clampText(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
 }
 
+function resolveOpenAIApiKey(): string | null {
+  return process.env.OPENAI_KEY_tutor?.trim()
+    || process.env.OPENAI_API_KEY?.trim()
+    || null;
+}
+
 function summarizeContext(context: Awaited<ReturnType<typeof getScopedLearnerContext>>["context"]): string {
   const lines: string[] = [];
   if (context.proficiency?.cefr) lines.push(`CEFR: ${context.proficiency.cefr}`);
@@ -130,7 +136,7 @@ async function callOpenAI(input: {
   contextSummary: string;
   turnIndex: number;
 }): Promise<string | null> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = resolveOpenAIApiKey();
   if (!apiKey) return null;
 
   const model = process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL;
