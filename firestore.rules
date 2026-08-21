@@ -161,13 +161,15 @@ service cloud.firestore {
       allow delete: if ownsTeachRecord(resource.data);
     }
 
-    // Educators may draft and submit their own evidence. Verification fields are
-    // protected from direct client writes and must be changed by trusted Core APIs.
+    // Educators may draft and submit their own evidence. Review/verification fields
+    // are protected from direct client writes and must be changed by trusted Core APIs.
     match /teachEvidence/{evidenceId} {
       allow read: if ownsTeachRecord(resource.data);
       allow create: if ownsTeachRecord(request.resource.data)
         && request.resource.data.status in ["draft", "submitted"]
-        && !request.resource.data.keys().hasAny(["verifiedAt", "reviewerNote"]);
+        && !request.resource.data.keys().hasAny([
+          "verifiedAt", "reviewedAt", "reviewerId", "reviewerNote"
+        ]);
       allow update: if ownsTeachRecord(resource.data)
         && ownsTeachRecord(request.resource.data)
         && request.resource.data.userId == resource.data.userId
