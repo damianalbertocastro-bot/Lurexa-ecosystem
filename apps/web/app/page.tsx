@@ -1,18 +1,37 @@
+import { MasterMark } from "@lurexa/ui/MasterMark";
+import { ProductMark } from "@lurexa/ui/ProductMark";
+import {
+  lurexaProducts,
+  type LurexaProductId,
+} from "../../../packages/config/src/product-registry";
 import styles from "./page.module.css";
 
-type IconName = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
 type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
 
-const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "https://learn.lurexa.com";
+type ProductPresentation = {
+  eyebrow: string;
+  href: string;
+  status: string;
+};
 
-const products: Array<{ name: string; eyebrow: string; description: string; icon: IconName; href: string; status: string }> = [
-  { name: "Learn", eyebrow: "Personal learning", description: "A guided English path that turns practice into confidence for real life.", icon: "learn", href: learnUrl, status: "Explore Learn" },
-  { name: "Coach", eyebrow: "Speaking intelligence", description: "Focused pronunciation, fluency, and conversation practice that remembers the learner.", icon: "coach", href: "#shared-intelligence", status: "In development" },
-  { name: "Teach", eyebrow: "Human teaching", description: "Better timing, clearer learner signals, and space for teachers to do the work only people can do.", icon: "teach", href: "#shared-intelligence", status: "In development" },
-  { name: "Admin", eyebrow: "Institutional trust", description: "Safe access, governance, and a reliable foundation for institutions that need to scale.", icon: "admin", href: "#shared-intelligence", status: "In development" },
-  { name: "Insight", eyebrow: "Learning evidence", description: "Turns progress, patterns, and needs into useful decisions—not another dashboard of noise.", icon: "insight", href: "#shared-intelligence", status: "In development" },
-  { name: "Studio", eyebrow: "Learning creation", description: "A workspace for building and publishing meaningful learning experiences across Lurexa.", icon: "studio", href: "#shared-intelligence", status: "In development" },
-];
+const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "https://learn.lurexa.com";
+const productOrder = ["learn", "coach", "teach", "admin", "insight", "studio"] satisfies LurexaProductId[];
+
+const productPresentation: Record<LurexaProductId, ProductPresentation> = {
+  learn: { eyebrow: "Personal learning", href: learnUrl, status: "Explore Learn" },
+  coach: { eyebrow: "Speaking intelligence", href: process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? "#shared-intelligence", status: "In development" },
+  teach: { eyebrow: "Professional growth", href: process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? "#shared-intelligence", status: "In development" },
+  admin: { eyebrow: "Institutional trust", href: process.env.NEXT_PUBLIC_LUREXA_ADMIN_URL ?? "#shared-intelligence", status: "In development" },
+  insight: { eyebrow: "Learning evidence", href: process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? "#shared-intelligence", status: "In development" },
+  studio: { eyebrow: "Learning creation", href: process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? "#shared-intelligence", status: "In development" },
+};
+
+const products = productOrder.map((id) => ({
+  id,
+  ...lurexaProducts[id],
+  shortName: lurexaProducts[id].name.replace(/^Lurexa /, ""),
+  ...productPresentation[id],
+}));
 
 const capabilities: Array<{ name: string; icon: CapabilityName }> = [
   { name: "Connect", icon: "connect" }, { name: "Cloud", icon: "cloud" }, { name: "Secure", icon: "secure" },
@@ -21,25 +40,6 @@ const capabilities: Array<{ name: string; icon: CapabilityName }> = [
   { name: "AI Tutor", icon: "tutor" }, { name: "API", icon: "api" }, { name: "Design System", icon: "design" },
   { name: "Content", icon: "content" }, { name: "Marketing", icon: "marketing" }, { name: "Developer", icon: "developer" },
 ];
-
-function MasterMark({ small = false }: { small?: boolean }) {
-  return <svg className={small ? styles.masterMarkSmall : styles.masterMark} viewBox="0 0 80 80" aria-hidden="true">
-    <path d="M39 38C26 38 13 31 10 15c-1-5 4-9 9-7 14 4 22 15 22 30Z" fill="#592bd6" opacity=".98" />
-    <path d="M41 38c0-15 8-26 22-30 5-2 10 2 9 7-3 16-16 23-30 23Z" fill="#2160df" opacity=".88" />
-    <path d="M39 42c-15 0-27 8-30 23-1 5 4 9 9 7 14-4 22-15 22-30Z" fill="#071d67" opacity=".94" />
-    <path d="M41 42c0 15 8 26 22 30 5 2 10-2 9-7-3-15-15-23-30-23Z" fill="#12cdd4" />
-    <circle cx="40" cy="40" r="5" fill="white" />
-  </svg>;
-}
-
-function ProductIcon({ name }: { name: IconName }) {
-  if (name === "learn") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M12 58 28 42l10 10 17-17 9 9-26 26L12 58Z" fill="#592bd6"/><path d="M18 22h28a8 8 0 0 1 8 8v11l-8 8V31H18v27H8V32c0-6 4-10 10-10Z" fill="#071d67"/><path d="M49 13h18v18h-9V27L45 40l-7-7 13-13h-2v-7Z" fill="#12cdd4"/><circle cx="28" cy="42" r="4" fill="#2160df"/></svg>;
-  if (name === "coach") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M12 18h44c7 0 12 5 12 12v18c0 7-5 12-12 12H37L23 70V60H12C5 60 0 55 0 48V30c0-7 5-12 12-12Z" fill="#592bd6"/><path d="M17 40h7l4-10 6 20 6-17 5 12 4-5h11" fill="none" stroke="#12cdd4" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="58" cy="20" r="10" fill="#071d67"/><rect x="55" y="14" width="6" height="9" rx="3" fill="white"/><path d="M53 22c0 5 10 5 10 0M58 27v4" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/></svg>;
-  if (name === "teach") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M15 63V27h9v36h-9Zm21 0V17h9v46h-9Zm21 0V8h9v55h-9Z" fill="#071d67"/><path d="M14 52 38 38l12 7 18-18" fill="none" stroke="#592bd6" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/><circle cx="68" cy="27" r="8" fill="#12cdd4"/><path d="m64 27 3 3 6-7" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-  if (name === "admin") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M40 6 68 16v22c0 18-11 29-28 36C23 67 12 56 12 38V16L40 6Z" fill="#071d67"/><path d="M40 18 56 24v14c0 10-6 17-16 22-10-5-16-12-16-22V24l16-6Z" fill="#2160df"/><path d="M33 39h14M40 32v14" stroke="white" strokeWidth="5" strokeLinecap="round"/><circle cx="59" cy="55" r="10" fill="#12cdd4"/><path d="m54 55 4 4 7-9" fill="none" stroke="#071d67" strokeWidth="3.5" strokeLinecap="round"/></svg>;
-  if (name === "insight") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><circle cx="34" cy="34" r="23" fill="#071d67"/><circle cx="34" cy="34" r="16" fill="white"/><path d="M18 41 27 33l7 5 12-14 5 4" fill="none" stroke="#592bd6" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="46" cy="24" r="4" fill="#12cdd4"/><path d="m51 51 18 18" stroke="#2160df" strokeWidth="10" strokeLinecap="round"/></svg>;
-  return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><rect x="8" y="12" width="28" height="28" rx="7" fill="#592bd6"/><rect x="44" y="12" width="28" height="28" rx="7" fill="#2160df"/><rect x="8" y="48" width="28" height="24" rx="7" fill="#071d67"/><path d="M52 49h12v7h8v12h-8v7H52v-7h-8V56h8v-7Z" fill="#12cdd4"/><path d="M17 26h10M22 21v10" stroke="white" strokeWidth="4" strokeLinecap="round"/><path d="m51 30 6-10 6 10" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
 
 function CapabilityIcon({ name }: { name: CapabilityName }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -63,7 +63,7 @@ function CapabilityIcon({ name }: { name: CapabilityName }) {
 export default function Home() {
   return <main className={styles.page}>
     <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
-      <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark small /><span>Lurexa</span></a>
+      <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark compact /><span>Lurexa</span></a>
       <div className={styles.navLinks}><a href="#products">Products</a><a href="#shared-intelligence">How it works</a><a href="#values">Values</a></div>
       <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
     </nav>
@@ -77,8 +77,8 @@ export default function Home() {
         <p className={styles.microcopy}>One learner. One evolving model. Every experience adapts around it.</p>
       </div>
       <div className={styles.orbit} aria-label="Interactive Lurexa product map">
-        <div className={styles.orbitCore}><MasterMark /><span>Learn.<br/>Connect.<br/><b>Grow.</b></span></div>
-        {products.map((product, index) => <a key={product.name} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductIcon name={product.icon}/><span>{product.name}</span></a>)}
+        <div className={styles.orbitCore}><MasterMark compact /><span>Learn.<br/>Connect.<br/><b>Grow.</b></span></div>
+        {products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductMark product={product.id} compact /><span>{product.shortName}</span></a>)}
       </div>
     </section>
 
@@ -92,7 +92,7 @@ export default function Home() {
 
     <section id="products" className={styles.products}>
       <div className={styles.sectionHeading}><p className={styles.kicker}>THE PRODUCT FAMILY</p><h2>Distinct experiences.<br/><em>One intelligent relationship.</em></h2><p>Every product has its own role, visual signature, and purpose—while contributing to the same evolving learner model.</p></div>
-      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.name} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductIcon name={product.icon}/></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.name}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
+      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductMark product={product.id} compact /></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.shortName}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">
@@ -101,12 +101,12 @@ export default function Home() {
     </section>
 
     <section id="shared-intelligence" className={styles.intelligence}>
-      <div className={styles.intelligenceVisual}><div className={styles.signalOne}/><div className={styles.signalTwo}/><div className={styles.signalThree}/><div className={styles.intelligenceCore}><MasterMark small/><span>ONE<br/>LEARNER</span></div></div>
-      <div className={styles.intelligenceCopy}><p className={styles.kicker}>SHARED INTELLIGENCE, HUMANLY USED</p><h2>Progress should not reset when the experience changes.</h2><p>When a learner practises in Learn, speaks in Coach, or receives support in Teach, Lurexa builds on authorised evidence rather than starting from zero.</p><div className={styles.principles}><span>Trusted by Core</span><span>Interpreted by Mind</span><span>Experienced through products</span></div></div>
+      <div className={styles.intelligenceVisual}><div className={styles.signalOne}/><div className={styles.signalTwo}/><div className={styles.signalThree}/><div className={styles.intelligenceCore}><MasterMark compact /><span>ONE<br/>LEARNER</span></div></div>
+      <div className={styles.intelligenceCopy}><p className={styles.kicker}>SHARED INTELLIGENCE, HUMANLY USED</p><h2>Progress should not reset when the experience changes.</h2><p>Learners can move between Learn and Coach without starting over because authorized context can travel through the shared Core/Mind foundation. Educators use that same trusted foundation in Teach for professional growth, evidence, credentials, and community—while classroom operations remain in Learn.</p><div className={styles.principles}><span>Trusted by Core</span><span>Interpreted by Mind</span><span>Experienced through products</span></div></div>
     </section>
 
     <section id="values" className={styles.values}><div className={styles.valueIntro}><p className={styles.kicker}>WHAT GUIDES US</p><h2>Technology should make education feel more personal, not less.</h2></div><div className={styles.valueList}><article><span>♡</span><h3>Learner first</h3><p>We design around real goals, confidence, and dignity.</p></article><article><span>✦</span><h3>Connected by design</h3><p>Useful context moves with people across their learning life.</p></article><article><span>✓</span><h3>Trust is essential</h3><p>Safety, clarity, and responsible data use are not optional.</p></article><article><span>↗</span><h3>Growth with impact</h3><p>We measure progress by what learners can meaningfully do.</p></article></div></section>
 
-    <footer className={styles.footer}><div className={styles.footerBrand}><MasterMark small/><b>Lurexa</b></div><p>Learn. Connect. Grow.</p><a href="#top">Back to top ↑</a><span>© 2026 Lurexa Learning Technologies</span></footer>
+    <footer className={styles.footer}><div className={styles.footerBrand}><MasterMark compact /><b>Lurexa</b></div><p>Learn. Connect. Grow.</p><a href="#top">Back to top ↑</a><span>© 2026 Lurexa Learning Technologies</span></footer>
   </main>;
 }
