@@ -1,10 +1,3 @@
-import {
-  collection,
-  doc,
-  setDoc,
-} from "firebase/firestore";
-import { db } from "./firebase";
-
 export interface BranchingScenarioNode {
   id: string;
   title: string;
@@ -54,24 +47,23 @@ export interface InstitutionalAPIKey {
   createdAt: string;
 }
 
-function bytesToHex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
+const retiredClientMutation = (capability: string): Error => new Error(
+  `${capability} is not available through the legacy client EcosystemService. Use the governed product/server boundary instead.`,
+);
 
-async function hashApiKey(rawKey: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rawKey));
-  return bytesToHex(new Uint8Array(digest));
-}
-
-function createRawApiKey(): string {
-  const random = new Uint8Array(32);
-  crypto.getRandomValues(random);
-  return `lurexa_live_${bytesToHex(random)}`;
-}
-
+/**
+ * @deprecated Historical compatibility facade.
+ *
+ * This service previously bundled Studio, Coach, classroom, and institutional
+ * API capabilities into one browser-side Firestore abstraction. Those domains
+ * now require separate product/layer ownership and trusted server boundaries.
+ * Methods remain temporarily for import compatibility, but all mutations fail
+ * closed so future concepts cannot write production-looking records directly.
+ */
 export const EcosystemService = {
   async saveBranchingScenario(scenario: StudioCourseBranch): Promise<void> {
-    await setDoc(doc(db, "studio_scenarios", scenario.courseId), scenario, { merge: true });
+    void scenario;
+    throw retiredClientMutation("Scenario persistence");
   },
 
   async createVoiceCoachingSession(
@@ -79,22 +71,10 @@ export const EcosystemService = {
     subject: string,
     targetTopic: string,
   ): Promise<VoiceCoachingSession> {
-    const sessionId = doc(collection(db, "coach_sessions")).id;
-    const session: VoiceCoachingSession = {
-      id: sessionId,
-      studentId,
-      subject,
-      targetTopic,
-      transcript: [{
-        sender: "coach",
-        text: `Welcome to Lurexa Coach. Let’s practice ${targetTopic}.`,
-        timestamp: new Date().toISOString(),
-      }],
-      sessionDurationSeconds: 0,
-      createdAt: new Date().toISOString(),
-    };
-    await setDoc(doc(db, "coach_sessions", sessionId), session);
-    return session;
+    void studentId;
+    void subject;
+    void targetTopic;
+    throw retiredClientMutation("Voice coaching session creation");
   },
 
   async startLiveClassroom(
@@ -102,34 +82,20 @@ export const EcosystemService = {
     teacherId: string,
     courseId: string,
   ): Promise<LiveClassroomSession> {
-    const sessionId = doc(collection(db, "classroom_sessions")).id;
-    const session: LiveClassroomSession = {
-      id: sessionId,
-      orgId,
-      teacherId,
-      courseId,
-      activeWhiteboardDataJson: JSON.stringify({ strokeHistory: [] }),
-      breakoutRooms: [],
-      status: "live",
-      startedAt: new Date().toISOString(),
-    };
-    await setDoc(doc(db, "classroom_sessions", sessionId), session);
-    return session;
+    void orgId;
+    void teacherId;
+    void courseId;
+    throw retiredClientMutation("Live classroom creation");
   },
 
-  /** Returns the raw key exactly once. Only the SHA-256 digest is persisted. */
-  async generateAPIKey(orgId: string, rateLimit = 1000): Promise<{ keyId: string; rawKey: string }> {
-    const keyId = doc(collection(db, "api_keys")).id;
-    const rawKey = createRawApiKey();
-    const record: InstitutionalAPIKey = {
-      keyId,
-      orgId,
-      apiKeyHash: await hashApiKey(rawKey),
-      rateLimitPerMin: rateLimit,
-      status: "active",
-      createdAt: new Date().toISOString(),
-    };
-    await setDoc(doc(db, "api_keys", keyId), record);
-    return { keyId, rawKey };
+  async generateAPIKey(
+    orgId: string,
+    rateLimit = 1000,
+  ): Promise<{ keyId: string; rawKey: string }> {
+    void orgId;
+    void rateLimit;
+    throw new Error(
+      "Institutional API-key issuance is server-only. Use @lurexa/backend/institutional-api-key.server from an authorized server route.",
+    );
   },
 };
