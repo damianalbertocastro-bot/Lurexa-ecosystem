@@ -3,6 +3,6 @@
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter docs build",
-  "ignoreCommand": "cd ../.. && npx turbo-ignore docs --fallback=HEAD^1",
+  "ignoreCommand": "cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages docs --exit-code",
   "outputDirectory": ".next"
 }
