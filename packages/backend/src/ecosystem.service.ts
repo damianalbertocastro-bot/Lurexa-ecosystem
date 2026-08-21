@@ -5,7 +5,6 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-// --- 1. Lurexa Studio Types & Service ---
 export interface BranchingScenarioNode {
   id: string;
   title: string;
@@ -24,7 +23,6 @@ export interface StudioCourseBranch {
   nodes: Record<string, BranchingScenarioNode>;
 }
 
-// --- 2. Lurexa Coach Types & Service ---
 export interface VoiceCoachingSession {
   id: string;
   studentId: string;
@@ -36,7 +34,6 @@ export interface VoiceCoachingSession {
   createdAt: string;
 }
 
-// --- 3. Lurexa Classroom Types & Service ---
 export interface LiveClassroomSession {
   id: string;
   orgId: string;
@@ -48,7 +45,6 @@ export interface LiveClassroomSession {
   startedAt?: string;
 }
 
-// --- 4. Lurexa API Key System ---
 export interface InstitutionalAPIKey {
   keyId: string;
   orgId: string;
@@ -58,18 +54,30 @@ export interface InstitutionalAPIKey {
   createdAt: string;
 }
 
+function bytesToHex(bytes: Uint8Array): string {
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashApiKey(rawKey: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rawKey));
+  return bytesToHex(new Uint8Array(digest));
+}
+
+function createRawApiKey(): string {
+  const random = new Uint8Array(32);
+  crypto.getRandomValues(random);
+  return `lurexa_live_${bytesToHex(random)}`;
+}
+
 export const EcosystemService = {
-  // Lurexa Studio: Save interactive branching scenario
   async saveBranchingScenario(scenario: StudioCourseBranch): Promise<void> {
-    const ref = doc(db, "studio_scenarios", scenario.courseId);
-    await setDoc(ref, scenario, { merge: true });
+    await setDoc(doc(db, "studio_scenarios", scenario.courseId), scenario, { merge: true });
   },
 
-  // Lurexa Coach: Start and record voice session logs
   async createVoiceCoachingSession(
     studentId: string,
     subject: string,
-    targetTopic: string
+    targetTopic: string,
   ): Promise<VoiceCoachingSession> {
     const sessionId = doc(collection(db, "coach_sessions")).id;
     const session: VoiceCoachingSession = {
@@ -77,13 +85,11 @@ export const EcosystemService = {
       studentId,
       subject,
       targetTopic,
-      transcript: [
-        {
-          sender: "coach",
-          text: `Welcome! I am your AI Coach for ${subject}. Let's practice ${targetTopic}.`,
-          timestamp: new Date().toISOString(),
-        },
-      ],
+      transcript: [{
+        sender: "coach",
+        text: `Welcome to Lurexa Coach. Let’s practice ${targetTopic}.`,
+        timestamp: new Date().toISOString(),
+      }],
       sessionDurationSeconds: 0,
       createdAt: new Date().toISOString(),
     };
@@ -91,11 +97,10 @@ export const EcosystemService = {
     return session;
   },
 
-  // Lurexa Classroom: Initialize live collaborative session
   async startLiveClassroom(
     orgId: string,
     teacherId: string,
-    courseId: string
+    courseId: string,
   ): Promise<LiveClassroomSession> {
     const sessionId = doc(collection(db, "classroom_sessions")).id;
     const session: LiveClassroomSession = {
@@ -104,10 +109,7 @@ export const EcosystemService = {
       teacherId,
       courseId,
       activeWhiteboardDataJson: JSON.stringify({ strokeHistory: [] }),
-      breakoutRooms: [
-        { roomId: "room_1", name: "Breakout Group A", studentIds: [] },
-        { roomId: "room_2", name: "Breakout Group B", studentIds: [] },
-      ],
+      breakoutRooms: [],
       status: "live",
       startedAt: new Date().toISOString(),
     };
@@ -115,20 +117,18 @@ export const EcosystemService = {
     return session;
   },
 
-  // Lurexa API: Issue institutional API Key
+  /** Returns the raw key exactly once. Only the SHA-256 digest is persisted. */
   async generateAPIKey(orgId: string, rateLimit = 1000): Promise<{ keyId: string; rawKey: string }> {
     const keyId = doc(collection(db, "api_keys")).id;
-    const rawKey = `lurexa_live_${Math.random().toString(36).substring(2)}${Date.now()}`;
-
+    const rawKey = createRawApiKey();
     const record: InstitutionalAPIKey = {
       keyId,
       orgId,
-      apiKeyHash: rawKey, // In production, store SHA-256 hash
+      apiKeyHash: await hashApiKey(rawKey),
       rateLimitPerMin: rateLimit,
       status: "active",
       createdAt: new Date().toISOString(),
     };
-
     await setDoc(doc(db, "api_keys", keyId), record);
     return { keyId, rawKey };
   },
