@@ -3,6 +3,8 @@ export type TeachEvidenceStatus = "draft" | "submitted" | "verified" | "rejected
 export type TeachEvidenceReviewDecision = "verified" | "rejected";
 export type TeachEnrollmentStatus = "active" | "completed" | "paused";
 export type TeachRecommendationStatus = "active" | "dismissed" | "completed";
+export type TeachAssessmentStatus = "requested" | "in_review" | "completed" | "cancelled";
+export type TeachAssessmentDomain = "cefr" | "teaching-competency";
 
 export interface EducatorCompetency {
   id: string;
@@ -10,6 +12,15 @@ export interface EducatorCompetency {
   level: number;
   targetLevel?: number;
   updatedAt: string;
+}
+
+export interface VerifiedEducatorCompetency {
+  id: string;
+  name: string;
+  level: number;
+  assessorId: string;
+  assessmentId: string;
+  verifiedAt: string;
 }
 
 export interface EducatorProfile {
@@ -23,6 +34,7 @@ export interface EducatorProfile {
   interests: string[];
   goals: string[];
   competencies: EducatorCompetency[];
+  verifiedCompetencies?: VerifiedEducatorCompetency[];
   communityContributionScore?: number;
   createdAt: string;
   updatedAt: string;
@@ -94,6 +106,32 @@ export interface TeachEvidenceSubmission {
   verifiedAt?: string;
 }
 
+export interface TeachAssessmentRequest {
+  id: string;
+  userId: string;
+  domains: TeachAssessmentDomain[];
+  requestedCompetencyIds: string[];
+  status: TeachAssessmentStatus;
+  educatorNote?: string;
+  requestedAt: string;
+  updatedAt: string;
+  assessorId?: string;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface TeachAssessmentResult {
+  id: string;
+  assessmentId: string;
+  userId: string;
+  assessorId: string;
+  verifiedCefrLevel?: TeachCefrLevel;
+  verifiedCompetencies: VerifiedEducatorCompetency[];
+  summary: string;
+  rubricVersion: string;
+  completedAt: string;
+}
+
 export interface TeachCredentialRequirement {
   id: string;
   type: "course-completion" | "verified-evidence" | "competency-level" | "cefr-level";
@@ -122,6 +160,17 @@ export interface TeachCredentialAward {
   verificationCode?: string;
 }
 
+export interface TeachPublicCredentialRecord {
+  verificationCode: string;
+  credentialId: string;
+  credentialName: string;
+  credentialDescription: string;
+  educatorDisplayName: string;
+  issuer: "Lurexa Learning Technologies";
+  awardedAt: string;
+  status: "valid" | "revoked";
+}
+
 export interface TeachRecommendation {
   id: string;
   userId: string;
@@ -137,6 +186,13 @@ export interface TeachRecommendation {
 
 export interface TeachEvidenceReviewResult {
   evidence: TeachEvidenceSubmission;
+  newlyAwardedCredentials: TeachCredentialAward[];
+  recommendation: TeachRecommendation | null;
+}
+
+export interface TeachAssessmentReviewResult {
+  assessment: TeachAssessmentRequest;
+  result: TeachAssessmentResult;
   newlyAwardedCredentials: TeachCredentialAward[];
   recommendation: TeachRecommendation | null;
 }
