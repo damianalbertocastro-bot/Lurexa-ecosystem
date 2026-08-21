@@ -1,13 +1,4 @@
-import {
-  collection,
-  doc,
-  setDoc,
-  getDocs,
-  query,
-  orderBy,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import { MarketplaceListing } from "@lurexa/types";
+import type { MarketplaceListing } from "@lurexa/types";
 
 export interface PurchaseReceipt {
   purchaseId: string;
@@ -20,95 +11,37 @@ export interface PurchaseReceipt {
   createdAt: string;
 }
 
+const unavailable = () => new Error(
+  "Lurexa Marketplace is a future concept and is not an active commerce product. No listing or payment action was performed.",
+);
+
+/**
+ * Reserved compatibility surface for the future Marketplace concept.
+ *
+ * Marketplace is intentionally inactive. These methods must not create listings,
+ * fabricate catalog data, or record completed purchases until Marketplace is
+ * formally activated with authorization, catalog governance, pricing, payment,
+ * settlement, refunds, tax, and audit contracts.
+ */
 export const MarketplaceService = {
-  /**
-   * Publish a course to the Marketplace
-   */
   async publishListing(
-    courseId: string,
-    authorId: string,
-    price: number,
-    currency = "USD",
-    type: "one_time" | "subscription" = "one_time"
+    _courseId: string,
+    _authorId: string,
+    _price: number,
+    _currency = "USD",
+    _type: "one_time" | "subscription" = "one_time",
   ): Promise<MarketplaceListing> {
-    const listingId = doc(collection(db, "marketplace_listings")).id;
-
-    const listing: MarketplaceListing = {
-      id: listingId,
-      courseId,
-      authorId,
-      price,
-      currency,
-      type,
-      rating: 5.0,
-      salesCount: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    await setDoc(doc(db, "marketplace_listings", listingId), listing);
-    return listing;
+    throw unavailable();
   },
 
-  /**
-   * Fetch published marketplace listings
-   */
   async getMarketplaceListings(): Promise<MarketplaceListing[]> {
-    const q = query(collection(db, "marketplace_listings"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-
-    if (snap.empty) {
-      // Fallback demo marketplace listings
-      return [
-        {
-          id: "list_1",
-          courseId: "crs_math_b2",
-          authorId: "tch_alvarez",
-          price: 29.99,
-          currency: "USD",
-          type: "one_time",
-          rating: 4.9,
-          salesCount: 38,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: "list_2",
-          courseId: "crs_eng_grammar",
-          authorId: "tch_santos",
-          price: 19.99,
-          currency: "USD",
-          type: "one_time",
-          rating: 4.8,
-          salesCount: 104,
-          createdAt: new Date().toISOString(),
-        },
-      ];
-    }
-
-    return snap.docs.map((d) => d.data() as MarketplaceListing);
+    return [];
   },
 
-  /**
-   * Purchase a marketplace course with 70/20 revenue distribution split
-   */
-  async purchaseCourse(buyerOrgId: string, listing: MarketplaceListing): Promise<PurchaseReceipt> {
-    const purchaseId = doc(collection(db, "purchases")).id;
-
-    // Revenue Split Model: 70% Author / 20% Platform / 10% Fee Processing
-    const authorEarnings = Number((listing.price * 0.7).toFixed(2));
-    const platformFee = Number((listing.price * 0.2).toFixed(2));
-
-    const receipt: PurchaseReceipt = {
-      purchaseId,
-      buyerOrgId,
-      listingId: listing.id,
-      amount: listing.price,
-      authorEarnings,
-      platformFee,
-      status: "completed",
-      createdAt: new Date().toISOString(),
-    };
-
-    await setDoc(doc(db, "purchases", purchaseId), receipt);
-    return receipt;
+  async purchaseCourse(
+    _buyerOrgId: string,
+    _listing: MarketplaceListing,
+  ): Promise<PurchaseReceipt> {
+    throw unavailable();
   },
 };
