@@ -28,7 +28,7 @@ export function evaluateTeachCredential(
     }
 
     if (requirement.type === "competency-level") {
-      const competency = profile?.competencies.find((item) => item.id === requirement.competencyId);
+      const competency = profile?.verifiedCompetencies?.find((item) => item.id === requirement.competencyId);
       return { requirementId: requirement.id, met: (competency?.level ?? 0) >= (requirement.minimumLevel ?? 1) };
     }
 
