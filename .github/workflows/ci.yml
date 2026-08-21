@@ -46,6 +46,9 @@ jobs:
       - name: Verify Product Registry Consumers
         run: pnpm verify:product-registry
 
+      - name: Verify Learn Teacher Workspace Boundary
+        run: pnpm verify:teacher-workspace
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 
