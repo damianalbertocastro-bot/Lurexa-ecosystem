@@ -29,7 +29,7 @@ Files under `concepts/` are roadmap-backed identity explorations only. They are 
 
 Current explorations:
 
-- `concepts/lurexa-community-concept.svg` — future cross-ecosystem social/community space for learners and educators; social, welcoming and participatory.
+- `concepts/lurexa-community-concept.svg` — future cross-ecosystem social/community space for learners and educators; social, welcoming and participatory. The concept mark uses overlapping conversation spaces and a participation signal so it feels like a learning network rather than a generic chat feature.
 - `concepts/lurexa-marketplace-concept.svg` — marketplace-capability direction.
 - `concepts/lurexa-api-concept.svg` — public/partner API direction.
 - `concepts/lurexa-mobile-concept.svg` — native-mobile direction.
