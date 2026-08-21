@@ -1,0 +1,104 @@
+{
+  "$schema": "./products.schema.json",
+  "team": "Lurexa1",
+  "repository": "damianalbertocastro-bot/Lurexa-ecosystem",
+  "productionBranch": "main",
+  "principles": {
+    "oneVercelProjectPerDeployableSurface": true,
+    "affectedWorkspaceBuildsOnly": true,
+    "sharedLayersAreNotStandaloneWebProjects": true,
+    "mobileIsNotHostedOnVercel": true
+  },
+  "deployments": [
+    {
+      "id": "ecosystem-web",
+      "product": "Lurexa Learning Technologies",
+      "surface": "ecosystem",
+      "workspace": "web",
+      "rootDirectory": "apps/web",
+      "vercelProject": "lurexa",
+      "status": "active"
+    },
+    {
+      "id": "learn-web",
+      "product": "Lurexa Learn",
+      "surface": "learner-web",
+      "workspace": "learn-web",
+      "rootDirectory": "apps/learn-web",
+      "vercelProject": "lurexa-learn-web",
+      "status": "active"
+    },
+    {
+      "id": "learn-teacher",
+      "product": "Lurexa Learn",
+      "surface": "teacher-workspace",
+      "workspace": "teacher-portal",
+      "rootDirectory": "apps/teacher-portal",
+      "vercelProject": "lurexa-learn-teacher",
+      "status": "provisioning"
+    },
+    {
+      "id": "teach-web",
+      "product": "Lurexa Teach",
+      "surface": "professional-development-web",
+      "workspace": "@lurexa/teach-web",
+      "rootDirectory": "apps/teach-web",
+      "vercelProject": "lurexa-teach-web",
+      "status": "pending-app-merge"
+    },
+    {
+      "id": "admin-web",
+      "product": "Lurexa Admin",
+      "surface": "operations-web",
+      "workspace": "admin-portal",
+      "rootDirectory": "apps/admin-portal",
+      "vercelProject": "lurexa-admin",
+      "status": "provisioned"
+    },
+    {
+      "id": "docs-web",
+      "product": "Lurexa Documentation",
+      "surface": "documentation",
+      "workspace": "docs",
+      "rootDirectory": "apps/docs",
+      "vercelProject": "docs",
+      "status": "active"
+    },
+    {
+      "id": "mobile",
+      "product": "Lurexa Learn",
+      "surface": "mobile",
+      "workspace": "mobile",
+      "rootDirectory": "apps/mobile",
+      "vercelProject": null,
+      "status": "non-vercel"
+    }
+  ],
+  "futureProducts": [
+    {
+      "product": "Lurexa Coach",
+      "expectedVercelProject": "lurexa-coach-web",
+      "createWhen": "apps/coach-web exists"
+    },
+    {
+      "product": "Lurexa Insight",
+      "expectedVercelProject": "lurexa-insight-web",
+      "createWhen": "apps/insight-web exists"
+    },
+    {
+      "product": "Lurexa Studio",
+      "expectedVercelProject": "lurexa-studio-web",
+      "createWhen": "apps/studio-web exists"
+    }
+  ],
+  "sharedLayers": [
+    {
+      "name": "Lurexa Core",
+      "deploymentRule": "shared backend/platform packages and trusted services; not an end-user website project"
+    },
+    {
+      "name": "Lurexa Mind",
+      "deploymentRule": "shared intelligence layer; not an end-user website project unless a dedicated service is introduced later"
+    }
+  ]
+}
