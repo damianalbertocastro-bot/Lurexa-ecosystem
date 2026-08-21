@@ -29,6 +29,21 @@ function currentLessonContext(context: OptionalCapabilityContext): CapabilityCon
   throw new Error("This listening activity is not attached to a trusted lesson route.");
 }
 
+async function requestModelAudio(input: CapabilityContext & { activityId: string }): Promise<Blob> {
+  const response = await authenticatedFetch("/api/learning/audio", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    const payload = await response.json() as { error?: string };
+    throw new Error(payload.error ?? "Model audio could not be generated.");
+  }
+  const blob = await response.blob();
+  if (!blob.size) throw new Error("Model audio returned an empty response.");
+  return blob;
+}
+
 export function ModelListeningActivity({ courseId, lessonId, capability }: OptionalCapabilityContext & { capability: ModelListeningCapability }) {
   const generatedUrlRef = useRef<string | null>(null);
   const [audioSource, setAudioSource] = useState<string | null>(capability.audioUrl ?? null);
@@ -46,17 +61,7 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
     setError(null);
     try {
       const context = currentLessonContext({ courseId, lessonId });
-      const response = await authenticatedFetch("/api/learning/audio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...context, activityId: capability.id }),
-      });
-      if (!response.ok) {
-        const payload = await response.json() as { error?: string };
-        throw new Error(payload.error ?? "Model audio could not be generated.");
-      }
-      const blob = await response.blob();
-      if (!blob.size) throw new Error("Model audio returned an empty response.");
+      const blob = await requestModelAudio({ ...context, activityId: capability.id });
       const objectUrl = URL.createObjectURL(blob);
       if (generatedUrlRef.current) URL.revokeObjectURL(generatedUrlRef.current);
       generatedUrlRef.current = objectUrl;
@@ -105,16 +110,38 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startedAtRef = useRef<number | null>(null);
+  const modelAudioUrlRef = useRef<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [durationMs, setDurationMs] = useState(0);
   const [status, setStatus] = useState<"idle" | "ready" | "uploading" | "saved" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [modelAudioSource, setModelAudioSource] = useState<string | null>(null);
+  const [modelAudioLoading, setModelAudioLoading] = useState(false);
+  const [modelAudioError, setModelAudioError] = useState<string | null>(null);
 
   useEffect(() => () => {
     if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
     streamRef.current?.getTracks().forEach((track) => track.stop());
+    if (modelAudioUrlRef.current) URL.revokeObjectURL(modelAudioUrlRef.current);
   }, []);
+
+  async function loadSpeakingModelAudio() {
+    if (!capability.targetText || modelAudioSource || modelAudioLoading) return;
+    setModelAudioLoading(true);
+    setModelAudioError(null);
+    try {
+      const blob = await requestModelAudio({ courseId, lessonId, activityId: capability.id });
+      const objectUrl = URL.createObjectURL(blob);
+      if (modelAudioUrlRef.current) URL.revokeObjectURL(modelAudioUrlRef.current);
+      modelAudioUrlRef.current = objectUrl;
+      setModelAudioSource(objectUrl);
+    } catch (caught) {
+      setModelAudioError(caught instanceof Error ? caught.message : "Pronunciation model audio is unavailable.");
+    } finally {
+      setModelAudioLoading(false);
+    }
+  }
 
   async function startRecording() {
     if (recording) return;
@@ -197,6 +224,23 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
         <p className="font-semibold">{capability.prompt}</p>
         {capability.targetText && <p className="mt-2 text-xs text-slate-600">Model: {capability.targetText}</p>}
       </div>
+      {capability.targetText ? (
+        <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.12em] text-sky-700">Pronunciation model</p>
+              <p className="mt-1 text-sm text-slate-700">Hear the trusted target once, then record your own version. The goal is intelligibility and natural rhythm, not accent imitation.</p>
+            </div>
+            {!modelAudioSource ? (
+              <button type="button" disabled={modelAudioLoading} onClick={() => void loadSpeakingModelAudio()} className="rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-500 disabled:opacity-50">
+                {modelAudioLoading ? "Generating…" : "Hear model pronunciation"}
+              </button>
+            ) : null}
+          </div>
+          {modelAudioSource ? <audio className="mt-4 w-full" controls autoPlay preload="metadata" src={modelAudioSource}>Your browser does not support audio playback.</audio> : null}
+          {modelAudioError ? <p className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800" role="alert">{modelAudioError}</p> : null}
+        </div>
+      ) : null}
       <div className="mt-5 flex flex-wrap gap-3">
         {!recording
           ? <button type="button" onClick={() => void startRecording()} className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-500">Start recording</button>
