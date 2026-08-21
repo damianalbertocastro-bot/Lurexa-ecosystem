@@ -24,7 +24,10 @@
     "verify:linguistic-intelligence": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && node scripts/verify-linguistic-intelligence.mjs",
     "verify:learner-model": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && pnpm --filter learn-web check-types && node scripts/verify-learner-model.mjs",
     "verify:mind-recommendations": "node scripts/verify-mind-recommendations.mjs",
-    "firebase:emulators": "firebase emulators:start --only auth,firestore"
+    "firebase:emulators": "firebase emulators:start --only auth,firestore",
+    "deploy:vercel": "node scripts/deploy-vercel-product.mjs",
+    "deploy:learn:preview": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview",
+    "deploy:learn:production": "node scripts/deploy-vercel-product.mjs --product learn-web --target production"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
