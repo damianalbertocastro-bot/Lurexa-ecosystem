@@ -2,9 +2,11 @@
 import React from "react";
 import Link from "next/link";
 import { ConversationWindow } from "../../components/ConversationWindow";
+import Image from "next/image";
 // Sign‑out handled locally; remove next‑auth import
 
-export default function ChatPage({ session }: { session?: any }) {
+type ChatSession = { user?: { name?: string } };
+export default function ChatPage({ session }: { session?: ChatSession }) {
   const userName = session?.user?.name || "User";
   return (
     <main className="flex min-h-screen flex-col items-center bg-[var(--learn-canvas)] p-4">
@@ -38,11 +40,11 @@ export default function ChatPage({ session }: { session?: any }) {
       <section className="mt-8 w-full border-t pt-4">
         <h3 className="mb-2 text-md font-medium text-gray-600">Related</h3>
           <div className="flex items-center gap-4">
-          {/* Lurexa Teach logo placeholder */}
-          <img src="/assets/lurexa-teach-logo.svg" alt="Lurexa Teach" className="h-12 w-12" />
+
+          <Image src="/assets/lurexa-teach-logo.svg" alt="Lurexa Teach" width={48} height={48} className="h-12 w-12" />
           {/* Main Lurexa logo button */}
-          <Link href="https://lurexa.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" aria-label="Visit Lurexa ecosystem">
-            <img src="/assets/lurexa-logo.svg" alt="Lurexa" className="h-6 w-6" />
+          <Link href="https://lurexa.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" aria-label='Visit Lurexa ecosystem'>
+          <Image src="/assets/lurexa-logo.svg" alt="Lurexa" width={24} height={24} className="h-6 w-6" />
             <span>Lurexa Ecosystem</span>
           </Link>
         </div>
