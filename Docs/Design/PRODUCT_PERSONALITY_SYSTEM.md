@@ -1,7 +1,7 @@
 # Lurexa Product Personality System
 
 - Status: **Normative design direction**
-- Applies to: Lurexa master brand and every product experience
+- Applies to: Lurexa master brand, current product experiences, ecosystem surfaces, and approved future product concepts
 - Principle: **Shared grammar + distinct personalities**
 
 ## Core rule
@@ -27,16 +27,19 @@ Every Lurexa experience must preserve:
 
 ## Personality map
 
-| Experience | Personality | Primary experience signal |
-| --- | --- | --- |
-| Master Lurexa | Institutional and foundational | Trust, ecosystem orientation, company-level narrative |
-| Lurexa Learn | Inviting and progressive | Momentum, clarity, confidence, next useful learning action |
-| Lurexa Coach | Conversational and alive | Speaking turns, immediacy, listening/feedback state, safe experimentation |
-| Lurexa Teach | Professional and developmental | Growth, reflection, evidence, credentials, educator community |
-| Lurexa Admin | Authoritative and controlled | Operations, permissions, auditability, institutional health |
-| Lurexa Insight | Analytical and interpretive | Trends, comparison, evidence, explanation, decision support |
-| Lurexa Studio | Creative and constructive | Authoring, composition, preview, iteration, reusable assets |
-| Lurexa Docs | Structured and knowledge-oriented | Reading, search, provenance, hierarchy, cross-reference |
+| Experience | Status | Personality | Primary experience signal |
+| --- | --- | --- | --- |
+| Master Lurexa | Parent identity | Institutional and foundational | Trust, ecosystem orientation, company-level narrative |
+| Lurexa Learn | Current product | Inviting and progressive | Momentum, clarity, confidence, next useful learning action |
+| Lurexa Coach | Current product | Conversational and alive | Speaking turns, immediacy, listening/feedback state, safe experimentation |
+| Lurexa Teach | Current product | Professional and developmental | Growth, reflection, evidence, credentials, educator community |
+| Lurexa Admin | Current product | Authoritative and controlled | Operations, permissions, auditability, institutional health |
+| Lurexa Insight | Current product | Analytical and interpretive | Trends, comparison, evidence, explanation, decision support |
+| Lurexa Studio | Current product | Creative and constructive | Authoring, composition, preview, iteration, reusable assets |
+| Lurexa Docs | Ecosystem surface | Structured and knowledge-oriented | Reading, search, provenance, hierarchy, cross-reference |
+| Lurexa Community | Future product concept | Social, welcoming and participatory | Conversation, discovery, contribution, belonging, trusted community |
+
+The Community entry documents an approved future visual/personality direction. It does not add Community to the current product family or authorize implementation.
 
 ## Master Lurexa
 
@@ -94,6 +97,8 @@ Design behavior:
 
 Teach is not the Learn teacher dashboard. Classroom operations and learner management remain inside Lurexa Learn.
 
+Teach Community is an educator-only feature inside Teach and inherits Teach identity. It is not the future standalone Lurexa Community concept.
+
 ## Lurexa Admin
 
 Admin should feel stable, authoritative, and safe under consequential actions.
@@ -150,6 +155,33 @@ Design behavior:
 
 Avoid generic developer-doc templates or overly promotional landing-page treatment inside document reading views.
 
+## Lurexa Community — future product concept
+
+Community should feel like a living learning network: social enough to invite participation, structured enough to remain useful, and trustworthy enough for educational contexts.
+
+Design behavior:
+- conversation, contribution and discovery as the primary information hierarchy;
+- visible community/group identity rather than one undifferentiated global feed;
+- stronger content/network density than Learn while preserving readable rhythm;
+- violet/blue foundation with cyan participation and discovery signals;
+- overlapping/networked shapes that imply many-to-many contribution rather than one-to-one coaching;
+- expressive but controlled motion for posting, joining, reacting and discovering;
+- visible moderation, role, provenance and trust cues where relevant;
+- reputation/contribution presentation that rewards usefulness without turning learners into a popularity leaderboard;
+- calm recommendation surfaces that support discovery instead of compulsive engagement.
+
+Avoid:
+- copying Reddit or other social platforms visually;
+- infinite-feed engagement dark patterns;
+- treating upvotes/reactions as mastery signals;
+- making Community resemble Coach's one-to-one speaking interaction;
+- making Community replace Teach Community or Learn discussion features;
+- hiding moderation, role or provenance context for educational content.
+
+Canonical concept mark: `packages/ui/brand/concepts/lurexa-community-concept.svg`.
+
+Community remains a future product concept until an explicit activation decision moves it into the current product family and runtime personality contracts.
+
 ## What may vary by product
 
 Products may intentionally vary:
@@ -182,9 +214,11 @@ Products must not independently redefine:
 
 ## Implementation contract
 
-The semantic product-personality tokens live in `@lurexa/tokens` under `productPersonalities`.
+The semantic current-product personality tokens live in `@lurexa/tokens` under `productPersonalities`.
 
 They are guardrails rather than a hard-coded theme engine. Product teams should use them to guide local CSS variables, visual QA, component variants, and future design automation. A product should not import another product's personality simply to make implementation faster.
+
+**Community must not be added to the runtime current-product personality type or navigation merely because its future personality is documented here.** Promotion requires an explicit activation/product-architecture decision.
 
 When a new major surface is designed, reviewers should ask:
 
