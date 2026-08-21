@@ -24,22 +24,21 @@ const capabilities: Array<{ name: string; icon: CapabilityName }> = [
 
 function MasterMark({ small = false }: { small?: boolean }) {
   return <svg className={small ? styles.masterMarkSmall : styles.masterMark} viewBox="0 0 80 80" aria-hidden="true">
-    <path d="M39 38C26 38 13 31 10 15c-1-5 4-9 9-7 14 4 22 15 22 30Z" fill="currentColor" opacity=".95" />
-    <path d="M41 38c0-15 8-26 22-30 5-2 10 2 9 7-3 16-16 23-30 23Z" fill="currentColor" opacity=".72" />
-    <path d="M39 42c-15 0-27 8-30 23-1 5 4 9 9 7 14-4 22-15 22-30Z" fill="currentColor" opacity=".82" />
+    <path d="M39 38C26 38 13 31 10 15c-1-5 4-9 9-7 14 4 22 15 22 30Z" fill="#592bd6" opacity=".98" />
+    <path d="M41 38c0-15 8-26 22-30 5-2 10 2 9 7-3 16-16 23-30 23Z" fill="#2160df" opacity=".88" />
+    <path d="M39 42c-15 0-27 8-30 23-1 5 4 9 9 7 14-4 22-15 22-30Z" fill="#071d67" opacity=".94" />
     <path d="M41 42c0 15 8 26 22 30 5 2 10-2 9-7-3-15-15-23-30-23Z" fill="#12cdd4" />
     <circle cx="40" cy="40" r="5" fill="white" />
   </svg>;
 }
 
 function ProductIcon({ name }: { name: IconName }) {
-  const common = { fill: "none", stroke: "currentColor", strokeWidth: 4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  if (name === "learn") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="M7 33 31 9l11 11L29 33 43 47 32 58 7 33Z" fill="currentColor"/><path d="m31 9 11-6v17L31 9Z" fill="#2160df"/><path d="M43 20 57 6v47H43V20Z" fill="currentColor"/></svg>;
-  if (name === "coach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect x="15" y="21" width="34" height="27" rx="7" fill="currentColor"/><path {...common} d="M22 17v-5m20 5v-5M9 28v12m46-12v12"/><circle cx="25" cy="34" r="3" fill="white"/><circle cx="39" cy="34" r="3" fill="white"/><path d="M29 42h7" stroke="#12cdd4" strokeWidth="3" strokeLinecap="round"/></svg>;
-  if (name === "teach") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="M7 23h50l-9-11H16L7 23Z" fill="currentColor"/><path d="M15 25h34v7H15z" fill="currentColor"/><path d="M30 32v15" stroke="currentColor" strokeWidth="4"/><circle cx="30" cy="51" r="3" fill="#12cdd4"/></svg>;
-  if (name === "admin") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m7 23 25-15 25 15H7Z" fill="currentColor"/><path d="M13 28h7v21h-7zm15 0h8v21h-8zm16 0h7v21h-7z" fill="currentColor"/><path d="M9 52h46v5H9z" fill="#12cdd4"/></svg>;
-  if (name === "insight") return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><rect x="8" y="37" width="10" height="17" rx="5" fill="currentColor" opacity=".6"/><rect x="27" y="23" width="10" height="31" rx="5" fill="currentColor"/><rect x="46" y="10" width="10" height="44" rx="5" fill="#16c9d1"/></svg>;
-  return <svg viewBox="0 0 64 64" className={styles.productIcon} aria-hidden="true"><path d="m20 8 22 2 13 20-13 25-24-1L7 32 20 8Z" fill="currentColor"/><path d="m21 31 9 9 17-17" fill="none" stroke="#12cdd4" strokeWidth="7" strokeLinecap="square"/></svg>;
+  if (name === "learn") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M12 58 28 42l10 10 17-17 9 9-26 26L12 58Z" fill="#592bd6"/><path d="M18 22h28a8 8 0 0 1 8 8v11l-8 8V31H18v27H8V32c0-6 4-10 10-10Z" fill="#071d67"/><path d="M49 13h18v18h-9V27L45 40l-7-7 13-13h-2v-7Z" fill="#12cdd4"/><circle cx="28" cy="42" r="4" fill="#2160df"/></svg>;
+  if (name === "coach") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M12 18h44c7 0 12 5 12 12v18c0 7-5 12-12 12H37L23 70V60H12C5 60 0 55 0 48V30c0-7 5-12 12-12Z" fill="#592bd6"/><path d="M17 40h7l4-10 6 20 6-17 5 12 4-5h11" fill="none" stroke="#12cdd4" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="58" cy="20" r="10" fill="#071d67"/><rect x="55" y="14" width="6" height="9" rx="3" fill="white"/><path d="M53 22c0 5 10 5 10 0M58 27v4" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/></svg>;
+  if (name === "teach") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M15 63V27h9v36h-9Zm21 0V17h9v46h-9Zm21 0V8h9v55h-9Z" fill="#071d67"/><path d="M14 52 38 38l12 7 18-18" fill="none" stroke="#592bd6" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/><circle cx="68" cy="27" r="8" fill="#12cdd4"/><path d="m64 27 3 3 6-7" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  if (name === "admin") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><path d="M40 6 68 16v22c0 18-11 29-28 36C23 67 12 56 12 38V16L40 6Z" fill="#071d67"/><path d="M40 18 56 24v14c0 10-6 17-16 22-10-5-16-12-16-22V24l16-6Z" fill="#2160df"/><path d="M33 39h14M40 32v14" stroke="white" strokeWidth="5" strokeLinecap="round"/><circle cx="59" cy="55" r="10" fill="#12cdd4"/><path d="m54 55 4 4 7-9" fill="none" stroke="#071d67" strokeWidth="3.5" strokeLinecap="round"/></svg>;
+  if (name === "insight") return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><circle cx="34" cy="34" r="23" fill="#071d67"/><circle cx="34" cy="34" r="16" fill="white"/><path d="M18 41 27 33l7 5 12-14 5 4" fill="none" stroke="#592bd6" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="46" cy="24" r="4" fill="#12cdd4"/><path d="m51 51 18 18" stroke="#2160df" strokeWidth="10" strokeLinecap="round"/></svg>;
+  return <svg viewBox="0 0 80 80" className={styles.productIcon} aria-hidden="true"><rect x="8" y="12" width="28" height="28" rx="7" fill="#592bd6"/><rect x="44" y="12" width="28" height="28" rx="7" fill="#2160df"/><rect x="8" y="48" width="28" height="24" rx="7" fill="#071d67"/><path d="M52 49h12v7h8v12h-8v7H52v-7h-8V56h8v-7Z" fill="#12cdd4"/><path d="M17 26h10M22 21v10" stroke="white" strokeWidth="4" strokeLinecap="round"/><path d="m51 30 6-10 6 10" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
 function CapabilityIcon({ name }: { name: CapabilityName }) {
