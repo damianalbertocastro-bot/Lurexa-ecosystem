@@ -28,7 +28,9 @@
     "firebase:emulators": "firebase emulators:start --only auth,firestore",
     "deploy:vercel": "node scripts/deploy-vercel-product.mjs",
     "deploy:learn:preview": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview",
-    "deploy:learn:production": "node scripts/deploy-vercel-product.mjs --product learn-web --target production"
+    "deploy:learn:production": "node scripts/deploy-vercel-product.mjs --product learn-web --target production",
+    "env:learn:preview": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target preview",
+    "env:learn:production": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target production"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
