@@ -42,6 +42,10 @@ service cloud.firestore {
     match /learning-evidence/{evidenceId} { allow read, write: if false; }
     match /learner-insights/{insightId} { allow read, write: if false; }
     match /coach-sessions/{sessionId} { allow read, write: if false; }
+    match /learn-tutor-sessions/{sessionId} { allow read, write: if false; }
+    match /spoken-evidence/{evidenceId} { allow read, write: if false; }
+    match /retrieval-schedules/{scheduleId} { allow read, write: if false; }
+    match /teacher-interventions/{interventionId} { allow read, write: if false; }
 
     match /educatorProfiles/{userId} {
       allow read: if isUser(userId);
