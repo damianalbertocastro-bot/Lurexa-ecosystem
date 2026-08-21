@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
+import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en"><body className="antialiased bg-slate-50 text-slate-900">{children}<LearnRelatedExperiences /></body></html>;
+  return <html lang="en"><body className="antialiased bg-slate-50 text-slate-900">{children}<TeacherGuidanceBanner /><LearnRelatedExperiences /></body></html>;
 }
