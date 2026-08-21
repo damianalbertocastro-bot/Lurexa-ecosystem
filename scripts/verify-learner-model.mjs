@@ -29,6 +29,7 @@ const [
   mindIntelligence,
   capabilityValidation,
   capabilityBoundary,
+  tutorService,
   teacherIntervention,
   tutorRoute,
   spokenEvidenceRoute,
@@ -46,6 +47,7 @@ const [
   source("packages/backend/src/mind-learning-intelligence.server.ts"),
   source("packages/backend/src/learning-capability-validation.ts"),
   source("packages/backend/src/learning-capability.server.ts"),
+  source("packages/backend/src/learn-tutor.server.ts"),
   source("packages/backend/src/teacher-intervention.server.ts"),
   source("apps/learn-web/app/api/learning/tutor/route.ts"),
   source("apps/learn-web/app/api/learning/spoken-evidence/route.ts"),
@@ -62,8 +64,10 @@ requireText("packages/types/src/learner.ts", learnerTypes, "export interface Lea
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerContext");
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerInsight");
 requireText("packages/types/src/learner.ts", learnerTypes, "export interface LearnerRecommendationAction");
-requireText("packages/types/src/learning-experience.ts", learningExperienceTypes, "The server resolves the authoritative AI-roleplay capability");
+requireText("packages/types/src/learning-experience.ts", learningExperienceTypes, "export interface LearnTutorSession");
+requireText("packages/types/src/learning-experience.ts", learningExperienceTypes, "Prior roleplay turns are");
 forbidText("packages/types/src/learning-experience.ts", learningExperienceTypes, "capability: AIRoleplayCapability;");
+forbidText("packages/types/src/learning-experience.ts", learningExperienceTypes, "transcript: LearnTutorTurn[];\n}\n\nexport interface LearnTutorTurnResult");
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "curriculum_progress"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "assessment_result"');
 requireText("packages/backend/src/course-platform.server.ts", coursePlatform, 'type: "activity_result"');
@@ -76,15 +80,23 @@ requireText("packages/backend/src/learning-capability-validation.ts", capability
 requireText("packages/backend/src/learning-capability-validation.ts", capabilityValidation, "Unknown fields are deliberately discarded");
 requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "resolveLearningCapability");
 requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "persisted lesson object");
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, 'const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions"');
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "loadOrCreateSession");
+requireText("packages/backend/src/learn-tutor.server.ts", tutorService, "Tutor session does not match this learner activity.");
+forbidText("packages/backend/src/learn-tutor.server.ts", tutorService, "request.transcript");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "validateRecommendedActivityTarget");
 requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "Recommended activity is not part of the learner's recent lesson.");
 forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.capability");
+forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.transcript");
 forbidText("apps/learn-web/app/api/learning/spoken-evidence/route.ts", spokenEvidenceRoute, "capabilityValue");
 requireText("packages/backend/src/coach-platform.server.ts", coachPlatform, "recommendedActions");
 requireText("apps/learn-web/app/dashboard/page.tsx", learnDashboard, "Recommended next step");
 requireText("firestore.rules", firestoreRules, "match /learning-evidence/{evidenceId}");
 requireText("firestore.rules", firestoreRules, "match /learner-insights/{insightId}");
 requireText("firestore.rules", firestoreRules, "match /coach-sessions/{sessionId}");
+requireText("firestore.rules", firestoreRules, "match /learn-tutor-sessions/{sessionId}");
+requireText("firestore.rules", firestoreRules, "match /spoken-evidence/{evidenceId}");
+requireText("firestore.rules", firestoreRules, "match /teacher-interventions/{interventionId}");
 requireText("firestore.rules", firestoreRules, "allow write: if false;");
 requireText("apps/learn-web/app/api/coach/route.ts", coachRoute, "CoachPlatformService.startSession(actor)");
 requireText("apps/learn-web/app/coach/page.tsx", coachPage, 'authenticatedFetch("/api/coach"');
