@@ -1,5 +1,6 @@
 export type TeachCefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type TeachEvidenceStatus = "draft" | "submitted" | "verified" | "rejected";
+export type TeachEvidenceReviewDecision = "verified" | "rejected";
 export type TeachEnrollmentStatus = "active" | "completed" | "paused";
 export type TeachRecommendationStatus = "active" | "dismissed" | "completed";
 
@@ -84,9 +85,11 @@ export interface TeachEvidenceSubmission {
   moduleId?: string;
   resourceUrl?: string;
   status: TeachEvidenceStatus;
+  reviewerId?: string;
   reviewerNote?: string;
   createdAt: string;
   updatedAt: string;
+  reviewedAt?: string;
   verifiedAt?: string;
 }
 
@@ -113,6 +116,7 @@ export interface TeachCredentialAward {
   credentialId: string;
   userId: string;
   awardedAt: string;
+  awardedBy: string;
   evidenceIds: string[];
   verificationCode?: string;
 }
@@ -128,4 +132,10 @@ export interface TeachRecommendation {
   status: TeachRecommendationStatus;
   sourceEvidenceIds: string[];
   createdAt: string;
+}
+
+export interface TeachEvidenceReviewResult {
+  evidence: TeachEvidenceSubmission;
+  newlyAwardedCredentials: TeachCredentialAward[];
+  recommendation: TeachRecommendation | null;
 }
