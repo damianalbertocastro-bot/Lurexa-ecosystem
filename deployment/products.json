@@ -32,9 +32,9 @@
       "id": "learn-teacher",
       "product": "Lurexa Learn",
       "surface": "teacher-workspace",
-      "workspace": "teacher-portal",
-      "rootDirectory": "apps/teacher-portal",
-      "vercelProject": "lurexa-teacher",
+      "workspace": "learn-web",
+      "rootDirectory": "apps/learn-web",
+      "vercelProject": "lurexa-learn-web",
       "status": "active"
     },
     {
