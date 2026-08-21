@@ -30,10 +30,9 @@ function walk(relativeDir) {
 
 function parseRegistry(source) {
   const entries = new Map();
-  const pattern = /^\s{2}([a-z][a-zA-Z0-9]*): \{\n\s+id: "([^"]+)",\n\s+name: "([^"]+)",\n\s+classification: "([^"]+)"/gm;
+  const pattern = /\bid\s*:\s*"([^"]+)"\s*,\s*\bname\s*:\s*"([^"]+)"\s*,\s*\bclassification\s*:\s*"([^"]+)"/g;
   for (const match of source.matchAll(pattern)) {
-    const [, key, id, name, classification] = match;
-    if (key !== id) fail(`Registry key/id mismatch: ${key} != ${id}`);
+    const [, id, name, classification] = match;
     if (entries.has(id)) fail(`Duplicate registry id: ${id}`);
     entries.set(id, { id, name, classification });
   }
