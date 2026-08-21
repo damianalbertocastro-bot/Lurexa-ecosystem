@@ -5,7 +5,6 @@
     { "name": "web", "path": "apps/web", "required": true },
     { "name": "docs", "path": "apps/docs", "required": true },
     { "name": "learn-web", "path": "apps/learn-web", "required": true },
-    { "name": "teacher-portal", "path": "apps/teacher-portal", "required": false },
     { "name": "teach-web", "path": "apps/teach-web", "required": true },
     { "name": "admin-portal", "path": "apps/admin-portal", "required": true },
     { "name": "mobile", "path": "apps/mobile", "required": true },
