@@ -1,16 +1,19 @@
 import type { HTMLAttributes } from "react";
+import { brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
 export interface MasterMarkProps extends HTMLAttributes<HTMLSpanElement> {
   inverse?: boolean;
   compact?: boolean;
+  size?: BrandMarkSize;
 }
 
-export function MasterMark({ inverse = false, compact = false, className = "", ...props }: MasterMarkProps) {
+export function MasterMark({ inverse = false, compact = false, size = "md", className = "", ...props }: MasterMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
+  const classes = brandMarkSizeClasses[size];
 
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`} {...props}>
-      <span className="grid h-9 w-9 shrink-0 place-items-center">
+    <span className={`inline-flex items-center ${classes.rootGap} ${className}`} {...props}>
+      <span className={`grid shrink-0 place-items-center ${classes.glyph}`}>
         <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
           <path d="M39 38C26 38 13 31 10 15c-1-5 4-9 9-7 14 4 22 15 22 30Z" fill="#592bd6" opacity=".98" />
           <path d="M41 38c0-15 8-26 22-30 5-2 10 2 9 7-3 16-16 23-30 23Z" fill="#2160df" opacity=".88" />
@@ -19,7 +22,7 @@ export function MasterMark({ inverse = false, compact = false, className = "", .
           <circle cx="40" cy="40" r="5" fill="white" />
         </svg>
       </span>
-      {!compact && <span className={`text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>}
+      {!compact && <span className={`${classes.wordmark} font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>}
     </span>
   );
 }

@@ -96,19 +96,32 @@ for (const [file, expected] of shellExpectations) {
 }
 if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web shells expose canonical product/company metadata");
 
-const appIcons = [
-  "apps/web/app/icon.svg",
-  "apps/learn-web/app/icon.svg",
-  "apps/teacher-portal/app/icon.svg",
-  "apps/teach-web/app/icon.svg",
-  "apps/admin-portal/app/icon.svg",
-  "apps/docs/app/icon.svg",
+const shellDirectories = [
+  "apps/web/app",
+  "apps/learn-web/app",
+  "apps/teacher-portal/app",
+  "apps/teach-web/app",
+  "apps/admin-portal/app",
+  "apps/docs/app",
 ];
-for (const icon of appIcons) {
+for (const directory of shellDirectories) {
+  const icon = `${directory}/icon.svg`;
+  const legacyFavicon = `${directory}/favicon.ico`;
   if (!exists(icon)) fail(`Missing canonical shell icon: ${icon}`);
+  if (exists(legacyFavicon)) fail(`Legacy favicon conflicts with canonical shell icon: ${legacyFavicon}`);
 }
-if (exists("apps/web/app/favicon.ico")) fail("Legacy ecosystem favicon.ico must not override the canonical master icon.svg");
-if (!failures.some((item) => item.includes("icon") || item.includes("favicon"))) pass("current web shells use canonical app icons");
+if (!failures.some((item) => item.includes("shell icon") || item.includes("favicon"))) pass("current web shells have one canonical browser icon source");
+
+const sizeContract = read("packages/ui/src/brand-mark-size.ts");
+for (const size of ["sm", "md", "lg"]) {
+  if (!sizeContract.includes(`${size}: {`)) fail(`Semantic brand mark size is missing: ${size}`);
+}
+for (const component of ["MasterMark.tsx", "ProductMark.tsx", "DocsMark.tsx", "EcosystemLayerMark.tsx"]) {
+  const content = read(`packages/ui/src/${component}`);
+  if (!content.includes("size?: BrandMarkSize")) fail(`${component} does not expose the shared semantic size contract`);
+  if (!content.includes("brandMarkSizeClasses[size]")) fail(`${component} bypasses shared semantic size classes`);
+}
+if (!failures.some((item) => item.includes("Semantic brand mark") || item.includes("semantic size"))) pass("shared mark components use one sm/md/lg sizing contract");
 
 const relatedExperiences = read("packages/ui/src/RelatedExperiences.tsx");
 if (relatedExperiences.includes('| "community"') || relatedExperiences.includes('kind === "community"')) {
@@ -137,7 +150,14 @@ if (webPage.includes('"community"') || webPage.includes("Lurexa Community")) {
 }
 
 if (!exists("apps/docs/app/brand/page.tsx")) fail("Missing local brand visual QA route at apps/docs/app/brand/page.tsx");
-else pass("local Docs brand visual QA route exists");
+else {
+  const qaPage = read("apps/docs/app/brand/page.tsx");
+  if (!qaPage.includes('size="sm"') || !qaPage.includes('size="md"') || !qaPage.includes('size="lg"')) {
+    fail("Local Docs brand QA route must exercise all semantic mark sizes");
+  } else {
+    pass("local Docs brand visual QA route covers semantic sizes");
+  }
+}
 
 if (failures.length) {
   console.error("\nBrand-system verification failed:");

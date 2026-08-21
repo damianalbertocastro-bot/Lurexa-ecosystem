@@ -43,6 +43,9 @@ jobs:
       - name: Verify Brand System
         run: pnpm verify:brand-system
 
+      - name: Verify Product Registry Consumers
+        run: pnpm verify:product-registry
+
       - name: Verify Linguistic Intelligence
         run: pnpm verify:linguistic-intelligence
 

@@ -1,8 +1,10 @@
 import type { HTMLAttributes } from "react";
+import { brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
 export interface DocsMarkProps extends HTMLAttributes<HTMLSpanElement> {
   inverse?: boolean;
   compact?: boolean;
+  size?: BrandMarkSize;
 }
 
 function DocsGlyph() {
@@ -15,13 +17,14 @@ function DocsGlyph() {
   </svg>;
 }
 
-export function DocsMark({ inverse = false, compact = false, className = "", ...props }: DocsMarkProps) {
+export function DocsMark({ inverse = false, compact = false, size = "md", className = "", ...props }: DocsMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
-  return <span className={`inline-flex items-center gap-2.5 ${className}`} {...props}>
-    <span className="grid h-9 w-9 shrink-0 place-items-center"><DocsGlyph /></span>
+  const classes = brandMarkSizeClasses[size];
+  return <span className={`inline-flex items-center ${classes.rootGap} ${className}`} {...props}>
+    <span className={`grid shrink-0 place-items-center ${classes.glyph}`}><DocsGlyph /></span>
     {!compact && <span className="leading-none">
-      <span className={`block text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
-      <span className="mt-1 block text-[10px] font-extrabold uppercase tracking-[.17em] text-[#0ba5a8]">Docs</span>
+      <span className={`block ${classes.wordmark} font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
+      <span className={`mt-1 block ${classes.label} font-extrabold uppercase tracking-[.17em] text-[#0ba5a8]`}>Docs</span>
     </span>}
   </span>;
 }

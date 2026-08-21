@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
 export type LurexaProduct = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
 
@@ -6,6 +7,7 @@ export interface ProductMarkProps extends HTMLAttributes<HTMLSpanElement> {
   product?: LurexaProduct;
   inverse?: boolean;
   compact?: boolean;
+  size?: BrandMarkSize;
 }
 
 const productLabel: Record<LurexaProduct, string> = {
@@ -84,14 +86,15 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   </svg>;
 }
 
-export function ProductMark({ product = "learn", inverse = false, compact = false, className = "", ...props }: ProductMarkProps) {
+export function ProductMark({ product = "learn", inverse = false, compact = false, size = "md", className = "", ...props }: ProductMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
+  const classes = brandMarkSizeClasses[size];
 
-  return <span className={`inline-flex items-center gap-2.5 ${className}`} {...props}>
-    <span className="grid h-9 w-9 shrink-0 place-items-center"><ProductGlyph product={product} /></span>
+  return <span className={`inline-flex items-center ${classes.rootGap} ${className}`} {...props}>
+    <span className={`grid shrink-0 place-items-center ${classes.glyph}`}><ProductGlyph product={product} /></span>
     {!compact && <span className="leading-none">
-      <span className={`block text-lg font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
-      <span className={`mt-1 block text-[10px] font-extrabold uppercase tracking-[.17em] ${productLabelClass[product]}`}>{productLabel[product]}</span>
+      <span className={`block ${classes.wordmark} font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
+      <span className={`mt-1 block ${classes.label} font-extrabold uppercase tracking-[.17em] ${productLabelClass[product]}`}>{productLabel[product]}</span>
     </span>}
   </span>;
 }
