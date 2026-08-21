@@ -50,7 +50,7 @@ function projectConfig(entry) {
     installCommand: "cd ../.. && pnpm install --frozen-lockfile",
     buildCommand: `cd ../.. && pnpm --filter ${selector} build`,
     outputDirectory: ".next",
-    commandForIgnoringBuildStep: `cd ../.. && npx turbo-ignore ${selector} --fallback=HEAD^1`,
+    commandForIgnoringBuildStep: `cd ../.. && npx --yes turbo@^2 query affected --base=$VERCEL_GIT_PREVIOUS_SHA --packages ${selector} --exit-code`,
     enableAffectedProjectsDeployments: true,
     nodeVersion: "24.x",
   };
