@@ -8,10 +8,21 @@ const fail = (message) => failures.push(message);
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
 const readJson = (relative) => JSON.parse(read(relative));
 
+const ignoredSourceDirectories = new Set([
+  ".next",
+  ".turbo",
+  "node_modules",
+  "dist",
+  "build",
+  "coverage",
+  "out",
+]);
+
 function walk(relativeDir) {
   const absolute = path.join(root, relativeDir);
   if (!fs.existsSync(absolute)) return [];
   return fs.readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.isDirectory() && ignoredSourceDirectories.has(entry.name)) return [];
     const relative = path.join(relativeDir, entry.name);
     return entry.isDirectory() ? walk(relative) : [relative];
   });
@@ -29,17 +40,31 @@ function parseRegistry(source) {
   return entries;
 }
 
+function parseCurrentProductIds(source) {
+  const match = source.match(/export type LurexaProductId\s*=\s*([^;]+);/);
+  if (!match) return new Set();
+  return new Set([...match[1].matchAll(/"([a-z-]+)"/g)].map((item) => item[1]));
+}
+
 const registrySource = read("packages/config/src/product-registry.ts");
 const registry = parseRegistry(registrySource);
+const declaredCurrentProductIds = parseCurrentProductIds(registrySource);
 const currentProducts = [...registry.values()].filter((entry) => entry.classification === "product");
-const currentProductIds = new Set(currentProducts.map((entry) => entry.id));
+const currentProductIds = declaredCurrentProductIds.size > 0
+  ? declaredCurrentProductIds
+  : new Set(currentProducts.map((entry) => entry.id));
 const currentProductNames = new Set(currentProducts.map((entry) => entry.name));
 const sharedLayerNames = new Set([...registry.values()].filter((entry) => entry.classification === "shared-layer").map((entry) => entry.name));
 const surfaceNames = new Set([...registry.values()].filter((entry) => entry.classification === "ecosystem-surface").map((entry) => entry.name));
 const inactiveNames = new Set([...registry.values()].filter((entry) => entry.classification === "future-product-concept" || entry.classification === "future-concept").map((entry) => entry.name));
 
-if (currentProducts.length !== 6) fail(`Expected 6 current products; registry exposes ${currentProducts.length}`);
+if (currentProductIds.size !== 6) fail(`Expected 6 current product ids; typed contract exposes ${currentProductIds.size}`);
 else pass("typed registry exposes exactly the six current products");
+
+for (const id of currentProductIds) {
+  const entry = registry.get(id);
+  if (!entry || entry.classification !== "product") fail(`Typed current product id is missing a product registry entry: ${id}`);
+}
 
 const deployment = readJson("deployment/products.json");
 const bootstrap = readJson("bootstrap/repository.json");
