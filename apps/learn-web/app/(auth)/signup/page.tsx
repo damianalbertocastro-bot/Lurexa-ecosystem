@@ -4,11 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
-import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
-import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
-
-const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+import { LearnAuthFrame } from "../../components/LearnAuthFrame";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -21,116 +18,50 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      // 1. Register User in Firebase Auth
       const user = await AuthService.register(email, password);
-
-      // 2. Process Organization Assignment
       if (mode === "teacher") {
         if (!orgName) throw new Error("Organization name is required.");
-        const slug = orgName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-        await OrganizationService.createOrganization(orgName, slug, user.uid);
+        await OrganizationService.createOrganization(orgName, orgName.toLowerCase().replace(/[^a-z0-9]/g, "-"), user.uid);
       } else if (studentPath === "class") {
         if (!inviteCode) throw new Error("Invitation code is required.");
         await OrganizationService.joinViaCode(user.uid, user.email ?? email, inviteCode);
       }
-
       router.replace(mode === "teacher" ? "/teacher/dashboard" : studentPath === "self-paced" ? "/onboarding" : "/dashboard");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred during sign up.");
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause.message : "An error occurred during sign up.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <div className="mb-7"><LurexaLearnLogo href={ecosystemUrl} /></div>
-      <Card title="Start your Lurexa path." subtitle="Join a class or create your educator space." className="w-full max-w-md border-[#dfe7fb] p-7 sm:p-8">
-        <div className="mb-7 flex rounded-xl bg-[#eef3ff] p-1.5">
-          <button
-            type="button"
-            className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "student" ? "bg-white text-[#071d67] shadow-sm" : "text-[#6b7aa4]"
-            }`}
-            onClick={() => setMode("student")}
-          >
-            I am a Student
-          </button>
-          <button
-            type="button"
-            className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "teacher" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
-            }`}
-            onClick={() => setMode("teacher")}
-          >
-            I am an Educator
-          </button>
+    <LearnAuthFrame eyebrow="START WITH THE RIGHT EXPERIENCE" title="One account. A learning path that can grow with you." description="Learners can begin independently or join a class. Educators create the Learn workspace they use to operate courses, lessons, invitations, and learner support.">
+      <div className="rounded-[30px] border border-[#dfe6f8] bg-white p-6 shadow-[0_22px_60px_rgba(35,48,133,.1)] sm:p-8">
+        <p className="text-[11px] font-extrabold tracking-[.18em] text-[#592bd6]">CREATE A LUREXA LEARN ACCOUNT</p>
+        <h2 className="mt-3 text-3xl font-black tracking-[-.045em] text-[#071d67]">Choose how you are entering Learn.</h2>
+        <div className="mt-6 grid grid-cols-2 rounded-2xl bg-[#eef3ff] p-1.5">
+          {(["student", "teacher"] as const).map((value) => <button key={value} type="button" onClick={() => setMode(value)} className={`min-h-11 rounded-xl px-3 text-sm font-extrabold transition ${mode === value ? "bg-white text-[#592bd6] shadow-sm" : "text-[#6677a5]"}`}>{value === "student" ? "Learner" : "Educator"}</button>)}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            id="email"
-            label="Email Address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <Input id="email" label="Email Address" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          <Input id="password" label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
 
-          {mode === "teacher" ? (
-            <Input
-              id="organization-name"
-              label="School / Institution Name"
-              placeholder="e.g. Lincoln High School"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              required
-            />
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-slate-800">How are you starting?</p>
-              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "self-paced" ? "border-indigo-500 bg-indigo-50" : "border-slate-200"}`}>
-                <input type="radio" name="student-path" className="mr-2" checked={studentPath === "self-paced"} onChange={() => setStudentPath("self-paced")} />
-                <span className="font-semibold text-slate-900">Learn independently</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-600">Start a self-paced English path with no class code.</span>
-              </label>
-              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "class" ? "border-indigo-500 bg-indigo-50" : "border-slate-200"}`}>
-                <input type="radio" name="student-path" className="mr-2" checked={studentPath === "class"} onChange={() => setStudentPath("class")} />
-                <span className="font-semibold text-slate-900">Join a teacher&apos;s class</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-600">Use the invitation code your teacher gave you.</span>
-              </label>
-              {studentPath === "class" && <Input
-                id="invite-code"
-                label="6-Character Class Code"
-                placeholder="e.g. X7K9PQ"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                required
-              />}
-            </div>
-          )}
+          {mode === "teacher" ? <Input id="organization-name" label="School / Institution Name" placeholder="e.g. Lincoln High School" value={orgName} onChange={(event) => setOrgName(event.target.value)} required /> : <div className="space-y-3"><p className="text-sm font-extrabold text-[#10245f]">How are you starting?</p>{[
+            ["self-paced", "Learn independently", "Start a self-paced English path with no class code."],
+            ["class", "Join a teacher’s class", "Use the invitation code your teacher gave you."],
+          ].map(([value, label, description]) => <label key={value} className={`block cursor-pointer rounded-2xl border p-4 transition ${studentPath === value ? "border-[#592bd6] bg-[#f3f1ff] ring-2 ring-[#ddd6ff]" : "border-[#dfe6f8] hover:border-[#b9c8ee]"}`}><input type="radio" name="student-path" className="mr-3" checked={studentPath === value} onChange={() => setStudentPath(value as "self-paced" | "class")} /><span className="font-extrabold text-[#10245f]">{label}</span><span className="mt-1 block text-xs leading-5 text-[#6677a5]">{description}</span></label>)}{studentPath === "class" ? <Input id="invite-code" label="6-Character Class Code" placeholder="e.g. X7K9PQ" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} required /> : null}</div>}
 
-          {error && <p className="text-xs text-red-500">{error}</p>}
-
-          <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
-            {mode === "teacher" ? "Create School Account" : studentPath === "self-paced" ? "Create my learning path" : "Join Class"}
-          </Button>
+          {error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p> : null}
+          <Button type="submit" variant="primary" className="w-full" isLoading={loading}>{mode === "teacher" ? "Create educator workspace →" : studentPath === "self-paced" ? "Create my learning path →" : "Join class →"}</Button>
         </form>
-      </Card>
-    </div>
+        <p className="mt-6 text-center text-sm text-[#6677a5]">Already have an account? <a href="/login" className="font-extrabold text-[#592bd6] hover:text-[#315fd7]">Sign in</a></p>
+      </div>
+    </LearnAuthFrame>
   );
 }
