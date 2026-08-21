@@ -27,8 +27,8 @@ const productPresentation: Record<LurexaProductId, ProductPresentation> = {
 };
 
 const products = productOrder.map((id) => ({
-  id,
   ...lurexaProducts[id],
+  id,
   shortName: lurexaProducts[id].name.replace(/^Lurexa /, ""),
   ...productPresentation[id],
 }));
