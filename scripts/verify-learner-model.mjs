@@ -27,7 +27,9 @@ const [
   coursePlatform,
   learnerContext,
   mindIntelligence,
+  capabilityValidation,
   capabilityBoundary,
+  teacherIntervention,
   tutorRoute,
   spokenEvidenceRoute,
   coachPlatform,
@@ -42,7 +44,9 @@ const [
   source("packages/backend/src/course-platform.server.ts"),
   source("packages/backend/src/learner-context.server.ts"),
   source("packages/backend/src/mind-learning-intelligence.server.ts"),
+  source("packages/backend/src/learning-capability-validation.ts"),
   source("packages/backend/src/learning-capability.server.ts"),
+  source("packages/backend/src/teacher-intervention.server.ts"),
   source("apps/learn-web/app/api/learning/tutor/route.ts"),
   source("apps/learn-web/app/api/learning/spoken-evidence/route.ts"),
   source("packages/backend/src/coach-platform.server.ts"),
@@ -68,8 +72,12 @@ requireText("packages/backend/src/learner-context.server.ts", learnerContext, "c
 requireText("packages/backend/src/learner-context.server.ts", learnerContext, "activeOrganizationId");
 requireText("packages/backend/src/mind-learning-intelligence.server.ts", mindIntelligence, 'const interpretationVersion = "learn-next-step-v1"');
 requireText("packages/backend/src/mind-learning-intelligence.server.ts", mindIntelligence, 'outcome: "continue"');
+requireText("packages/backend/src/learning-capability-validation.ts", capabilityValidation, "parseLearningCapability");
+requireText("packages/backend/src/learning-capability-validation.ts", capabilityValidation, "Unknown fields are deliberately discarded");
 requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "resolveLearningCapability");
 requireText("packages/backend/src/learning-capability.server.ts", capabilityBoundary, "persisted lesson object");
+requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "validateRecommendedActivityTarget");
+requireText("packages/backend/src/teacher-intervention.server.ts", teacherIntervention, "Recommended activity is not part of the learner's recent lesson.");
 forbidText("apps/learn-web/app/api/learning/tutor/route.ts", tutorRoute, "payload.capability");
 forbidText("apps/learn-web/app/api/learning/spoken-evidence/route.ts", spokenEvidenceRoute, "capabilityValue");
 requireText("packages/backend/src/coach-platform.server.ts", coachPlatform, "recommendedActions");
