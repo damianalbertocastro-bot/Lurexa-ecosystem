@@ -1,14 +1,6 @@
-import { collection, doc, getDoc, getDocs, increment, setDoc } from "firebase/firestore";
-import { db } from "./firebase";
-import type { OrganizationMember, PricingPlan, Subscription } from "@lurexa/types";
+import type { PlanLimits, PricingPlan, Subscription } from "@lurexa/types";
 
-export interface PlanLimits {
-  maxStudents: number;
-  maxCourses: number;
-  aiQueriesPerStudentMonth: number;
-  offlineSupport: boolean;
-  advancedAnalytics: boolean;
-}
+export type { PlanLimits } from "@lurexa/types";
 
 export const PLAN_CONFIGS: Record<PricingPlan, PlanLimits> = {
   free: {
@@ -41,36 +33,37 @@ export const PLAN_CONFIGS: Record<PricingPlan, PlanLimits> = {
   },
 };
 
+const trustedBillingReadError =
+  "Organization subscription and usage data are server-only. Use the authenticated Learn plan API projection.";
+
 export const BillingService = {
   async getSubscription(orgId: string): Promise<Subscription | null> {
-    const snapshot = await getDoc(doc(db, "subscriptions", orgId));
-    return snapshot.exists() ? snapshot.data() as Subscription : null;
+    void orgId;
+    throw new Error(trustedBillingReadError);
   },
 
   async getOrgPlanLimits(orgId: string): Promise<PlanLimits> {
-    const subscription = await this.getSubscription(orgId);
-    return PLAN_CONFIGS[subscription?.plan ?? "free"];
+    void orgId;
+    throw new Error(trustedBillingReadError);
   },
 
   async getStudentSeatUsage(orgId: string): Promise<number> {
-    const members = await getDocs(collection(db, "organizations", orgId, "members"));
-    return members.docs
-      .map((member) => member.data() as OrganizationMember)
-      .filter((member) => member.role === "student").length;
+    void orgId;
+    throw new Error(trustedBillingReadError);
   },
 
   async createCheckoutSession(_orgId: string, _targetPlan: PricingPlan): Promise<{ checkoutUrl: string }> {
     throw new Error("Paid checkout is not configured yet. No payment has been initiated.");
   },
 
-  async recordUsage(orgId: string, metric: "ai_queries" | "students" | "courses", amount = 1): Promise<void> {
-    const currentPeriod = new Date().toISOString().slice(0, 7);
-    const reference = doc(db, "usage_records", `${orgId}_${metric}_${currentPeriod}`);
-    await setDoc(reference, {
-      orgId,
-      metric,
-      count: increment(amount),
-      periodStart: `${currentPeriod}-01`,
-    }, { merge: true });
+  async recordUsage(
+    orgId: string,
+    metric: "ai_queries" | "students" | "courses",
+    amount = 1,
+  ): Promise<void> {
+    void orgId;
+    void metric;
+    void amount;
+    throw new Error("Usage ledger writes are server-only and must pass through a trusted metering boundary.");
   },
 };
