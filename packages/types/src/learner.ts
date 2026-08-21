@@ -36,6 +36,22 @@ export type EvidenceMethod =
   | "teacher_reported"
   | "ai_observed";
 
+export type LearnerRecommendationOutcome =
+  | "retry"
+  | "reinforce"
+  | "continue"
+  | "targeted_practice";
+
+export interface LearnerRecommendationAction {
+  outcome: LearnerRecommendationOutcome;
+  label: string;
+  reason: string;
+  courseId?: string;
+  lessonId?: string;
+  activityId?: string;
+  competencyIds?: string[];
+}
+
 export interface LearnerPattern {
   id: string;
   domain: Extract<LearnerDomain, "grammar" | "vocabulary" | "pronunciation" | "fluency">;
@@ -67,6 +83,7 @@ export interface LearnerContext {
     fluency?: string[];
   };
   recurringPatterns?: LearnerPattern[];
+  recommendations?: LearnerRecommendationAction[];
   recentActivityIds?: string[];
   generatedAt: string;
 }
@@ -114,7 +131,12 @@ export type LearnerInsightData =
     }
   | { kind: "recurring_pattern"; pattern: LearnerPattern }
   | { kind: "goals"; goals: string[] }
-  | { kind: "recommendation"; actions: string[] };
+  | {
+      kind: "recommendation";
+      actions: string[];
+      recommendations?: LearnerRecommendationAction[];
+      interpretationVersion?: string;
+    };
 
 export interface LearnerInsight {
   id: string;
