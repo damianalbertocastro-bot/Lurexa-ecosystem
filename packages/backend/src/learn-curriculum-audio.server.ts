@@ -1,5 +1,5 @@
 import type { AuthenticatedActor } from "./course-platform.server";
-import { resolveModelListeningCapability } from "./learning-capability.server";
+import { resolveLearningCapability } from "./learning-capability.server";
 
 const SPEECH_ENDPOINT = "https://api.openai.com/v1/audio/speech";
 const SPEECH_MODEL = "gpt-4o-mini-tts";
@@ -22,7 +22,21 @@ export const LearnCurriculumAudioService = {
     lessonId: string;
     activityId: string;
   }): Promise<{ bytes: ArrayBuffer; contentType: string }> {
-    const capability = await resolveModelListeningCapability(input);
+    const capability = await resolveLearningCapability(input);
+    const audioInput = capability.kind === "model_listening"
+      ? capability.modelText
+      : capability.kind === "recorded_speaking"
+        ? capability.targetText?.trim()
+        : null;
+    const playbackGoal = capability.kind === "model_listening" ? capability.playbackGoal : "pronunciation_model";
+
+    if (!audioInput) {
+      throw new Error(
+        capability.kind === "recorded_speaking"
+          ? "This speaking activity does not include trusted target text for a pronunciation model."
+          : "This activity does not support curriculum audio.",
+      );
+    }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("Production curriculum audio is not configured yet.");
@@ -35,9 +49,9 @@ export const LearnCurriculumAudioService = {
       },
       body: JSON.stringify({
         model: SPEECH_MODEL,
-        input: capability.modelText,
+        input: audioInput,
         voice: SPEECH_VOICE,
-        instructions: instructionsFor(capability.playbackGoal),
+        instructions: instructionsFor(playbackGoal),
         response_format: "mp3",
       }),
     });

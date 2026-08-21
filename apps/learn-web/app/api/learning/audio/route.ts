@@ -32,7 +32,16 @@ export async function POST(request: Request): Promise<Response> {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate curriculum audio.";
-    const status = message === "Authentication is required." ? 401 : message.includes("not configured") ? 503 : 400;
+    const status = message === "Authentication is required."
+      ? 401
+      : message.includes("not configured")
+        ? 503
+        : message.includes("provider request failed")
+          ? 502
+          : message.toLowerCase().includes("not found")
+            ? 404
+            : 400;
+    console.error("Learn curriculum audio request failed.", { status, message });
     return Response.json({ error: message }, { status });
   }
 }
