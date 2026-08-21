@@ -1,5 +1,6 @@
 import type {
   AIRoleplayCapability,
+  LearnTutorSession,
   LearnTutorTurn,
   LearnTutorTurnRequest,
   LearnTutorTurnResult,
@@ -13,6 +14,7 @@ import { resolveRoleplayCapability } from "./learning-capability.server";
 
 const DEFAULT_MODEL = "gpt-5.6-luna";
 const RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
+const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
 function clampText(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
@@ -144,17 +146,88 @@ async function callOpenAI(input: {
   return readOutputText(await response.json());
 }
 
+async function loadOrCreateSession(input: {
+  actor: AuthenticatedActor;
+  organizationId: string;
+  request: LearnTutorTurnRequest;
+}): Promise<{ session: LearnTutorSession; isNew: boolean }> {
+  const database = getServerFirestore();
+  if (input.request.sessionId) {
+    const snapshot = await database.collection(TUTOR_SESSION_COLLECTION).doc(input.request.sessionId).get();
+    if (!snapshot.exists) throw new Error("Tutor session not found.");
+    const session = { ...snapshot.data(), id: snapshot.id } as LearnTutorSession;
+    if (
+      session.learnerId !== input.actor.uid
+      || session.organizationId !== input.organizationId
+      || session.courseId !== input.request.courseId
+      || session.lessonId !== input.request.lessonId
+      || session.activityId !== input.request.activityId
+    ) {
+      throw new Error("Tutor session does not match this learner activity.");
+    }
+    if (session.status !== "active") throw new Error("Tutor session is already complete.");
+    return { session, isNew: false };
+  }
+
+  const reference = database.collection(TUTOR_SESSION_COLLECTION).doc();
+  const now = new Date().toISOString();
+  const session: LearnTutorSession = {
+    id: reference.id,
+    learnerId: input.actor.uid,
+    organizationId: input.organizationId,
+    courseId: input.request.courseId,
+    lessonId: input.request.lessonId,
+    activityId: input.request.activityId,
+    status: "active",
+    transcript: [],
+    provider: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await reference.create(session);
+  return { session, isNew: true };
+}
+
+async function saveSessionTurn(input: {
+  session: LearnTutorSession;
+  learnerTurn: LearnTutorTurn;
+  tutorTurn: LearnTutorTurn;
+  provider: LearnTutorTurnResult["provider"];
+  complete: boolean;
+}): Promise<LearnTutorSession> {
+  const database = getServerFirestore();
+  const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(input.session.id);
+  const next: LearnTutorSession = {
+    ...input.session,
+    status: input.complete ? "completed" : "active",
+    transcript: [...input.session.transcript, input.learnerTurn, input.tutorTurn].slice(-24),
+    provider: input.provider,
+    updatedAt: input.tutorTurn.timestamp,
+  };
+  await database.runTransaction(async (transaction) => {
+    const currentSnapshot = await transaction.get(reference);
+    if (!currentSnapshot.exists) throw new Error("Tutor session no longer exists.");
+    const current = currentSnapshot.data() as LearnTutorSession;
+    if (current.updatedAt !== input.session.updatedAt || current.status !== "active") {
+      throw new Error("Tutor session changed. Refresh the activity before continuing.");
+    }
+    transaction.set(reference, next);
+  });
+  return next;
+}
+
 async function recordRoleplayEvidence(input: {
   actor: AuthenticatedActor;
   organizationId: string;
   request: LearnTutorTurnRequest;
+  sessionId: string;
   capability: AIRoleplayCapability;
   provider: LearnTutorTurnResult["provider"];
   turnIndex: number;
 }): Promise<void> {
   const repository = new FirestoreLearningEvidenceRepository();
   const now = new Date().toISOString();
-  const evidenceId = `learn_roleplay_${input.actor.uid}_${input.request.lessonId}_${input.request.activityId}_${input.turnIndex}`
+  const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}`
     .replace(/[^a-zA-Z0-9._-]/g, "_");
 
   await repository.append({
@@ -163,6 +236,7 @@ async function recordRoleplayEvidence(input: {
     organizationId: input.organizationId,
     source: {
       product: "learn",
+      sessionId: input.sessionId,
       courseId: input.request.courseId,
       lessonId: input.request.lessonId,
       activityId: input.request.activityId,
@@ -208,25 +282,24 @@ export const LearnTutorService = {
     const organizationId = courseSnapshot.data()?.orgId;
     if (typeof organizationId !== "string" || !organizationId) throw new Error("Course organization is unavailable.");
 
-    const scoped = await getScopedLearnerContext({
-      actorId: actor.uid,
-      learnerId: actor.uid,
-      purpose: "learn_adaptive_practice",
-      domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
-    });
+    const [{ session }, scoped] = await Promise.all([
+      loadOrCreateSession({ actor, organizationId, request }),
+      getScopedLearnerContext({
+        actorId: actor.uid,
+        learnerId: actor.uid,
+        purpose: "learn_adaptive_practice",
+        domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
+      }),
+    ]);
 
-    const transcript = request.transcript
-      .slice(-10)
-      .filter((turn) => (turn.sender === "learner" || turn.sender === "tutor") && typeof turn.text === "string")
-      .map((turn) => ({ ...turn, text: clampText(turn.text, 800) }));
     const now = new Date().toISOString();
     const learnerTurn: LearnTutorTurn = { sender: "learner", text: learnerMessage, timestamp: now };
-    const turnIndex = transcript.filter((turn) => turn.sender === "learner").length + 1;
+    const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
 
     const providerReply = await callOpenAI({
       capability,
       learnerMessage,
-      transcript,
+      transcript: session.transcript,
       contextSummary: summarizeContext(scoped.context),
     });
     const provider: LearnTutorTurnResult["provider"] = providerReply ? "openai" : "deterministic_fallback";
@@ -235,10 +308,23 @@ export const LearnTutorService = {
       text: providerReply ?? deterministicFallback(capability, learnerMessage, turnIndex),
       timestamp: new Date().toISOString(),
     };
+    const complete = turnIndex >= capability.scenario.maximumTurns;
+    const savedSession = await saveSessionTurn({ session, learnerTurn, tutorTurn, provider, complete });
 
-    const result: LearnTutorTurnResult = {
+    await recordRoleplayEvidence({
+      actor,
+      organizationId,
+      request,
+      sessionId: savedSession.id,
+      capability,
+      provider,
+      turnIndex,
+    });
+
+    return {
+      sessionId: savedSession.id,
       reply: tutorTurn,
-      transcript: [...transcript, learnerTurn, tutorTurn],
+      transcript: savedSession.transcript,
       learnerContextUsed: {
         cefr: scoped.context.proficiency?.cefr ?? null,
         activeTargetCount: Object.values(scoped.context.activeTargets ?? {}).flat().length,
@@ -246,8 +332,5 @@ export const LearnTutorService = {
       },
       provider,
     };
-
-    await recordRoleplayEvidence({ actor, organizationId, request, capability, provider, turnIndex });
-    return result;
   },
 };
