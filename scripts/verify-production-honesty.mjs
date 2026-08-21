@@ -46,15 +46,32 @@ if (!marketplace.includes("future concept") || !marketplace.includes("throw unav
 } else pass("future Marketplace cannot execute commerce transactions");
 
 const ecosystem = read("packages/backend/src/ecosystem.service.ts");
-if (ecosystem.includes("apiKeyHash: rawKey")) fail("institutional API keys must never persist raw secret material as a hash");
-if (ecosystem.includes("Math.random().toString(36)")) fail("institutional API keys must not use Math.random for key material");
-if (!ecosystem.includes('crypto.subtle.digest("SHA-256"')) fail("institutional API key storage must hash the secret before persistence");
-else pass("institutional API key persistence uses cryptographic random material and hashing");
+for (const forbidden of ["firebase/firestore", "setDoc(", "collection(db", "apiKeyHash: rawKey", "Math.random().toString(36)"]) {
+  if (ecosystem.includes(forbidden)) fail(`legacy EcosystemService contains a forbidden direct client persistence pattern: ${forbidden}`);
+}
+if (!ecosystem.includes("Institutional API-key issuance is server-only")) {
+  fail("legacy EcosystemService must redirect API-key issuance to the server-only service");
+} else pass("legacy EcosystemService mutations fail closed");
+
+const apiKeys = read("packages/backend/src/institutional-api-key.server.ts");
+if (!apiKeys.includes('from "node:crypto"') || !apiKeys.includes("randomBytes(32)") || !apiKeys.includes('createHash("sha256")')) {
+  fail("server API-key service must use cryptographic random material and SHA-256 hashing");
+}
+if (!apiKeys.includes("getServerFirestore") || !apiKeys.includes('["owner", "admin"].includes(role)')) {
+  fail("server API-key service must use the Admin boundary and require owner/admin authorization");
+} else pass("institutional API keys are issued through an authorized server-only boundary");
 
 const quizBuilder = read("apps/learn-web/app/teacher/quizzes/builder/page.tsx");
 if (quizBuilder.includes("AI Question Generator")) fail("deterministic quiz sample helper must not be presented as live AI");
 if (!quizBuilder.includes("not Lurexa Mind or a live AI generator")) fail("quiz prototype must disclose its current non-AI status");
+if (!quizBuilder.includes("PrototypeContentService")) fail("quiz prototype should consume the truthfully named prototype content service");
 else pass("prototype content generation is represented honestly");
+
+const prototypeContent = read("packages/backend/src/ai-generator.service.ts");
+if (!prototypeContent.includes("PrototypeContentService")) fail("deterministic content helper must expose a truthful canonical service name");
+if (prototypeContent.includes("Server-side AI prompt trigger") || prototypeContent.includes("OpenAI / Anthropic server-side route")) {
+  fail("deterministic prototype content service must not claim an active AI provider boundary");
+} else pass("prototype content service naming matches actual behavior");
 
 const courseService = read("packages/backend/src/course.service.ts");
 if (courseService.includes("setDoc(") || courseService.includes("updateDoc(")) {
@@ -71,6 +88,15 @@ for (const forbidden of ["setDoc(", "updateDoc(", "arrayUnion(", "collection(db"
 if (!courseBuilder.includes("Legacy CourseBuilderService writes are disabled")) {
   fail("legacy CourseBuilderService must fail closed and direct callers to the trusted CoursePlatform boundary");
 } else pass("legacy CourseBuilderService mutations fail closed");
+
+const firestoreRules = read("firestore.rules");
+if (!firestoreRules.includes("match /courses/{courseId}") || !firestoreRules.includes("allow create, update, delete: if false")) {
+  fail("Firestore rules must deny direct client mutation of authoritative course records");
+}
+for (const collection of ["modules", "lessons", "studio_scenarios", "classroom_sessions", "api_keys", "marketplace_listings", "purchases"]) {
+  if (!firestoreRules.includes(`match /${collection}/`)) fail(`Firestore rules must explicitly protect ${collection}`);
+}
+if (!failures.some((item) => item.includes("Firestore rules"))) pass("Firestore rules mirror trusted server ownership for sensitive records");
 
 if (failures.length) {
   console.error("\nProduction-honesty verification failed:");
