@@ -1,4 +1,5 @@
 export * from "./product-registry";
+export * from "./product-urls";
 
 export type AppEnv = "development" | "staging" | "production";
 
