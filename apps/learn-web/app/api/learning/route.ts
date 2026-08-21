@@ -1,4 +1,5 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
+import { LearnProgressService } from "@lurexa/backend/learn-progress.server";
 import type { ContentBlock, Course } from "@lurexa/types";
 
 export const runtime = "nodejs";
@@ -6,7 +7,13 @@ export const dynamic = "force-dynamic";
 
 function failure(error: unknown): Response {
   const message = error instanceof Error ? error.message : "Request failed.";
-  return Response.json({ error: message }, { status: message === "Authentication is required." ? 401 : 400 });
+  const normalized = message.toLocaleLowerCase();
+  const status = message === "Authentication is required."
+    ? 401
+    : normalized.includes("not found")
+      ? 404
+      : 400;
+  return Response.json({ error: message }, { status });
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -16,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
     const courseId = url.searchParams.get("courseId");
     const lessonId = url.searchParams.get("lessonId");
     if (url.searchParams.get("studentDashboard") === "1") {
-      return Response.json(await CoursePlatformService.getLearnerDashboard(actor));
+      return Response.json(await LearnProgressService.getLearnerDashboard(actor));
     }
     if (url.searchParams.get("teacherDashboard") === "1") {
       return Response.json(await CoursePlatformService.getTeacherCourses(actor));
@@ -32,14 +39,17 @@ export async function POST(request: Request): Promise<Response> {
     const body: unknown = await request.json();
     if (typeof body !== "object" || body === null || Array.isArray(body)) throw new Error("Invalid request body.");
     const payload = body as { action?: unknown; courseId?: unknown; lessonId?: unknown; quizId?: unknown; activityId?: unknown; answer?: unknown; answers?: unknown; response?: unknown; timeSpentSeconds?: unknown; title?: unknown; description?: unknown; subject?: unknown; moduleId?: unknown; contentBlocks?: unknown; order?: unknown; estimatedMinutes?: unknown };
+    if (payload.action === "startLesson" && typeof payload.courseId === "string" && typeof payload.lessonId === "string") {
+      return Response.json(await LearnProgressService.startLesson(actor, payload.courseId, payload.lessonId));
+    }
     if (payload.action === "submitQuizAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.quizId === "string" && typeof payload.answer === "string") {
-      return Response.json(await CoursePlatformService.submitQuizAttempt(actor, payload.courseId, payload.lessonId, payload.quizId, payload.answer));
+      return Response.json(await LearnProgressService.submitQuizAttempt(actor, payload.courseId, payload.lessonId, payload.quizId, payload.answer));
     }
     if (payload.action === "submitActivityAttempt" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && Array.isArray(payload.answers) && payload.answers.every((answer) => typeof answer === "string")) {
-      return Response.json(await CoursePlatformService.submitActivityAttempt(actor, payload.courseId, payload.lessonId, payload.activityId, payload.answers));
+      return Response.json(await LearnProgressService.submitActivityAttempt(actor, payload.courseId, payload.lessonId, payload.activityId, payload.answers));
     }
     if (payload.action === "submitShortResponse" && typeof payload.courseId === "string" && typeof payload.lessonId === "string" && typeof payload.activityId === "string" && typeof payload.response === "string") {
-      return Response.json(await CoursePlatformService.submitShortResponse(actor, payload.courseId, payload.lessonId, payload.activityId, payload.response));
+      return Response.json(await LearnProgressService.submitShortResponse(actor, payload.courseId, payload.lessonId, payload.activityId, payload.response));
     }
     if (payload.action === "createCourse" && typeof payload.title === "string" && typeof payload.description === "string" && ["english", "math", "science", "other"].includes(payload.subject as string)) {
       return Response.json(await CoursePlatformService.createCourse(actor, payload.title, payload.description, payload.subject as Course["subject"]));
@@ -67,6 +77,6 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof payload.courseId !== "string" || typeof payload.lessonId !== "string" || typeof payload.timeSpentSeconds !== "number") {
       throw new Error("courseId, lessonId, and timeSpentSeconds are required.");
     }
-    return Response.json(await CoursePlatformService.completeLesson(actor, payload.courseId, payload.lessonId, payload.timeSpentSeconds));
+    return Response.json(await LearnProgressService.completeLesson(actor, payload.courseId, payload.lessonId, payload.timeSpentSeconds));
   } catch (error) { return failure(error); }
 }

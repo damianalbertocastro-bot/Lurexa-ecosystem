@@ -31,6 +31,12 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      - name: Setup Java 21 for Firebase emulators
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -39,6 +45,9 @@ jobs:
 
       - name: Verify Learner Model Architecture
         run: pnpm verify:learner-model
+
+      - name: Verify Learn Firestore Security Rules
+        run: pnpm test:learn-rules
 
       - name: Verify Phase 0
         run: pnpm verify:phase0

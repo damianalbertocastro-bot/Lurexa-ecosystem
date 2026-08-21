@@ -1,5 +1,10 @@
+export type LessonProgressStatus = "not_started" | "in_progress" | "completed";
+
 export interface QuizAttempt {
   quizId: string;
+  activityId?: string;
+  courseId?: string;
+  lessonId?: string;
   score: number;
   maxScore: number;
   passed: boolean;
@@ -9,6 +14,7 @@ export interface QuizAttempt {
   firstAttempt?: boolean;
   hintUsed?: boolean;
   competencyIds?: string[];
+  answer?: string | string[];
 }
 
 export interface StudentProgress {
@@ -18,6 +24,9 @@ export interface StudentProgress {
   moduleId: string;
   courseId: string;
   completed: boolean;
+  status?: LessonProgressStatus;
+  startedAt?: string;
+  completedAt?: string;
   timeSpentSeconds: number;
   attempts: QuizAttempt[];
   bestScore?: number;
