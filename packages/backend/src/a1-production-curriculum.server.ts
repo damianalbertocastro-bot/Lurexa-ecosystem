@@ -100,7 +100,7 @@ function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
         options: [correctAnswer, distractor === correctAnswer ? `Not: ${correctAnswer}` : distractor],
         correctAnswers: [correctAnswer],
         explanation: "Use the audio to check the key words and details.",
-        competencyIds: spec.competencyIds,
+        competencyIds: spec.competencyIds.filter((id) => id.startsWith("EN.A1.LISTEN.")),
         estimatedMinutes: 2,
         required: true,
       },
