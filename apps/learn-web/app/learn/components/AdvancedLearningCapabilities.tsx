@@ -125,7 +125,7 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
           {loading ? "Generating model audio…" : "Generate & play model audio"}
         </button>
       )}
-      {error ? <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening evidence is not ready.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">The lesson cannot treat this required listening capability as complete until playback finishes and the completion record is saved.</p></div> : null}
+      {error ? <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening evidence is not ready.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">The lesson cannot treat this required listening capability as complete until playback finishes and the completion record is saved.</p><button type="button" className="mt-3 rounded-xl border border-rose-300 px-3 py-2 text-xs font-bold text-rose-900" onClick={() => audioSource ? void completeListening() : void generateModelAudio()}>{audioSource ? "Try saving listening completion again" : "Try generating model audio again"}</button></div> : null}
 {capability.transcriptVisibility !== "hidden" ? (
         <div className="mt-5 rounded-2xl bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
@@ -277,7 +277,7 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
             ) : null}
           </div>
           {modelAudioSource ? <audio className="mt-4 w-full" controls autoPlay preload="metadata" src={modelAudioSource}>Your browser does not support audio playback.</audio> : null}
-          {modelAudioError ? <p className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800" role="alert">{modelAudioError}</p> : null}
+          {modelAudioError ? <div className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800" role="alert"><p>{modelAudioError}</p><button type="button" className="mt-2 rounded-lg border border-rose-300 px-3 py-2 text-xs font-bold text-rose-900" onClick={() => void loadSpeakingModelAudio()}>Try model pronunciation again</button></div> : null}
         </div>
       ) : null}
       <div className="mt-5 flex flex-wrap gap-3">
@@ -286,9 +286,11 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
           : <button type="button" onClick={stopRecording} className="rounded-2xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-500">Stop recording</button>}
         {audioBlob ? <button type="button" disabled={!meetsDuration || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button> : null}
       </div>
+      <p className="mt-3 text-xs leading-5 text-slate-500">Your recording is saved as learning evidence only after you choose “Save spoken evidence.” Record only details you are comfortable sharing.</p>
+      <p className="sr-only" role="status" aria-live="polite">{recording ? "Recording in progress." : status === "uploading" ? "Saving spoken evidence." : status === "saved" ? "Spoken evidence saved." : status === "ready" ? "Recording ready to save." : ""}</p>
       {audioBlob ? <p className="mt-3 text-xs text-slate-500">Recorded: {seconds}s · minimum {capability.minimumSeconds}s · maximum {capability.maximumSeconds}s.</p> : null}
       {audioBlob && !meetsDuration ? <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p> : null}
-      {message ? <p className={`mt-4 rounded-2xl p-4 text-sm ${status === "error" ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-900"}`} role="status">{message}</p> : null}
+      {message ? <div className={`mt-4 rounded-2xl p-4 text-sm ${status === "error" ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-900"}`} role={status === "error" ? "alert" : "status"} aria-live={status === "error" ? "assertive" : "polite"}><p>{message}</p>{status === "error" && audioBlob && meetsDuration ? <button type="button" className="mt-3 rounded-xl border border-rose-300 px-3 py-2 text-xs font-bold text-rose-900" onClick={() => void saveRecording()}>Try saving again</button> : null}</div> : null}
     </section>
   );
 }

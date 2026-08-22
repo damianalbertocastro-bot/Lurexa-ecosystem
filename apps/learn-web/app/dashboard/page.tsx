@@ -51,9 +51,13 @@ export default function StudentDashboardPage() {
   const [gamification, setGamification] = useState<LearnerGamificationSummary | null>(null);
   const [nextAction, setNextAction] = useState<NextLearningAction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
+      setLoading(true);
+      setError(null);
       try {
         if (user) {
           const [dashboardResponse, adaptationResponse] = await Promise.all([
@@ -70,15 +74,19 @@ export default function StudentDashboardPage() {
           } else if (dashboard.nextStep) {
             setNextAction({ kind: "mind_recommendation", recommendation: dashboard.nextStep });
           }
+        } else {
+          setCourses([]);
+          setGamification(null);
+          setNextAction(null);
         }
       } catch (error: unknown) {
-        alert(error instanceof Error ? error.message : "Unable to load dashboard.");
+        setError(error instanceof Error ? error.message : "Unable to load dashboard.");
       } finally {
         setLoading(false);
       }
     });
     return unsubscribe;
-  }, []);
+  }, [reloadKey]);
 
   const recommendation = nextAction?.recommendation ?? null;
   const recommendationHref = recommendation?.courseId && recommendation.lessonId
@@ -105,6 +113,14 @@ export default function StudentDashboardPage() {
             </button>
           </div>
         </div>
+
+        {error ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900" role="alert">
+            <p className="font-semibold">Your dashboard could not be loaded.</p>
+            <p className="mt-1">{error}</p>
+            <Button className="mt-3" variant="secondary" onClick={() => setReloadKey((current) => current + 1)}>Try again</Button>
+          </div>
+        ) : null}
 
         {nextAction && recommendation && (
           <Card
@@ -154,7 +170,7 @@ export default function StudentDashboardPage() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {loading ? (
-            <p className="text-slate-500">Loading your courses...</p>
+            <p className="text-slate-500" role="status" aria-live="polite" aria-busy="true">Loading your courses...</p>
           ) : courses.length === 0 ? (
             <Card title="No Courses Enrolled">
               <p className="mb-4 text-sm text-slate-500">
