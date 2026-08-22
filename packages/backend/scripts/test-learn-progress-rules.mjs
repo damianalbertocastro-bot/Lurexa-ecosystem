@@ -77,6 +77,7 @@ try {
   });
 
   await database.collection("learning-evidence").doc(evidenceId).set({
+    contractVersion: "1",
     id: evidenceId,
     learnerId: owner.localId,
     organizationId: "lurexa-self-paced",
@@ -88,6 +89,7 @@ try {
     },
     type: "assessment_result",
     observedAt: now,
+    dataClassification: "standard",
     payload: { correct: true, attemptNumber: 1 },
     provenance: { method: "system_observed", actorId: owner.localId },
   });

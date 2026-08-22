@@ -60,9 +60,11 @@ export class CoachLinguisticPipelineService {
     input: PrepareCoachLinguisticSessionInput,
   ): Promise<CoachLinguisticContext> {
     const learnerContext = await this.learnerModel.getContext({
+      contractVersion: "1",
       learnerId: input.learnerId,
       organizationId: input.organizationId,
       requestingProduct: "coach",
+      purpose: "coach_session_adaptation",
       domains: [
         "proficiency",
         "curriculum",

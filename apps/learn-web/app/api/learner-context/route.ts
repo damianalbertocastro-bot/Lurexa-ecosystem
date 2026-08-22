@@ -10,7 +10,6 @@ export const dynamic = "force-dynamic";
 
 const allowedPurposes: LearnerContextPurpose[] = [
   "learn_adaptive_practice",
-  "coach_session_adaptation",
 ];
 
 const allowedDomains: LearnerDomain[] = [

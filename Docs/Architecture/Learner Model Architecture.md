@@ -209,7 +209,9 @@ Core-authorized evidence/context is supplied to Mind for interpretation.
 
 Approved Mind outputs that should influence persistent learner state are validated and persisted through Core-owned boundaries.
 
-The exact schemas are future implementation work and must be designed against the existing repository before code changes are claimed.
+The repository-backed v1 scope and its current authorization limits are recorded
+in `Docs/Architecture/LEARNER_CONTRACTS_V1.md`. Future versions must still be
+designed against the repository before code changes are claimed.
 
 ## Anti-patterns
 
