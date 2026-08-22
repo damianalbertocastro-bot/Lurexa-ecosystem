@@ -25,7 +25,7 @@ function assertActivity(value: unknown, lessonId: string): LearningActivity {
   const activity = value as Partial<LearningActivity>;
   if (
     activity.schemaVersion !== "1"
-    || activity.type !== "short_response"
+    || !["short_response", "single_choice"].includes(activity.type)
     || typeof activity.title !== "string"
     || typeof activity.instructions !== "string"
     || typeof activity.prompt !== "string"
@@ -36,6 +36,9 @@ function assertActivity(value: unknown, lessonId: string): LearningActivity {
     || activity.required !== true
   ) {
     throw new Error(`${lessonId} contains an invalid required Create & Apply activity.`);
+  }
+  if (activity.type === "single_choice" && (!Array.isArray(activity.options) || !activity.options.length || !Array.isArray(activity.correctAnswers) || !activity.correctAnswers.length)) {
+    throw new Error(`${lessonId} contains an invalid scored comprehension activity.`);
   }
   return activity as LearningActivity;
 }
@@ -63,6 +66,7 @@ export function assertA1ProductionCurriculum(bundle: A1ProductionCurriculumBundl
     const listeningCapabilities = [];
     const productiveCapabilities = [];
     const requiredCreateApply = [];
+    const requiredComprehension = [];
     const blockIds = new Set<string>();
 
     for (const block of lesson.contentBlocks) {
@@ -80,7 +84,9 @@ export function assertA1ProductionCurriculum(bundle: A1ProductionCurriculumBundl
         if (capability.kind === "model_listening" && capability.required) listeningCapabilities.push(capability);
         if ((capability.kind === "recorded_speaking" || capability.kind === "ai_roleplay") && capability.required) productiveCapabilities.push(capability);
       } else if (Object.prototype.hasOwnProperty.call(block.data, "activity")) {
-        requiredCreateApply.push(assertActivity(block.data.activity, lesson.id));
+        const activity = assertActivity(block.data.activity, lesson.id);
+        if (activity.type === "short_response") requiredCreateApply.push(activity);
+        if (activity.type === "single_choice" && activity.stage === "COMPREHENSION") requiredComprehension.push(activity);
       } else {
         throw new Error(`${lesson.id} contains an interactive block without a trusted activity or capability.`);
       }
@@ -89,6 +95,7 @@ export function assertA1ProductionCurriculum(bundle: A1ProductionCurriculumBundl
     if (!listeningCapabilities.length) throw new Error(`${lesson.id} needs required real listening.`);
     if (!productiveCapabilities.length) throw new Error(`${lesson.id} needs required speaking or interaction evidence.`);
     if (!requiredCreateApply.length) throw new Error(`${lesson.id} needs required learner-created evidence.`);
+    if (!requiredComprehension.length) throw new Error(`${lesson.id} needs required scored comprehension evidence.`);
   }
 
   for (const lessonId of CAPSTONE_LESSON_IDS) {
