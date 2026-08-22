@@ -164,6 +164,20 @@ if (fs.existsSync(competencyAuthorityPath) && fs.existsSync(a1ProductionPath)) {
   }
 }
 
+const a1RuntimeSource = fs.readFileSync(path.join(repoRoot, "packages/backend/src/a1-production-curriculum.server.ts"), "utf8");
+for (const requiredCalibrationMarker of [
+  "function listeningCheckBlock",
+  "type: \"single_choice\"",
+  "stage: \"COMPREHENSION\"",
+  "transcriptVisibility: \"hidden\"",
+  "function functionalCapstoneReadingBlock",
+  "EN.A1.READ.FUNCTIONAL_INFORMATION",
+]) {
+  if (!a1RuntimeSource.includes(requiredCalibrationMarker)) {
+    fail(`A1 calibration runtime is missing ${requiredCalibrationMarker}`);
+  }
+}
+
 const README = fs.readFileSync(path.join(repoRoot, "Docs/Curriculum/README.md"), "utf8");
 for (const requiredDoc of [
   "29-LANGUAGE-CURRICULUM-CORE-ARCHITECTURE.md",
