@@ -35,6 +35,7 @@ Lurexa may reach pilot readiness through repository work. It cannot claim repres
 - `My Life, My English` runtime route and three project-part lesson IDs;
 - server-side A1 capstone evidence aggregator;
 - capstone evaluation distinguishes raw evidence from qualified evidence;
+- Module 1 final Create & Apply recorded artifact accepts only a 45–90 second recording;
 - targeted revalidation rather than forced full-level repetition;
 - authorized teacher capstone-review candidates;
 - private spoken-evidence playback for authorized capstone reviewers;
@@ -144,6 +145,20 @@ The current branch must pass:
 - Mind recommendation verification;
 - Firestore security tests;
 - curriculum portfolio verification.
+
+The authenticated service-level A1 MVP journey is exercised locally through
+
+```powershell
+pnpm test:learn-mvp-journey
+```
+
+The command starts the Firebase Auth and Firestore emulators and verifies the
+canonical beginner onboarding recommendation, tenant/membership-scoped lesson
+access, required activity and capability gates, first-attempt/retry evidence,
+trusted progress completion, and deterministic server-side roleplay fallback.
+It is not browser, microphone/storage, external-provider, Preview, or
+Production verification; those checks remain part of the controlled release
+acceptance path.
 
 GitHub-hosted Actions are currently failing before checkout/step execution. A runner-startup failure is not a curriculum failure, but the branch still needs a real verification pass before merge/release.
 

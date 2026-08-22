@@ -159,6 +159,7 @@ A1 has now advanced from blueprint-only expansion into production objects:
 - every new production lesson requires real model listening, productive speaking/interaction and learner-created Create & Apply evidence;
 - required model listening is complete only after full playback and trusted completion capture;
 - required recorded speaking requires stored spoken evidence;
+- the Module 1 final Create & Apply recording has an explicit 45–90 second evidence window;
 - required AI roleplay requires the minimum interaction turns;
 - lesson completion is blocked when required advanced capability evidence is missing;
 - `37` defines competency × evidence × retrieval coverage;
