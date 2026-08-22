@@ -18,20 +18,34 @@
     "FIREBASE_STORAGE_BUCKET",
     "FIRESTORE_EMULATOR_HOST",
     "OPENAI_API_KEY",
-    "LUREXA_LEARN_TUTOR_MODEL"
+    "LUREXA_LEARN_TUTOR_MODEL",
+    "OPENAI_KEY_tutor"
   ],
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": [
+        "^check-types"
+      ]
     },
     "dev": {
       "cache": false,
