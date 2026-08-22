@@ -8,6 +8,7 @@ import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 type Goal = "daily_life" | "work" | "travel" | "study";
 type StartingPoint = "beginner" | "start_check";
 type PlacementAnswer = "nice_to_meet_you" | "fine_thanks" | "i_live_in" | "i_live" | "are" | "is" | "going_to" | "go";
+const onboardingIntentKey = "lurexa_onboarding_intent";
 
 const goalOptions: Array<{ value: Goal; label: string; description: string }> = [
   { value: "daily_life", label: "Daily life", description: "Talk with people, manage everyday situations, and feel more independent." },
@@ -23,6 +24,26 @@ const startCheck: Array<{ prompt: string; options: Array<{ value: PlacementAnswe
   { prompt: "Complete the sentence: “I’m ___ meet my friend at three.”", options: [{ value: "going_to", label: "going to" }, { value: "go", label: "go" }] },
 ];
 
+function readOnboardingIntent(value: string | null): { goal: Goal; startingPoint: StartingPoint; placementAnswers: PlacementAnswer[] } | null {
+  if (!value) return null;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return null;
+    const candidate = parsed as { goal?: unknown; startingPoint?: unknown; placementAnswers?: unknown };
+    const goal = goalOptions.find((option) => option.value === candidate.goal)?.value;
+    if (!goal || !Array.isArray(candidate.placementAnswers)) return null;
+    const placementAnswers = candidate.placementAnswers;
+    if (!placementAnswers.every((answer, index) => typeof answer === "string" && startCheck[index]?.options.some((option) => option.value === answer))) return null;
+    const startingPoint = candidate.startingPoint === "beginner" || candidate.startingPoint === "start_check"
+      ? candidate.startingPoint
+      : placementAnswers.length > 0 ? "start_check" : "beginner";
+    if (startingPoint === "start_check" && placementAnswers.length !== startCheck.length) return null;
+    return { goal, startingPoint, placementAnswers: placementAnswers as PlacementAnswer[] };
+  } catch {
+    return null;
+  }
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [goal, setGoal] = useState<Goal>("daily_life");
@@ -34,6 +55,14 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
 
   useEffect(() => AuthService.onUserChanged((user) => {
+    const intent = readOnboardingIntent(window.localStorage.getItem(onboardingIntentKey));
+    if (intent) {
+      setGoal(intent.goal);
+      setStartingPoint(intent.startingPoint);
+      setPlacementAnswers(intent.placementAnswers);
+    } else if (window.localStorage.getItem(onboardingIntentKey)) {
+      window.localStorage.removeItem(onboardingIntentKey);
+    }
     setCurrentUser(user);
     setReady(true);
   }), []);
@@ -44,7 +73,7 @@ export default function OnboardingPage() {
     try {
       if (!currentUser) {
         if (typeof window !== "undefined") {
-          localStorage.setItem("lurexa_onboarding_intent", JSON.stringify({ goal, placementAnswers }));
+          localStorage.setItem(onboardingIntentKey, JSON.stringify({ goal, startingPoint, placementAnswers }));
         }
         router.push("/signup");
         return;
@@ -59,6 +88,7 @@ export default function OnboardingPage() {
       if (!response.ok || !payload.courseId || !payload.lessonId) {
         throw new Error(payload.error ?? "Unable to create your learning path.");
       }
+      window.localStorage.removeItem(onboardingIntentKey);
       router.replace(`/learn/${payload.courseId}/${payload.lessonId}?startingLevel=${payload.recommendation?.level ?? "A1"}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Unable to create your learning path.");
