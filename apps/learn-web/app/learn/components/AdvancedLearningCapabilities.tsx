@@ -126,10 +126,14 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
         </button>
       )}
       {error ? <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening evidence is not ready.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">The lesson cannot treat this required listening capability as complete until playback finishes and the completion record is saved.</p></div> : null}
-      <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
-        <p className="mt-2 text-base font-semibold text-slate-900">{capability.modelText}</p>
-      </div>
+{capability.transcriptVisibility !== "hidden" ? (
+        <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
+          <p className="mt-2 text-base font-semibold text-slate-900">{capability.modelText}</p>
+        </div>
+      ) : (
+        <p className="mt-5 text-xs leading-5 text-slate-500">The script is hidden for this listening check. Use the audio first, then complete the comprehension activity.</p>
+      )}
     </section>
   );
 }
@@ -219,6 +223,12 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
 
   async function saveRecording() {
     if (!audioBlob || status === "uploading") return;
+    const seconds = Math.round(durationMs / 1_000);
+    if (seconds < capability.minimumSeconds || seconds > capability.maximumSeconds) {
+      setStatus("error");
+      setMessage(`Record between ${capability.minimumSeconds} and ${capability.maximumSeconds} seconds before saving.`);
+      return;
+    }
     setStatus("uploading");
     setMessage(null);
     try {
@@ -242,7 +252,7 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
   }
 
   const seconds = Math.round(durationMs / 1_000);
-  const meetsMinimum = seconds >= capability.minimumSeconds;
+  const meetsDuration = seconds >= capability.minimumSeconds && seconds <= capability.maximumSeconds;
 
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
@@ -274,7 +284,7 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
         {!recording
           ? <button type="button" onClick={() => void startRecording()} className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-500">Start recording</button>
           : <button type="button" onClick={stopRecording} className="rounded-2xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-500">Stop recording</button>}
-        {audioBlob ? <button type="button" disabled={!meetsMinimum || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button> : null}
+        {audioBlob ? <button type="button" disabled={!meetsDuration || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button> : null}
       </div>
       {audioBlob ? <p className="mt-3 text-xs text-slate-500">Recorded: {seconds}s · minimum {capability.minimumSeconds}s · maximum {capability.maximumSeconds}s.</p> : null}
       {audioBlob && !meetsMinimum ? <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p> : null}
