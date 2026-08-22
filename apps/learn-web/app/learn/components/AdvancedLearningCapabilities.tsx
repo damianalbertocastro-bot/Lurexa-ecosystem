@@ -26,7 +26,7 @@ function currentLessonContext(context: OptionalCapabilityContext): CapabilityCon
   if (segments[0] === "learn" && segments[1] && segments[2]) {
     return { courseId: decodeURIComponent(segments[1]), lessonId: decodeURIComponent(segments[2]) };
   }
-  throw new Error("This listening activity is not attached to a trusted lesson route.");
+  throw new Error("This learning capability is not attached to a trusted lesson route.");
 }
 
 async function requestModelAudio(input: CapabilityContext & { activityId: string }): Promise<Blob> {
@@ -44,13 +44,26 @@ async function requestModelAudio(input: CapabilityContext & { activityId: string
   return blob;
 }
 
+async function recordListeningCompletion(input: CapabilityContext & { activityId: string }): Promise<void> {
+  const response = await authenticatedFetch("/api/learning/capability-completion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    const payload = await response.json() as { error?: string };
+    throw new Error(payload.error ?? "Listening completion could not be saved.");
+  }
+}
+
 export function ModelListeningActivity({ courseId, lessonId, capability }: OptionalCapabilityContext & { capability: ModelListeningCapability }) {
   const generatedUrlRef = useRef<string | null>(null);
+  const completionRecordedRef = useRef(false);
   const [audioSource, setAudioSource] = useState<string | null>(capability.audioUrl ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generated, setGenerated] = useState(Boolean(capability.audioUrl));
-  const [showTranscript, setShowTranscript] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => () => {
     if (generatedUrlRef.current) URL.revokeObjectURL(generatedUrlRef.current);
@@ -75,6 +88,20 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
     }
   }
 
+  async function completeListening() {
+    if (completionRecordedRef.current) return;
+    completionRecordedRef.current = true;
+    setError(null);
+    try {
+      const context = currentLessonContext({ courseId, lessonId });
+      await recordListeningCompletion({ ...context, activityId: capability.id });
+      setCompleted(true);
+    } catch (completionError) {
+      completionRecordedRef.current = false;
+      setError(completionError instanceof Error ? completionError.message : "Listening completion could not be saved.");
+    }
+  }
+
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -87,24 +114,21 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
       <p className="mt-2 text-sm leading-6 text-slate-600">{capability.instructions}</p>
       {audioSource ? (
         <div className="mt-5 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
-          <p className="mb-3 text-sm font-semibold text-sky-950">{generated ? "Model audio is ready. Press play and listen before continuing." : "Approved lesson audio is ready."}</p>
-          <audio className="w-full" controls autoPlay preload="metadata" src={audioSource}>
+          <p className="mb-3 text-sm font-semibold text-sky-950">{generated ? "Model audio is ready. Listen through the full sample before continuing." : "Approved lesson audio is ready."}</p>
+          <audio className="w-full" controls autoPlay preload="metadata" src={audioSource} onEnded={() => void completeListening()}>
             Your browser does not support audio playback.
           </audio>
+          {completed ? <p className="mt-3 text-xs font-semibold text-emerald-700">Listening completed ✓</p> : null}
         </div>
       ) : (
         <button type="button" onClick={() => void generateModelAudio()} disabled={loading} className="mt-5 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-500 disabled:opacity-50">
           {loading ? "Generating model audio…" : "Generate & play model audio"}
         </button>
       )}
-      {error && <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening audio is unavailable.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">This block is not counted as listening evidence until real audio is successfully available.</p></div>}
+      {error ? <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening evidence is not ready.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">The lesson cannot treat this required listening capability as complete until playback finishes and the completion record is saved.</p></div> : null}
       <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Transcript support</p>
-        <p className="mt-2 text-sm text-slate-600">Listen once before opening the transcript. Use it afterward to notice the language, not instead of listening.</p>
-        <button type="button" onClick={() => setShowTranscript((current) => !current)} className="mt-3 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-800">
-          {showTranscript ? "Hide transcript" : "Show transcript after listening"}
-        </button>
-        {showTranscript ? <p className="mt-3 text-base font-semibold text-slate-900">{capability.modelText}</p> : null}
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
+        <p className="mt-2 text-base font-semibold text-slate-900">{capability.modelText}</p>
       </div>
     </section>
   );
@@ -227,7 +251,7 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
       <p className="mt-2 text-sm leading-6 text-slate-600">{capability.instructions}</p>
       <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-slate-800">
         <p className="font-semibold">{capability.prompt}</p>
-        {capability.targetText && <p className="mt-2 text-xs text-slate-600">Model: {capability.targetText}</p>}
+        {capability.targetText ? <p className="mt-2 text-xs text-slate-600">Model: {capability.targetText}</p> : null}
       </div>
       {capability.targetText ? (
         <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
@@ -250,11 +274,11 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
         {!recording
           ? <button type="button" onClick={() => void startRecording()} className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-500">Start recording</button>
           : <button type="button" onClick={stopRecording} className="rounded-2xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-500">Stop recording</button>}
-        {audioBlob && <button type="button" disabled={!meetsMinimum || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button>}
+        {audioBlob ? <button type="button" disabled={!meetsMinimum || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button> : null}
       </div>
-      {audioBlob && <p className="mt-3 text-xs text-slate-500">Recorded: {seconds}s · minimum {capability.minimumSeconds}s · maximum {capability.maximumSeconds}s.</p>}
-      {audioBlob && !meetsMinimum && <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p>}
-      {message && <p className={`mt-4 rounded-2xl p-4 text-sm ${status === "error" ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-900"}`} role="status">{message}</p>}
+      {audioBlob ? <p className="mt-3 text-xs text-slate-500">Recorded: {seconds}s · minimum {capability.minimumSeconds}s · maximum {capability.maximumSeconds}s.</p> : null}
+      {audioBlob && !meetsMinimum ? <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p> : null}
+      {message ? <p className={`mt-4 rounded-2xl p-4 text-sm ${status === "error" ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-900"}`} role="status">{message}</p> : null}
     </section>
   );
 }
@@ -305,7 +329,7 @@ export function AIRoleplayActivity({ courseId, lessonId, capability }: Capabilit
     <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><p className="text-xs font-bold tracking-[0.14em] text-teal-300">AI ROLEPLAY</p><h2 className="mt-2 text-xl font-bold">{capability.title}</h2></div>
-        {provider && <span className={`rounded-full px-3 py-1 text-xs font-semibold ${provider === "openai" ? "bg-teal-400/20 text-teal-200" : "bg-amber-400/20 text-amber-200"}`}>{provider === "openai" ? "Lurexa Mind AI" : "Fallback practice mode"}</span>}
+        {provider ? <span className={`rounded-full px-3 py-1 text-xs font-semibold ${provider === "openai" ? "bg-teal-400/20 text-teal-200" : "bg-amber-400/20 text-amber-200"}`}>{provider === "openai" ? "Lurexa Mind AI" : "Fallback practice mode"}</span> : null}
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-300">{capability.instructions}</p>
       <div className="mt-5 max-h-96 space-y-3 overflow-y-auto rounded-2xl bg-white/5 p-4">
@@ -315,9 +339,9 @@ export function AIRoleplayActivity({ courseId, lessonId, capability }: Capabilit
         <input value={learnerMessage} onChange={(event) => setLearnerMessage(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void sendTurn(); }} placeholder="Type your next turn…" className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder-slate-400" />
         <button type="button" disabled={!learnerMessage.trim() || sending || learnerTurns >= capability.scenario.maximumTurns} onClick={() => void sendTurn()} className="rounded-2xl bg-teal-400 px-5 py-3 text-sm font-bold text-slate-950 disabled:opacity-50">{sending ? "…" : "Send"}</button>
       </div>
-      <p className="mt-3 text-xs text-slate-400">Turns: {learnerTurns}/{capability.scenario.maximumTurns}. {reachedMinimum ? "Minimum practice reached; continue if useful." : `Complete at least ${capability.scenario.minimumTurns} learner turns.`}</p>
-      {provider === "deterministic_fallback" && <p className="mt-3 rounded-2xl bg-amber-400/10 p-3 text-xs text-amber-100">The model provider is not currently available. This controlled fallback keeps the scenario testable but is not production AI.</p>}
-      {error && <p className="mt-4 rounded-2xl bg-rose-500/15 p-4 text-sm text-rose-100" role="alert">{error}</p>}
+      <p className="mt-3 text-xs text-slate-400">Turns: {learnerTurns}/{capability.scenario.maximumTurns}. {reachedMinimum ? "Minimum required interaction reached; continue if useful." : `Complete at least ${capability.scenario.minimumTurns} learner turns.`}</p>
+      {provider === "deterministic_fallback" ? <p className="mt-3 rounded-2xl bg-amber-400/10 p-3 text-xs text-amber-100">The model provider is not currently available. This controlled fallback keeps the scenario testable but is not production AI.</p> : null}
+      {error ? <p className="mt-4 rounded-2xl bg-rose-500/15 p-4 text-sm text-rose-100" role="alert">{error}</p> : null}
     </section>
   );
 }

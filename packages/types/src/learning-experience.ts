@@ -28,6 +28,8 @@ export interface ModelListeningCapability extends LearningCapabilityBase {
   audioUrl?: string;
   locale: string;
   playbackGoal: "meaning" | "noticing" | "pronunciation_model";
+  /** Visible for instruction by default. Hidden mode is reserved for assessment/listening evidence where showing the script would reveal the answer. */
+  transcriptVisibility?: "visible" | "hidden";
 }
 
 export interface RecordedSpeakingCapability extends LearningCapabilityBase {

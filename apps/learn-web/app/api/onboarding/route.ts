@@ -1,9 +1,9 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import {
-  onboardSelfPacedLearner,
+  onboardProductionLearner,
   type SelfPacedGoal,
   type PlacementAnswer,
-} from "@lurexa/backend/self-paced-onboarding.server";
+} from "@lurexa/backend/production-onboarding.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: "Complete the start check before continuing." }, { status: 400 });
     }
 
-    return Response.json(await onboardSelfPacedLearner({
+    return Response.json(await onboardProductionLearner({
       learnerId: actor.uid,
       email: actor.email,
       goal: goal as SelfPacedGoal,

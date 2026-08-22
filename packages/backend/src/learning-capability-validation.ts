@@ -28,6 +28,7 @@ const playbackGoals: ModelListeningCapability["playbackGoal"][] = [
   "noticing",
   "pronunciation_model",
 ];
+const transcriptVisibilities: NonNullable<ModelListeningCapability["transcriptVisibility"]>[] = ["visible", "hidden"];
 const evidencePurposes: RecordedSpeakingCapability["evidencePurpose"][] = ["rehearsal", "performance"];
 
 function cleanText(value: unknown, field: string, maxLength = 2_000): string {
@@ -101,6 +102,9 @@ function parseModelListening(value: Record<string, unknown>): ModelListeningCapa
   if (base.kind !== "model_listening" || !playbackGoals.includes(value.playbackGoal as ModelListeningCapability["playbackGoal"])) {
     throw new Error("The lesson contains an invalid model-listening capability.");
   }
+  if (value.transcriptVisibility !== undefined && !transcriptVisibilities.includes(value.transcriptVisibility as NonNullable<ModelListeningCapability["transcriptVisibility"]>)) {
+    throw new Error("Model-listening transcriptVisibility must be visible or hidden.");
+  }
   const audioUrl = cleanOptionalAudioUrl(value.audioUrl);
   return {
     ...base,
@@ -109,6 +113,9 @@ function parseModelListening(value: Record<string, unknown>): ModelListeningCapa
     ...(audioUrl ? { audioUrl } : {}),
     locale: cleanText(value.locale, "locale", 40),
     playbackGoal: value.playbackGoal as ModelListeningCapability["playbackGoal"],
+    ...(value.transcriptVisibility !== undefined
+      ? { transcriptVisibility: value.transcriptVisibility as NonNullable<ModelListeningCapability["transcriptVisibility"]> }
+      : {}),
   };
 }
 

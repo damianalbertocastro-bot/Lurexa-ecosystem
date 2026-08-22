@@ -9,3 +9,4 @@ export * from "./coach";
 export * from "./linguistic-intelligence";
 export * from "./teach";
 export * from "./learning-experience";
+export * from "./capstone";
