@@ -47,8 +47,8 @@ if (studio.includes("Lurexa Studio") || studio.includes("crs_studio_chem") || st
 
 const insights = read("apps/learn-web/app/teacher/insights/page.tsx");
 if (insights.includes('"org_demo"')) fail("teacher insights must never query a hard-coded demo organization");
-if (!insights.includes("getMembershipsForUser")) fail("teacher insights must resolve organization scope from the authenticated educator");
-else pass("teacher insights are scoped through authenticated organization membership");
+if (!insights.includes("authenticatedFetch(") || insights.includes("AnalyticsService")) fail("teacher insights must use the authenticated server projection for organization scope");
+else pass("teacher insights are scoped through the authenticated server projection");
 
 if (failures.length) {
   console.error("\nTeacher workspace boundary verification failed:");
