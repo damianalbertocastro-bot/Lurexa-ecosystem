@@ -37,17 +37,22 @@ The application needs:
 - `NEXT_PUBLIC_FIREBASE_*` values for Firebase browser authentication;
 - `FIREBASE_SERVICE_ACCOUNT_JSON` for trusted server-side Core operations;
 - `FIREBASE_PROJECT_ID` when using the Firebase Emulator without a service account;
-- `OPENAI_API_KEY` for production Learn tutor responses and curriculum TTS audio;
+- `GEMINI_API_KEY` for server-owned Learn roleplay responses;
+- Google Cloud Text-to-Speech enabled in the Firebase project's Google Cloud project for curriculum and pronunciation-model audio;
 - `FIREBASE_STORAGE_BUCKET` for trusted spoken-evidence storage;
-- optional `LUREXA_LEARN_TUTOR_MODEL` to override the approved default tutor model.
+- optional `LUREXA_LEARN_TUTOR_MODEL` to override the approved Gemini tutor model;
+- optional `LUREXA_LEARN_TTS_VOICE` to select the approved Google Cloud Text-to-Speech voice.
 
-`OPENAI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and any other secret must remain server-only. Never expose them through `NEXT_PUBLIC_` variables or commit them to the repository.
+`GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and any other secret must remain server-only. Never expose them through `NEXT_PUBLIC_` variables or commit them to the repository.
 
-For Vercel, configure `OPENAI_API_KEY` and `FIREBASE_STORAGE_BUCKET` on the **lurexa-learn-web** project for the environments that should support AI/audio. Changes to these values require a new deployment before existing server functions see them.
+For Google Cloud Text-to-Speech, enable the **Cloud Text-to-Speech API** in the same Google Cloud project used by Firebase. Grant the existing Firebase service account stored in `FIREBASE_SERVICE_ACCOUNT_JSON` the least-privilege **Cloud Text-to-Speech User** role (`roles/texttospeech.user`). Do not create or commit a second service-account file for audio.
+
+For Vercel, configure `GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_STORAGE_BUCKET` on the **lurexa-learn-web** project. Add them to **Preview** first, create a new Preview deployment, and complete the Learn runtime acceptance checks before adding the same values to Production. `LUREXA_LEARN_TUTOR_MODEL` and `LUREXA_LEARN_TTS_VOICE` are optional server-only configuration. Changes to any of these values require a new deployment before existing server functions see them.
 
 ### Runtime capability behavior
 
-- If `OPENAI_API_KEY` is absent, AI roleplay enters an explicitly labeled deterministic fallback and production curriculum TTS returns a configuration error; neither path pretends to be production AI.
+- If `GEMINI_API_KEY` is absent, AI roleplay enters an explicitly labeled deterministic fallback rather than pretending to be production AI.
+- If Cloud Text-to-Speech is not enabled, its service-account role is missing, or the server credential is unavailable, curriculum and pronunciation-model audio return a configuration error rather than recording listening completion.
 - If `FIREBASE_STORAGE_BUCKET` is absent, spoken-evidence upload fails safely rather than storing an untrusted or incomplete record.
 - Recorded speaking is stored as evidence but is **not yet pronunciation-scored**.
 

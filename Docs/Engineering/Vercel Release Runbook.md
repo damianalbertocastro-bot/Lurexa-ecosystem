@@ -28,6 +28,19 @@ Do not commit either value.
 
 ## Lurexa Learn
 
+### Provider configuration before Preview
+
+Lurexa Learn uses separate server-only providers for the controlled MVP:
+
+- `GEMINI_API_KEY` — Gemini roleplay through the authenticated Learn server route;
+- `FIREBASE_SERVICE_ACCOUNT_JSON` — existing trusted Core credential, also used for Google Cloud Text-to-Speech;
+- `FIREBASE_STORAGE_BUCKET` — trusted spoken-evidence storage;
+- optional `LUREXA_LEARN_TUTOR_MODEL` and `LUREXA_LEARN_TTS_VOICE` — approved provider overrides.
+
+Enable **Cloud Text-to-Speech API** in the Firebase project's Google Cloud project. Grant the service account represented by `FIREBASE_SERVICE_ACCOUNT_JSON` the least-privilege **Cloud Text-to-Speech User** role (`roles/texttospeech.user`). Do not create a second audio service account or place a service-account file in the repository.
+
+Add the required secrets to the **Preview** environment of the `lurexa-learn-web` Vercel project first. Create a new Preview deployment after changing environment variables; existing functions do not receive the new values. Do not add secrets to `NEXT_PUBLIC_` variables, source files, Git, command-line arguments, or release logs. Only after Preview acceptance should the same server-only variables be configured for Production.
+
 Dry run:
 
 ```powershell
