@@ -23,3 +23,14 @@ export const brandMarkSizeClasses: Record<
     label: "text-[11px]",
   },
 };
+
+/**
+ * Brand marks are consumed by both Tailwind and CSS-module applications.
+ * Keep the glyph dimensions independent of utility-class generation so a
+ * product identity never disappears when an app does not load Tailwind.
+ */
+export const brandMarkGlyphDimensions: Record<BrandMarkSize, number> = {
+  sm: 28,
+  md: 36,
+  lg: 48,
+};

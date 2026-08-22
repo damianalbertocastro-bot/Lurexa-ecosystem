@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "react";
-import { brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
+import { brandMarkGlyphDimensions, brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
 export type LurexaProduct = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
 
@@ -30,7 +30,7 @@ const productLabelClass: Record<LurexaProduct, string> = {
 
 function ProductGlyph({ product }: { product: LurexaProduct }) {
   if (product === "learn") {
-    return <svg viewBox="0 0 64 64" className="h-full w-full" aria-hidden="true">
+    return <svg viewBox="0 0 64 64" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
       <path d="M7 33 31 9l11 11L29 33 43 47 32 58 7 33Z" fill="#592bd6" />
       <path d="m31 9 11-6v17L31 9Z" fill="#2160df" />
       <path d="M43 20 57 6v47H43V20Z" fill="#592bd6" />
@@ -38,7 +38,7 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   }
 
   if (product === "coach") {
-    return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
+    return <svg viewBox="0 0 80 80" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
       <path d="M12 18h44c7 0 12 5 12 12v18c0 7-5 12-12 12H37L23 70V60H12C5 60 0 55 0 48V30c0-7 5-12 12-12Z" fill="#592bd6" />
       <path d="M17 40h7l4-10 6 20 6-17 5 12 4-5h11" fill="none" stroke="#12cdd4" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="58" cy="20" r="10" fill="#071d67" />
@@ -48,7 +48,7 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   }
 
   if (product === "teach") {
-    return <svg viewBox="0 0 64 64" className="h-full w-full" aria-hidden="true">
+    return <svg viewBox="0 0 64 64" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
       <path d="M7 23h50l-9-11H16L7 23Z" fill="#071d67" />
       <path d="M15 25h34v7H15z" fill="#071d67" />
       <path d="M30 32v15" stroke="#071d67" strokeWidth="4" />
@@ -57,7 +57,7 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   }
 
   if (product === "admin") {
-    return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
+    return <svg viewBox="0 0 80 80" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
       <path d="M40 6 68 16v22c0 18-11 29-28 36C23 67 12 56 12 38V16L40 6Z" fill="#071d67" />
       <path d="M40 18 56 24v14c0 10-6 17-16 22-10-5-16-12-16-22V24l16-6Z" fill="#2160df" />
       <path d="M33 39h14M40 32v14" stroke="white" strokeWidth="5" strokeLinecap="round" />
@@ -67,7 +67,7 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
   }
 
   if (product === "insight") {
-    return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
+    return <svg viewBox="0 0 80 80" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
       <circle cx="34" cy="34" r="23" fill="#071d67" />
       <circle cx="34" cy="34" r="16" fill="white" />
       <path d="M18 41 27 33l7 5 12-14 5 4" fill="none" stroke="#592bd6" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
@@ -76,7 +76,7 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
     </svg>;
   }
 
-  return <svg viewBox="0 0 80 80" className="h-full w-full" aria-hidden="true">
+  return <svg viewBox="0 0 80 80" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
     <rect x="8" y="12" width="28" height="28" rx="7" fill="#592bd6" />
     <rect x="44" y="12" width="28" height="28" rx="7" fill="#2160df" />
     <rect x="8" y="48" width="28" height="24" rx="7" fill="#071d67" />
@@ -89,9 +89,13 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
 export function ProductMark({ product = "learn", inverse = false, compact = false, size = "md", className = "", ...props }: ProductMarkProps) {
   const wordmark = inverse ? "text-white" : "text-[#071d67]";
   const classes = brandMarkSizeClasses[size];
+  const glyphDimension = brandMarkGlyphDimensions[size];
 
   return <span className={`inline-flex items-center ${classes.rootGap} ${className}`} {...props}>
-    <span className={`grid shrink-0 place-items-center ${classes.glyph}`}><ProductGlyph product={product} /></span>
+    <span
+      className={`grid shrink-0 place-items-center ${classes.glyph}`}
+      style={{ display: "grid", width: glyphDimension, height: glyphDimension, flexShrink: 0, placeItems: "center" }}
+    ><ProductGlyph product={product} /></span>
     {!compact && <span className="leading-none">
       <span className={`block ${classes.wordmark} font-extrabold tracking-[-.06em] ${wordmark}`}>Lurexa</span>
       <span className={`mt-1 block ${classes.label} font-extrabold uppercase tracking-[.17em] ${productLabelClass[product]}`}>{productLabel[product]}</span>
