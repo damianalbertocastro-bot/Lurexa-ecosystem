@@ -138,6 +138,7 @@ for (const runtimeArtifact of [
   "packages/backend/src/production-onboarding.server.ts",
   "packages/backend/src/required-learning-capabilities.server.ts",
   "packages/backend/src/a1-capstone.server.ts",
+  "packages/backend/src/self-paced-onboarding.server.ts",
   "apps/learn-web/app/api/learning/capability-completion/route.ts",
   "apps/learn-web/app/api/learning/capstone/route.ts",
   "apps/learn-web/app/learn/a1/capstone/page.tsx",
@@ -148,6 +149,7 @@ for (const runtimeArtifact of [
 
 const competencyAuthorityPath = path.join(repoRoot, "Docs/Curriculum/02-ENGLISH-COMPETENCY-MODEL.md");
 const a1ProductionPath = path.join(repoRoot, "packages/backend/src/a1-production-curriculum.server.ts");
+const selfPacedOnboardingPath = path.join(repoRoot, "packages/backend/src/self-paced-onboarding.server.ts");
 if (fs.existsSync(competencyAuthorityPath) && fs.existsSync(a1ProductionPath)) {
   const authorityIds = collectCompetencyIds(fs.readFileSync(competencyAuthorityPath, "utf8"));
   const productionIds = collectCompetencyIds(fs.readFileSync(a1ProductionPath, "utf8"));
@@ -161,6 +163,30 @@ if (fs.existsSync(competencyAuthorityPath) && fs.existsSync(a1ProductionPath)) {
     for (const id of unknownIds) fail(`A1 production curriculum references unknown competency ID: ${id}`);
   } else {
     pass(`A1 production curriculum uses ${productionIds.size} competency IDs defined by the competency authority`);
+  }
+}
+
+if (fs.existsSync(competencyAuthorityPath) && fs.existsSync(selfPacedOnboardingPath)) {
+  const authorityIds = collectCompetencyIds(fs.readFileSync(competencyAuthorityPath, "utf8"));
+  const onboardingSource = fs.readFileSync(selfPacedOnboardingPath, "utf8");
+  const onboardingIds = collectCompetencyIds(onboardingSource);
+  const unknownIds = [...onboardingIds].filter((id) => !authorityIds.has(id)).sort();
+
+  if (unknownIds.length) {
+    for (const id of unknownIds) fail(`A1 onboarding curriculum references unknown competency ID: ${id}`);
+  } else {
+    pass(`A1 onboarding curriculum uses ${onboardingIds.size} competency IDs defined by the competency authority`);
+  }
+
+  for (const requiredOnboardingMarker of [
+    '"EN.A1.LISTEN.PREDICTABLE_EXCHANGES"',
+    "spokenDuration?: {",
+    "spokenDuration: { minimumSeconds: 45, maximumSeconds: 90 }",
+    "const { minimumSeconds = 3, maximumSeconds = 45 } = spec.spokenDuration ?? {};",
+  ]) {
+    if (!onboardingSource.includes(requiredOnboardingMarker)) {
+      fail(`A1 onboarding curriculum is missing ${requiredOnboardingMarker}`);
+    }
   }
 }
 
