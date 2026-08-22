@@ -281,25 +281,69 @@ export interface ApprovedDerivedObservation extends Omit<CandidateDerivedObserva
   supersedesObservationId?: string;
 }
 
+const mindInterpretationTypes: readonly MindInterpretationType[] = [
+  "recommendation", "adaptation_guidance", "candidate_observation", "feedback_plan", "content_ranking", "intervention_suggestion",
+];
+const learnerDomains: readonly LearnerDomain[] = [
+  "proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "preference", "recommendation",
+];
+const learnerContextPurposes: readonly LearnerContextPurpose[] = [
+  "learn_adaptive_practice", "coach_session_adaptation", "teacher_instructional_support", "mind_learning_interpretation",
+];
+const lurexaProducts: readonly LurexaProduct[] = ["learn", "coach", "teach", "admin", "insight", "studio"];
+const reviewStatuses: readonly DerivedObservationReviewStatus[] = ["automated_approved", "pending_review", "human_approved", "rejected"];
+const observationMethods: readonly CandidateDerivedObservation["provenance"]["method"][] = ["deterministic_rule", "model", "hybrid"];
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isStringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isNonEmptyString);
+}
+
+function hasValidObservationScope(value: unknown): boolean {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const scope = value as Record<string, unknown>;
+  const purposes = scope.purposes;
+  const products = scope.products;
+  return isStringList(purposes)
+    && purposes.every((purpose) => learnerContextPurposes.includes(purpose as LearnerContextPurpose))
+    && isStringList(products)
+    && products.every((product) => lurexaProducts.includes(product as LurexaProduct));
+}
+
 export function isCandidateDerivedObservation(value: unknown): value is CandidateDerivedObservation {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const observation = value as Record<string, unknown>;
+  const scope = observation.scope;
+  const generatedBy = observation.generatedBy;
+  const provenance = observation.provenance;
   return observation.contractVersion === DERIVED_OBSERVATION_CONTRACT_VERSION
-    && typeof observation.observationId === "string"
-    && typeof observation.learnerId === "string"
+    && isNonEmptyString(observation.observationId)
+    && isNonEmptyString(observation.learnerId)
+    && mindInterpretationTypes.includes(observation.type as MindInterpretationType)
     && observation.status === "candidate"
-    && typeof observation.domain === "string"
-    && typeof observation.summary === "string"
+    && learnerDomains.includes(observation.domain as LearnerDomain)
+    && isNonEmptyString(observation.summary)
     && typeof observation.confidence === "number"
+    && Number.isFinite(observation.confidence)
     && observation.confidence >= 0
     && observation.confidence <= 1
-    && Array.isArray(observation.basedOnEvidenceIds)
-    && typeof observation.generatedAt === "string"
-    && typeof observation.effectiveAt === "string"
-    && typeof observation.generatedBy === "object"
-    && observation.generatedBy !== null
-    && typeof observation.provenance === "object"
-    && observation.provenance !== null;
+    && isStringList(observation.basedOnEvidenceIds)
+    && new Set(observation.basedOnEvidenceIds).size === observation.basedOnEvidenceIds.length
+    && isNonEmptyString(observation.generatedAt)
+    && isNonEmptyString(observation.effectiveAt)
+    && (observation.expiresAt === undefined || isNonEmptyString(observation.expiresAt))
+    && typeof generatedBy === "object"
+    && generatedBy !== null
+    && isNonEmptyString((generatedBy as Record<string, unknown>).capability)
+    && isNonEmptyString((generatedBy as Record<string, unknown>).modelPolicyVersion)
+    && hasValidObservationScope(scope)
+    && reviewStatuses.includes(observation.reviewStatus as DerivedObservationReviewStatus)
+    && typeof provenance === "object"
+    && provenance !== null
+    && observationMethods.includes((provenance as Record<string, unknown>).method as CandidateDerivedObservation["provenance"]["method"]);
 }
 
 /** Core's minimized response; raw evidence and internal inference are excluded. */

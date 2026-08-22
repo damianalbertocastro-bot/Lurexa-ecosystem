@@ -21,7 +21,12 @@ export async function refreshLearnerIntelligence(input: {
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const insightRepository = new FirestoreLearnerInsightRepository();
   const intelligence = new ConservativeLearningIntelligenceService();
-  const evidence = await evidenceRepository.listByLearner(input.learnerId, input.organizationId);
+  const fetchedEvidence = await evidenceRepository.listByLearner(input.learnerId, input.organizationId);
+  // An omitted organization means an explicitly global interpretation, not a
+  // permission to combine institution-scoped evidence from different tenants.
+  const evidence = input.organizationId
+    ? fetchedEvidence
+    : fetchedEvidence.filter((entry) => !entry.organizationId);
 
   const result = await intelligence.interpretAuthorizedEvidence({
     contractVersion: "1",

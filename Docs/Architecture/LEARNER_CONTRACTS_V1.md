@@ -97,7 +97,8 @@ purpose.
 
 ## Explicit non-goals
 
-- Mind-derived persistent-state approval workflow;
+- provider-backed or human-review-derived persistent-state approval workflows
+  beyond the current deterministic Core policy;
 - cross-organization context aggregation;
 - direct browser writes to trusted learner records;
 - raw response or audio exposure through learner context;

@@ -93,6 +93,7 @@ function evidenceDocumentsEquivalent(
 export function assertApprovableDerivedObservation(input: {
   candidate: CandidateDerivedObservation;
   authorizedEvidenceIds: readonly string[];
+  policyId: string;
 }): void {
   const { candidate } = input;
   if (!isCandidateDerivedObservation(candidate)) {
@@ -106,6 +107,9 @@ export function assertApprovableDerivedObservation(input: {
   }
   if (!candidate.scope.purposes.length || !candidate.scope.products.length) {
     throw new Error("Derived observation must declare a bounded consumer scope.");
+  }
+  if (!input.policyId?.trim()) {
+    throw new Error("Derived observation approval requires a named Core policy.");
   }
 }
 
@@ -166,10 +170,11 @@ export class FirestoreLearnerInsightRepository {
       .where("learnerId", "==", candidate.learnerId)
       .get();
     const superseded = existing.docs
-      .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }) as { id: string; status?: unknown; domain?: unknown; generatedBy?: unknown; generatedAt?: unknown })
+      .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }) as { id: string; status?: unknown; domain?: unknown; organizationId?: unknown; generatedBy?: unknown; generatedAt?: unknown })
       .filter((entry) => entry.id !== candidate.observationId
         && entry.status === "active"
         && entry.domain === candidate.domain
+        && entry.organizationId === candidate.organizationId
         && typeof entry.generatedBy === "object"
         && entry.generatedBy !== null
         && (entry.generatedBy as { capability?: unknown }).capability === candidate.generatedBy.capability
@@ -212,7 +217,11 @@ export class FirestoreLearnerInsightRepository {
       ...snapshot.data(),
       id: snapshot.id,
     }) as LearnerInsight);
-    const inScope = insights.filter((insight) => !organizationId || insight.organizationId === organizationId);
+    const inScope = insights
+      .filter((insight) => !organizationId || insight.organizationId === organizationId)
+      // Legacy insights did not have a lifecycle status. New v1 observations
+      // must be explicitly active before they become a context source.
+      .filter((insight) => !("status" in insight) || (insight as LearnerInsight & { status?: unknown }).status === "active");
     const superseded = new Set(
       inScope
         .map((insight) => insight.validity?.supersedesInsightId)

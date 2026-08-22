@@ -55,15 +55,47 @@ assert(candidate?.scope.products.includes("learn"), "candidate has a bounded pro
 assertApprovableDerivedObservation({
   candidate,
   authorizedEvidenceIds: evidence.map((entry) => entry.id),
+  policyId: "core-derived-observation-v1",
 });
 assert(true, "Core accepts a candidate whose evidence basis is authorized");
 
 let rejected = false;
 try {
-  assertApprovableDerivedObservation({ candidate, authorizedEvidenceIds: [] });
+  assertApprovableDerivedObservation({
+    candidate,
+    authorizedEvidenceIds: [],
+    policyId: "core-derived-observation-v1",
+  });
 } catch {
   rejected = true;
 }
 assert(rejected, "Core rejects a candidate with evidence outside its authorized input");
+
+let malformedRejected = false;
+try {
+  assertApprovableDerivedObservation({
+    candidate: { ...candidate, scope: { purposes: ["not-a-purpose"], products: ["learn"] } },
+    authorizedEvidenceIds: evidence.map((entry) => entry.id),
+    policyId: "core-derived-observation-v1",
+  });
+} catch {
+  malformedRejected = true;
+}
+assert(malformedRejected, "Core rejects malformed candidate scopes before persistence");
+
+let crossTenantRejected = false;
+try {
+  await service.interpretAuthorizedEvidence({
+    contractVersion: "1",
+    requestId: "contract-request-cross-tenant",
+    purpose: "mind_learning_interpretation",
+    interpretationTypes: ["recommendation"],
+    input: { learnerId, evidence },
+    modelPolicyVersion: "mind-policy-v1",
+  });
+} catch {
+  crossTenantRejected = true;
+}
+assert(crossTenantRejected, "Mind rejects tenant-scoped evidence without an explicit organization boundary");
 
 console.log("Mind interpretation and Core approval contract fixtures passed.");

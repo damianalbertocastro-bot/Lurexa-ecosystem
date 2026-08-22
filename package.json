@@ -24,7 +24,8 @@
     "verify:phase0": "pnpm phase0:lint && pnpm phase0:check-types && pnpm phase0:build",
     "verify:linguistic-intelligence": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && node scripts/verify-linguistic-intelligence.mjs",
     "verify:learner-model": "pnpm --filter @lurexa/types check-types && pnpm --filter @lurexa/backend check-types && pnpm --filter learn-web check-types && node scripts/verify-learner-model.mjs",
-    "verify:mind-recommendations": "node scripts/verify-mind-recommendations.mjs",
+    "verify:mind-recommendations": "tsx scripts/verify-mind-recommendations.mjs",
+    "verify:mind-contract": "tsx scripts/verify-mind-contract-v1.mjs",
     "firebase:emulators": "firebase emulators:start --only auth,firestore",
     "deploy:vercel": "node scripts/deploy-vercel-product.mjs",
     "deploy:learn:preview": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "firebase-tools": "^15.27.0",
+    "tsx": "4.23.11",
     "typescript": "^5.9.2"
   },
   "dependencies": {

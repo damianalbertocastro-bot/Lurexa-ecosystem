@@ -179,6 +179,15 @@ export class ConservativeLearningIntelligenceService {
     if (request.input.organizationId && request.input.evidence.some((entry) => entry.organizationId !== request.input.organizationId)) {
       throw new Error("Authorized Mind evidence must remain within the organization boundary.");
     }
+    if (!request.input.organizationId && request.input.evidence.some((entry) => entry.organizationId)) {
+      throw new Error("Organization-scoped evidence requires an explicit organization boundary.");
+    }
+    if (request.input.context?.learnerId !== undefined && request.input.context.learnerId !== request.input.learnerId) {
+      throw new Error("Authorized Mind context must belong to the requested learner.");
+    }
+    if (request.input.context?.organizationId !== undefined && request.input.context.organizationId !== request.input.organizationId) {
+      throw new Error("Authorized Mind context must remain within the organization boundary.");
+    }
 
     const legacy = await this.interpretLearnerEvidence({
       learnerId: request.input.learnerId,
