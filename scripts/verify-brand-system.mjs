@@ -149,6 +149,29 @@ if (webPage.includes('"community"') || webPage.includes("Lurexa Community")) {
   pass("Community is absent from current ecosystem product navigation");
 }
 
+// The ecosystem homepage serves static copies of the product marks so their
+// appearance does not depend on consumer Tailwind output. Keep those copies
+// aligned with the canonical UI assets and make the page reference each one.
+for (const id of currentProducts) {
+  const canonicalPath = `packages/ui/brand/marks/lurexa-${id}.svg`;
+  const publicPath = `apps/web/public/brand/lurexa-${id}.svg`;
+  if (!exists(publicPath)) {
+    fail(`Missing ecosystem public product mark: ${publicPath}`);
+    continue;
+  }
+
+  const normalizeSvg = (value) => value.replace(/\s+/g, "");
+  if (normalizeSvg(read(canonicalPath)) !== normalizeSvg(read(publicPath))) {
+    fail(`Ecosystem public product mark diverges from canonical asset: ${id}`);
+  }
+  if (!webPage.includes(`/brand/lurexa-${id}.svg`)) {
+    fail(`Ecosystem homepage does not reference its public product mark: ${id}`);
+  }
+}
+if (!failures.some((item) => item.includes("public product mark") || item.includes("homepage does not reference"))) {
+  pass("ecosystem public product marks are canonical and referenced by the landing page");
+}
+
 if (!exists("apps/docs/app/brand/page.tsx")) fail("Missing local brand visual QA route at apps/docs/app/brand/page.tsx");
 else {
   const qaPage = read("apps/docs/app/brand/page.tsx");
