@@ -11,7 +11,8 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "test:learn-rules": "node scripts/test-learn-progress-rules.mjs"
+    "test:learn-rules": "node scripts/test-learn-progress-rules.mjs",
+    "test:learn-mvp-journey": "tsx scripts/test-learn-mvp-journey.ts"
   },
   "dependencies": {
     "@lurexa/types": "workspace:*",

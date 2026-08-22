@@ -14,6 +14,7 @@
     "check-types": "pnpm -r --if-present check-types",
     "test": "pnpm -r --if-present test",
     "test:learn-rules": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-rules\"",
+    "test:learn-mvp-journey": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-mvp-journey\"",
     "verify:brand-system": "node scripts/run-brand-system-verifier.mjs",
     "verify:product-registry": "node scripts/verify-product-registry-consumers.mjs",
     "verify:curriculum-portfolio": "node scripts/verify-curriculum-portfolio.mjs",
