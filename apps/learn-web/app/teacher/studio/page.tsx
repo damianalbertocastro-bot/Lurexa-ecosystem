@@ -21,7 +21,7 @@ export default function LearnScenarioLabPage() {
     <main className="mx-auto max-w-[1180px] px-5 py-8 sm:px-8 sm:py-12">
       <section className="relative overflow-hidden rounded-[34px] bg-gradient-to-br from-[#071d67] via-[#17368f] to-[#592bd6] px-6 py-10 text-white shadow-[0_22px_60px_rgba(35,48,133,.18)] sm:px-10 sm:py-12">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#12cdd4]/20 blur-3xl" />
-        <div className="relative max-w-3xl"><p className="text-[11px] font-extrabold tracking-[.2em] text-[#8df4ef]">LEARN SCENARIO LAB · PROTOTYPE</p><h1 className="mt-4 text-4xl font-black tracking-[-.055em] sm:text-5xl">Prototype branching activities safely.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-indigo-100">This is an experimental authoring surface inside Lurexa Learn. It is not the standalone Lurexa Studio product, and demo scenarios are not persisted to learner courses.</p></div>
+        <div className="relative max-w-3xl"><p className="text-[11px] font-extrabold tracking-[.2em] text-[#8df4ef]">LEARN SCENARIO LAB · PROTOTYPE</p><h1 className="mt-4 text-4xl font-black tracking-[-.055em] sm:text-5xl">Prototype branching activities safely.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-indigo-100">This is an experimental authoring surface inside Lurexa Learn. It is separate from the ecosystem’s independent authoring product, and demo scenarios are not persisted to learner courses.</p></div>
       </section>
 
       <section className="mt-6 rounded-[30px] border border-amber-200 bg-amber-50 p-6 text-amber-950">
