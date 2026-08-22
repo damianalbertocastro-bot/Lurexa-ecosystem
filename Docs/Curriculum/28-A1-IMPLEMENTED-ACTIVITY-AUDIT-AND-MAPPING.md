@@ -141,16 +141,40 @@ This is substantially closer to the Lurexa cycle than the earlier implementation
 
 ## 9. Remaining gaps before A1 Module 1 can pass the production blueprint
 
+### Implemented Module 1 seed scope (2026-08-22)
+
+`packages/backend/src/self-paced-onboarding.server.ts` now seeds the complete
+five-unit Module 1 sequence as structured course/module/lesson objects. The
+existing `a1-introduce-yourself` entry lesson ID is retained so active learner
+links and previously recorded progress do not break.
+
+| Blueprint unit | Seeded structured lessons | Evidence represented through the canonical runtime |
+|---|---|---|
+| 1.1 Meeting People | Greetings That Work; What's Your Name? | listening/comprehension, guided chunks, recorded speaking, scenario exchange, short writing |
+| 1.2 Who Am I? | Where Are You From?; I Am / You Are / Are You...? | personal-information listening, identity language, `be` question/answer practice |
+| 1.3 People Around Me | Student, Teacher, Worker; A Simple Personal Profile | occupation/profile comprehension and learner-authored profile evidence |
+| 1.4 Spell It, Please | The Alphabet for Real Communication; Can You Repeat That? | spelling, intelligibility practice, repair-strategy use |
+| 1.5 Real-Life Introductions | Build My Introduction; Introduction Conversation; Create & Apply: My Introduction | independent preparation, 6–10 turn scenario conversation, cumulative introduction artifact |
+
+Each generated lesson uses the supported structured block contracts rather
+than a new client-side lesson surface: model listening, scored activity,
+sentence builder, recorded speaking, bounded A1 roleplay, formative quick
+check, and learner-authored Create & Apply response. The runtime preserves
+first attempt/retry metadata for scored activities and server services own
+spoken and roleplay completion evidence.
+
+This is a content/evidence bundle, not a mastery certification. Completion
+still records curriculum progress; Lurexa Mind interpretation and any
+consequential progression decision require the approved Core/Mind pipeline.
+
 ### P0 — required for the reference vertical slice
 
-1. Real lesson/activity registry instead of the generic route always rendering one A1 page.
-2. Real structured content objects instead of a monolithic hard-coded lesson component.
-3. Real AI scenario conversation through approved backend/Mind pathways.
-4. Real audio assets or controlled speech generation for listening tasks.
-5. Audio recording capability for spoken evidence.
-6. Persistent attempt numbering and resume state across sessions/devices.
-7. Evidence interpretation/adaptation service that changes what comes next.
-8. Delayed retrieval scheduling.
+1. Validate the complete seeded bundle through authenticated Firebase Emulator
+   flows; repository checks cannot prove Firestore persistence or roleplay and
+   recording provider behavior.
+2. Add explicit delayed-retrieval activities/scheduling across the five units.
+3. Add learner-facing evidence interpretation that changes the next action in
+   a testable way; completion and quiz scores alone remain insufficient.
 
 ### P1 — required for Guided/Intensive validation
 

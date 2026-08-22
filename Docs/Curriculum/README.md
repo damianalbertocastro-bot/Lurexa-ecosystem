@@ -86,10 +86,10 @@ Expert educator support adds a mentorship and escalation layer over that profess
 The methodology, delivery architecture and quality-control model are now mature enough to guide implementation.
 
 - A1 Module 1 has a production-ready lesson blueprint and is the reference slice for proving the complete async + AI + evidence + optional teacher loop.
-- The already-implemented A1 activities have now been audited against the production blueprint. The fuller `english-a1/introduce-yourself` lesson is canonical; the legacy preview redirects to it.
+- The already-implemented A1 activities have now been audited against the production blueprint. The canonical runtime now seeds the five-unit A1 Module 1 sequence (`Meeting People`, `Who Am I?`, `People Around Me`, `Spell It, Please`, and `Real-Life Introductions`); the existing entry lesson ID remains canonical for active learner links and the legacy preview redirects to it.
 - Critical A1 evidence mismatches were corrected: the canonical lesson now uses supported evidence event types and authoritative `EN.<CEFR>.<FAMILY>.<COMPETENCY_NAME>` IDs.
 - The canonical A1 lesson now adds guided free-response production, retrieval without a visible answer, and temporary model-listening exposure while preserving the tested vocabulary, phonetics, Create & Apply and quiz interactions.
-- Real AI scenario conversation, real audio recording/scoring, cross-session delayed retrieval, adaptive routing, teacher brief/return loop and expert escalation remain implementation gates rather than being simulated as complete.
+- Authenticated, bounded A1 scenario conversation and recorded-speaking evidence are available through server-authorized runtime capabilities. Cross-session delayed retrieval, evidence-driven adaptive routing, teacher brief/return loop, expert escalation, and Firebase Emulator end-to-end validation remain implementation gates rather than being simulated as complete.
 - A1 has a formal validation/pilot specification; A1 Modules 2–8 should inherit the validated production pattern after the Module 1 loop is proven.
 - A2 has a complete competency matrix, module/unit blueprints and a production lesson blueprint for Module 1.
 - B1 has a detailed competency matrix plus module/unit blueprints and is ready for production lesson authoring.
@@ -104,7 +104,7 @@ Do not block A1 production on exhaustive C2 lesson authoring, but keep curriculu
 
 Current best sequence:
 
-1. validate the upgraded canonical A1 lesson against `20`, `21` and `28`;
+1. validate the complete seeded A1 Module 1 bundle against `20`, `21` and `28` through Firebase Emulator flows;
 2. extract the proven A1 interactions into structured reusable activity components/contracts;
 3. implement real AI scenario conversation, real spoken evidence, persistent attempts/resume, delayed retrieval and evidence-driven adaptation;
 4. complete the teacher brief → live intervention → returned async recommendation loop;
