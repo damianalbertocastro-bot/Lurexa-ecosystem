@@ -1,4 +1,5 @@
 import { MasterMark } from "@lurexa/ui/MasterMark";
+import Image from "next/image";
 import {
   lurexaProducts,
   type LurexaProductId,
@@ -48,7 +49,7 @@ const productMarkSrc: Record<LurexaProductId, string> = {
 };
 
 function ProductLogo({ product }: { product: LurexaProductId }) {
-  return <img src={productMarkSrc[product]} width="80" height="80" style={{ display: "block", width: "48px", height: "48px", maxWidth: "100%", objectFit: "contain" }} alt={`Lurexa ${products.find((item) => item.id === product)?.shortName ?? product} logo`} />;
+  return <Image src={productMarkSrc[product]} width={80} height={80} style={{ display: "block", width: "48px", height: "48px", maxWidth: "100%", objectFit: "contain" }} alt={`Lurexa ${products.find((item) => item.id === product)?.shortName ?? product} logo`} />;
 }
 
 const capabilities: Array<{ name: string; icon: CapabilityName }> = [
