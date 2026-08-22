@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 
-const OPENAI_ENV_KEYS = new Set(["OPENAI_KEY_TUTOR", "OPENAI_API_KEY"]);
+const GEMINI_ENV_KEYS = new Set(["GEMINI_API_KEY"]);
 
 function parseArgs(argv) {
   const options = { productId: null, target: "preview", ref: null, apply: false };
@@ -85,7 +85,7 @@ async function retrieveSecretValueById({ project, envId, token, teamId }) {
   );
 }
 
-async function resolveOpenAISecretFromVercel({ project, target, ref, token, teamId }) {
+async function resolveGeminiSecretFromVercel({ project, target, ref, token, teamId }) {
   const url = new URL(`https://api.vercel.com/v10/projects/${encodeURIComponent(project)}/env`);
   url.searchParams.set("teamId", teamId);
   url.searchParams.set("decrypt", "true");
@@ -102,7 +102,7 @@ async function resolveOpenAISecretFromVercel({ project, target, ref, token, team
       ? payload.data
       : [];
 
-  const candidates = envs.filter((entry) => OPENAI_ENV_KEYS.has(normalizedKey(entry?.key)) && targetMatches(entry, target));
+  const candidates = envs.filter((entry) => GEMINI_ENV_KEYS.has(normalizedKey(entry?.key)) && targetMatches(entry, target));
 
   const branchSpecific = target === "preview" && ref
     ? candidates.find((entry) => entry?.gitBranch === ref)
@@ -112,8 +112,8 @@ async function resolveOpenAISecretFromVercel({ project, target, ref, token, team
 
   if (!selected) {
     throw new Error(
-      `No OpenAI tutor secret metadata is attached to Vercel project ${project} for ${target}${ref ? ` (${ref})` : ""}. `
-      + "Expected a key whose normalized name is OPENAI_KEY_TUTOR or OPENAI_API_KEY. Secret values are never printed.",
+      `No Gemini roleplay secret metadata is attached to Vercel project ${project} for ${target}${ref ? ` (${ref})` : ""}. `
+      + "Expected a key whose normalized name is GEMINI_API_KEY. Secret values are never printed.",
     );
   }
 
@@ -125,7 +125,7 @@ async function resolveOpenAISecretFromVercel({ project, target, ref, token, team
 
   if (!value) {
     throw new Error(
-      `OpenAI tutor secret ${selected.key ?? "(unnamed)"} exists for ${project}, but Vercel returned no usable decrypted value. `
+      `Gemini roleplay secret ${selected.key ?? "(unnamed)"} exists for ${project}, but Vercel returned no usable decrypted value. `
       + "Secret values are never printed.",
     );
   }
@@ -149,52 +149,49 @@ async function main() {
   if (!deployment?.vercelProject) throw new Error(`Unknown or non-Vercel deployment: ${options.productId}`);
   if (options.productId !== "learn-web") throw new Error(`No managed runtime secrets are declared for ${options.productId}.`);
 
-  const localOpenAIKey = process.env.OPENAI_API_KEY?.trim()
-    || process.env.OPENAI_KEY_tutor?.trim()
-    || process.env.OPENAI_KEY_TUTOR?.trim()
-    || null;
+  const localGeminiKey = process.env.GEMINI_API_KEY?.trim() || null;
 
   console.log(JSON.stringify({
     mode: options.apply ? "apply" : "dry-run",
     project: deployment.vercelProject,
     target: options.target,
     ref: options.ref,
-    canonicalKey: "OPENAI_API_KEY",
-    acceptedSourceKeys: [...OPENAI_ENV_KEYS],
-    source: localOpenAIKey ? "local-environment" : options.apply ? "vercel-project-environment" : "vercel-project-environment (resolved on --apply)",
+    canonicalKey: "GEMINI_API_KEY",
+    acceptedSourceKeys: [...GEMINI_ENV_KEYS],
+    source: localGeminiKey ? "local-environment" : options.apply ? "vercel-project-environment" : "vercel-project-environment (resolved on --apply)",
     secretValuePrinted: false,
   }, null, 2));
 
   if (!options.apply) {
-    console.log("Dry run only. Re-run with --apply to resolve the existing tutor secret and ensure the canonical encrypted runtime alias exists for this deployment scope.");
+    console.log("Dry run only. Re-run with --apply to resolve the existing Gemini secret and ensure the canonical encrypted runtime alias exists for this deployment scope.");
     return;
   }
 
   const token = requireEnv("VERCEL_TOKEN");
   const teamId = requireEnv("VERCEL_TEAM_ID");
-  const remote = localOpenAIKey
+  const remote = localGeminiKey
     ? null
-    : await resolveOpenAISecretFromVercel({
+    : await resolveGeminiSecretFromVercel({
         project: deployment.vercelProject,
         target: options.target,
         ref: options.ref,
         token,
         teamId,
       });
-  const secretValue = localOpenAIKey ?? remote?.value;
-  if (!secretValue) throw new Error("OpenAI runtime secret could not be resolved.");
+  const secretValue = localGeminiKey ?? remote?.value;
+  if (!secretValue) throw new Error("Gemini runtime secret could not be resolved.");
 
   const url = new URL(`https://api.vercel.com/v10/projects/${encodeURIComponent(deployment.vercelProject)}/env`);
   url.searchParams.set("teamId", teamId);
   url.searchParams.set("upsert", "true");
 
   const requestBody = [{
-    key: "OPENAI_API_KEY",
+    key: "GEMINI_API_KEY",
     value: secretValue,
     type: "encrypted",
     target: [options.target],
     ...(options.target === "preview" && options.ref ? { gitBranch: options.ref } : {}),
-    comment: "Canonical Lurexa Learn OpenAI runtime alias managed from existing tutor secret",
+    comment: "Canonical Lurexa Learn Gemini roleplay runtime secret managed from existing Gemini secret",
   }];
 
   const response = await fetch(url, {
@@ -213,7 +210,7 @@ async function main() {
     project: deployment.vercelProject,
     target: options.target,
     ref: options.ref,
-    canonicalKey: "OPENAI_API_KEY",
+    canonicalKey: "GEMINI_API_KEY",
     sourceKey: remote?.key ?? "local-environment",
     sourceScope: remote ? (remote.branchScoped ? "branch" : "project") : "local",
     sourceRetrieval: remote ? (remote.retrievedById ? "env-id" : "list-response") : "local",

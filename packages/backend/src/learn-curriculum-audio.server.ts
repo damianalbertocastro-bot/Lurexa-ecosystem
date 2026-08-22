@@ -32,7 +32,7 @@ export const LearnCurriculumAudioService = {
     try {
       const [response] = await createTextToSpeechClient().synthesizeSpeech({
         input: { text: audioInput },
-        voice: { languageCode: process.env.LUREXA_LEARN_TTS_LANGUAGE_CODE?.trim() || DEFAULT_LANGUAGE_CODE, name: process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE },
+        voice: { languageCode: DEFAULT_LANGUAGE_CODE, name: process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE },
         audioConfig: { audioEncoding: "MP3" },
       });
       if (!response.audioContent) throw new Error("Curriculum audio provider returned an empty response.");

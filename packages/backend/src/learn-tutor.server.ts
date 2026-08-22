@@ -175,9 +175,9 @@ async function callGemini(input: {
   ].join("\n\n");
 
   try {
-    const response = await fetch(`${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+    const response = await fetch(`${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: userInput }] }],

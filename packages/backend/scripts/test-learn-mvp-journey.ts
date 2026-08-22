@@ -174,8 +174,7 @@ async function main(): Promise<void> {
     competencyIds: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.PHON.WORD_STRESS"],
   });
 
-  process.env.OPENAI_KEY_tutor = "";
-  process.env.OPENAI_API_KEY = "";
+  process.env.GEMINI_API_KEY = "";
   const firstRoleplayTurn = await LearnTutorService.respond(learner, {
     courseId: A1_PRODUCTION_COURSE_ID,
     lessonId,
