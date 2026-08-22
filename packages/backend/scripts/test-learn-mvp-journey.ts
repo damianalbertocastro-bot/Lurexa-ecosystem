@@ -129,7 +129,7 @@ async function main(): Promise<void> {
       correct: false,
       firstAttempt: true,
       attemptNumber: 1,
-      competencyIds: ["EN.A1.LISTEN.BASIC_SOCIAL_EXCHANGES"],
+      competencyIds: ["EN.A1.LISTEN.PREDICTABLE_EXCHANGES"],
       activityType: "single_choice",
     },
     {
@@ -137,7 +137,7 @@ async function main(): Promise<void> {
       correct: true,
       firstAttempt: false,
       attemptNumber: 2,
-      competencyIds: ["EN.A1.LISTEN.BASIC_SOCIAL_EXCHANGES"],
+      competencyIds: ["EN.A1.LISTEN.PREDICTABLE_EXCHANGES"],
       activityType: "single_choice",
     },
   ]);
