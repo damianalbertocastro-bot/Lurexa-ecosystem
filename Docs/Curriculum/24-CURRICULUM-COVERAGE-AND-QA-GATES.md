@@ -1,6 +1,6 @@
 # Curriculum Coverage and QA Gates
 
-Status: Authoritative curriculum quality-control standard  
+Status: Authoritative curriculum quality-control standard
 Applies to: Lurexa Learn and Lurexa Teach curriculum releases
 
 ## 1. Purpose

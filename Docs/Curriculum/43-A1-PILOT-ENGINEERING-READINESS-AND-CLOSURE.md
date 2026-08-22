@@ -1,6 +1,6 @@
 # A1 Pilot Engineering Readiness and Closure
 
-Status: Active A1 pilot closure authority  
+Status: Active A1 pilot closure authority
 Applies to: English A1 production reference, Module 1 vertical slice, Modules 2–8 production objects and `My Life, My English`
 
 ## 1. Purpose

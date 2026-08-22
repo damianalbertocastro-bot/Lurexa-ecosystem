@@ -1,7 +1,7 @@
 # Lurexa Curriculum Portfolio Audit — 2026-08-21
 
-Status: Active portfolio audit and execution plan  
-Scope: curriculum-relevant repository surfaces across Learn, Coach, Teach, Core, Mind, Admin, Insight and Studio  
+Status: Active portfolio audit and execution plan
+Scope: curriculum-relevant repository surfaces across Learn, Coach, Teach, Core, Mind, Admin, Insight and Studio
 Basis: current `main` after the integrated curriculum/runtime merge and A1 adaptive teacher-return pilot work
 
 ## 1. Executive assessment

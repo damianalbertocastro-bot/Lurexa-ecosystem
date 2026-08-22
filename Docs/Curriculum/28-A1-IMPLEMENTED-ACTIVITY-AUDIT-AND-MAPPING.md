@@ -1,7 +1,7 @@
 # A1 Implemented Activity Audit and Production Mapping
 
-Status: Current implementation audit  
-Scope: A1 learner runtime, advanced learning capabilities, retrieval/adaptation, teacher return and current production-authoring surfaces  
+Status: Current implementation audit
+Scope: A1 learner runtime, advanced learning capabilities, retrieval/adaptation, teacher return and current production-authoring surfaces
 Primary references: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md`, `21-A1-LEARNING-LOOP-VALIDATION-AND-PILOT-SPEC.md`, `24-CURRICULUM-COVERAGE-AND-QA-GATES.md`
 
 ## 1. Executive decision

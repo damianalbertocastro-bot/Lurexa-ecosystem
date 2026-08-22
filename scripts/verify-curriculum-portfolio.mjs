@@ -39,7 +39,7 @@ function completeCapstone(value) {
 }
 
 function collectCompetencyIds(source, level = "A1") {
-  const pattern = new RegExp(`EN\\.${level}\\.[A-Z0-9_.]+`, "g");
+  const pattern = new RegExp(`EN\\.${level}\\.[A-Z0-9_]+(?:\\.[A-Z0-9_]+)+`, "g");
   return new Set(source.match(pattern) ?? []);
 }
 

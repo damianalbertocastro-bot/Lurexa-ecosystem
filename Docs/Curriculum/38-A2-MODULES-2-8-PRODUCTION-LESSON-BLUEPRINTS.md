@@ -1,6 +1,6 @@
 # A2 Modules 2–8 Production Lesson Blueprints
 
-Status: Production authoring authority for A2 beyond Module 1  
+Status: Production authoring authority for A2 beyond Module 1
 Depends on: `12-A2-COMPETENCY-MATRIX.md`, `17-A2-MODULE-AND-UNIT-BLUEPRINTS.md`, `22-A2-MODULE-1-PRODUCTION-LESSON-BLUEPRINT.md`
 
 ## 1. Purpose

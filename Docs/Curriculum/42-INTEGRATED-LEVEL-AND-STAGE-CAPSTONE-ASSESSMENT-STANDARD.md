@@ -1,7 +1,7 @@
 # Integrated Level and Stage Capstone Assessment Standard
 
-Status: Authoritative curriculum assessment requirement  
-Applies to: Lurexa Learn A1-C2 and Lurexa Teach T1-T5  
+Status: Authoritative curriculum assessment requirement
+Applies to: Lurexa Learn A1-C2 and Lurexa Teach T1-T5
 Purpose: verify that completion of a level or professional stage is supported by integrated performance evidence rather than course completion alone
 
 ## 1. Governing rule

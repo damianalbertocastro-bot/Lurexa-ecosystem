@@ -1,7 +1,7 @@
 # Cross-Product Curriculum Consumption Contract
 
-Status: Authoritative curriculum/product boundary  
-Owner: Lurexa Learning Technologies  
+Status: Authoritative curriculum/product boundary
+Owner: Lurexa Learning Technologies
 Applies to: Core, Mind, Learn, Coach, Teach, Admin, Insight, Studio and future curriculum-consuming products
 
 ## 1. Purpose

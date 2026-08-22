@@ -1,6 +1,6 @@
 # Lurexa Teach T3–T5 Production Learning Blueprints
 
-Status: Implementation-ready professional-learning architecture  
+Status: Implementation-ready professional-learning architecture
 Depends on: Teacher Development `00`–`05` and `19-EXPERT-EDUCATOR-MENTORSHIP-AND-ESCALATION.md`
 
 ## 1. Purpose

@@ -1,6 +1,6 @@
 # English B2 Production Lesson Map — Flexible Communication
 
-Status: Production lesson-authoring authority  
+Status: Production lesson-authoring authority
 Depends on: `25-B2-COMPETENCY-MATRIX.md`, `34-B2-MODULE-AND-UNIT-BLUEPRINTS.md`
 
 ## 1. Production rule

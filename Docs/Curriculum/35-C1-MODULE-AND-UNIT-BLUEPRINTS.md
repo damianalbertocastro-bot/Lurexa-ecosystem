@@ -1,6 +1,6 @@
 # English C1 Module and Unit Blueprints — Precision, Identity and Global Perspective
 
-Status: Production curriculum-development authority  
+Status: Production curriculum-development authority
 Depends on: `11-ENGLISH-PROGRAM-MAP-A1-C2.md`, `24-CURRICULUM-COVERAGE-AND-QA-GATES.md`, `26-C1-COMPETENCY-MATRIX.md`
 
 ## 1. Level design principle

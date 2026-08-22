@@ -1,6 +1,6 @@
 # A1 Capstone Rubric and Calibration Protocol
 
-Status: Authoritative pilot rubric for `My Life, My English`  
+Status: Authoritative pilot rubric for `My Life, My English`
 Applies to: A1 capstone teacher review, future calibrated AI assistance, representative A1 pilot
 
 ## 1. Purpose

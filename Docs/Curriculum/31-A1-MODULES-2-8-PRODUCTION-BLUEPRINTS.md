@@ -1,7 +1,7 @@
 # A1 Modules 2–8 Production Blueprints
 
-Status: Production authoring authority for A1 beyond Module 1  
-Prerequisite: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md` and validated canonical `LessonRuntime` pattern  
+Status: Production authoring authority for A1 beyond Module 1
+Prerequisite: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md` and validated canonical `LessonRuntime` pattern
 Level: English A1 — Foundations for Real Communication
 
 ## 1. Purpose

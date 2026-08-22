@@ -1,6 +1,6 @@
 # English B1 Production Lesson Blueprints — Independent Communication
 
-Status: Production authoring authority  
+Status: Production authoring authority
 Depends on: `18-B1-COMPETENCY-MATRIX.md`, `23-B1-MODULE-AND-UNIT-BLUEPRINTS.md`
 
 ## 1. Purpose

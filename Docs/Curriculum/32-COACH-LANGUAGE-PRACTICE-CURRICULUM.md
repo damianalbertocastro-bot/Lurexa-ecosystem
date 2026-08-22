@@ -1,8 +1,8 @@
 # Lurexa Coach Language Practice Curriculum
 
-Status: Authoritative Coach pedagogical curriculum  
-Initial target language: English  
-Initial deep transfer profile: Dominican Spanish → English  
+Status: Authoritative Coach pedagogical curriculum
+Initial target language: English
+Initial deep transfer profile: Dominican Spanish → English
 Applies to: Lurexa Coach speaking, pronunciation, fluency, interaction and targeted language-retrieval experiences
 
 ## 1. Purpose

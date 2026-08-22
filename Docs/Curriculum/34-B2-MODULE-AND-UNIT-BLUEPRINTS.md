@@ -1,6 +1,6 @@
 # English B2 Module and Unit Blueprints — Flexible Communication
 
-Status: Production curriculum-development authority  
+Status: Production curriculum-development authority
 Depends on: `11-ENGLISH-PROGRAM-MAP-A1-C2.md`, `24-CURRICULUM-COVERAGE-AND-QA-GATES.md`, `25-B2-COMPETENCY-MATRIX.md`
 
 ## 1. Level design principle

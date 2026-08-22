@@ -1,8 +1,8 @@
 # Lurexa Curriculum Source of Truth
 
-Status: Active curriculum authority  
-Owner: Lurexa Learning Technologies  
-Initial domain: English language learning  
+Status: Active curriculum authority
+Owner: Lurexa Learning Technologies
+Initial domain: English language learning
 Primary initial learner profile: Spanish speakers, optimized first for Dominican learners
 
 ## Purpose

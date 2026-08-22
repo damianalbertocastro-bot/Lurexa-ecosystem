@@ -1,7 +1,7 @@
 # A1 Competency × Evidence × Retrieval Map
 
-Status: Authoritative A1 coverage map  
-Level: English A1 — Foundations for Real Communication  
+Status: Authoritative A1 coverage map
+Level: English A1 — Foundations for Real Communication
 Depends on: `02-ENGLISH-COMPETENCY-MODEL.md`, `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md`, `31-A1-MODULES-2-8-PRODUCTION-BLUEPRINTS.md`
 
 ## 1. Purpose

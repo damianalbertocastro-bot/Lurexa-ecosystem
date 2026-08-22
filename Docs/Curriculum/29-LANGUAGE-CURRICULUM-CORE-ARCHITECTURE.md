@@ -1,7 +1,7 @@
 # Lurexa Language Curriculum Core Architecture
 
-Status: Authoritative cross-language curriculum architecture  
-Owner: Lurexa Learning Technologies  
+Status: Authoritative cross-language curriculum architecture
+Owner: Lurexa Learning Technologies
 Applies to: all present and future language programs in Lurexa Learn, Coach, Teach, Insight, Studio and authorized curriculum consumers
 
 ## 1. Purpose

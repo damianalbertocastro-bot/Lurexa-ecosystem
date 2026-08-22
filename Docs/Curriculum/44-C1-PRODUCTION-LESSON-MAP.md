@@ -1,6 +1,6 @@
 # English C1 Production Lesson Map — Precision, Identity and Global Perspective
 
-Status: Production lesson-authoring authority  
+Status: Production lesson-authoring authority
 Depends on: `26-C1-COMPETENCY-MATRIX.md`, `35-C1-MODULE-AND-UNIT-BLUEPRINTS.md`
 
 ## 1. Production rule

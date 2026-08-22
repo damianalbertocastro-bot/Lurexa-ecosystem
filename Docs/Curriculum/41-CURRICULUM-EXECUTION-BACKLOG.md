@@ -1,6 +1,6 @@
 # Curriculum Execution Backlog
 
-Status: Prioritized execution queue  
+Status: Prioritized execution queue
 Purpose: prevent curriculum work from returning to broad planning after the portfolio audit
 
 ## Authoritative execution order

@@ -1,6 +1,6 @@
 # Curriculum Product Implementation Roadmap
 
-Status: Execution authority for curriculum-consuming products  
+Status: Execution authority for curriculum-consuming products
 Depends on: `29-LANGUAGE-CURRICULUM-CORE-ARCHITECTURE.md`, `32-COACH-LANGUAGE-PRACTICE-CURRICULUM.md`, `33-CROSS-PRODUCT-CURRICULUM-CONSUMPTION-CONTRACT.md`, `42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md`
 
 ## 1. Purpose
