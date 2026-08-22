@@ -121,12 +121,14 @@ export const LearnAdaptationService = {
     await ref.set(completed, { merge: true });
 
     await evidenceRepository.append({
+      contractVersion: "1",
       id: `learn_${schedule.id}_completed`,
       learnerId: actor.uid,
       organizationId: schedule.organizationId,
       source: { product: "learn", courseId: schedule.courseId, lessonId: schedule.lessonId },
       type: "curriculum_progress",
       observedAt: completed.completedAt!,
+      dataClassification: "standard",
       payload: {
         event: "retrieval.completed",
         intervalDays: schedule.intervalDays,
@@ -147,9 +149,13 @@ export const LearnAdaptationService = {
       latestTeacherRecommendation(actor.uid),
       getScopedLearnerContext({
         actorId: actor.uid,
-        learnerId: actor.uid,
-        purpose: "learn_adaptive_practice",
-        domains: ["recommendation"],
+        request: {
+          contractVersion: "1",
+          learnerId: actor.uid,
+          requestingProduct: "learn",
+          purpose: "learn_adaptive_practice",
+          domains: ["recommendation"],
+        },
       }),
       new FirestoreLearningEvidenceRepository().listByLearner(actor.uid),
     ]);

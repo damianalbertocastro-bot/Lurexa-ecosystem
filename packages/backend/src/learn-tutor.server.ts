@@ -281,6 +281,7 @@ async function recordRoleplayEvidence(input: {
     .replace(/[^a-zA-Z0-9._-]/g, "_");
 
   await repository.append({
+    contractVersion: "1",
     id: evidenceId,
     learnerId: input.actor.uid,
     organizationId: input.organizationId,
@@ -293,6 +294,7 @@ async function recordRoleplayEvidence(input: {
     },
     type: "activity_result",
     observedAt: now,
+    dataClassification: "sensitive",
     payload: {
       event: "ai_roleplay.turn",
       turnIndex: input.turnIndex,
@@ -337,9 +339,13 @@ export const LearnTutorService = {
       loadOrCreateSession({ actor, organizationId, request }),
       getScopedLearnerContext({
         actorId: actor.uid,
-        learnerId: actor.uid,
-        purpose: "learn_adaptive_practice",
-        domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
+        request: {
+          contractVersion: "1",
+          learnerId: actor.uid,
+          requestingProduct: "learn",
+          purpose: "learn_adaptive_practice",
+          domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
+        },
       }),
     ]);
 

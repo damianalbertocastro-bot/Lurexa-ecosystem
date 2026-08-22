@@ -55,9 +55,13 @@ export const LearnProgressService = {
       CoursePlatformService.getLearnerDashboard(actor),
       getScopedLearnerContext({
         actorId: actor.uid,
-        learnerId: actor.uid,
-        purpose: "learn_adaptive_practice",
-        domains: ["recommendation"],
+        request: {
+          contractVersion: "1",
+          learnerId: actor.uid,
+          requestingProduct: "learn",
+          purpose: "learn_adaptive_practice",
+          domains: ["recommendation"],
+        },
       }),
     ]);
     const progressSnapshots = await getServerFirestore()

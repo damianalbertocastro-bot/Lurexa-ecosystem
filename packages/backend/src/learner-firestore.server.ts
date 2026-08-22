@@ -1,3 +1,6 @@
+import {
+  assertLearningEvidenceV1,
+} from "@lurexa/types";
 import type {
   LearnerInsight,
   LearningEvidence,
@@ -29,7 +32,12 @@ function normalizeEvidenceDocument(
     && typeof value.provenance === "object"
     && value.provenance !== null
   ) {
-    return { ...value, id } as LearningEvidence;
+    return {
+      ...value,
+      id,
+      contractVersion: "1",
+      dataClassification: value.dataClassification === "sensitive" ? "sensitive" : "standard",
+    } as LearningEvidence;
   }
 
   const legacyType = mapLegacyEvidenceType(value.eventType);
@@ -48,6 +56,7 @@ function normalizeEvidenceDocument(
     : {};
 
   return {
+    contractVersion: "1",
     id: typeof value.evidenceId === "string" ? value.evidenceId : id,
     learnerId: value.learnerId,
     ...(typeof authorizationContext.organizationId === "string"
@@ -61,6 +70,7 @@ function normalizeEvidenceDocument(
     },
     type: legacyType,
     observedAt: value.occurredAt,
+    dataClassification: "standard",
     payload: value.payload ?? {},
     provenance: {
       method: "system_observed",
@@ -80,6 +90,7 @@ export class FirestoreLearningEvidenceRepository {
   async append<TPayload = unknown>(
     evidence: LearningEvidence<TPayload>,
   ): Promise<LearningEvidence<TPayload>> {
+    assertLearningEvidenceV1(evidence);
     const database = getServerFirestore();
     const reference = database.collection("learning-evidence").doc(evidence.id);
     const normalized = stripUndefined(evidence);

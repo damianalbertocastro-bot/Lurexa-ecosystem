@@ -30,6 +30,18 @@ export type LearningEvidenceType =
   | "preference_update"
   | "correction_outcome";
 
+/**
+ * Versioned, Core-governed record submitted by a product or approved service.
+ * Versioning belongs on the record so mixed historical evidence can be read
+ * safely while producers move forward independently.
+ */
+export const LEARNING_EVIDENCE_CONTRACT_VERSION = "1" as const;
+export type LearningEvidenceContractVersion = typeof LEARNING_EVIDENCE_CONTRACT_VERSION;
+
+export type LearningEvidenceDataClassification =
+  | "standard"
+  | "sensitive";
+
 export type EvidenceMethod =
   | "system_observed"
   | "learner_reported"
@@ -104,12 +116,15 @@ export interface LearningEvidenceProvenance {
 }
 
 export interface LearningEvidence<TPayload = unknown> {
+  contractVersion: LearningEvidenceContractVersion;
   id: string;
   learnerId: string;
   organizationId?: string;
   source: LearningEvidenceSource;
   type: LearningEvidenceType;
   observedAt: string;
+  /** Classifies the stored payload; it is never a product-UI display policy. */
+  dataClassification: LearningEvidenceDataClassification;
   payload: TPayload;
   provenance: LearningEvidenceProvenance;
 }
@@ -154,15 +169,66 @@ export interface LearnerInsight {
   };
 }
 
+export type LearnerContextPurpose =
+  | "learn_adaptive_practice"
+  | "coach_session_adaptation"
+  | "teacher_instructional_support"
+  | "mind_learning_interpretation";
+
+/**
+ * Product request to Core for the minimum learner projection needed by one
+ * experience. This request never grants access by itself.
+ */
 export interface LearnerContextRequest {
+  contractVersion: "1";
   learnerId: string;
   requestingProduct: LurexaProduct;
   organizationId?: string;
-  domains?: LearnerDomain[];
+  purpose: LearnerContextPurpose;
+  domains: LearnerDomain[];
+}
+
+/** Core's minimized response; raw evidence and internal inference are excluded. */
+export interface LearnerContextResponse {
+  contractVersion: "1";
+  purpose: LearnerContextPurpose;
+  context: LearnerContext;
+  evidenceSummary: {
+    recentEvidenceTypes: LearningEvidenceType[];
+    latestEvidenceAt: string | null;
+  };
+  limitations: string[];
 }
 
 export interface LearningEvidenceSubmission<TPayload = unknown> {
   evidence: LearningEvidence<TPayload>;
+}
+
+/**
+ * Lightweight structural guard at the Core persistence boundary. Domain
+ * authorization and payload validation remain the responsibility of the
+ * relevant capability service; this guard prevents unversioned records from
+ * becoming new trusted evidence.
+ */
+export function isLearningEvidenceV1(value: unknown): value is LearningEvidence {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const evidence = value as Record<string, unknown>;
+  return evidence.contractVersion === LEARNING_EVIDENCE_CONTRACT_VERSION
+    && typeof evidence.id === "string"
+    && typeof evidence.learnerId === "string"
+    && typeof evidence.observedAt === "string"
+    && (evidence.dataClassification === "standard" || evidence.dataClassification === "sensitive")
+    && typeof evidence.source === "object"
+    && evidence.source !== null
+    && typeof evidence.type === "string"
+    && typeof evidence.provenance === "object"
+    && evidence.provenance !== null;
+}
+
+export function assertLearningEvidenceV1(value: unknown): asserts value is LearningEvidence {
+  if (!isLearningEvidenceV1(value)) {
+    throw new Error("Learning evidence must conform to v1 before trusted persistence.");
+  }
 }
 
 export interface LearnerInsightSubmission {

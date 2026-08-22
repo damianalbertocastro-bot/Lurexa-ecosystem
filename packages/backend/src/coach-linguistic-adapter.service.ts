@@ -80,12 +80,14 @@ export class CoachLinguisticAdapterService {
       input.payload.intervention !== "observe_only";
 
     return {
+      contractVersion: "1",
       id: input.id,
       learnerId: input.learnerId,
       organizationId: input.organizationId,
       source: input.source,
       type: hasActiveCorrection ? "correction_outcome" : "language_error",
       observedAt: input.observedAt,
+      dataClassification: "sensitive",
       payload: input.payload,
       provenance: input.provenance,
     };

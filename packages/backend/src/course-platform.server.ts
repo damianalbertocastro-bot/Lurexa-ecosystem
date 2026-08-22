@@ -237,12 +237,14 @@ async function appendPlatformEvidence(input: {
 }): Promise<void> {
   const repository = new FirestoreLearningEvidenceRepository();
   await repository.append({
+    contractVersion: "1",
     id: evidenceIdFromKey(input.idempotencyKey),
     learnerId: input.learnerId,
     organizationId: input.organizationId,
     source: { product: "learn", ...input.source },
     type: input.type,
     observedAt: input.observedAt,
+    dataClassification: input.type === "activity_result" && "response" in input.payload ? "sensitive" : "standard",
     payload: input.payload,
     provenance: {
       method: "system_observed",

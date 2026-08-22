@@ -1,5 +1,8 @@
 import type {
   LearnerContext,
+  LearnerContextPurpose,
+  LearnerContextRequest,
+  LearnerContextResponse,
   LearnerDomain,
   LearnerInsight,
   LearnerPattern,
@@ -13,20 +16,7 @@ import {
   FirestoreLearningEvidenceRepository,
 } from "./learner-firestore.server";
 
-export type LearnerContextPurpose =
-  | "learn_adaptive_practice"
-  | "coach_session_adaptation";
-
-export interface ScopedLearnerContext {
-  contractVersion: "1";
-  purpose: LearnerContextPurpose;
-  context: LearnerContext;
-  evidenceSummary: {
-    recentEvidenceTypes: string[];
-    latestEvidenceAt: string | null;
-  };
-  limitations: string[];
-}
+export type ScopedLearnerContext = LearnerContextResponse;
 
 const allowedDomains: LearnerDomain[] = [
   "proficiency",
@@ -39,6 +29,21 @@ const allowedDomains: LearnerDomain[] = [
   "preference",
   "recommendation",
 ];
+
+const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"], readonly LearnerContextPurpose[]> = {
+  learn: ["learn_adaptive_practice"],
+  coach: ["coach_session_adaptation"],
+  teach: ["teacher_instructional_support"],
+  admin: [],
+  insight: [],
+  studio: [],
+};
+
+function assertProductPurpose(request: LearnerContextRequest): void {
+  if (!allowedPurposesByProduct[request.requestingProduct].includes(request.purpose)) {
+    throw new Error("The requesting product is not authorized for this learner-context purpose.");
+  }
+}
 
 function latestInsight(insights: LearnerInsight[], kind: NonNullable<LearnerInsight["data"]>["kind"]): LearnerInsight | undefined {
   return insights
@@ -66,25 +71,26 @@ function scopeInsights(insights: LearnerInsight[], organizationId: string | null
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
-  learnerId: string;
-  purpose: LearnerContextPurpose;
-  domains: LearnerDomain[];
+  request: LearnerContextRequest;
 }): Promise<ScopedLearnerContext> {
-  if (input.actorId !== input.learnerId) {
+  const { request } = input;
+  if (input.actorId !== request.learnerId) {
     throw new Error("You may only request your own learner context.");
   }
 
-  const domains = input.domains.filter((domain) => allowedDomains.includes(domain));
+  assertProductPurpose(request);
+
+  const domains = request.domains.filter((domain) => allowedDomains.includes(domain));
   const domainSet = new Set(domains);
   const database = getServerFirestore();
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   const insightRepository = new FirestoreLearnerInsightRepository();
 
   const [progressSnapshot, allEvidence, allInsights, profileSnapshot] = await Promise.all([
-    database.collection("progress").where("studentId", "==", input.learnerId).get(),
-    evidenceRepository.listByLearner(input.learnerId),
-    insightRepository.listActiveByLearner(input.learnerId),
-    database.collection("learner-profiles").doc(input.learnerId).get(),
+    database.collection("progress").where("studentId", "==", request.learnerId).get(),
+    evidenceRepository.listByLearner(request.learnerId),
+    insightRepository.listActiveByLearner(request.learnerId),
+    database.collection("learner-profiles").doc(request.learnerId).get(),
   ]);
 
   const progress = progressSnapshot.docs
@@ -109,7 +115,7 @@ export async function getScopedLearnerContext(input: {
   const goals = goalInsight?.data?.kind === "goals" ? goalInsight.data.goals : declaredGoals;
 
   const context: LearnerContext = {
-    learnerId: input.learnerId,
+    learnerId: request.learnerId,
     ...(activeOrganizationId ? { organizationId: activeOrganizationId } : {}),
     generatedAt: new Date().toISOString(),
   };
@@ -186,7 +192,7 @@ export async function getScopedLearnerContext(input: {
 
   return {
     contractVersion: "1",
-    purpose: input.purpose,
+    purpose: request.purpose,
     context,
     evidenceSummary: {
       recentEvidenceTypes: [...new Set(recentEvidence.map((entry) => entry.type))].slice(0, 10),

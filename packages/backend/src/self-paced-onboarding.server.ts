@@ -397,6 +397,7 @@ export async function onboardSelfPacedLearner(input: {
       updatedAt: now,
     }, { merge: true }),
     evidenceRepository.append({
+      contractVersion: "1",
       id: goalEvidenceId,
       learnerId: input.learnerId,
       organizationId: ORGANIZATION_ID,
@@ -407,6 +408,7 @@ export async function onboardSelfPacedLearner(input: {
       },
       type: "goal_update",
       observedAt: now,
+      dataClassification: "sensitive",
       payload: {
         goal: input.goal,
         startingPath: input.placementAnswers ? "self-paced-start-check" : "self-paced-beginner",
@@ -418,12 +420,14 @@ export async function onboardSelfPacedLearner(input: {
       },
     }),
     ...(input.placementAnswers ? [evidenceRepository.append({
+      contractVersion: "1",
       id: placementEvidenceId,
       learnerId: input.learnerId,
       organizationId: ORGANIZATION_ID,
       source: { product: "learn", courseId: selected.course.id, lessonId: selected.entryLesson.id, activityId: "self-paced-start-check" },
       type: "assessment_result",
       observedAt: now,
+      dataClassification: "sensitive",
       payload: { answers: input.placementAnswers, score: recommendation.score, recommendation: recommendation.level, confidence: recommendation.confidence, scope: "short_start_check" },
       provenance: { method: "system_observed", actorId: input.learnerId, confidence: 0.25 },
     })] : []),

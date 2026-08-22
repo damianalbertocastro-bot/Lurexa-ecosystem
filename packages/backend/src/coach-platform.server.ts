@@ -32,18 +32,22 @@ export const CoachPlatformService = {
   async startSession(actor: AuthenticatedActor): Promise<CoachSessionStartResult> {
     const scoped = await getScopedLearnerContext({
       actorId: actor.uid,
-      learnerId: actor.uid,
-      purpose: "coach_session_adaptation",
-      domains: [
-        "proficiency",
-        "curriculum",
-        "grammar",
-        "vocabulary",
-        "pronunciation",
-        "fluency",
-        "goal",
-        "recommendation",
-      ],
+      request: {
+        contractVersion: "1",
+        learnerId: actor.uid,
+        requestingProduct: "coach",
+        purpose: "coach_session_adaptation",
+        domains: [
+          "proficiency",
+          "curriculum",
+          "grammar",
+          "vocabulary",
+          "pronunciation",
+          "fluency",
+          "goal",
+          "recommendation",
+        ],
+      },
     });
 
     const database = getServerFirestore();

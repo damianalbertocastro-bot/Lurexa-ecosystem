@@ -201,6 +201,7 @@ export const TeacherInterventionService = {
 
     const evidenceRepository = new FirestoreLearningEvidenceRepository();
     await evidenceRepository.append({
+      contractVersion: "1",
       id: `learn_${brief.id}_teacher_response`,
       learnerId: brief.learnerId,
       organizationId: brief.organizationId,
@@ -212,6 +213,7 @@ export const TeacherInterventionService = {
       },
       type: "correction_outcome",
       observedAt: response.respondedAt,
+      dataClassification: "sensitive",
       payload: {
         event: "teacher_intervention.responded",
         interventionId: brief.id,

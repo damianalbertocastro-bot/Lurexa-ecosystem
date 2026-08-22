@@ -117,6 +117,7 @@ export const SpokenEvidenceService = {
 
     const repository = new FirestoreLearningEvidenceRepository();
     await repository.append({
+      contractVersion: "1",
       id: `learn_${id}`,
       learnerId: input.actor.uid,
       organizationId,
@@ -128,6 +129,7 @@ export const SpokenEvidenceService = {
       },
       type: "activity_result",
       observedAt,
+      dataClassification: "sensitive",
       payload: {
         event: "spoken_evidence.recorded",
         recordingId: id,

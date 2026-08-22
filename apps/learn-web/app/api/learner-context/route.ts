@@ -39,9 +39,13 @@ export async function GET(request: Request): Promise<Response> {
 
     return Response.json(await getScopedLearnerContext({
       actorId: actor.uid,
-      learnerId,
-      purpose,
-      domains: domains.length ? domains : ["curriculum", "recommendation"],
+      request: {
+        contractVersion: "1",
+        learnerId,
+        requestingProduct: "learn",
+        purpose,
+        domains: domains.length ? domains : ["curriculum", "recommendation"],
+      },
     }));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load learner context.";
