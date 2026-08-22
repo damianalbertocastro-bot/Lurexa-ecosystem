@@ -79,7 +79,7 @@ export interface LearnTutorSession {
   activityId: string;
   status: "active" | "completed";
   transcript: LearnTutorTurn[];
-  provider: "openai" | "deterministic_fallback" | null;
+  provider: "gemini" | "deterministic_fallback" | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -106,7 +106,7 @@ export interface LearnTutorTurnResult {
     activeTargetCount: number;
     recurringPatternCount: number;
   };
-  provider: "openai" | "deterministic_fallback";
+  provider: "gemini" | "deterministic_fallback";
 }
 
 export interface SpokenEvidenceRecord {

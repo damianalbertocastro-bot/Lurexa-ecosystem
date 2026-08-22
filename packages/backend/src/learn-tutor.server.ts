@@ -12,8 +12,8 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
 
-const DEFAULT_MODEL = "gpt-5.6-luna";
-const RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
+const DEFAULT_MODEL = "gemini-2.5-flash";
+const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
 type ScenarioPhase = "establish" | "develop" | "transfer" | "close";
@@ -22,10 +22,8 @@ function clampText(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
 }
 
-function resolveOpenAIApiKey(): string | null {
-  return process.env.OPENAI_KEY_tutor?.trim()
-    || process.env.OPENAI_API_KEY?.trim()
-    || null;
+function resolveGeminiApiKey(): string | null {
+  return process.env.GEMINI_API_KEY?.trim() || null;
 }
 
 function summarizeContext(context: Awaited<ReturnType<typeof getScopedLearnerContext>>["context"]): string {
@@ -110,33 +108,34 @@ function deterministicFallback(capability: AIRoleplayCapability, learnerMessage:
   return "Thanks. Build on that answer with one relevant detail so we can continue the situation.";
 }
 
-function readOutputText(payload: unknown): string | null {
+function readGeminiOutputText(payload: unknown): string | null {
   if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return null;
-  const direct = (payload as { output_text?: unknown }).output_text;
-  if (typeof direct === "string" && direct.trim()) return direct.trim();
-  const output = (payload as { output?: unknown }).output;
-  if (!Array.isArray(output)) return null;
-  for (const item of output) {
-    if (typeof item !== "object" || item === null || Array.isArray(item)) continue;
-    const content = (item as { content?: unknown }).content;
-    if (!Array.isArray(content)) continue;
-    for (const part of content) {
-      if (typeof part !== "object" || part === null || Array.isArray(part)) continue;
-      const text = (part as { text?: unknown }).text;
-      if (typeof text === "string" && text.trim()) return text.trim();
-    }
-  }
-  return null;
+  const candidates = (payload as { candidates?: unknown }).candidates;
+  if (!Array.isArray(candidates)) return null;
+  const candidate = candidates[0];
+  if (typeof candidate !== "object" || candidate === null || Array.isArray(candidate)) return null;
+  const content = (candidate as { content?: unknown }).content;
+  if (typeof content !== "object" || content === null || Array.isArray(content)) return null;
+  const parts = (content as { parts?: unknown }).parts;
+  if (!Array.isArray(parts)) return null;
+  const text = parts
+    .flatMap((part) => typeof part === "object" && part !== null && !Array.isArray(part)
+      ? [((part as { text?: unknown }).text)]
+      : [])
+    .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
+    .join("\n")
+    .trim();
+  return text ? clampText(text, 1_200) : null;
 }
 
-async function callOpenAI(input: {
+async function callGemini(input: {
   capability: AIRoleplayCapability;
   learnerMessage: string;
   transcript: LearnTutorTurn[];
   contextSummary: string;
   turnIndex: number;
 }): Promise<string | null> {
-  const apiKey = resolveOpenAIApiKey();
+  const apiKey = resolveGeminiApiKey();
   if (!apiKey) return null;
 
   const model = process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL;
@@ -175,25 +174,26 @@ async function callOpenAI(input: {
     "Respond only with the tutor's next roleplay turn. Do not label the phase or explain your reasoning.",
   ].join("\n\n");
 
-  const response = await fetch(RESPONSES_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      instructions: system,
-      input: userInput,
-      max_output_tokens: 180,
-    }),
-  });
+  try {
+    const response = await fetch(`${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: "user", parts: [{ text: userInput }] }],
+        generationConfig: { maxOutputTokens: 180 },
+      }),
+    });
 
-  if (!response.ok) {
-    console.error("Learn tutor provider request failed.", response.status);
+    if (!response.ok) {
+      console.error("Learn tutor Gemini request failed.", response.status);
+      return null;
+    }
+    return readGeminiOutputText(await response.json());
+  } catch (error) {
+    console.error("Learn tutor Gemini request failed.", error instanceof Error ? error.name : "unknown error");
     return null;
   }
-  return readOutputText(await response.json());
 }
 
 async function loadOrCreateSession(input: {
@@ -308,7 +308,7 @@ async function recordRoleplayEvidence(input: {
     provenance: {
       method: "ai_observed",
       actorId: input.actor.uid,
-      ...(input.provider === "openai" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
+      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
     },
   });
 
@@ -353,14 +353,14 @@ export const LearnTutorService = {
     const learnerTurn: LearnTutorTurn = { sender: "learner", text: learnerMessage, timestamp: now };
     const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
 
-    const providerReply = await callOpenAI({
+    const providerReply = await callGemini({
       capability,
       learnerMessage,
       transcript: session.transcript,
       contextSummary: summarizeContext(scoped.context),
       turnIndex,
     });
-    const provider: LearnTutorTurnResult["provider"] = providerReply ? "openai" : "deterministic_fallback";
+    const provider: LearnTutorTurnResult["provider"] = providerReply ? "gemini" : "deterministic_fallback";
     const tutorTurn: LearnTutorTurn = {
       sender: "tutor",
       text: providerReply ?? deterministicFallback(capability, learnerMessage, turnIndex, session.transcript),

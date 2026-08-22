@@ -341,7 +341,7 @@ export function AIRoleplayActivity({ courseId, lessonId, capability }: Capabilit
     <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><p className="text-xs font-bold tracking-[0.14em] text-teal-300">AI ROLEPLAY</p><h2 className="mt-2 text-xl font-bold">{capability.title}</h2></div>
-        {provider ? <span className={`rounded-full px-3 py-1 text-xs font-semibold ${provider === "openai" ? "bg-teal-400/20 text-teal-200" : "bg-amber-400/20 text-amber-200"}`}>{provider === "openai" ? "Lurexa Mind AI" : "Fallback practice mode"}</span> : null}
+        {provider ? <span className={`rounded-full px-3 py-1 text-xs font-semibold ${provider === "gemini" ? "bg-teal-400/20 text-teal-200" : "bg-amber-400/20 text-amber-200"}`}>{provider === "gemini" ? "Lurexa Mind AI" : "Fallback practice mode"}</span> : null}
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-300">{capability.instructions}</p>
       <div className="mt-5 max-h-96 space-y-3 overflow-y-auto rounded-2xl bg-white/5 p-4">
