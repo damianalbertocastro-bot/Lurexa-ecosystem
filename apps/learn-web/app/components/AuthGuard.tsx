@@ -1,10 +1,15 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 
 type AccessLevel = "authenticated" | "teacher";
+
+const legacyLessonRoutes: Record<string, string> = {
+  "/learn/a1-preview": "/learn/english-a1-foundations/a1-introduce-yourself",
+  "/learn/english-a1/introduce-yourself": "/learn/english-a1-foundations/a1-introduce-yourself",
+};
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -13,6 +18,9 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const protectedPath = legacyLessonRoutes[pathname] ?? pathname;
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -22,7 +30,9 @@ export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps
     const redirectToLogin = () => {
       if (!isActive || hasResolvedAuthState) return;
       hasResolvedAuthState = true;
-      router.replace("/login");
+      const query = searchParams.toString();
+      const continueTo = `${protectedPath}${query ? `?${query}` : ""}`;
+      router.replace(`/login?continue=${encodeURIComponent(continueTo)}`);
     };
 
     const authTimeout = window.setTimeout(redirectToLogin, 5000);
@@ -34,7 +44,9 @@ export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps
         window.clearTimeout(authTimeout);
 
         if (!user) {
-          router.replace("/login");
+          const query = searchParams.toString();
+          const continueTo = `${protectedPath}${query ? `?${query}` : ""}`;
+          router.replace(`/login?continue=${encodeURIComponent(continueTo)}`);
           return;
         }
 
@@ -50,7 +62,9 @@ export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps
               return;
             }
           } catch {
-            router.replace("/login");
+            const query = searchParams.toString();
+            const continueTo = `${protectedPath}${query ? `?${query}` : ""}`;
+            router.replace(`/login?continue=${encodeURIComponent(continueTo)}`);
             return;
           }
         }
@@ -64,7 +78,7 @@ export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps
       window.clearTimeout(authTimeout);
       unsubscribe();
     };
-  }, [access, router]);
+  }, [access, protectedPath, router, searchParams]);
 
   if (!isAuthorized) {
     return <div className="min-h-screen bg-slate-50 p-8 text-slate-500">Checking access...</div>;

@@ -1,0 +1,29 @@
+"use client";
+
+import { useEffect } from "react";
+
+export default function LessonError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error("Unable to render lesson", error);
+  }, [error]);
+
+  return (
+    <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-8 sm:px-8">
+      <section className="mx-auto max-w-2xl rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">Lurexa Learn</p>
+        <h1 className="mt-3 text-2xl font-bold text-slate-950">We couldn’t open this lesson.</h1>
+        <p className="mt-3 text-slate-600">Try again. If the issue continues, return to your dashboard and reopen the lesson.</p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button type="button" onClick={reset} className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white">Try again</button>
+          <a href="/dashboard" className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-800">Back to dashboard</a>
+        </div>
+      </section>
+    </main>
+  );
+}

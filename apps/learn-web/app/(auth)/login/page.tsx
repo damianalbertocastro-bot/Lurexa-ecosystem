@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
@@ -10,8 +10,13 @@ import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
 
 const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
 
+function readSafeContinueTo(value: string | null): string | null {
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
+}
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,8 +38,11 @@ export default function LoginPage() {
         ["owner", "admin", "teacher"].includes(membership.role),
       );
 
-      // 3. Redirect based on authenticated session
-      if (claims.role === "teacher" || claims.role === "admin" || isTeacher) {
+      // Preserve an explicitly requested, same-origin route after authentication.
+      const continueTo = readSafeContinueTo(searchParams.get("continue"));
+      if (continueTo) {
+        router.replace(continueTo);
+      } else if (claims.role === "teacher" || claims.role === "admin" || isTeacher) {
         router.replace("/teacher/dashboard");
       } else {
         router.replace("/dashboard");

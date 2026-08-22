@@ -324,8 +324,8 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
                 <p className="text-xs font-bold uppercase tracking-[.16em] text-indigo-600">Quick check</p>
                 <h2 className="mt-2 text-xl font-bold text-slate-950">{quiz.prompt}</h2>
-                <div className="mt-5 grid gap-3">
-                  {quiz.options.map((option) => <button key={option} type="button" onClick={() => toggleOption(block.id, option, "quiz")} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
+                <div className="mt-5 grid gap-3" role="group" aria-label={quiz.prompt}>
+                  {quiz.options.map((option) => <button key={option} type="button" aria-pressed={selected.includes(option)} onClick={() => toggleOption(block.id, option, "quiz")} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
                 </div>
                 <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "quiz")} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Check answer"}</button>
                 {feedback[block.id] ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback[block.id].passed ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{feedback[block.id].message}</p> : null}
@@ -354,14 +354,15 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
                 {activity.type === "short_response" ? (
                   <>
-                    <textarea value={responses[block.id] ?? ""} onChange={(event) => setResponses((current) => ({ ...current, [block.id]: event.target.value }))} className="mt-4 min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-slate-800 outline-none focus:border-indigo-500" placeholder="Write your response…" />
+                    <label className="sr-only" htmlFor={`response-${block.id}`}>Your response to: {activity.prompt}</label>
+                    <textarea id={`response-${block.id}`} value={responses[block.id] ?? ""} onChange={(event) => setResponses((current) => ({ ...current, [block.id]: event.target.value }))} className="mt-4 min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-slate-800 outline-none focus:border-indigo-500" placeholder="Write your response…" />
                     <button disabled={submittingId === block.id} onClick={() => void submitShortResponse(block.id)} className="mt-4 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Save response"}</button>
                   </>
                 ) : (
                   <>
                     {activity.type === "sentence_builder" && selected.length ? <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">Your sequence: {selected.join(" ")}</p> : null}
-                    <div className="mt-4 grid gap-3">
-                      {(activity.options ?? []).map((option) => <button key={option} type="button" onClick={() => toggleOption(block.id, option, activity.type)} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
+                    <div className="mt-4 grid gap-3" role="group" aria-label={activity.prompt}>
+                      {(activity.options ?? []).map((option) => <button key={option} type="button" aria-pressed={selected.includes(option)} onClick={() => toggleOption(block.id, option, activity.type)} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
                     </div>
                     <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "activity", activity)} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Submit activity"}</button>
                   </>

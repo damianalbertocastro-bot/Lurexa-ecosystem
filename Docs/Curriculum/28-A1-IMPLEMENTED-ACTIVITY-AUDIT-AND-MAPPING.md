@@ -8,37 +8,28 @@ Primary reference: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md`
 
 The existing A1 activity work should be **preserved and evolved**, not rebuilt from zero.
 
-The repository contained two separate A1 lesson surfaces:
+The repository previously contained two separate A1 lesson surfaces:
 
 - `apps/learn-web/app/learn/a1-preview/page.tsx`
 - `apps/learn-web/app/learn/english-a1/introduce-yourself/page.tsx`
 
-The fuller `english-a1/introduce-yourself` route is now the canonical A1 implementation. The legacy `a1-preview` route redirects to it so learner testing, future development and evidence collection do not diverge across duplicate lesson implementations.
+Both legacy routes now redirect to the canonical server-authorized lesson route, `/learn/english-a1-foundations/a1-introduce-yourself`, so learner testing, future development and evidence collection do not diverge across duplicate lesson implementations.
 
-The generic route `apps/learn-web/app/learn/[courseId]/[lessonId]/page.tsx` currently renders the same A1 introduction page for every course/lesson parameter. This is acceptable only as a temporary scaffold and must be replaced by a real content/lesson registry before multiple production lessons use the dynamic route.
+The generic route `apps/learn-web/app/learn/[courseId]/[lessonId]/page.tsx` renders the `LessonRuntime`, which loads structured lesson content through the authenticated server API. It is the only route permitted to record trusted course progress.
 
 ## 2. Critical defect discovered and corrected
 
-The fuller A1 lesson previously emitted these event types:
+The retired static A1 surfaces previously emitted client-defined event types such as:
 
 - `vocabulary_practice.completed`
 - `phonetics_practice.completed`
 - `quiz.completed`
 
-The current `/api/learning/evidence` endpoint accepts only:
-
-- `learning_activity.opened`
-- `learning_activity.submitted`
-- `speaking_practice.completed`
-- `create_apply.submitted`
-
-This meant an activity could appear complete in the UI while the evidence request was rejected.
+This allowed a duplicate UI to present activity completion independently of the authoritative course-progress workflow.
 
 ### Resolution
 
-The canonical A1 page now emits only supported event types and distinguishes activity kind inside the evidence payload.
-
-This preserves a small, stable event envelope while allowing the curriculum layer to distinguish vocabulary, retrieval, quiz, guided production and related activity types.
+The duplicate client-evidence endpoint and the two static activity surfaces were removed from the learning path. The canonical runtime uses authenticated, server-authorized activity, quiz, spoken-evidence, roleplay, and completion operations; the server validates the lesson block, scores eligible activities, records attempt metadata, and appends trusted evidence.
 
 ## 3. Competency-ID normalization
 
