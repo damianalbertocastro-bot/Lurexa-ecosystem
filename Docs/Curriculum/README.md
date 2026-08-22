@@ -1,31 +1,45 @@
 # Lurexa Curriculum Source of Truth
 
-Status: Active curriculum authority  
-Owner: Lurexa Learning Technologies  
-Initial domain: English language learning  
+Status: Active curriculum authority
+Owner: Lurexa Learning Technologies
+Initial domain: English language learning
 Primary initial learner profile: Spanish speakers, optimized first for Dominican learners
 
 ## Purpose
 
-This folder contains the pedagogical and curriculum documents that govern Lurexa Learn lesson design, assessment, learner progression, AI tutoring behavior, teacher interaction, phonetics, conversation, interactive learning activities, the educational meaning of the persistent Learner Model, and Lurexa Teach professional development.
+This folder governs the pedagogical meaning of Lurexa language learning and teacher development: methodology, competency progression, assessment, evidence, retrieval, AI tutoring/coaching, teacher intervention, phonetics/pronunciation, conversation, interactive activities, integrated level/stage capstones, the educational meaning of the persistent Learner Model, professional development and cross-product curriculum use.
 
-These documents do not replace the ecosystem architecture in `Docs/Architecture/*`. Architecture owns product boundaries, trust, persistence, authorization and Core/Mind responsibilities. Curriculum documents define what learning experiences mean and how they should behave pedagogically.
+Architecture in `Docs/Architecture/*` remains authoritative for product boundaries, trust, persistence, authorization and Core/Mind responsibilities.
 
 ## Non-negotiable delivery model
 
 Lurexa is:
 
-1. **asynchronous and self-paced by default** — learners must be able to make meaningful progress without waiting for a live class;
-2. **AI-assisted throughout the learning cycle** — AI provides constrained explanation, scaffolding, practice, rehearsal, feedback, adaptation and retrieval support;
-3. **teacher-enhanced where human support adds value** — teachers provide richer interaction, judgment, coaching, motivation, intervention and high-value assessment;
-4. **expert-educator supported for high-value cases and teacher growth** — experienced educators/mentors provide teacher coaching, difficult-case consultation, calibration, curriculum interpretation and professional development;
-5. **one curriculum across support modes** — Flex, Guided and Intensive use the same competency standards and learner history.
+1. **asynchronous and self-paced by default**;
+2. **AI-assisted throughout the learning cycle**;
+3. **teacher-enhanced where human support adds value**;
+4. **expert-educator supported for difficult cases, calibration and teacher growth**;
+5. **one competency system across support modes and authorized products**.
 
 > **Lurexa is self-paced by default, AI-assisted throughout, teacher-enhanced when human support adds value, and expert-supported when deeper educational judgment or teacher development is needed.**
 
-Teacher-supported delivery must extend the asynchronous learning path rather than become a separate curriculum or repeat the digital lesson. Expert educator support must strengthen teacher capability and difficult-case judgment rather than become a routine bottleneck.
+Teacher-supported delivery extends the asynchronous path rather than becoming a separate curriculum. Expert support should increase teacher independence rather than become a routine bottleneck.
+
+## Governing principles
+
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+> **Lurexa remembers learning.**
+
+For professional learning:
+
+> **One teacher. One evolving professional profile. Every development experience builds on demonstrated capability.**
+
+A level/stage is not complete because every module was finished. Every A1-C2 learner level and T1-T5 Teach stage must end with an integrated capstone that demonstrates the major competencies in coherent performance.
 
 ## Read order for curriculum work
+
+### Core methodology and English architecture
 
 1. `00-LUREXA-LEARNING-METHODOLOGY.md`
 2. `01-ENGLISH-CURRICULUM-ARCHITECTURE.md`
@@ -37,6 +51,9 @@ Teacher-supported delivery must extend the asynchronous learning path rather tha
 8. `07-PHONETICS-PROGRESSION-A1-C2.md`
 9. `08-CONVERSATION-FRAMEWORK.md`
 10. `09-INTERACTIVE-ACTIVITY-LIBRARY.md`
+
+### Program architecture, delivery and QA
+
 11. `10-CURRICULUM-AUDIT-AND-COMPLETION-PLAN.md`
 12. `11-ENGLISH-PROGRAM-MAP-A1-C2.md`
 13. `12-A2-COMPETENCY-MATRIX.md`
@@ -56,98 +73,168 @@ Teacher-supported delivery must extend the asynchronous learning path rather tha
 27. `26-C1-COMPETENCY-MATRIX.md`
 28. `27-C2-COMPETENCY-MATRIX.md`
 29. `28-A1-IMPLEMENTED-ACTIVITY-AUDIT-AND-MAPPING.md`
-30. `Teacher-Development/00-LUREXA-TEACH-PROFESSIONAL-DEVELOPMENT-PROGRAM.md`
-31. `Teacher-Development/01-TEACHER-COMPETENCY-FRAMEWORK.md`
-32. `Teacher-Development/02-TEACHER-ASSESSMENT-PLACEMENT-AND-ADVANCEMENT.md`
-33. `Teacher-Development/03-ASYNCHRONOUS-AI-ASSISTED-PROGRAM-DELIVERY.md`
-34. `Teacher-Development/04-T1-PRODUCTION-LEARNING-BLUEPRINTS.md`
-35. `Teacher-Development/05-T2-PRODUCTION-LEARNING-BLUEPRINTS.md`
 
-Also read `Linguistic-Intelligence/*` when working on learner errors, feedback, pronunciation, transfer, confidence or Coach/Learn adaptive behavior.
+### Portfolio expansion and production execution
 
-## Governing learner principle
+30. `29-LANGUAGE-CURRICULUM-CORE-ARCHITECTURE.md`
+31. `30-CURRICULUM-PORTFOLIO-AUDIT-2026-08-21.md`
+32. `31-A1-MODULES-2-8-PRODUCTION-BLUEPRINTS.md`
+33. `32-COACH-LANGUAGE-PRACTICE-CURRICULUM.md`
+34. `33-CROSS-PRODUCT-CURRICULUM-CONSUMPTION-CONTRACT.md`
+35. `34-B2-MODULE-AND-UNIT-BLUEPRINTS.md`
+36. `35-C1-MODULE-AND-UNIT-BLUEPRINTS.md`
+37. `36-C2-MODULE-AND-UNIT-BLUEPRINTS.md`
+38. `37-A1-COMPETENCY-EVIDENCE-RETRIEVAL-MAP.md`
+39. `38-A2-MODULES-2-8-PRODUCTION-LESSON-BLUEPRINTS.md`
+40. `39-B1-PRODUCTION-LESSON-BLUEPRINTS.md`
+41. `40-CURRICULUM-PRODUCT-IMPLEMENTATION-ROADMAP.md`
+42. `41-CURRICULUM-EXECUTION-BACKLOG.md`
+43. `41-B2-PRODUCTION-LESSON-MAP.md`
+44. `41-C1-PRODUCTION-LESSON-MAP.md`
+45. `42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md`
+46. `42-CURRICULUM-AUDIT-CHANGELOG.md`
+47. `43-A1-PILOT-ENGINEERING-READINESS-AND-CLOSURE.md`
+48. `curriculum-portfolio.json`
 
-> **One learner. One evolving model. Every Lurexa experience adapts around it.**
+### Lurexa Teach
 
-And pedagogically:
+49. `Teacher-Development/00-LUREXA-TEACH-PROFESSIONAL-DEVELOPMENT-PROGRAM.md`
+50. `Teacher-Development/01-TEACHER-COMPETENCY-FRAMEWORK.md`
+51. `Teacher-Development/02-TEACHER-ASSESSMENT-PLACEMENT-AND-ADVANCEMENT.md`
+52. `Teacher-Development/03-ASYNCHRONOUS-AI-ASSISTED-PROGRAM-DELIVERY.md`
+53. `Teacher-Development/04-T1-PRODUCTION-LEARNING-BLUEPRINTS.md`
+54. `Teacher-Development/05-T2-PRODUCTION-LEARNING-BLUEPRINTS.md`
+55. `Teacher-Development/06-T3-T5-PRODUCTION-LEARNING-BLUEPRINTS.md`
 
-> **Lurexa remembers learning.**
+Also read `Linguistic-Intelligence/*` for learner errors, feedback, pronunciation, transfer, confidence or Coach/Learn adaptive behavior.
 
-Learning evidence must influence what the learner sees, practices, reviews, skips, receives feedback on, and is recommended next.
+## Language-neutral architecture
 
-For professional learning, the equivalent design principle is:
+English is the first production language, not the universal template for every language.
 
-> **One teacher. One evolving professional profile. Every development experience builds on demonstrated capability.**
+`29-LANGUAGE-CURRICULUM-CORE-ARCHITECTURE.md` separates:
 
-Expert educator support adds a mentorship and escalation layer over that professional profile. Its goal is to strengthen future teacher independence and convert recurring expert insights into reusable institutional knowledge.
+1. universal Lurexa learning architecture;
+2. shared language-learning architecture;
+3. target-language curriculum profile;
+4. learner-language transfer profile;
+5. localized program/context layer.
 
-## Current curriculum state
+Future languages should reuse the learning engine while defining their own grammar, phonology, orthography/script, pragmatics, culture, competency progression and integrated level-exit projects.
 
-The methodology, delivery architecture and quality-control model are now mature enough to guide implementation.
+## Integrated capstone requirement
 
-- A1 Module 1 has a production-ready lesson blueprint and is the reference slice for proving the complete async + AI + evidence + optional teacher loop.
-- The already-implemented A1 activities have now been audited against the production blueprint. The canonical runtime now seeds the five-unit A1 Module 1 sequence (`Meeting People`, `Who Am I?`, `People Around Me`, `Spell It, Please`, and `Real-Life Introductions`); the existing entry lesson ID remains canonical for active learner links and the legacy preview redirects to it.
-- Critical A1 evidence mismatches were corrected: the canonical lesson now uses supported evidence event types and authoritative `EN.<CEFR>.<FAMILY>.<COMPETENCY_NAME>` IDs.
-- The canonical A1 lesson now adds guided free-response production, retrieval without a visible answer, and temporary model-listening exposure while preserving the tested vocabulary, phonetics, Create & Apply and quiz interactions.
-- Authenticated, bounded A1 scenario conversation and recorded-speaking evidence are available through server-authorized runtime capabilities. Cross-session delayed retrieval, evidence-driven adaptive routing, teacher brief/return loop, expert escalation, and Firebase Emulator end-to-end validation remain implementation gates rather than being simulated as complete.
-- A1 has a formal validation/pilot specification; A1 Modules 2–8 should inherit the validated production pattern after the Module 1 loop is proven.
-- A2 has a complete competency matrix, module/unit blueprints and a production lesson blueprint for Module 1.
-- B1 has a detailed competency matrix plus module/unit blueprints and is ready for production lesson authoring.
-- B2, C1 and C2 now have detailed competency matrices and should move into module/unit blueprints in sequence.
-- Formal curriculum coverage and QA gates govern module, level and teacher-development release decisions.
-- Lurexa Teach has macro-program, competency, assessment, async-delivery, T1 production and T2 production blueprints.
-- Expert educator mentorship and escalation are integrated into learner-support and teacher-development architecture.
+`42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md` governs final level/stage projects.
 
-## Implementation and curriculum sequence
+English learner capstones:
 
-Do not block A1 production on exhaustive C2 lesson authoring, but keep curriculum architecture ahead of product implementation.
+- A1 — **My Life, My English**
+- A2 — **Living More Independently in English**
+- B1 — **My Voice in English**
+- B2 — **From Opinion to Impact**
+- C1 — **Language, Identity and Global Perspective**
+- C2 — **English Without a Script**
 
-Current best sequence:
+Teach capstones:
 
-1. validate the complete seeded A1 Module 1 bundle against `20`, `21` and `28` through Firebase Emulator flows;
-2. extract the proven A1 interactions into structured reusable activity components/contracts;
-3. implement real AI scenario conversation, real spoken evidence, persistent attempts/resume, delayed retrieval and evidence-driven adaptation;
-4. complete the teacher brief → live intervention → returned async recommendation loop;
-5. apply the validated pattern to A1 Modules 2–8;
-6. implement A2 Module 1 from `22`, then continue A2 module by module;
-7. convert B1 unit blueprints into production lesson blueprints;
-8. build B2 module/unit blueprints, followed by C1 and C2;
-9. move T1/T2 teacher-development blueprints into product learning objects and AI simulations;
-10. apply `24-CURRICULUM-COVERAGE-AND-QA-GATES.md` before any level/stage is marketed as complete;
-11. pilot teacher → expert educator mentorship/escalation and convert recurring expert insights into reusable curriculum/Teach assets.
+- T1 — **The First Coherent Lesson**
+- T2 — **Improve a Learning Cycle**
+- T3 — **Evidence-Driven Unit**
+- T4 — **Program Improvement Project**
+- T5 — **Professional Learning System**
+
+Capstones integrate multiple skills/domains, include transfer and retrieval, preserve first-attempt vs supported evidence, and may route the person to targeted revalidation instead of forcing full-program repetition.
+
+## Current curriculum state — 2026-08-21
+
+### Learn / A1
+
+A1 is the deepest production reference level. The repository supports canonical structured lessons, trusted progress/resume, server-scored activities, trusted-authorable listening, TTS, recorded speaking, server-side AI roleplay, delayed retrieval, Mind recommendations and teacher return.
+
+A1 has now advanced from blueprint-only expansion into production objects:
+
+- Module 1 remains the vertical pilot/reference entry surface;
+- Modules 2–8 are represented as trusted production `Course → Module → Lesson → ContentBlock` objects;
+- A1 onboarding validates and provisions those production objects after the tested starter flow;
+- every new production lesson requires real model listening, productive speaking/interaction and learner-created Create & Apply evidence;
+- required model listening is complete only after full playback and trusted completion capture;
+- required recorded speaking requires stored spoken evidence;
+- required AI roleplay requires the minimum interaction turns;
+- lesson completion is blocked when required advanced capability evidence is missing;
+- `37` defines competency × evidence × retrieval coverage;
+- `42` governs the integrated exit-project standard;
+- **My Life, My English** now has three runtime project lessons, shared assessment contracts, an authenticated evaluation API and learner-facing capstone dashboard at `/learn/a1/capstone`;
+- the capstone evaluator distinguishes raw evidence from qualified independent evidence and supports targeted revalidation.
+
+`43-A1-PILOT-ENGINEERING-READINESS-AND-CLOSURE.md` is the authority for the current pilot boundary. The repository can establish engineering/pedagogical readiness, but representative pilot validation still requires actual learner evidence. A1 is therefore **implemented for pilot verification and calibration, not curriculum-complete**.
+
+Remaining A1 work is repository verification, representative learner calibration, productive-evidence interpretation/validation, Coach A1 Pack 1 calibration and release QA—not another redesign of the learning engine.
+
+### A2
+
+A2 has a competency matrix, module/unit blueprints and production lesson blueprints across Modules 1–8 (`22`, `38`). Next: runtime implementation, support-reduction calibration, coverage mapping, integrated capstone implementation and pilot evidence.
+
+### B1
+
+B1 has a detailed competency matrix, module/unit architecture and production lesson blueprints (`39`). Next: implement the first vertical slice, validate connected discourse/sustained interaction, build coverage mapping and implement/calibrate the B1 integrated capstone.
+
+### B2–C2
+
+B2 and C1 have competency matrices, full module/unit architecture and compact production lesson maps. C2 has a competency matrix and complete module/unit architecture; its compact production lesson map remains an explicit unfinished item. All three levels have integrated capstone designs in `42`.
+
+### Coach
+
+Coach consumes authorized learner context and Mind recommendations. `32-COACH-LANGUAGE-PRACTICE-CURRICULUM.md` defines A1–C2 speaking/pronunciation/interaction progression, correction policy, evidence rules and cross-language extension. Coach may contribute authorized speaking/interaction/pronunciation evidence to a capstone but never independently award a language level.
+
+### Teach
+
+Teach has T1–T5 professional architecture, nine professional competency domains, assessment/placement/advancement rules, async/AI delivery architecture, production blueprints for T1–T5 and integrated stage capstones from T1 through T5.
+
+### Ecosystem
+
+`33-CROSS-PRODUCT-CURRICULUM-CONSUMPTION-CONTRACT.md` defines how Learn, Coach, Teach, Admin, Insight and Studio consume the same governed curriculum graph through Core/Mind boundaries. `40` turns those boundaries into product implementation work.
+
+### Machine-readable status
+
+`curriculum-portfolio.json` is the portfolio status authority for repository automation. It intentionally keeps `curriculumComplete: false` until production depth, runtime integration, integrated capstone calibration and representative pilots support a release claim.
+
+Run `pnpm verify:curriculum-portfolio` to validate document references, priority-path structure, A1 production-runtime artifacts and completion-claim invariants.
+
+## Authoritative execution sequence
+
+**A1 pilot → A1 production objects Modules 2–8 → A1 Coach Pack 1 calibration → Teach T1 reference implementation → A2 reference implementation → B1 reference implementation → B2/C1/C2 production lessons → Insight/Admin/Studio curriculum tooling → second-language vertical pilot.**
+
+The first two steps now overlap operationally: A1 Modules 2–8 production objects exist and are awaiting repository verification/representative calibration while the A1 pilot closes. The next product step remains Coach A1 Pack 1 only after the A1 repository/pilot evidence boundary is defensible.
+
+This sequence is encoded in `40`, `41` and `curriculum-portfolio.json` and should be treated as the default order unless the product owner explicitly changes it.
 
 ## Curriculum object requirement
 
-New unit and lesson blueprints must state, where relevant:
+New unit, lesson and capstone blueprints must state, where relevant:
 
+- target language/domain;
+- curriculum/version context;
 - learner performance goal;
 - competency IDs;
 - prerequisite/retrieval targets;
-- asynchronous learning sequence;
+- asynchronous sequence;
 - AI pedagogical role;
-- expected learning evidence;
+- expected evidence;
 - Create & Apply/transfer;
-- teacher extension or intervention point;
-- expert educator escalation point where appropriate;
+- Coach practice link where useful;
+- teacher extension/intervention;
+- expert escalation where appropriate;
 - mastery/assessment behavior;
-- accessibility/resume considerations.
-
-This prevents future content from being designed as a classroom lesson first and digitized afterward.
+- accessibility/resume considerations;
+- capstone contribution where relevant.
 
 ## CEFR Companion integration
 
-The English competency model includes level-appropriate integration of:
-
-- mediation;
-- online interaction;
-- plurilingual/pluricultural competence;
-- action-oriented performance.
-
-These dimensions complement rather than replace the seven explicit Lurexa English skills.
+The English program integrates mediation, online interaction, plurilingual/pluricultural competence and action-oriented performance. These complement the seven explicit English skills.
 
 ## Related authority
 
-Before implementing persistent learner state, personalization, AI interpretation, or cross-product learning context, also read:
+Before implementing persistent learner state, personalization, AI interpretation or cross-product context, also read:
 
 - `Docs/00-Lurexa-Bible.md`
 - `Docs/Architecture/Learner Model Architecture.md`
@@ -156,4 +243,4 @@ Before implementing persistent learner state, personalization, AI interpretation
 
 ## Conflict rule
 
-When instructions conflict, prefer the newest explicit product-owner decision, then `Docs/00-Lurexa-Bible.md`, then authoritative architecture documents, then this curriculum folder. Within this folder, lower-numbered documents define broader rules and later documents specialize them without overriding them silently.
+When instructions conflict, prefer the newest explicit product-owner decision, then `Docs/00-Lurexa-Bible.md`, then authoritative architecture documents, then this curriculum folder. Within this folder, lower-numbered documents define broader rules and later documents specialize them without silently overriding them.

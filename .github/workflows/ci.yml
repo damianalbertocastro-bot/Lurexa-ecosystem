@@ -46,6 +46,9 @@ jobs:
       - name: Verify Product Registry Consumers
         run: pnpm verify:product-registry
 
+      - name: Verify Curriculum Portfolio
+        run: pnpm verify:curriculum-portfolio
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 

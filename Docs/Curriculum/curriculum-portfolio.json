@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "1.1.0",
+  "updatedAt": "2026-08-21",
+  "languageCore": {
+    "document": "Docs/Curriculum/29-LANGUAGE-CURRICULUM-CORE-ARCHITECTURE.md",
+    "status": "authoritative"
+  },
+  "qualityAuthority": "Docs/Curriculum/24-CURRICULUM-COVERAGE-AND-QA-GATES.md",
+  "capstoneAuthority": "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md",
+  "programs": [
+    {
+      "id": "english-a1",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "A1",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": true,
+      "productionObjects": "modules-2-8-implemented-awaiting-repository-verification",
+      "integratedCapstone": "runtime-implemented-awaiting-calibration",
+      "runtimeIntegrated": true,
+      "pilotEngineeringReadiness": "implemented-awaiting-repository-verification",
+      "representativePilot": "in-progress",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/02-ENGLISH-COMPETENCY-MODEL.md",
+        "Docs/Curriculum/20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md",
+        "Docs/Curriculum/21-A1-LEARNING-LOOP-VALIDATION-AND-PILOT-SPEC.md",
+        "Docs/Curriculum/31-A1-MODULES-2-8-PRODUCTION-BLUEPRINTS.md",
+        "Docs/Curriculum/37-A1-COMPETENCY-EVIDENCE-RETRIEVAL-MAP.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md",
+        "Docs/Curriculum/43-A1-PILOT-ENGINEERING-READINESS-AND-CLOSURE.md"
+      ]
+    },
+    {
+      "id": "english-a2",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "A2",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": true,
+      "integratedCapstone": "designed",
+      "runtimeIntegrated": false,
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/12-A2-COMPETENCY-MATRIX.md",
+        "Docs/Curriculum/17-A2-MODULE-AND-UNIT-BLUEPRINTS.md",
+        "Docs/Curriculum/22-A2-MODULE-1-PRODUCTION-LESSON-BLUEPRINT.md",
+        "Docs/Curriculum/38-A2-MODULES-2-8-PRODUCTION-LESSON-BLUEPRINTS.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "english-b1",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "B1",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": true,
+      "integratedCapstone": "designed",
+      "runtimeIntegrated": false,
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/18-B1-COMPETENCY-MATRIX.md",
+        "Docs/Curriculum/23-B1-MODULE-AND-UNIT-BLUEPRINTS.md",
+        "Docs/Curriculum/39-B1-PRODUCTION-LESSON-BLUEPRINTS.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "english-b2",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "B2",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": "compact-map",
+      "integratedCapstone": "designed",
+      "runtimeIntegrated": false,
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/25-B2-COMPETENCY-MATRIX.md",
+        "Docs/Curriculum/34-B2-MODULE-AND-UNIT-BLUEPRINTS.md",
+        "Docs/Curriculum/43-B2-PRODUCTION-LESSON-MAP.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "english-c1",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "C1",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": "compact-map",
+      "integratedCapstone": "designed",
+      "runtimeIntegrated": false,
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/26-C1-COMPETENCY-MATRIX.md",
+        "Docs/Curriculum/35-C1-MODULE-AND-UNIT-BLUEPRINTS.md",
+        "Docs/Curriculum/44-C1-PRODUCTION-LESSON-MAP.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "english-c2",
+      "kind": "learner-language",
+      "language": "en",
+      "level": "C2",
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": false,
+      "integratedCapstone": "designed",
+      "runtimeIntegrated": false,
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/27-C2-COMPETENCY-MATRIX.md",
+        "Docs/Curriculum/36-C2-MODULE-AND-UNIT-BLUEPRINTS.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "coach-english",
+      "kind": "coach-language-practice",
+      "language": "en",
+      "levels": ["A1", "A2", "B1", "B2", "C1", "C2"],
+      "macroMap": true,
+      "competencyMatrix": "reuses-english",
+      "moduleBlueprints": true,
+      "capstoneRole": "contributes-authorized-speaking-interaction-pronunciation-evidence",
+      "runtimeIntegrated": "partial",
+      "representativePilot": "a1-partial",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/32-COACH-LANGUAGE-PRACTICE-CURRICULUM.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    },
+    {
+      "id": "teach-t1-t5",
+      "kind": "teacher-development",
+      "stages": ["T1", "T2", "T3", "T4", "T5"],
+      "macroMap": true,
+      "competencyMatrix": true,
+      "moduleBlueprints": true,
+      "productionBlueprints": true,
+      "integratedCapstone": "designed-t1-t5",
+      "runtimeIntegrated": "partial",
+      "representativePilot": "not-started",
+      "curriculumComplete": false,
+      "documents": [
+        "Docs/Curriculum/Teacher-Development/00-LUREXA-TEACH-PROFESSIONAL-DEVELOPMENT-PROGRAM.md",
+        "Docs/Curriculum/Teacher-Development/01-TEACHER-COMPETENCY-FRAMEWORK.md",
+        "Docs/Curriculum/Teacher-Development/04-T1-PRODUCTION-LEARNING-BLUEPRINTS.md",
+        "Docs/Curriculum/Teacher-Development/05-T2-PRODUCTION-LEARNING-BLUEPRINTS.md",
+        "Docs/Curriculum/Teacher-Development/06-T3-T5-PRODUCTION-LEARNING-BLUEPRINTS.md",
+        "Docs/Curriculum/42-INTEGRATED-LEVEL-AND-STAGE-CAPSTONE-ASSESSMENT-STANDARD.md"
+      ]
+    }
+  ],
+  "productContract": "Docs/Curriculum/33-CROSS-PRODUCT-CURRICULUM-CONSUMPTION-CONTRACT.md",
+  "priorityPath": [
+    "A1 pilot",
+    "A1 production objects Modules 2-8",
+    "A1 Coach Pack 1 calibration",
+    "Teach T1 reference implementation",
+    "A2 reference implementation",
+    "B1 reference implementation",
+    "B2/C1/C2 production lessons",
+    "Insight/Admin/Studio curriculum tooling",
+    "second-language vertical pilot"
+  ],
+  "currentMilestone": {
+    "name": "A1 production reference, integrated capstone and cross-product curriculum foundation",
+    "exitConditions": [
+      "A1 repository verification passes on the production object and capability-completion changes",
+      "A1 competency-evidence-retrieval coverage map passes QA",
+      "A1 representative pilot has no unresolved critical defects",
+      "A1 Modules 2-8 production objects are calibrated with representative use",
+      "A1 integrated capstone is calibrated with qualified productive evidence",
+      "Coach A1 pack is calibrated against A1 learner evidence",
+      "Teach T1 reference implementation includes its integrated capstone",
+      "curriculum portfolio verifier remains green"
+    ]
+  }
+}

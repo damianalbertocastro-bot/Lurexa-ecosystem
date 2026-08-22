@@ -1,222 +1,220 @@
 # A1 Implemented Activity Audit and Production Mapping
 
-Status: Active implementation audit  
-Scope: all A1 learning activity surfaces currently present under `apps/learn-web/app/learn/*` plus shared Learn activity components that affect A1  
-Primary reference: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md`
+Status: Current implementation audit
+Scope: A1 learner runtime, advanced learning capabilities, retrieval/adaptation, teacher return and current production-authoring surfaces
+Primary references: `20-A1-MODULE-1-PRODUCTION-BLUEPRINT.md`, `21-A1-LEARNING-LOOP-VALIDATION-AND-PILOT-SPEC.md`, `24-CURRICULUM-COVERAGE-AND-QA-GATES.md`
 
 ## 1. Executive decision
 
-The existing A1 activity work should be **preserved and evolved**, not rebuilt from zero.
+A1 has moved beyond the earlier prototype stage described in previous versions of this document.
 
-The repository previously contained two separate A1 lesson surfaces:
+The canonical direction is now:
 
-- `apps/learn-web/app/learn/a1-preview/page.tsx`
-- `apps/learn-web/app/learn/english-a1/introduce-yourself/page.tsx`
+- one dynamic structured `LessonRuntime`;
+- trusted Firestore-authored lesson objects;
+- server-scored structured activities;
+- trusted advanced capabilities;
+- production model listening/TTS;
+- recorded spoken evidence;
+- server-owned AI tutor sessions;
+- delayed retrieval;
+- Mind recommendations;
+- teacher intervention and learner-return guidance;
+- protected Core-owned evidence/adaptation records.
 
-Both legacy routes now redirect to the canonical server-authorized lesson route, `/learn/english-a1-foundations/a1-introduce-yourself`, so learner testing, future development and evidence collection do not diverge across duplicate lesson implementations.
+The next A1 bottleneck is no longer invention of these capabilities. It is curriculum production, coverage mapping, pilot calibration and release QA.
 
-The generic route `apps/learn-web/app/learn/[courseId]/[lessonId]/page.tsx` renders the `LessonRuntime`, which loads structured lesson content through the authenticated server API. It is the only route permitted to record trusted course progress.
+## 2. Canonical runtime
 
-## 2. Critical defect discovered and corrected
+The canonical learner path is `apps/learn-web/app/learn/[courseId]/[lessonId]/page.tsx` → `LessonRuntime`.
 
-The retired static A1 surfaces previously emitted client-defined event types such as:
+`LessonRuntime` currently supports:
 
-- `vocabulary_practice.completed`
-- `phonetics_practice.completed`
-- `quiz.completed`
+- authenticated lesson loading;
+- trusted resume/progress;
+- selected-response activities;
+- sentence builder;
+- short-response/Create & Apply evidence;
+- quiz evidence;
+- model-listening capability;
+- recorded-speaking capability;
+- AI-roleplay capability;
+- normal lesson completion;
+- delayed retrieval scheduling;
+- retrieval completion with fresh evidence requirement.
 
-This allowed a duplicate UI to present activity completion independently of the authoritative course-progress workflow.
+Older special-purpose A1 surfaces should not become parallel curriculum runtimes.
 
-### Resolution
+## 3. Competency ID state
 
-The duplicate client-evidence endpoint and the two static activity surfaces were removed from the learning path. The canonical runtime uses authenticated, server-authorized activity, quiz, spoken-evidence, roleplay, and completion operations; the server validates the lesson block, scores eligible activities, records attempt metadata, and appends trusted evidence.
+A1 production uses the authoritative convention:
 
-## 3. Competency-ID normalization
+`EN.A1.<FAMILY>.<COMPETENCY_NAME>`
 
-Previous implementation IDs included ad hoc values such as:
+Examples:
 
-- `EN-A1-VOC-INTRO-01`
-- `EN-A1-PHON-INTRO-01`
-- `EN-A1-WRT-INTRO-01`
-- `EN-A1-SPK-INTRO-01`
-
-These did not match the authoritative competency convention `EN.<CEFR>.<FAMILY>.<COMPETENCY_NAME>`.
-
-The canonical lesson now uses stable curriculum IDs including:
-
-- `EN.A1.VOCAB.IDENTITY`
-- `EN.A1.VOCAB.FUNCTIONAL_SURVIVAL_PHRASES`
 - `EN.A1.SPEAK.INTRODUCE_SELF`
 - `EN.A1.CONV.GREETING_EXCHANGE`
-- `EN.A1.CONV.PERSONAL_INTRODUCTION`
-- `EN.A1.PRAG.BASIC_POLITENESS`
-- `EN.A1.PHON.WORD_STRESS`
 - `EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES`
 - `EN.A1.WRITE.PERSONAL_SENTENCES`
 - `EN.A1.CREATE.PERSONAL_INTRODUCTION`
-- `EN.A1.GRAMMAR.SUBJECT_PRONOUNS`
 - `EN.A1.GRAMMAR.BE_AFFIRMATIVE_NEGATIVE`
-- `EN.A1.STRAT.USE_CHUNKS`
 
-Historical evidence using old IDs should not be silently rewritten. If migration becomes necessary, use an explicit alias/migration table with provenance.
+Historical ad hoc IDs should not be silently rewritten. Migration requires explicit aliases/provenance.
 
-## 4. Activity-by-activity audit
+## 4. Current activity/capability map
 
-| Existing / required activity | Previous state | Production decision | Current treatment |
+| Activity/capability | Current state | Evidence judgment | Production decision |
 |---|---|---|---|
-| Dialogue / noticing | Implemented | REUSE + ENHANCE | Preserved as encounter stage; model-listening entry added |
-| Vocabulary cards | Implemented | REUSE + ENHANCE | Preserved; language changed from “mastered” to practice evidence |
-| Vocabulary completion | Implemented | FIX | Now uses accepted evidence event + stable competency IDs |
-| Multiple-choice greeting/knowledge checks | Implemented | REUSE | Preserved as formative evidence, explicitly not mastery |
-| Phonetics / stress guidance | Implemented | REUSE + ENHANCE | Preserved; evidence labeled self-reported rehearsal, not scoring |
-| Spoken rehearsal | Implemented as self-report | REUSE TEMPORARILY | Kept until recording/scoring infrastructure exists |
-| Create & Apply writing | Implemented | REUSE + ENHANCE | Preserved with stable writing/speaking/create competencies |
-| Learner-context retrieval | Implemented | REUSE | Preserved; lesson displays available curriculum context |
-| Evidence submission | Implemented | FIX | Event taxonomy corrected; activity/evidence semantics strengthened |
-| Guided productive response | Weak/missing in canonical lesson | ADD | Added free-response name-question production |
-| Retrieval without visible answer | Missing | ADD | Added explicit unscaffolded-first retrieval challenge |
-| Listening exposure | Text-only | ADD TEMPORARY | Browser speech synthesis added as temporary model exposure |
-| Delayed retrieval across sessions | Missing | NEW SYSTEM CAPABILITY | Requires scheduling/persistence beyond one page session |
-| Adaptive reduction of recognition practice | Missing | NEW SYSTEM CAPABILITY | Requires learner-evidence interpretation and activity routing |
-| Graduated hints | Partial | ENHANCE | Retrieval retry now distinguishes first attempt vs hinted retry; broader reusable hint engine still needed |
-| Real audio recording | Missing | NEW COMPONENT | Required before speaking evidence can exceed self-report |
-| Pronunciation/intelligibility scoring | Missing | FUTURE / COACH-COMPATIBLE | Must use validated speech evidence; do not fake with button completion |
-| AI scenario conversation | Missing | NEW CAPABILITY | Existing AI widget is mock and ConversationWindow is placeholder; do not claim real AI interaction yet |
-| Teacher brief/intervention | Architecture exists, UI missing | NEW PRODUCT FLOW | Implement after learner evidence can be interpreted reliably |
-| Expert educator escalation | Architecture exists, UI missing | LATER PRODUCT FLOW | Implement after teacher workflow and escalation criteria exist |
+| Contextual text/dialogue | Structured | Encounter/comprehension | KEEP |
+| Vocabulary/recognition practice | Structured | Recognition/practice | KEEP, do not over-weight |
+| Single choice | Server-scored | Recognition/formative | KEEP |
+| Multiple selection | Server-scored | Recognition/formative | KEEP |
+| Sentence builder | Server-scored | Guided form/production | KEEP |
+| Short response | Persisted | Productive/writing evidence | KEEP + expand |
+| Model listening | Production TTS/trusted lesson | Listening exposure/processing | KEEP + author broadly |
+| Recorded speaking | Real MediaRecorder + Storage path | Raw spoken-production evidence | KEEP; separate later interpretation |
+| AI roleplay | Server-owned tutor session | Interaction evidence | KEEP + calibrate by level |
+| Create & Apply | Structured productive work | Stronger transfer evidence | REQUIRED by unit/module |
+| Delayed retrieval | Persisted schedule | Retention/revalidation evidence | REQUIRED for major targets |
+| Mind recommendation | Evidence-derived | Interpretation/next action | KEEP; not mastery |
+| Teacher intervention | Brief → response → learner return | Human-observed/structured guidance | KEEP + expand |
+| Expert escalation | Architecture documented | Expert professional/curriculum judgment | PILOT NEXT |
 
-## 5. Existing AI component judgment
+## 5. Closed gaps from the previous audit
 
-`apps/learn-web/app/learn/components/AITutorWidget.tsx` currently generates a delayed mock response locally. It does not yet satisfy `16-AI-TUTOR-PEDAGOGICAL-CONTRACT.md` because it does not use a real constrained model/backend, authorized learner context, evidence-aware adaptation, curriculum-bound correction policy or task completion rules.
+The following items were previously listed as missing and are now substantially implemented:
 
-Decision: **do not integrate the mock widget into the canonical A1 lesson as if it were production AI.**
+### Structured reusable runtime
 
-It may remain useful as a UI shell. Production AI integration should replace its mock response mechanism with the approved Lurexa Mind/Core pathway.
+Closed. The dynamic lesson route uses the canonical runtime rather than rendering the same hard-coded A1 page for every lesson.
 
-## 6. Conversation component judgment
+### Real AI scenario conversation
 
-`apps/learn-web/components/ConversationWindow.tsx` is currently a visual placeholder only.
+Closed at the infrastructure/runtime level. AI roleplay resolves trusted authored capability metadata server-side and uses server-owned session state.
 
-Decision: retain only as a candidate shell or replace it when the real scenario-conversation component is implemented. It currently produces no learning evidence and does not satisfy the conversation framework.
+Remaining work is pedagogical calibration, scenario coverage and production curriculum authoring.
 
-## 7. Evidence-strength corrections
+### Production listening
 
-The implementation must never imply that completion equals mastery.
+Closed at the infrastructure/runtime level. Model-listening capability resolves trusted lesson text and uses production TTS when configured.
 
-### Vocabulary
+### Spoken evidence capture
 
-Selecting/reviewing cards and clicking completion = practice evidence only.
+Closed at the evidence-capture level. Browser recording is uploaded through a trusted server boundary and stored with provenance.
 
-### Phonetics
+Pronunciation/intelligibility interpretation remains a separate later layer and must not be faked as a recording-completion score.
 
-Clicking “I said it aloud” = self-reported rehearsal only.
+### Persistent attempts/resume
 
-### Quiz
+Closed for the canonical progress path.
 
-Recognition quiz = formative recognition evidence. It cannot establish speaking, conversation or pronunciation mastery by itself.
+### Delayed retrieval
 
-### Create & Apply
+Closed at the scheduling/runtime level. Retrieval completion requires fresh evidence after the due time.
 
-A learner-authored introduction is stronger productive evidence, but its interpretation still depends on target competencies, scaffolding and quality.
+### Evidence-driven next action
 
-### Retrieval
+Closed at the initial Mind/adaptation level. Retrieval, teacher return, Mind recommendations and normal continuation share one priority architecture.
 
-First unscaffolded retrieval is stored separately from later hinted attempts.
+### Teacher brief/return
 
-## 8. Current canonical A1 lesson activity flow
+Closed at the initial product loop. Teacher guidance can return to the learner without fabricating learning evidence merely because the learner acknowledged the message.
 
-The canonical lesson now demonstrates:
+## 6. Remaining A1 production gaps
 
-1. Encounter / dialogue
-2. Temporary model listening
-3. Vocabulary exploration
-4. Guided productive question
-5. Phonetics + spoken rehearsal
-6. Create & Apply introduction
-7. Retrieval without visible model
-8. Formative quiz
-9. Evidence capture across multiple evidence strengths
+### P0 — curriculum production and pilot calibration
 
-This is substantially closer to the Lurexa cycle than the earlier implementation, but it is not yet the complete production loop.
+1. Author/implement Modules 2–8 using `31-A1-MODULES-2-8-PRODUCTION-BLUEPRINTS.md`.
+2. Build a competency × evidence × retrieval coverage map for all A1 modules.
+3. Run representative learner pilot cases from `21`.
+4. Calibrate AI roleplay length, correction frequency and support reduction.
+5. Calibrate TTS/listening pace and transcript visibility by activity purpose.
+6. Calibrate recorded-speaking evidence interpretation without overclaiming pronunciation scoring.
+7. Validate A1 capstone/exit evidence.
+8. Confirm accessibility/resume across every activity family.
 
-## 9. Remaining gaps before A1 Module 1 can pass the production blueprint
+### P1 — richer adaptation
 
-### Implemented Module 1 seed scope (2026-08-22)
+1. Adapt within lessons, not only next-step routing.
+2. Reduce redundant recognition for strong learners.
+3. Increase production after recognition-production gaps.
+4. Use scaffold history explicitly in activity selection.
+5. Add prerequisite-specific recovery rather than generic repetition.
 
-`packages/backend/src/self-paced-onboarding.server.ts` now seeds the complete
-five-unit Module 1 sequence as structured course/module/lesson objects. The
-existing `a1-introduce-yourself` entry lesson ID is retained so active learner
-links and previously recorded progress do not break.
+### P2 — human/expert calibration
 
-| Blueprint unit | Seeded structured lessons | Evidence represented through the canonical runtime |
-|---|---|---|
-| 1.1 Meeting People | Greetings That Work; What's Your Name? | listening/comprehension, guided chunks, recorded speaking, scenario exchange, short writing |
-| 1.2 Who Am I? | Where Are You From?; I Am / You Are / Are You...? | personal-information listening, identity language, `be` question/answer practice |
-| 1.3 People Around Me | Student, Teacher, Worker; A Simple Personal Profile | occupation/profile comprehension and learner-authored profile evidence |
-| 1.4 Spell It, Please | The Alphabet for Real Communication; Can You Repeat That? | spelling, intelligibility practice, repair-strategy use |
-| 1.5 Real-Life Introductions | Build My Introduction; Introduction Conversation; Create & Apply: My Introduction | independent preparation, 6–10 turn scenario conversation, cumulative introduction artifact |
+1. Pilot teacher live-session evidence across multiple A1 patterns.
+2. Pilot expert escalation for ambiguous pronunciation/assessment/curriculum cases.
+3. Convert recurring expert findings into reusable curriculum/Teach assets.
 
-Each generated lesson uses the supported structured block contracts rather
-than a new client-side lesson surface: model listening, scored activity,
-sentence builder, recorded speaking, bounded A1 roleplay, formative quick
-check, and learner-authored Create & Apply response. The runtime preserves
-first attempt/retry metadata for scored activities and server services own
-spoken and roleplay completion evidence.
+## 7. Pronunciation status
 
-This is a content/evidence bundle, not a mastery certification. Completion
-still records curriculum progress; Lurexa Mind interpretation and any
-consequential progression decision require the approved Core/Mind pipeline.
+Current production can capture real speech and provide model audio.
 
-### P0 — required for the reference vertical slice
+Do not claim automatic pronunciation mastery yet.
 
-1. Validate the complete seeded bundle through authenticated Firebase Emulator
-   flows; repository checks cannot prove Firestore persistence or roleplay and
-   recording provider behavior.
-2. Add explicit delayed-retrieval activities/scheduling across the five units.
-3. Add learner-facing evidence interpretation that changes the next action in
-   a testable way; completion and quiz scores alone remain insufficient.
+The next pronunciation layer should derive interpretable observations such as:
 
-### P1 — required for Guided/Intensive validation
+- target-feature perception;
+- controlled production;
+- guided phrase production;
+- spontaneous intelligibility;
+- retry improvement;
+- delayed transfer.
 
-1. Teacher evidence brief.
-2. Teacher observation/evidence submission.
-3. Post-teacher-session recommendation returning to the async path.
-4. Trigger rules for evidence-based intervention.
+Raw audio remains evidence; analysis is a derived interpretation with model/version provenance.
 
-### P2 — expert layer
+## 8. A1 production sequence
 
-1. Teacher → expert educator escalation object/workflow.
-2. Calibration/disputed-case evidence package.
-3. Mechanism to convert recurring expert findings into curriculum, Teach and AI-policy improvements.
+Use this sequence:
 
-## 10. Reuse policy for future A1 authoring
+1. Module 1 pilot/calibration;
+2. Module 2 production;
+3. Module 3 production;
+4. Module 4 production;
+5. Module 5 production;
+6. Module 6 production;
+7. Module 7 production;
+8. Module 8 capstone/exit evidence;
+9. full A1 coverage audit;
+10. A1 production-pattern freeze/version.
 
-Future A1 lessons should reuse approved activity families rather than copy-paste entire page implementations.
+Do not wait for every higher CEFR level before completing A1.
 
-Recommended reusable components/contracts:
+## 9. Coach relationship
 
-- `DialogueEncounter`
-- `ModelListening`
-- `VocabularyExplorer`
-- `RecognitionCheck`
-- `GuidedProduction`
-- `SpeakingRehearsal`
-- `PronunciationPractice`
-- `RetrievalChallenge`
-- `CreateApplyTask`
-- `FormativeQuiz`
-- `ScenarioConversation`
-- `ReflectionCheck`
-- `EvidenceStatus`
+A1 Coach should not repeat lesson scripts.
 
-Each component should accept structured curriculum data and evidence configuration rather than contain A1 lesson text permanently in the component.
+It should:
+
+- retrieve current/older A1 competencies;
+- vary scenarios;
+- expose recognition-production gaps;
+- strengthen interaction and repair;
+- target evidence-backed pronunciation/fluency needs;
+- return new evidence through Core/Mind.
+
+See `32-COACH-LANGUAGE-PRACTICE-CURRICULUM.md`.
+
+## 10. Teacher relationship
+
+Teacher-supported A1 work should emphasize:
+
+- spontaneous interaction;
+- productive gaps;
+- communication-relevant pronunciation;
+- question formation;
+- repeated transfer patterns;
+- confidence/repair;
+- capstone observation.
+
+Teacher sessions should not become a second delivery of the digital module.
 
 ## 11. Production rule
 
-Do not rebuild activities that already work merely to match a new blueprint visually.
+Continue using:
 
-Use this decision order:
+**Preserve proven interaction → correct evidence semantics → normalize competency mapping → reuse shared runtime → add missing pedagogical capability → validate with learner evidence → scale curriculum.**
 
-**Preserve proven interaction → correct evidence semantics → normalize competency mapping → extract reusable component → add missing pedagogical capability → validate with learner evidence.**
-
-That is now the governing migration path from the tested A1 implementation to the full Lurexa production curriculum.
+The architectural migration phase is largely complete. The curriculum-production and calibration phase is now the priority.

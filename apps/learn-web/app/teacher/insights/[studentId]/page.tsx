@@ -8,6 +8,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Input } from "@lurexa/ui/Input";
 import type { TeacherInterventionBrief, TeacherInterventionResponse } from "@lurexa/types";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+import { A1CapstoneReviewPanel } from "./A1CapstoneReviewPanel";
 
 const priorities: TeacherInterventionResponse["priority"][] = [
   "confidence",
@@ -154,6 +155,8 @@ export default function StudentInterventionPage() {
             </Card>
           </>
         )}
+
+        <A1CapstoneReviewPanel studentId={studentId} />
 
         {message ? <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-medium text-emerald-900" role="status">{message}</p> : null}
         {error ? <p className="rounded-2xl bg-rose-50 p-4 text-sm font-medium text-rose-800" role="alert">{error}</p> : null}
