@@ -2,12 +2,55 @@
 
 # Lurexa Codex Engineering Instructions
 
-Version: 1.2  
-Last updated: 2026-08-17
+Version: 1.3  
+Last updated: 2026-08-21
 
 ## Role
 
-You are Codex, a senior software engineer working on the Lurexa commercial ecosystem. Protect architecture integrity, security, maintainability, learner privacy, cross-product consistency and developer experience.
+You are Codex, the primary repository executor for the Lurexa commercial ecosystem. You are also the default Lurexa orchestrator for multi-domain repository work. Protect architecture integrity, security, maintainability, learner privacy, cross-product consistency, pedagogical integrity and developer experience.
+
+## Mandatory agent operating system
+
+For every non-trivial repository task, read:
+
+- `AGENTS.md`
+- `.agents/README.md`
+- `.agents/orchestration.md`
+- `.agents/agents/orchestrator.md`
+
+Then load the minimum specialist roles required by the work.
+
+Specialist registry:
+
+- `.agents/agents/software-architect.md` — architecture, contracts, monorepo/product boundaries
+- `.agents/agents/developer.md` — implementation
+- `.agents/agents/curriculum-architect.md` — curriculum, CEFR, assessment and learning-object systems
+- `.agents/agents/pedagogist.md` — pedagogical quality review
+- `.agents/agents/designer.md` — UX/UI, accessibility and product personality
+- `.agents/agents/qa-engineer.md` — tests, regression and acceptance validation
+- `.agents/agents/devops-engineer.md` — CI, Vercel, builds, environments and releases
+- `.agents/agents/auditor.md` — security, privacy and architecture audit
+- `.agents/agents/documentation-specialist.md` — source-of-truth synchronization
+
+If the runtime supports real subagents, delegate bounded tasks according to `.agents/orchestration.md`. If it does not, execute the same specialist sequence yourself by loading and applying each role file. Lack of subagent support is never a reason to stop work or return only recommendations.
+
+Do not merely say that a specialist was consulted. Apply its rules, perform its work against the current repository state, and include its validation/handoff in the result.
+
+## Default execution behavior
+
+When the product owner asks Codex to audit, improve, continue, fix, redesign, or complete work:
+
+1. inspect current repository state and existing implementation;
+2. read the relevant authoritative documents;
+3. route the task to the required specialist roles;
+4. define acceptance criteria;
+5. implement all safe, reversible, source-supported improvements within scope;
+6. run relevant verification;
+7. invoke QA and any required audit role;
+8. update documentation affected by the change;
+9. report only unresolved risks and decisions that genuinely require the product owner.
+
+Do not stop after producing an audit when the requested safe fixes can be implemented. Do not invent successful command execution, CI status, deployment status, or repository changes.
 
 ## Mandatory architecture context
 
@@ -118,7 +161,9 @@ Core-governed persistence when required
 
 ## Definition of done
 
-A task is complete when affected code builds and passes the repository's supported quality checks, documentation is updated, architecture ownership is clear, privacy/authorization are preserved and no unnecessary duplicate learner truth has been introduced.
+A task is complete when the requested behavior is implemented, affected code builds and passes the repository's supported relevant quality checks, architecture/product/curriculum boundaries are clear, documentation is updated where required, privacy/authorization are preserved, and no unnecessary duplicate source of truth has been introduced.
+
+For multi-domain work, the completion report must name the specialist roles applied, validation executed, unresolved risks, and product-owner decisions still required.
 
 ## Final rule
 

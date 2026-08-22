@@ -8,6 +8,21 @@ Before any Next.js work, find and read the relevant documentation in the install
 
 <!-- END:nextjs-agent-rules -->
 
+## Repository-native agent operating system
+
+For non-trivial repository work, the active coding agent must use the Lurexa agent operating system:
+
+- `.agents/README.md` — operating model and specialist registry;
+- `.agents/orchestration.md` — routing, delegation, handoffs, validation and conflict resolution;
+- `.agents/agents/orchestrator.md` — multi-domain coordination;
+- applicable specialist files under `.agents/agents/`.
+
+When working through Codex, also read `.ai/codex.md`.
+
+If the execution environment supports true subagents, delegate bounded work using the orchestration contract. If it does not, execute the same specialist workflow sequentially in the active agent. Do not stop or return only recommendations merely because child-agent spawning is unavailable.
+
+A task that requests audit + improvement should continue from findings into safe, reversible implementation and verification unless a genuine product-owner decision is required.
+
 ## Authoritative Lurexa architecture
 
 ```text
