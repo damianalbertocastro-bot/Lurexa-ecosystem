@@ -48,17 +48,17 @@ export default function NativeLearnScreen() {
 
       <View style={styles.header}>
         <Text style={styles.badgeText}>Mobile • Offline ready</Text>
-        <Text style={styles.title}>Lesson 1: Algebraic Expressions</Text>
-        <Text style={styles.subtitle}>Mathematics B1 • Module 1</Text>
+        <Text style={styles.title}>Lesson 1: Introduce yourself</Text>
+        <Text style={styles.subtitle}>English A1 • Module 1</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Core Concept</Text>
+        <Text style={styles.cardTitle}>Say hello with confidence</Text>
         <Text style={styles.cardBody}>
-          An algebraic expression combines numbers, variables (like x or y), and
-          operators (+, -, *, /).
+          Use “I’m…” to share your name and “Nice to meet you” when you greet
+          someone for the first time.
         </Text>
-        <Text style={styles.example}>Example: 3x + 5 = 20</Text>
+        <Text style={styles.example}>Example: “Hi, I’m Ana. Nice to meet you.”</Text>
       </View>
 
       <TouchableOpacity

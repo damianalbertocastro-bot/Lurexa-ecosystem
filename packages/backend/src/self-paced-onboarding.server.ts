@@ -62,9 +62,30 @@ function lessonContentBlocks(): ContentBlock[] {
       },
     },
     {
-      id: "a1-greeting-response",
+      id: "a1-listening-check",
       type: "interactive",
       order: 3,
+      data: {
+        activity: {
+          schemaVersion: "1",
+          type: "single_choice",
+          stage: "COMPREHENSION",
+          title: "Listen for the name",
+          instructions: "Listen to the first meeting, then choose the name Carlos hears.",
+          prompt: "What is the other person's name?",
+          options: ["Elena", "Andrea", "Luis"],
+          correctAnswers: ["Elena"],
+          explanation: "Carlos asks Elena for her name, and she says: “I'm Elena.”",
+          competencyIds: ["EN.A1.LISTEN.BASIC_SOCIAL_EXCHANGES"],
+          estimatedMinutes: 1,
+          required: true,
+        },
+      },
+    },
+    {
+      id: "a1-greeting-response",
+      type: "interactive",
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -85,7 +106,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-build-introduction",
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         activity: {
           schemaVersion: "1",
@@ -106,7 +127,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-recorded-speaking",
       type: "interactive",
-      order: 5,
+      order: 6,
       data: {
         capability: {
           schemaVersion: "1",
@@ -130,7 +151,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-ai-roleplay",
       type: "interactive",
-      order: 6,
+      order: 7,
       data: {
         capability: {
           schemaVersion: "1",
@@ -159,7 +180,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-intro-check",
       type: "quiz_embed",
-      order: 7,
+      order: 8,
       data: {
         prompt: "Which sentence introduces your name?",
         options: ["I’m Daniela.", "Nice yesterday.", "I am fine name."],
@@ -170,7 +191,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-create-apply",
       type: "interactive",
-      order: 8,
+      order: 9,
       data: {
         activity: {
           schemaVersion: "1",
@@ -197,7 +218,7 @@ function a1StarterCourse(now: string): { course: Course; module: Module; lesson:
     summary: "Greet someone, say your name, listen to a first meeting, speak, interact, and create a short introduction.",
     contentBlocks: lessonContentBlocks(),
     order: 1,
-    estimatedMinutes: 22,
+    estimatedMinutes: 23,
   };
   const module: Module = {
     id: MODULE_ID,

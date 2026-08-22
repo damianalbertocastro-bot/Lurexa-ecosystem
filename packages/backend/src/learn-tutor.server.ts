@@ -5,7 +5,7 @@ import type {
   LearnTutorTurnRequest,
   LearnTutorTurnResult,
 } from "@lurexa/types";
-import type { AuthenticatedActor } from "./course-platform.server";
+import { CoursePlatformService, type AuthenticatedActor } from "./course-platform.server";
 import { getScopedLearnerContext } from "./learner-context.server";
 import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
@@ -372,6 +372,16 @@ export const LearnTutorService = {
       provider,
       turnIndex,
     });
+
+    if (turnIndex >= capability.scenario.minimumTurns) {
+      await CoursePlatformService.recordCapabilityCompletion(
+        actor,
+        request.courseId,
+        request.lessonId,
+        request.activityId,
+        "ai_roleplay",
+      );
+    }
 
     return {
       sessionId: savedSession.id,

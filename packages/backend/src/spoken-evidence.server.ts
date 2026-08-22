@@ -1,5 +1,5 @@
 import type { SpokenEvidenceRecord } from "@lurexa/types";
-import type { AuthenticatedActor } from "./course-platform.server";
+import { CoursePlatformService, type AuthenticatedActor } from "./course-platform.server";
 import { getServerFirestore, getServerStorageBucket } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
@@ -106,6 +106,14 @@ export const SpokenEvidenceService = {
       createdBy: input.actor.uid,
       sourceContentType: input.audio.type,
     });
+
+    await CoursePlatformService.recordCapabilityCompletion(
+      input.actor,
+      input.courseId,
+      input.lessonId,
+      input.activityId,
+      "recorded_speaking",
+    );
 
     const repository = new FirestoreLearningEvidenceRepository();
     await repository.append({

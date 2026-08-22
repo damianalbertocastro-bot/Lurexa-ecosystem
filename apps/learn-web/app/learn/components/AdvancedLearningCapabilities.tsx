@@ -50,6 +50,7 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generated, setGenerated] = useState(Boolean(capability.audioUrl));
+  const [showTranscript, setShowTranscript] = useState(false);
 
   useEffect(() => () => {
     if (generatedUrlRef.current) URL.revokeObjectURL(generatedUrlRef.current);
@@ -98,8 +99,12 @@ export function ModelListeningActivity({ courseId, lessonId, capability }: Optio
       )}
       {error && <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-900" role="alert"><p className="font-semibold">Listening audio is unavailable.</p><p className="mt-1">{error}</p><p className="mt-2 text-xs">This block is not counted as listening evidence until real audio is successfully available.</p></div>}
       <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What you will hear</p>
-        <p className="mt-2 text-base font-semibold text-slate-900">{capability.modelText}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Transcript support</p>
+        <p className="mt-2 text-sm text-slate-600">Listen once before opening the transcript. Use it afterward to notice the language, not instead of listening.</p>
+        <button type="button" onClick={() => setShowTranscript((current) => !current)} className="mt-3 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-800">
+          {showTranscript ? "Hide transcript" : "Show transcript after listening"}
+        </button>
+        {showTranscript ? <p className="mt-3 text-base font-semibold text-slate-900">{capability.modelText}</p> : null}
       </div>
     </section>
   );

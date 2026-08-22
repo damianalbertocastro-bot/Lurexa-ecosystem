@@ -22,6 +22,13 @@ export async function POST(request: Request): Promise<Response> {
       lessonId: payload.lessonId,
       activityId: payload.activityId,
     });
+    await CoursePlatformService.recordCapabilityCompletion(
+      actor,
+      payload.courseId,
+      payload.lessonId,
+      payload.activityId,
+      "model_listening",
+    );
     return new Response(audio.bytes, {
       status: 200,
       headers: {

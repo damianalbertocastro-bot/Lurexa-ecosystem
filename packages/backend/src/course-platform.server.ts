@@ -357,7 +357,11 @@ export const CoursePlatformService = {
       .filter((block) => block.type === "interactive")
       .flatMap((block) => {
         const activity = block.data.activity;
-        return typeof activity === "object" && activity !== null && (activity as { required?: unknown }).required === true ? [block.id] : [];
+        const capability = readLearningCapability(block.data);
+        return (typeof activity === "object" && activity !== null && (activity as { required?: unknown }).required === true)
+          || capability?.required === true
+          ? [block.id]
+          : [];
       });
     const quizIds = lesson.contentBlocks.filter((block) => block.type === "quiz_embed").map((block) => block.id);
     const submittedIds = new Set(previous?.attempts.map((attempt) => attempt.quizId) ?? []);
@@ -379,6 +383,65 @@ export const CoursePlatformService = {
       idempotencyKey: `${actor.uid}:${lessonId}:lesson.completed`,
     });
     return record;
+  },
+
+  /**
+   * A capability can only mark its own block complete after its server-side
+   * service has accepted the relevant evidence. The browser never calls this
+   * method directly, which keeps required speaking and roleplay completion
+   * behind the same Core-authorized boundary as the evidence itself.
+   */
+  async recordCapabilityCompletion(
+    actor: AuthenticatedActor,
+    courseId: string,
+    lessonId: string,
+    capabilityId: string,
+    activityType: "model_listening" | "recorded_speaking" | "ai_roleplay",
+  ): Promise<void> {
+    const course = await getCourseOrThrow(courseId);
+    if (course.status !== "published") throw new Error("This course is not published.");
+    await requireMembership(actor.uid, course.orgId);
+    const entry = (await getCourseLessons(course)).find(({ lesson }) => lesson.id === lessonId);
+    if (!entry) throw new Error("Lesson not found in this course.");
+    const block = entry.lesson.contentBlocks.find((item) => {
+      if (item.type !== "interactive") return false;
+      const capability = readLearningCapability(item.data);
+      return capability?.id === capabilityId && capability.kind === activityType;
+    });
+    if (!block) throw new Error("Learning capability not found.");
+
+    const completedAt = new Date().toISOString();
+    const reference = getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`);
+    const existing = await reference.get();
+    const previous = existing.exists ? (existing.data() as StudentProgress) : null;
+    if (previous?.attempts.some((attempt) => attempt.quizId === block.id)) return;
+
+    const capability = readLearningCapability(block.data)!;
+    const attempt = {
+      quizId: block.id,
+      activityId: capability.id,
+      score: 0,
+      maxScore: 0,
+      passed: true,
+      completedAt,
+      activityType,
+      attemptNumber: 1,
+      firstAttempt: true,
+      competencyIds: capability.competencyIds,
+    };
+    await reference.set({
+      id: reference.id,
+      studentId: actor.uid,
+      lessonId,
+      moduleId: entry.lesson.moduleId,
+      courseId,
+      completed: previous?.completed ?? false,
+      timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
+      attempts: [...(previous?.attempts ?? []), attempt],
+      bestScore: previous?.bestScore ?? 0,
+      lastAccessedAt: completedAt,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
   },
 
   async submitQuizAttempt(actor: AuthenticatedActor, courseId: string, lessonId: string, quizId: string, answer: string): Promise<{ attempt: StudentProgress["attempts"][number]; explanation: string | null }> {
