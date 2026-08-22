@@ -5,7 +5,7 @@ Scope: explicit Lurexa web deployments from the monorepo
 
 ## Policy
 
-Git-triggered Vercel deployments remain disabled for Lurexa product projects. GitHub CI validates repository changes, but a Vercel build is created only when a product release is explicitly requested.
+Git-triggered Vercel deployments remain disabled for Lurexa product projects to conserve the limited Vercel CPU/build-time allocation. Agents must validate changes locally first; a Vercel build is created only when a product release is explicitly requested by the product owner.
 
 The canonical deployment topology is `deployment/products.json`. Do not rely on the root `.vercel` link to choose a project.
 
