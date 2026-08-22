@@ -15,7 +15,7 @@ export const AIGeneratorService = {
     topic: string,
     targetLevel: string
   ): Promise<AILessonDraft> {
-    // API endpoint call to OpenAI / Anthropic server-side route
+    // API endpoint call to Lurexa Mind server-side route
     return {
       title: `${topic} (${targetLevel})`,
       summary: `Automated draft covering ${topic} tailored for level ${targetLevel}.`,
