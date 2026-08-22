@@ -1,12 +1,25 @@
 import type {
+  CandidateDerivedObservation,
   LearnerInsight,
   LearnerInterpretationRequest,
   LearnerInterpretationResult,
   LearnerRecommendationAction,
   LearningEvidence,
+  MindInterpretationRequestV1,
+  MindInterpretationResultV1,
 } from "@lurexa/types";
+import { MIND_INTERPRETATION_CONTRACT_VERSION } from "@lurexa/types";
 
 const interpretationVersion = "learn-next-step-v1";
+const mindCapability = "conservative-learning-intelligence";
+
+function observationIdFor(insight: LearnerInsight): string {
+  let hash = 5381;
+  for (const character of insight.basedOnEvidenceIds.join("|")) {
+    hash = ((hash * 33) ^ character.charCodeAt(0)) >>> 0;
+  }
+  return `${insight.id}_${hash.toString(36)}`;
+}
 
 function readCorrect(payload: unknown): boolean | null {
   if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return null;
@@ -149,6 +162,76 @@ function buildRecommendation(evidence: LearningEvidence[]): {
  * they are explicit preferences rather than inferred proficiency claims.
  */
 export class ConservativeLearningIntelligenceService {
+  /**
+   * v1 Mind entrypoint. Its input is intentionally an authorized Core-owned
+   * projection; this service neither reads Firestore nor persists anything.
+   */
+  async interpretAuthorizedEvidence(request: MindInterpretationRequestV1): Promise<MindInterpretationResultV1> {
+    if (request.contractVersion !== MIND_INTERPRETATION_CONTRACT_VERSION) {
+      throw new Error("Unsupported Mind interpretation contract version.");
+    }
+    if (request.purpose !== "mind_learning_interpretation") {
+      throw new Error("Mind interpretation requires the approved Core purpose.");
+    }
+    if (request.input.evidence.some((entry) => entry.learnerId !== request.input.learnerId)) {
+      throw new Error("Authorized Mind evidence must belong to the requested learner.");
+    }
+    if (request.input.organizationId && request.input.evidence.some((entry) => entry.organizationId !== request.input.organizationId)) {
+      throw new Error("Authorized Mind evidence must remain within the organization boundary.");
+    }
+
+    const legacy = await this.interpretLearnerEvidence({
+      learnerId: request.input.learnerId,
+      ...(request.input.organizationId ? { organizationId: request.input.organizationId } : {}),
+      evidence: request.input.evidence,
+      currentContext: request.input.context,
+      requestedDomains: request.interpretationTypes.includes("recommendation") ? ["recommendation"] : [],
+    });
+    const outputs = legacy.insights.map((insight): CandidateDerivedObservation => ({
+      contractVersion: "1",
+      observationId: observationIdFor(insight),
+      learnerId: insight.learnerId,
+      ...(insight.organizationId ? { organizationId: insight.organizationId } : {}),
+      type: insight.domain === "recommendation" ? "recommendation" : "candidate_observation",
+      status: "candidate",
+      domain: insight.domain,
+      summary: insight.summary,
+      confidence: insight.confidence,
+      basedOnEvidenceIds: insight.basedOnEvidenceIds,
+      ...(insight.data ? { data: insight.data } : {}),
+      generatedAt: insight.generatedAt,
+      effectiveAt: insight.generatedAt,
+      ...(insight.validity?.expiresAt ? { expiresAt: insight.validity.expiresAt } : {}),
+      generatedBy: {
+        capability: mindCapability,
+        modelPolicyVersion: request.modelPolicyVersion,
+        ruleVersion: interpretationVersion,
+      },
+      limitations: [
+        "This deterministic recommendation is revisable guidance, not a mastery or proficiency determination.",
+      ],
+      scope: {
+        purposes: ["learn_adaptive_practice"],
+        products: ["learn"],
+      },
+      reviewStatus: "automated_approved",
+      provenance: { method: "deterministic_rule" },
+    }));
+
+    return {
+      contractVersion: MIND_INTERPRETATION_CONTRACT_VERSION,
+      interpretationId: request.requestId,
+      learnerId: request.input.learnerId,
+      generatedAt: new Date().toISOString(),
+      purpose: request.purpose,
+      outputs,
+      limitations: outputs.length
+        ? []
+        : ["No evidence-supported interpretation is available for the requested type."],
+      modelPolicyVersion: request.modelPolicyVersion,
+    };
+  }
+
   async interpretLearnerEvidence(
     request: LearnerInterpretationRequest,
   ): Promise<LearnerInterpretationResult> {

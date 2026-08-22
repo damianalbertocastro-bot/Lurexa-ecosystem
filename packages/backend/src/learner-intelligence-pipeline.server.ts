@@ -1,15 +1,8 @@
-import type { LearnerDomain } from "@lurexa/types";
+import type { LearnerDomain, MindInterpretationType } from "@lurexa/types";
 import { FirestoreLearnerInsightRepository, FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { ConservativeLearningIntelligenceService } from "./mind-learning-intelligence.server";
 
-const defaultDomains: LearnerDomain[] = [
-  "goal",
-  "grammar",
-  "vocabulary",
-  "pronunciation",
-  "fluency",
-  "recommendation",
-];
+const defaultInterpretationTypes: MindInterpretationType[] = ["recommendation"];
 
 /**
  * Orchestrates the current evidence -> Mind interpretation -> Core persistence
@@ -30,13 +23,23 @@ export async function refreshLearnerIntelligence(input: {
   const intelligence = new ConservativeLearningIntelligenceService();
   const evidence = await evidenceRepository.listByLearner(input.learnerId, input.organizationId);
 
-  const result = await intelligence.interpretLearnerEvidence({
-    learnerId: input.learnerId,
-    ...(input.organizationId ? { organizationId: input.organizationId } : {}),
-    evidence,
-    requestedDomains: input.requestedDomains ?? defaultDomains,
+  const result = await intelligence.interpretAuthorizedEvidence({
+    contractVersion: "1",
+    requestId: `mind_refresh_${input.learnerId}_${Date.now()}`,
+    purpose: "mind_learning_interpretation",
+    interpretationTypes: defaultInterpretationTypes,
+    input: {
+      learnerId: input.learnerId,
+      ...(input.organizationId ? { organizationId: input.organizationId } : {}),
+      evidence,
+    },
+    modelPolicyVersion: "mind-policy-v1",
   });
 
-  await Promise.all(result.insights.map((insight) => insightRepository.save(insight)));
-  return result.insights.length;
+  await Promise.all(result.outputs.map((candidate) => insightRepository.approveAndPersist({
+    candidate,
+    authorizedEvidenceIds: evidence.map((entry) => entry.id),
+    policyId: "core-derived-observation-v1",
+  })));
+  return result.outputs.length;
 }

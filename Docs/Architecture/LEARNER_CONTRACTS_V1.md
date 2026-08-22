@@ -20,6 +20,7 @@ database, renaming packages, or treating Mind output as raw evidence.
 | Context projection and purpose enforcement | `@lurexa/backend/learner-context.server` | Core |
 | Evidence producers | Learn and Coach server capabilities | Products through Core |
 | Evidence interpretation | `mind-learning-intelligence.server` and linguistic intelligence services | Mind |
+| Candidate-observation approval | `FirestoreLearnerInsightRepository.approveAndPersist` | Core |
 | Supported service interface | `@lurexa/sdk/src/learner.ts` | SDK boundary |
 
 Product UI code does not write learning evidence directly. It calls product API
@@ -42,6 +43,27 @@ must include:
 structurally incomplete v1 records before persistence. Legacy documents are
 normalized only on read to retain historical continuity; this is not permission
 to produce new unversioned evidence.
+
+## Mind interpretation and derived observations
+
+`ConservativeLearningIntelligenceService.interpretAuthorizedEvidence` is the
+first repository-backed Mind Interpretation Contract v1 entrypoint. Its input
+is a server-only Core-authorized evidence projection; the service has no
+Firestore reads or writes. It returns versioned *candidate* observations with
+an evidence basis, confidence, capability/model-policy/rule provenance,
+limitations, expiry and a bounded product-purpose scope.
+
+`FirestoreLearnerInsightRepository.approveAndPersist` is the corresponding
+Core-owned Derived Observation Persistence Contract v1 boundary. It validates
+the v1 shape, requires a non-empty evidence basis, verifies that every evidence
+reference is in the authorized Core input, requires a non-empty consumer scope,
+then promotes the candidate to `active` and records its approval policy.
+
+The existing `LearnerInsight` read model remains supported during migration.
+New v1 observations retain their legacy projection for current context readers,
+but `getScopedLearnerContext` additionally enforces v1 product-purpose scope.
+This does not authorize broader observation categories, provider calls, human
+review workflows, or raw evidence exposure.
 
 Evidence remains separate from Mind interpretation. `LearnerInsight` records
 are derived observations, and must retain `basedOnEvidenceIds`, confidence, and

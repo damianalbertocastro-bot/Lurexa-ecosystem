@@ -188,6 +188,120 @@ export interface LearnerContextRequest {
   domains: LearnerDomain[];
 }
 
+/**
+ * Mind interpretation and derived-observation contracts are intentionally
+ * separate from raw evidence. The existing LearnerInsight shape remains a
+ * read-model compatibility surface while these envelopes govern new writes.
+ */
+export const MIND_INTERPRETATION_CONTRACT_VERSION = "1" as const;
+export const DERIVED_OBSERVATION_CONTRACT_VERSION = "1" as const;
+
+export type MindInterpretationType =
+  | "recommendation"
+  | "adaptation_guidance"
+  | "candidate_observation"
+  | "feedback_plan"
+  | "content_ranking"
+  | "intervention_suggestion";
+
+export type DerivedObservationStatus =
+  | "candidate"
+  | "active"
+  | "superseded"
+  | "invalidated"
+  | "expired"
+  | "withdrawn";
+
+export type DerivedObservationReviewStatus = "automated_approved" | "pending_review" | "human_approved" | "rejected";
+
+export interface AuthorizedMindInterpretationInput {
+  learnerId: string;
+  organizationId?: string;
+  /** Evidence is supplied only by a Core server capability after authorization. */
+  evidence: LearningEvidence[];
+  context?: LearnerContext;
+}
+
+export interface MindInterpretationRequestV1 {
+  contractVersion: typeof MIND_INTERPRETATION_CONTRACT_VERSION;
+  requestId: string;
+  purpose: "mind_learning_interpretation";
+  interpretationTypes: MindInterpretationType[];
+  input: AuthorizedMindInterpretationInput;
+  modelPolicyVersion: string;
+}
+
+export interface CandidateDerivedObservation {
+  contractVersion: typeof DERIVED_OBSERVATION_CONTRACT_VERSION;
+  observationId: string;
+  learnerId: string;
+  organizationId?: string;
+  type: MindInterpretationType;
+  status: "candidate";
+  domain: LearnerDomain;
+  summary: string;
+  confidence: number;
+  basedOnEvidenceIds: string[];
+  data?: LearnerInsightData;
+  generatedAt: string;
+  effectiveAt: string;
+  expiresAt?: string;
+  generatedBy: {
+    capability: string;
+    modelPolicyVersion: string;
+    ruleVersion?: string;
+  };
+  limitations: string[];
+  scope: {
+    purposes: LearnerContextPurpose[];
+    products: LurexaProduct[];
+  };
+  reviewStatus: DerivedObservationReviewStatus;
+  provenance: {
+    method: "deterministic_rule" | "model" | "hybrid";
+    modelId?: string;
+  };
+}
+
+export interface MindInterpretationResultV1 {
+  contractVersion: typeof MIND_INTERPRETATION_CONTRACT_VERSION;
+  interpretationId: string;
+  learnerId: string;
+  generatedAt: string;
+  purpose: "mind_learning_interpretation";
+  outputs: CandidateDerivedObservation[];
+  limitations: string[];
+  modelPolicyVersion: string;
+}
+
+export interface ApprovedDerivedObservation extends Omit<CandidateDerivedObservation, "status"> {
+  status: "active";
+  approvedAt: string;
+  approvedByPolicy: string;
+  supersedesObservationId?: string;
+}
+
+export function isCandidateDerivedObservation(value: unknown): value is CandidateDerivedObservation {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const observation = value as Record<string, unknown>;
+  return observation.contractVersion === DERIVED_OBSERVATION_CONTRACT_VERSION
+    && typeof observation.observationId === "string"
+    && typeof observation.learnerId === "string"
+    && observation.status === "candidate"
+    && typeof observation.domain === "string"
+    && typeof observation.summary === "string"
+    && typeof observation.confidence === "number"
+    && observation.confidence >= 0
+    && observation.confidence <= 1
+    && Array.isArray(observation.basedOnEvidenceIds)
+    && typeof observation.generatedAt === "string"
+    && typeof observation.effectiveAt === "string"
+    && typeof observation.generatedBy === "object"
+    && observation.generatedBy !== null
+    && typeof observation.provenance === "object"
+    && observation.provenance !== null;
+}
+
 /** Core's minimized response; raw evidence and internal inference are excluded. */
 export interface LearnerContextResponse {
   contractVersion: "1";

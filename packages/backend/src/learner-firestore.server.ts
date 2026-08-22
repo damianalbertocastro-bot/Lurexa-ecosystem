@@ -1,7 +1,10 @@
 import {
   assertLearningEvidenceV1,
+  isCandidateDerivedObservation,
 } from "@lurexa/types";
 import type {
+  ApprovedDerivedObservation,
+  CandidateDerivedObservation,
   LearnerInsight,
   LearningEvidence,
   LearningEvidenceType,
@@ -86,6 +89,26 @@ function evidenceDocumentsEquivalent(
   return JSON.stringify(stripUndefined(first)) === JSON.stringify(stripUndefined(second));
 }
 
+/** Pure Core policy validation, kept testable without a Firestore emulator. */
+export function assertApprovableDerivedObservation(input: {
+  candidate: CandidateDerivedObservation;
+  authorizedEvidenceIds: readonly string[];
+}): void {
+  const { candidate } = input;
+  if (!isCandidateDerivedObservation(candidate)) {
+    throw new Error("Derived observation must conform to v1 before Core approval.");
+  }
+  if (!candidate.basedOnEvidenceIds.length) {
+    throw new Error("Derived observations require an evidence basis.");
+  }
+  if (candidate.basedOnEvidenceIds.some((id) => !input.authorizedEvidenceIds.includes(id))) {
+    throw new Error("Derived observation references evidence outside the authorized Core input.");
+  }
+  if (!candidate.scope.purposes.length || !candidate.scope.products.length) {
+    throw new Error("Derived observation must declare a bounded consumer scope.");
+  }
+}
+
 export class FirestoreLearningEvidenceRepository {
   async append<TPayload = unknown>(
     evidence: LearningEvidence<TPayload>,
@@ -126,6 +149,52 @@ export class FirestoreLearningEvidenceRepository {
 }
 
 export class FirestoreLearnerInsightRepository {
+  /**
+   * Core-owned approval gate for Mind candidates. This is intentionally kept
+   * beside the persistence adapter so Mind cannot write inferred learner state
+   * by calling Firestore directly.
+   */
+  async approveAndPersist(input: {
+    candidate: CandidateDerivedObservation;
+    authorizedEvidenceIds: readonly string[];
+    policyId: string;
+  }): Promise<ApprovedDerivedObservation> {
+    const { candidate } = input;
+    assertApprovableDerivedObservation(input);
+    const existing = await getServerFirestore()
+      .collection("learner-insights")
+      .where("learnerId", "==", candidate.learnerId)
+      .get();
+    const superseded = existing.docs
+      .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }) as { id: string; status?: unknown; domain?: unknown; generatedBy?: unknown; generatedAt?: unknown })
+      .filter((entry) => entry.id !== candidate.observationId
+        && entry.status === "active"
+        && entry.domain === candidate.domain
+        && typeof entry.generatedBy === "object"
+        && entry.generatedBy !== null
+        && (entry.generatedBy as { capability?: unknown }).capability === candidate.generatedBy.capability
+        && typeof entry.generatedAt === "string")
+      .sort((first, second) => String(second.generatedAt).localeCompare(String(first.generatedAt)))[0];
+    const approved: ApprovedDerivedObservation = {
+      ...candidate,
+      status: "active",
+      approvedAt: new Date().toISOString(),
+      approvedByPolicy: input.policyId,
+      ...(superseded ? { supersedesObservationId: superseded.id } : {}),
+    };
+    await getServerFirestore().collection("learner-insights").doc(approved.observationId).set(stripUndefined({
+      ...approved,
+      // Legacy read models retain their stable fields while v1 provenance
+      // remains available for Core validation and future context projections.
+      id: approved.observationId,
+      validity: approved.expiresAt || approved.supersedesObservationId ? {
+        ...(approved.expiresAt ? { expiresAt: approved.expiresAt } : {}),
+        ...(approved.supersedesObservationId ? { supersedesInsightId: approved.supersedesObservationId } : {}),
+      } : undefined,
+    }));
+    return approved;
+  }
+
   async save(insight: LearnerInsight): Promise<LearnerInsight> {
     const reference = getServerFirestore().collection("learner-insights").doc(insight.id);
     await reference.set(stripUndefined(insight));

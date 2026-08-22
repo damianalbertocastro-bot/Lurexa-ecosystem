@@ -1,6 +1,8 @@
 import type {
   LearnerInterpretationRequest,
   LearnerInterpretationResult,
+  MindInterpretationRequestV1,
+  MindInterpretationResultV1,
 } from "@lurexa/types";
 
 /**
@@ -13,4 +15,14 @@ export interface LearningIntelligenceService {
   interpretLearnerEvidence(
     request: LearnerInterpretationRequest,
   ): Promise<LearnerInterpretationResult>;
+}
+
+/**
+ * Server-only Mind interface. Callers must obtain its evidence/context input
+ * through Core; it is not a browser or provider-facing contract.
+ */
+export interface AuthorizedLearningIntelligenceService {
+  interpretAuthorizedEvidence(
+    request: MindInterpretationRequestV1,
+  ): Promise<MindInterpretationResultV1>;
 }

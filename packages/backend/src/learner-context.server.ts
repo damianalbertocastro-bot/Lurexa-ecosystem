@@ -59,8 +59,22 @@ function scopeEvidence(evidence: LearningEvidence[], organizationId: string | nu
   return evidence.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
 }
 
-function scopeInsights(insights: LearnerInsight[], organizationId: string | null): LearnerInsight[] {
-  return insights.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
+function scopeInsights(
+  insights: LearnerInsight[],
+  organizationId: string | null,
+  request: LearnerContextRequest,
+): LearnerInsight[] {
+  return insights.filter((entry) => {
+    if (organizationId ? entry.organizationId !== organizationId : entry.organizationId) return false;
+    // Legacy insights predate the v1 scope envelope. New observations are
+    // returned only when the Core-approved purpose and product both match.
+    const scoped = entry as LearnerInsight & { scope?: { purposes?: unknown; products?: unknown } };
+    if (!scoped.scope) return true;
+    return Array.isArray(scoped.scope.purposes)
+      && scoped.scope.purposes.includes(request.purpose)
+      && Array.isArray(scoped.scope.products)
+      && scoped.scope.products.includes(request.requestingProduct);
+  });
 }
 
 /**
@@ -104,7 +118,7 @@ export async function getScopedLearnerContext(input: {
     ? latestCourseSnapshot.data()!.orgId as string
     : null;
   const evidence = scopeEvidence(allEvidence, activeOrganizationId);
-  const insights = scopeInsights(allInsights, activeOrganizationId);
+  const insights = scopeInsights(allInsights, activeOrganizationId, request);
   const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
 
   const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
