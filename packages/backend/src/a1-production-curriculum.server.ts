@@ -74,6 +74,60 @@ function listeningBlock(spec: A1LessonSpec): ContentBlock {
         modelText: spec.modelText,
         locale: "en-US",
         playbackGoal: "meaning",
+        transcriptVisibility: "hidden",
+      },
+    },
+  };
+}
+
+function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
+  const correctAnswer = spec.modelText;
+  const distractor = spec.modelText
+    .replace(/\b(I'm|I am)\b/i, "She is")
+    .replace(/\b(twenty-two|two|three|four|five|six|seven|eight|nine|ten)\b/i, "twenty-three");
+  return {
+    id: `${spec.id}-listening-check`,
+    type: "interactive",
+    order: 3,
+    data: {
+      activity: {
+        schemaVersion: "1",
+        type: "single_choice",
+        stage: "COMPREHENSION",
+        title: "Check what you heard",
+        instructions: "Listen first. Then choose the sentence that matches the audio.",
+        prompt: "Which sentence did you hear?",
+        options: [correctAnswer, distractor === correctAnswer ? `Not: ${correctAnswer}` : distractor],
+        correctAnswers: [correctAnswer],
+        explanation: "Use the audio to check the key words and details.",
+        competencyIds: spec.competencyIds,
+        estimatedMinutes: 2,
+        required: true,
+      },
+    },
+  };
+}
+
+function functionalCapstoneReadingBlock(spec: A1LessonSpec): ContentBlock | null {
+  if (spec.id !== "a1-m8-u3-l3-capstone") return null;
+  return {
+    id: `${spec.id}-functional-reading`,
+    type: "interactive",
+    order: 5,
+    data: {
+      activity: {
+        schemaVersion: "1",
+        type: "single_choice",
+        stage: "COMPREHENSION",
+        title: "Read a practical notice",
+        instructions: "Read the notice and choose the correct detail.",
+        prompt: "NOTICE: Your appointment is Friday at 4:30. The office is next to the pharmacy. What time is the appointment?",
+        options: ["Friday at 4:30", "Friday at 3:30"],
+        correctAnswers: ["Friday at 4:30"],
+        explanation: "Find the day and time in the notice before you answer.",
+        competencyIds: ["EN.A1.READ.FUNCTIONAL_INFORMATION", "EN.A1.ONLINE.SHARE_BASIC_INFORMATION"],
+        estimatedMinutes: 2,
+        required: true,
       },
     },
   };
@@ -153,8 +207,10 @@ function buildLesson(spec: A1LessonSpec): Lesson {
         data: { text: `Mission: ${spec.mission}\n\nYou will listen, produce language, and use it for a real A1 communication goal.` },
       },
       listeningBlock(spec),
+      listeningCheckBlock(spec),
       productionCapabilityBlock(spec),
       activityBlock(spec, 4),
+      ...(functionalCapstoneReadingBlock(spec) ? [functionalCapstoneReadingBlock(spec)!] : []),
     ],
   };
 }
