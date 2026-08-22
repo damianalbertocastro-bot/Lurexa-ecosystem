@@ -82,6 +82,7 @@ function listeningBlock(spec: A1LessonSpec): ContentBlock {
 
 function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
   const correctAnswer = spec.modelText;
+  const listeningCompetencyIds = spec.competencyIds.filter((id) => id.startsWith("EN.A1.LISTEN."));
   const distractor = spec.modelText
     .replace(/\b(I'm|I am)\b/i, "She is")
     .replace(/\b(twenty-two|two|three|four|five|six|seven|eight|nine|ten)\b/i, "twenty-three");
@@ -100,7 +101,7 @@ function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
         options: [correctAnswer, distractor === correctAnswer ? `Not: ${correctAnswer}` : distractor],
         correctAnswers: [correctAnswer],
         explanation: "Use the audio to check the key words and details.",
-        competencyIds: spec.competencyIds.filter((id) => id.startsWith("EN.A1.LISTEN.")),
+        competencyIds: listeningCompetencyIds.length ? listeningCompetencyIds : ["EN.A1.LISTEN.PREDICTABLE_EXCHANGES"],
         estimatedMinutes: 2,
         required: true,
       },
