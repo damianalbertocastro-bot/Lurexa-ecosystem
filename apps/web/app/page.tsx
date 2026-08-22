@@ -1,5 +1,4 @@
 import { MasterMark } from "@lurexa/ui/MasterMark";
-import { ProductMark } from "@lurexa/ui/ProductMark";
 import {
   lurexaProducts,
   type LurexaProductId,
@@ -32,6 +31,25 @@ const products = productOrder.map((id) => ({
   shortName: lurexaProducts[id].name.replace(/^Lurexa /, ""),
   ...productPresentation[id],
 }));
+
+/**
+ * The homepage is intentionally self-contained: these product marks are served
+ * from this Next application's public directory instead of relying on utility
+ * CSS emitted by a consuming app. This keeps the identity assets visible in
+ * production builds even when shared-component Tailwind classes are absent.
+ */
+const productMarkSrc: Record<LurexaProductId, string> = {
+  learn: "/brand/lurexa-learn.svg",
+  coach: "/brand/lurexa-coach.svg",
+  teach: "/brand/lurexa-teach.svg",
+  admin: "/brand/lurexa-admin.svg",
+  insight: "/brand/lurexa-insight.svg",
+  studio: "/brand/lurexa-studio.svg",
+};
+
+function ProductLogo({ product }: { product: LurexaProductId }) {
+  return <img src={productMarkSrc[product]} width="80" height="80" style={{ display: "block", width: "48px", height: "48px", maxWidth: "100%", objectFit: "contain" }} alt={`Lurexa ${products.find((item) => item.id === product)?.shortName ?? product} logo`} />;
+}
 
 const capabilities: Array<{ name: string; icon: CapabilityName }> = [
   { name: "Connect", icon: "connect" }, { name: "Cloud", icon: "cloud" }, { name: "Secure", icon: "secure" },
@@ -78,7 +96,7 @@ export default function Home() {
       </div>
       <div className={styles.orbit} aria-label="Interactive Lurexa product map">
         <div className={styles.orbitCore}><MasterMark compact size="lg" /><span>Learn.<br/>Connect.<br/><b>Grow.</b></span></div>
-        {products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductMark product={product.id} compact size="lg" /><span>{product.shortName}</span></a>)}
+        {products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.orbitNode} ${styles[`node${index}`]}`} aria-label={`${product.name}: ${product.status}`}><ProductLogo product={product.id} /><span>{product.shortName}</span></a>)}
       </div>
     </section>
 
@@ -92,7 +110,7 @@ export default function Home() {
 
     <section id="products" className={styles.products}>
       <div className={styles.sectionHeading}><p className={styles.kicker}>THE PRODUCT FAMILY</p><h2>Distinct experiences.<br/><em>One intelligent relationship.</em></h2><p>Every product has its own role, visual signature, and purpose—while contributing to the same evolving learner model.</p></div>
-      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductMark product={product.id} compact size="lg" /></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.shortName}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
+      <div className={styles.productGrid}>{products.map((product, index) => <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}><div className={styles.productTop}><span className={styles.iconTile}><ProductLogo product={product.id} /></span><span className={styles.cardArrow}>↗</span></div><p>{product.eyebrow}</p><h3>Lurexa <strong>{product.shortName}</strong></h3><span className={styles.cardLine}/><div className={styles.cardBottom}><span>{product.description}</span><b>{product.status}</b></div></a>)}</div>
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">
