@@ -182,6 +182,7 @@ export const CapstonePerformanceValidationService = {
     const now = new Date().toISOString();
     const evidenceId = `capstone_validation_${input.learnerId}_${input.requirementId}_${Date.now()}`.replace(/[^a-zA-Z0-9._-]/g, "_");
     const validation: LearningEvidence<Record<string, unknown>> = {
+      contractVersion: "1",
       id: evidenceId,
       learnerId: input.learnerId,
       organizationId,
@@ -193,6 +194,9 @@ export const CapstonePerformanceValidationService = {
       },
       type: "activity_result",
       observedAt: now,
+      // Teacher rationale can contain learner-performance detail and is
+      // intentionally not treated as a general-purpose analytics payload.
+      dataClassification: "sensitive",
       payload: {
         event: "capstone.performance_validated",
         capstoneId: A1_CAPSTONE_ID,

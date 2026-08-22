@@ -21,7 +21,11 @@ export async function GET(request: Request): Promise<Response> {
     if (kind !== "recording") throw new Error("Unknown capstone artifact kind.");
 
     const artifact = await CapstoneArtifactReviewService.loadA1Recording(actor, learnerId, evidenceId);
-    return new Response(artifact.bytes, {
+    // Node's Buffer is not a DOM BodyInit in the current TypeScript libs.
+    // Copy it into a plain ArrayBuffer before returning the private recording.
+    const body = new ArrayBuffer(artifact.bytes.byteLength);
+    new Uint8Array(body).set(artifact.bytes);
+    return new Response(body, {
       status: 200,
       headers: {
         "Content-Type": artifact.contentType,

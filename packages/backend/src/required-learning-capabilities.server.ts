@@ -46,6 +46,7 @@ export const RequiredLearningCapabilityService = {
     const evidenceId = `learn_listening_${input.actor.uid}_${input.lessonId}_${capability.id}`.replace(/[^a-zA-Z0-9._-]/g, "_");
     const repository = new FirestoreLearningEvidenceRepository();
     await repository.append({
+      contractVersion: "1",
       id: evidenceId,
       learnerId: input.actor.uid,
       organizationId,
@@ -57,6 +58,7 @@ export const RequiredLearningCapabilityService = {
       },
       type: "activity_result",
       observedAt,
+      dataClassification: "standard",
       payload: {
         event: "model_listening.completed",
         competencyIds: capability.competencyIds,

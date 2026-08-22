@@ -25,7 +25,7 @@ function assertActivity(value: unknown, lessonId: string): LearningActivity {
   const activity = value as Partial<LearningActivity>;
   if (
     activity.schemaVersion !== "1"
-    || !["short_response", "single_choice"].includes(activity.type)
+    || (activity.type !== "short_response" && activity.type !== "single_choice")
     || typeof activity.title !== "string"
     || typeof activity.instructions !== "string"
     || typeof activity.prompt !== "string"

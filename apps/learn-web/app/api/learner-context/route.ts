@@ -1,9 +1,6 @@
-import type { LearnerDomain } from "@lurexa/types";
+import type { LearnerContextPurpose, LearnerDomain } from "@lurexa/types";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
-import {
-  getScopedLearnerContext,
-  type LearnerContextPurpose,
-} from "@lurexa/backend/learner-context.server";
+import { getScopedLearnerContext } from "@lurexa/backend/learner-context.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

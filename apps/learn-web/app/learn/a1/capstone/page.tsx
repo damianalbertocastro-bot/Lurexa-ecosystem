@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuthService } from "@lurexa/backend";
 import type { CapstoneAssessmentResult, IntegratedCapstoneDefinition } from "@lurexa/types";
-import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
 
 type Payload = {
   definition: IntegratedCapstoneDefinition;
