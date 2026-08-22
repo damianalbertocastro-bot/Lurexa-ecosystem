@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background:#f6f8ff;
+  --foreground:#071d67;
+  --focus-ring:#1d5add;
+}
+
+@theme inline {
+  --color-background:var(--background);
+  --color-foreground:var(--foreground);
+  --font-sans:var(--font-geist-sans);
+  --font-mono:var(--font-geist-mono);
+}
+
+html,body { min-height:100%; background:var(--background); }
+html { scroll-behavior:smooth; }
+body {
+  color:var(--foreground);
+  font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+:where(a,button,input,select,textarea,[tabindex]):focus-visible {
+  outline:3px solid color-mix(in srgb,var(--focus-ring) 72%,white);
+  outline-offset:3px;
+}
+
+:where(button,a) { -webkit-tap-highlight-color:transparent; }
+::selection { background:#dcd4ff; color:#071d67; }
+
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  *,*::before,*::after {
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    scroll-behavior:auto !important;
+    transition-duration:.01ms !important;
+  }
+}

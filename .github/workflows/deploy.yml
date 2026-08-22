@@ -21,6 +21,7 @@ jobs:
     outputs:
       ecosystem: ${{ steps.filter.outputs.ecosystem }}
       learn_web: ${{ steps.filter.outputs.learn_web }}
+      learn_teacher: ${{ steps.filter.outputs.learn_teacher }}
       teach: ${{ steps.filter.outputs.teach }}
       admin: ${{ steps.filter.outputs.admin }}
       docs: ${{ steps.filter.outputs.docs }}
@@ -40,6 +41,14 @@ jobs:
               - 'turbo.json'
             learn_web:
               - 'apps/learn-web/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            learn_teacher:
+              - 'apps/teacher-portal/**'
               - 'packages/**'
               - 'tooling/**'
               - 'package.json'
@@ -86,6 +95,14 @@ jobs:
     uses: ./.github/workflows/product-check.yml
     with:
       workspace: learn-web
+
+  learn-teacher:
+    name: Lurexa Learn Teacher Workspace
+    needs: changes
+    if: needs.changes.outputs.learn_teacher == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: teacher-portal
 
   teach:
     name: Lurexa Teach Web
