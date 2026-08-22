@@ -287,7 +287,7 @@ export function RecordedSpeakingActivity({ courseId, lessonId, capability }: Cap
         {audioBlob ? <button type="button" disabled={!meetsDuration || status === "uploading" || status === "saved"} onClick={() => void saveRecording()} className="rounded-2xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{status === "uploading" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save spoken evidence"}</button> : null}
       </div>
       {audioBlob ? <p className="mt-3 text-xs text-slate-500">Recorded: {seconds}s · minimum {capability.minimumSeconds}s · maximum {capability.maximumSeconds}s.</p> : null}
-      {audioBlob && !meetsMinimum ? <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p> : null}
+      {audioBlob && !meetsDuration ? <p className="mt-2 text-xs font-semibold text-amber-700">Record a little longer before saving this attempt.</p> : null}
       {message ? <p className={`mt-4 rounded-2xl p-4 text-sm ${status === "error" ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-900"}`} role="status">{message}</p> : null}
     </section>
   );
