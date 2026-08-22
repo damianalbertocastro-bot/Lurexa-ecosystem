@@ -1,5 +1,6 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import { LearnCurriculumAudioService } from "@lurexa/backend/learn-curriculum-audio.server";
+import { resolveLearningCapability } from "@lurexa/backend/learning-capability.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,19 +17,27 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof payload.lessonId !== "string" || !payload.lessonId) throw new Error("lessonId is required.");
     if (typeof payload.activityId !== "string" || !payload.activityId) throw new Error("activityId is required.");
 
+    const capability = await resolveLearningCapability({
+      actor,
+      courseId: payload.courseId,
+      lessonId: payload.lessonId,
+      activityId: payload.activityId,
+    });
     const audio = await LearnCurriculumAudioService.generate({
       actor,
       courseId: payload.courseId,
       lessonId: payload.lessonId,
       activityId: payload.activityId,
     });
-    await CoursePlatformService.recordCapabilityCompletion(
-      actor,
-      payload.courseId,
-      payload.lessonId,
-      payload.activityId,
-      "model_listening",
-    );
+    if (capability.kind === "model_listening") {
+      await CoursePlatformService.recordCapabilityCompletion(
+        actor,
+        payload.courseId,
+        payload.lessonId,
+        payload.activityId,
+        "model_listening",
+      );
+    }
     return new Response(audio.bytes, {
       status: 200,
       headers: {

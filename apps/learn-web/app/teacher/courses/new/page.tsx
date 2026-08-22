@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
@@ -41,7 +41,7 @@ type TeacherCoursePayload = Array<{
   lessons: Array<{ moduleTitle: string; lesson: Lesson }>;
 }> & { error?: string };
 
-export default function CourseBuilderPage() {
+function CourseBuilderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedCourseId = searchParams.get("courseId");
@@ -310,5 +310,13 @@ export default function CourseBuilderPage() {
         </form>
       </Modal>
     </div>
+  );
+}
+
+export default function CourseBuilderPage() {
+  return (
+    <Suspense fallback={<div role="status" className="min-h-screen bg-[var(--learn-canvas)] p-8 text-sm text-slate-600">Loading course builder…</div>}>
+      <CourseBuilderContent />
+    </Suspense>
   );
 }
