@@ -113,7 +113,7 @@ function functionalCapstoneReadingBlock(spec: A1LessonSpec): ContentBlock | null
   return {
     id: `${spec.id}-functional-reading`,
     type: "interactive",
-    order: 5,
+    order: 6,
     data: {
       activity: {
         schemaVersion: "1",
@@ -138,7 +138,7 @@ function productionCapabilityBlock(spec: A1LessonSpec): ContentBlock {
     return {
       id: `${spec.id}-roleplay`,
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         capability: {
           schemaVersion: "1",
@@ -209,7 +209,7 @@ function buildLesson(spec: A1LessonSpec): Lesson {
       listeningBlock(spec),
       listeningCheckBlock(spec),
       productionCapabilityBlock(spec),
-      activityBlock(spec, 4),
+      activityBlock(spec, 5),
       ...(functionalCapstoneReadingBlock(spec) ? [functionalCapstoneReadingBlock(spec)!] : []),
     ],
   };
