@@ -1,135 +1,115 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
-import { Badge } from "@lurexa/ui/Badge";
-import { AnalyticsService, ClassAnalyticsSummary, StudentRiskMetric } from "@lurexa/backend";
+import type { TeacherInsightsSummary, TeacherLearnerStatus } from "@lurexa/backend/teacher-insights.server";
+import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+
+function readError(payload: unknown, fallback: string): string {
+  if (typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
+    const error = (payload as { error?: unknown }).error;
+    if (typeof error === "string") return error;
+  }
+  return fallback;
+}
+
+function statusBadge(status: TeacherLearnerStatus): { label: string; variant: "success" | "warning" | "default" } {
+  if (status === "active") return { label: "Active", variant: "success" };
+  if (status === "needs_attention") return { label: "Needs review", variant: "warning" };
+  return { label: "Inactive", variant: "default" };
+}
 
 export default function TeacherInsightsPage() {
   const router = useRouter();
-  const [summary, setSummary] = useState<ClassAnalyticsSummary | null>(null);
-  const [roster, setRoster] = useState<StudentRiskMetric[]>([]);
+  const [summary, setSummary] = useState<TeacherInsightsSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadAnalytics() {
-      try {
-        const classSummary = await AnalyticsService.getClassSummary("org_demo");
-        const studentRoster = await AnalyticsService.getStudentRosterMetrics("org_demo");
-        setSummary(classSummary);
-        setRoster(studentRoster);
-      } catch (err) {
-        console.error("Failed to load analytics", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadInsights = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await authenticatedFetch("/api/learning/teacher-insights");
+      const body: unknown = await response.json();
+      if (!response.ok) throw new Error(readError(body, "Unable to load trusted class insights."));
+      setSummary(body as TeacherInsightsSummary);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to load trusted class insights.");
+    } finally {
+      setLoading(false);
     }
-    loadAnalytics();
   }, []);
 
-  if (loading) {
-    return <div className="p-8 text-[#6677a5]">Loading class insights...</div>;
-  }
+  useEffect(() => {
+    const requestId = window.requestAnimationFrame(() => { void loadInsights(); });
+    return () => window.cancelAnimationFrame(requestId);
+  }, [loadInsights]);
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
+    <main className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#071d67]">Teacher Insights & Analytics</h1>
-            <p className="text-[#6677a5]">Monitor student performance and trigger interventions</p>
+        <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <LurexaLearnLogo />
+            <div>
+              <p className="text-xs font-bold tracking-[.16em] text-indigo-700">LUREXA LEARN · EDUCATOR WORKSPACE</p>
+              <h1 className="mt-1 text-3xl font-bold tracking-tight text-[var(--learn-ink)]">Class progress</h1>
+              <p className="mt-1 text-sm text-slate-500">Review trusted learning records before deciding how to support a learner.</p>
+            </div>
           </div>
-          <Button variant="secondary" onClick={() => window.print()}>
-            Export Class CSV
-          </Button>
-        </div>
+          <Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Back to workspace</Button>
+        </header>
 
-        {/* Top Analytics Cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Card title="Enrolled Students">
-            <span className="text-3xl font-bold text-[#071d67]">{summary?.totalStudents}</span>
+        {loading ? <p className="py-8 text-sm text-slate-500" role="status">Loading authorized course evidence…</p> : null}
+        {error ? (
+          <Card title="Insights are unavailable">
+            <p className="text-sm text-slate-600" role="alert">{error}</p>
+            <Button className="mt-4" variant="primary" onClick={() => void loadInsights()}>Try again</Button>
           </Card>
-          <Card title="Avg Completion">
-            <span className="text-3xl font-bold text-[#592bd6]">{summary?.avgCompletionRate}%</span>
-          </Card>
-          <Card title="Avg Quiz Score">
-            <span className="text-3xl font-bold text-[#137867]">{summary?.avgQuizScore}%</span>
-          </Card>
-          <Card title="Flagged At Risk">
-            <span className="text-3xl font-bold text-[#a66013]">{summary?.atRiskCount} Students</span>
-          </Card>
-        </div>
+        ) : null}
 
-        {/* AI Recommendation Alert */}
-        <Card title="🤖 AI Teaching Recommendations" className="border-[#d8d0ff] bg-[#f1eeff]">
-          <ul className="space-y-2 pt-1 text-sm text-[#20396f]">
-            {summary?.aiRecommendations.map((rec, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="text-[#592bd6] font-bold">•</span>
-                <span>{rec}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        {/* Student Risk Roster Table */}
-        <Card title="Student Performance Roster" subtitle="Identifies struggling students requiring attention">
-          <div className="overflow-x-auto pt-2">
-            <table className="w-full text-left text-sm text-[#5d6f9d]">
-              <thead className="bg-[#f3f6ff] text-xs uppercase text-[#314b88]">
-                <tr>
-                  <th className="px-4 py-3">Student</th>
-                  <th className="px-4 py-3">Avg Score</th>
-                  <th className="px-4 py-3">Lessons Done</th>
-                  <th className="px-4 py-3">Last Active</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#edf1fb]">
-                {roster.map((student) => (
-                  <tr key={student.studentId} className="hover:bg-[var(--learn-canvas)]">
-                    <td className="px-4 py-3 font-medium text-[#071d67]">
-                      <div>{student.studentName}</div>
-                      <div className="text-xs text-[#8190b3]">{student.email}</div>
-                    </td>
-                    <td className="px-4 py-3 font-semibold">{student.avgScore}%</td>
-                    <td className="px-4 py-3">{student.completedLessons}</td>
-                    <td className="px-4 py-3 text-xs">{student.lastActive}</td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant={
-                          student.riskStatus === "healthy"
-                            ? "success"
-                            : student.riskStatus === "at_risk"
-                            ? "warning"
-                            : "default"
-                        }
-                      >
-                        {student.riskStatus.replace("_", " ")}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          router.push(`/teacher/insights/${student.studentId}`);
-                        }}
-                      >
-                        Intervene →
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {!loading && !error && summary ? <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card title="Learners with progress"><span className="text-3xl font-bold text-indigo-700">{summary.totalLearners}</span></Card>
+            <Card title="Average completion"><span className="text-3xl font-bold text-violet-700">{summary.averageCompletionPercent ?? "—"}{summary.averageCompletionPercent === null ? "" : "%"}</span></Card>
+            <Card title="First-attempt average"><span className="text-3xl font-bold text-emerald-700">{summary.averageFirstAttemptScore ?? "—"}{summary.averageFirstAttemptScore === null ? "" : "%"}</span></Card>
+            <Card title="Needs review"><span className="text-3xl font-bold text-amber-700">{summary.needsAttentionCount}</span><p className="mt-1 text-xs text-slate-500">{summary.inactiveLearners} inactive</p></Card>
           </div>
-        </Card>
+
+          <Card title="How to use this view" subtitle="Operational signals, not automated judgments">
+            <p className="text-sm leading-6 text-slate-600">{summary.dataNotice}</p>
+          </Card>
+
+          <Card title="Learner progress" subtitle="Only learners with progress in your authorized courses appear here.">
+            {summary.learners.length === 0 ? (
+              <div className="py-6 text-sm text-slate-600">No learner progress yet. Invite students or wait for the first lesson activity to be recorded.</div>
+            ) : (
+              <div className="overflow-x-auto pt-2">
+                <table className="w-full min-w-[720px] text-left text-sm text-slate-600">
+                  <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600"><tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Completion</th><th className="px-4 py-3">First attempt</th><th className="px-4 py-3">Last activity</th><th className="px-4 py-3">Review signal</th><th className="px-4 py-3"><span className="sr-only">Open learner support</span></th></tr></thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {summary.learners.map((learner) => {
+                      const badge = statusBadge(learner.status);
+                      return <tr key={learner.learnerId} className="hover:bg-slate-50/70">
+                        <td className="px-4 py-4"><p className="font-semibold text-slate-900">{learner.learnerLabel}</p><p className="mt-1 text-xs text-slate-500">{learner.courseCount} course{learner.courseCount === 1 ? "" : "s"} with recorded progress</p></td>
+                        <td className="px-4 py-4 font-medium text-slate-800">{learner.completionPercent}% <span className="text-xs font-normal text-slate-500">({learner.completedLessons} lessons)</span></td>
+                        <td className="px-4 py-4">{learner.averageFirstAttemptScore === null ? "Not enough scored evidence" : `${learner.averageFirstAttemptScore}%`}</td>
+                        <td className="px-4 py-4 text-xs">{learner.lastActiveAt ? new Date(learner.lastActiveAt).toLocaleDateString() : "No activity"}</td>
+                        <td className="px-4 py-4"><Badge variant={badge.variant}>{badge.label}</Badge><p className="mt-2 max-w-xs text-xs leading-5 text-slate-500">{learner.statusReason}</p></td>
+                        <td className="px-4 py-4 text-right"><Button variant="secondary" size="sm" onClick={() => router.push(`/teacher/insights/${encodeURIComponent(learner.learnerId)}`)}>Review support</Button></td>
+                      </tr>;
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </> : null}
       </div>
-    </div>
+    </main>
   );
 }

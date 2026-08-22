@@ -157,6 +157,9 @@ export default function TeacherDashboard() {
             <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>
               Create course
             </Button>
+            <Button variant="secondary" onClick={() => router.push("/teacher/insights")}>
+              View class progress
+            </Button>
             <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>
               + Create student invitation
             </Button>

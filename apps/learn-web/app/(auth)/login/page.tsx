@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
@@ -14,7 +14,7 @@ function readSafeContinueTo(value: string | null): string | null {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -97,5 +97,13 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--learn-canvas)] p-8 text-sm text-slate-600">Loading sign in…</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

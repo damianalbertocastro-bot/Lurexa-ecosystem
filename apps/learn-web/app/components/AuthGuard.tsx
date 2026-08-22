@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 
@@ -16,7 +16,7 @@ interface AuthGuardProps {
   access?: AccessLevel;
 }
 
-export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps) {
+function AuthGuardContent({ children, access = "authenticated" }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,4 +85,12 @@ export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps
   }
 
   return <>{children}</>;
+}
+
+export function AuthGuard({ children, access = "authenticated" }: AuthGuardProps) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 p-8 text-slate-500">Checking access...</div>}>
+      <AuthGuardContent access={access}>{children}</AuthGuardContent>
+    </Suspense>
+  );
 }
