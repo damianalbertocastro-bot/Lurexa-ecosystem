@@ -33,7 +33,11 @@ if (!analyticsServer.includes("getServerFirestore") || !analyticsServer.includes
   fail("teacher analytics projection must run on the server and derive identity/organization context from Core records");
 }
 const teacherInsights = read("apps/learn-web/app/teacher/insights/page.tsx");
-if (!teacherInsights.includes('authenticatedFetch("/api/teacher/insights")') || teacherInsights.includes("AnalyticsService")) {
+const trustedTeacherInsightsEndpoints = [
+  'authenticatedFetch("/api/teacher/insights")',
+  'authenticatedFetch("/api/learning/teacher-insights")',
+];
+if (!trustedTeacherInsightsEndpoints.some((endpoint) => teacherInsights.includes(endpoint)) || teacherInsights.includes("AnalyticsService")) {
   fail("teacher Insights must consume the authenticated server analytics projection rather than browser aggregation");
 } else pass("teacher analytics uses a trusted server projection");
 
