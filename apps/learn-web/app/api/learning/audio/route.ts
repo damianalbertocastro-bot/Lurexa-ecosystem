@@ -17,7 +17,7 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof payload.lessonId !== "string" || !payload.lessonId) throw new Error("lessonId is required.");
     if (typeof payload.activityId !== "string" || !payload.activityId) throw new Error("activityId is required.");
 
-    const capability = await resolveLearningCapability({
+    await resolveLearningCapability({
       actor,
       courseId: payload.courseId,
       lessonId: payload.lessonId,
@@ -29,15 +29,6 @@ export async function POST(request: Request): Promise<Response> {
       lessonId: payload.lessonId,
       activityId: payload.activityId,
     });
-    if (capability.kind === "model_listening") {
-      await CoursePlatformService.recordCapabilityCompletion(
-        actor,
-        payload.courseId,
-        payload.lessonId,
-        payload.activityId,
-        "model_listening",
-      );
-    }
     return new Response(audio.bytes, {
       status: 200,
       headers: {
