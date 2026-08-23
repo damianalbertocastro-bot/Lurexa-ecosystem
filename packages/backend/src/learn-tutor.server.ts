@@ -454,6 +454,70 @@ export const LearnTutorService = {
       provider,
     };
   },
+  async testGeminiLiveConnection(): Promise<{
+    configured: boolean;
+    keyPreview: string | null;
+    liveTest: {
+      success: boolean;
+      model: string;
+      status: number | null;
+      error?: string;
+      reply?: string | null;
+    };
+  }> {
+    const key = resolveGeminiApiKey();
+    if (!key) {
+      return {
+        configured: false,
+        keyPreview: null,
+        liveTest: { success: false, model: "none", status: null, error: "No API key found in environment." },
+      };
+    }
+
+    const modelsToProbe = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+    let lastError = "";
+    let lastStatus = 0;
+
+    for (const model of modelsToProbe) {
+      try {
+        const url = `${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: "Say hello in one word." }] }],
+            generationConfig: { maxOutputTokens: 20 },
+          }),
+        });
+
+        lastStatus = response.status;
+        if (response.ok) {
+          const data = await response.json();
+          const reply = readGeminiOutputText(data);
+          return {
+            configured: true,
+            keyPreview: `${key.slice(0, 6)}...${key.slice(-4)}`,
+            liveTest: { success: true, model, status: response.status, reply },
+          };
+        } else {
+          lastError = await response.text().catch(() => "");
+        }
+      } catch (err) {
+        lastError = err instanceof Error ? err.message : "Network error";
+      }
+    }
+
+    return {
+      configured: true,
+      keyPreview: `${key.slice(0, 6)}...${key.slice(-4)}`,
+      liveTest: {
+        success: false,
+        model: modelsToProbe.join(", "),
+        status: lastStatus,
+        error: lastError,
+      },
+    };
+  },
   getDiagnosticStatus(): { configured: boolean; keyPreview: string | null } {
     const key = resolveGeminiApiKey();
     return {

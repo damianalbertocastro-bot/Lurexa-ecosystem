@@ -33,11 +33,9 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function GET(): Promise<Response> {
-  const status = LearnTutorService.getDiagnosticStatus();
+  const result = await LearnTutorService.testGeminiLiveConnection();
   return Response.json({
     status: "ok",
-    geminiConfigured: status.configured,
-    keyPreview: status.keyPreview,
-    defaultModel: "gemini-1.5-flash",
+    ...result,
   });
 }
