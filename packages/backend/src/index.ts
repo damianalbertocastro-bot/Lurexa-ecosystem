@@ -23,3 +23,5 @@ export * from "./dominican-corpus-catalog.service";
 export * from "./teach.service";
 export * from "./teach-mind.service";
 export * from "./teach-credential";
+export * from "./mind.service";
+

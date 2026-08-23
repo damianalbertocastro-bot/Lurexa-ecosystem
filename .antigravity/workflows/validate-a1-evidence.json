@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "A1 Spoken Evidence Loop Validation",
+    "executionMode": "sequential",
+    "stopOnFailure": true,
+    "steps": [
+        {
+            "step": 1,
+            "name": "Validate Type Contracts (@lurexa/types)",
+            "command": "pnpm --filter @lurexa/types check-types"
+        },
+        {
+            "step": 2,
+            "name": "Validate Backend Service & Diagnostics (@lurexa/backend)",
+            "command": "pnpm --filter @lurexa/backend check-types"
+        },
+        {
+            "step": 3,
+            "name": "Validate Spoken Recorder UI & API Route (apps/learn-web)",
+            "command": "pnpm --filter learn-web check-types"
+        },
+        {
+            "step": 4,
+            "name": "Full Workspace Static Analysis & Lint",
+            "command": "pnpm check-types"
+        }
+    ]
+}

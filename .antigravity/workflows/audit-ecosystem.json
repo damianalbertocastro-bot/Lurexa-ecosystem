@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "Lurexa Multi-Agent Ecosystem Audit",
+    "executionMode": "asynchronous",
+    "outputReport": ".antigravity/reports/IMPROVEMENTS.md",
+    "audits": [
+        {
+            "agent": ".antigravity/agents/engineering-architect.json",
+            "focus": [
+                "Core vs. Mind boundary",
+                "Single Learner Model adherence",
+                "Strict type safety"
+            ]
+        },
+        {
+            "agent": ".antigravity/agents/spark-bridge.json",
+            "focus": [
+                "A1 proof-of-loop validation",
+                "Spoken evidence persistence",
+                "Dominican Spanish transfer model"
+            ]
+        },
+        {
+            "agent": ".antigravity/agents/ui-designer.json",
+            "focus": [
+                "Token deduplication (PR #55)",
+                "WCAG AA compliance",
+                "Shared grammar vs. distinct personalities"
+            ]
+        },
+        {
+            "agent": ".antigravity/agents/ux-expert.json",
+            "focus": [
+                "Teacher Workspace vs. Lurexa Teach separation",
+                "Cognitive load in A1 lessons"
+            ]
+        },
+        {
+            "agent": ".antigravity/agents/governance-lead.json",
+            "focus": [
+                "Open PR synchronization (#48, #55)",
+                "Implementation-driven documentation"
+            ]
+        }
+    ]
+}

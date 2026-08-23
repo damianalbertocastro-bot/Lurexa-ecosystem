@@ -5,8 +5,11 @@ export * from "./ai";
 export * from "./billing";
 export * from "./api";
 export * from "./learner";
+export * from "./learner-model";
+export * from "./evidence";
 export * from "./coach";
 export * from "./linguistic-intelligence";
 export * from "./teach";
 export * from "./learning-experience";
 export * from "./capstone";
+

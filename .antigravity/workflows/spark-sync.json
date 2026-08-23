@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "Spark-to-Lurexa-Mind Pipeline",
+    "executionMode": "asynchronous",
+    "steps": [
+        {
+            "step": 1,
+            "name": "Fetch Pedagogical Blueprint via MCP",
+            "tool": "google-workspace.read_doc",
+            "params": {
+                "documentName": "Lurexa Pedagogical Blueprint & Learner Model Specification"
+            }
+        },
+        {
+            "step": 2,
+            "name": "Generate Learner Model & Evidence Types",
+            "targetFile": "packages/types/src/learner-model.ts",
+            "action": "transform_spec_to_learner_model"
+        },
+        {
+            "step": 3,
+            "name": "Generate Spoken Evidence & Coach Contracts",
+            "targetFile": "packages/types/src/evidence.ts",
+            "action": "transform_spec_to_evidence_schemas"
+        },
+        {
+            "step": 4,
+            "name": "Implement Mind Interpretation Service",
+            "targetFile": "packages/backend/src/mind.service.ts",
+            "action": "implement_mind_adaptation_engine"
+        },
+        {
+            "step": 5,
+            "name": "Run Strict Quality Gate",
+            "command": "pnpm check-types"
+        }
+    ]
+}

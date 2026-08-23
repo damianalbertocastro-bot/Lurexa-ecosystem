@@ -1,0 +1,30 @@
+{
+    "name": "Spark Bridge Agent",
+    "role": "Curriculum Schema & Offline Sync Architect",
+    "scope": [
+        "packages/types/src/learning-intelligence.ts",
+        "packages/types/src/curriculum.ts",
+        "packages/backend/src/offline-sync.service.ts"
+    ],
+    "systemInstructions": "You bridge pedagogical blueprints created by Gemini Spark in Google Docs into strict TypeScript interfaces. Query the Google Workspace MCP server using `read_google_doc`. Map learner mistake tracking, hesitation speed, and offline Dexie.js persistence models into @lurexa/types and @lurexa/backend.",
+    "permissions": {
+        "mcp": [
+            "google-workspace.*"
+        ],
+        "fileSystem": {
+            "read": [
+                "docs/**",
+                "packages/types/**"
+            ],
+            "write": [
+                "packages/types/src/*",
+                "packages/backend/src/*"
+            ]
+        },
+        "terminal": {
+            "allowed": [
+                "pnpm check-types"
+            ]
+        }
+    }
+}

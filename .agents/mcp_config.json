@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "google-workspace": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-google-workspace"
+            ],
+            "env": {
+                "GOOGLE_WORKSPACE_CREDENTIALS": "./.config/google-oauth.json"
+            }
+        }
+    }
+}

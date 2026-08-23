@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "Lurexa Autonomous Asynchronous Build",
+    "executionMode": "parallel",
+    "maxConcurrentWorkers": 5,
+    "verificationGate": {
+        "command": "pnpm check-types",
+        "autoFixAttempts": 3
+    },
+    "stages": [
+        {
+            "stage": 1,
+            "name": "Parallel Documentation & Design Specifications",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/governance-lead.json",
+                    "action": "generate_docs",
+                    "files": [
+                        "docs/governance/Performance Standards.md",
+                        "docs/governance/Accessibility Standards.md",
+                        "docs/governance/Release Strategy.md"
+                    ]
+                },
+                {
+                    "agent": ".antigravity/agents/ux-expert.json",
+                    "action": "generate_product_spec",
+                    "files": [
+                        "docs/design/UX principles.md",
+                        "docs/product/User Journeys.md",
+                        "docs/product/PRD.md"
+                    ]
+                },
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "generate_engineering_specs",
+                    "files": [
+                        "docs/engineering/API Design Guidelines.md",
+                        "docs/engineering/Database Migration Strategy.md",
+                        "docs/engineering/Monorepo Standards.md"
+                    ]
+                }
+            ]
+        },
+        {
+            "stage": 2,
+            "name": "Spark MCP Ingestion & Code Generation",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/spark-bridge.json",
+                    "action": "sync_mcp_to_code",
+                    "mcpQuery": {
+                        "server": "google-workspace",
+                        "tool": "read_google_doc",
+                        "searchKeyword": "Lurexa Pedagogical Blueprint"
+                    },
+                    "targetFiles": [
+                        "packages/types/src/learning-intelligence.ts",
+                        "packages/backend/src/offline-sync.service.ts"
+                    ]
+                },
+                {
+                    "agent": ".antigravity/agents/ui-designer.json",
+                    "action": "generate_components",
+                    "targetFiles": [
+                        "packages/tokens/src/index.ts",
+                        "packages/ui/src/OfflineIndicator.tsx",
+                        "packages/ui/src/AITutorWidget.tsx"
+                    ]
+                }
+            ]
+        }
+    ]
+}

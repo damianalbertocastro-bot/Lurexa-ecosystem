@@ -1,0 +1,79 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "A1 Full Proof-of-Loop Autonomous Pipeline",
+    "executionMode": "sequential",
+    "qualityGate": "pnpm check-types",
+    "stages": [
+        {
+            "stage": 1,
+            "name": "Teacher Guidance & Return Loop",
+            "description": "Enables teachers to review spoken evidence, attach audio/text feedback, and return tailored practice to the learner.",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "create_file",
+                    "target": "packages/types/src/teacher-guidance.ts",
+                    "context": "Define TeacherGuidancePayload, ReviewStatus, and ReturnLoopAction interfaces."
+                },
+                {
+                    "agent": ".antigravity/agents/ui-designer.json",
+                    "action": "create_component",
+                    "target": "packages/ui/src/TeacherGuidanceBanner.tsx",
+                    "context": "Create an accessible feedback card displaying teacher notes and review actions."
+                },
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "extend_backend",
+                    "target": "packages/backend/src/teacher-return-loop.service.ts",
+                    "context": "Implement mutation to persist teacher guidance and update Learner Model review schedule."
+                }
+            ]
+        },
+        {
+            "stage": 2,
+            "name": "A1 Modules 2-8 Production Objects",
+            "description": "Transforms Spark curriculum blueprints into structured lesson data objects.",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/spark-bridge.json",
+                    "action": "mcp_sync_modules",
+                    "sourceDoc": "Lurexa Pedagogical Blueprint",
+                    "targetDirectory": "packages/backend/src/curriculum/a1/",
+                    "context": "Generate modules 2 through 8 with vocabulary, grammar, and spoken prompts."
+                }
+            ]
+        },
+        {
+            "stage": 3,
+            "name": "A1 Integrated Capstone (My Life, My English)",
+            "description": "Configures the final spoken and written synthesis project for Level A1.",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/ux-expert.json",
+                    "action": "design_flow",
+                    "target": "docs/product/A1-Capstone-Specification.md",
+                    "context": "Define multi-step student self-introduction, family, daily routine, and oral defense rubric."
+                },
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "implement_capstone",
+                    "target": "packages/backend/src/capstone-evaluator.service.ts",
+                    "context": "Aggregate multi-modal evidence into a final A1 CEFR mastery verification vector."
+                }
+            ]
+        },
+        {
+            "stage": 4,
+            "name": "Coach A1 Pack 1 Calibration",
+            "description": "Configures Lurexa Coach conversational intelligence for Dominican Spanish speakers.",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "configure_coach",
+                    "target": "packages/backend/src/coach-a1.service.ts",
+                    "context": "Implement phonological transfer detection (final consonants, syllable timing) without accent erasure."
+                }
+            ]
+        }
+    ]
+}

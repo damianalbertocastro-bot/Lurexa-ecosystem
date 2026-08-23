@@ -19,3 +19,6 @@ repo_snapshot.txt
 # Firebase Local Emulator Suite diagnostics
 firebase-debug.log
 firestore-debug.log
+
+.config/*.json
+.env.local
