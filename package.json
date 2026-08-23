@@ -18,7 +18,7 @@
     "verify:brand-system": "node scripts/run-brand-system-verifier.mjs",
     "verify:product-registry": "node scripts/verify-product-registry-consumers.mjs",
     "verify:curriculum-portfolio": "node scripts/verify-curriculum-portfolio.mjs",
-    "verify:tokens": "pnpm --filter @lurexa/tokens lint && pnpm --filter @lurexa/tokens check-types",
+    "verify:tokens": "pnpm --filter @lurexa/tokens lint && pnpm --filter @lurexa/tokens check-types && node scripts/verify-design-token-contract.mjs",
     "verify:vercel-release": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview --sha 0000000000000000000000000000000000000000",
     "verify:local": "pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:curriculum-portfolio && pnpm verify:tokens && pnpm verify:vercel-release && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "phase0:lint": "pnpm --filter learn-web... lint",
