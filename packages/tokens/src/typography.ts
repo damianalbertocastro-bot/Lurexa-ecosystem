@@ -11,12 +11,18 @@ export const typography = {
     xl: "1.25rem",
     "2xl": "1.5rem",
     "3xl": "1.875rem",
+    "4xl": "2.25rem",
+    "5xl": "3rem",
+    display: "clamp(2.25rem, 5vw, 3.75rem)",
+    displayLg: "clamp(3.375rem, 6.6vw, 5.875rem)",
   },
   fontWeight: {
     normal: "400",
     medium: "500",
     semibold: "600",
     bold: "700",
+    extrabold: "800",
+    black: "900",
   },
   lineHeight: {
     tight: "1.25",
