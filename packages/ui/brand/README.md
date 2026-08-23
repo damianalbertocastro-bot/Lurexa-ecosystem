@@ -6,7 +6,13 @@ Design principle: **shared grammar + distinct personalities**.
 
 ## Parent identity
 
-- `marks/lurexa-master.svg` — Lurexa Learning Technologies; institutional and foundational.
+- `marks/lurexa-master.svg` — **restored original Lurexa Master mark** for Lurexa Learning Technologies; institutional and foundational. The four-part violet/blue/navy/cyan mark with a white center is the canonical parent-company identity. Do not replace it with the later diamond/core-node exploration.
+- `apps/web/public/brand/lurexa-master.svg` — static ecosystem-web copy of the same original Master mark for browser/public asset use.
+- `apps/web/app/icon.svg` — ecosystem browser icon using the same original Master geometry.
+
+React surfaces must use `MasterMark` from `@lurexa/ui` whenever they represent the parent company/ecosystem. Product surfaces keep their own product mark as the primary identity; a Master mark may appear only where the parent ecosystem is intentionally referenced.
+
+Original editable Canva source: **Master logo for lurexa** (`DAHSqLm8k6M`). The original source design is stored in the shared **Lurexa Brand System** Canva folder.
 
 ## Current product family
 
@@ -56,7 +62,7 @@ Use `MasterMark`, `ProductMark`, `DocsMark`, and `EcosystemLayerMark` from `@lur
 
 Do not create a new top-level product mark for ordinary feature identities. Features inherit the visual identity of their parent product unless an explicit ecosystem architecture decision promotes them to a standalone surface or product.
 
-Learn and Teach are deliberate exceptions to the latest logo exploration: their previously approved marks remain canonical because the product owner preferred those identities. This is consistent with the design principle: shared grammar does not require every product mark to be redesigned simultaneously.
+Learn and Teach retain their previously approved product marks. The restored original Master identity does not replace those product-specific marks; it replaces only parent-company/ecosystem Master-logo usages.
 
 ## Canonical editable design
 
@@ -64,4 +70,4 @@ The current editable board is **Lurexa Brand System v3 — Community Future Prod
 
 Canva design ID: `DAHS5ZNcP7s`.
 
-Keep Canva exports visually aligned with these SVG masters and preserve the distinction between current products, shared layers, ecosystem surfaces, future product concepts and other future capability/offering concepts.
+The Master slot on the editable board is being restored from the original Canva source asset. Keep Canva exports visually aligned with these SVG masters and preserve the distinction between current products, shared layers, ecosystem surfaces, future product concepts and other future capability/offering concepts.
