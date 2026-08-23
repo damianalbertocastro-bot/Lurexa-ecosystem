@@ -23,13 +23,35 @@ function clampText(value: string, maxLength: number): string {
 }
 
 function resolveGeminiApiKey(): string | null {
-  return (
-    process.env.GEMINI_API_KEY?.trim()
-    || process.env.GOOGLE_API_KEY?.trim()
-    || process.env.GEMINI_API_KEY_1?.trim()
-    || process.env.GOOGLE_GEMINI_API_KEY?.trim()
-    || null
+  const direct = (
+    process.env.GEMINI_API_KEY
+    || process.env.GOOGLE_API_KEY
+    || process.env.GEMINI_API_KEY_1
+    || process.env.GOOGLE_GEMINI_API_KEY
+    || process.env["Google API Key"]
+    || process.env["GOOGLE API KEY"]
+    || process.env["Google_API_Key"]
   );
+  if (direct?.trim()) return direct.trim();
+
+  for (const [key, value] of Object.entries(process.env)) {
+    if (typeof value === "string" && value.trim()) {
+      const normalized = key.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (
+        normalized === "GEMINIAPIKEY"
+        || normalized === "GOOGLEAPIKEY"
+        || normalized === "GEMINIKEY"
+        || normalized === "GOOGLEAISTUDIOKEY"
+        || normalized === "GOOGLEAPIKEY1"
+        || normalized === "GEMINIAPIKEY1"
+        || normalized.startsWith("GEMINIAPIKEY")
+        || normalized.startsWith("GOOGLEAPIKEY")
+      ) {
+        return value.trim();
+      }
+    }
+  }
+  return null;
 }
 
 function summarizeContext(context: Awaited<ReturnType<typeof getScopedLearnerContext>>["context"]): string {
