@@ -1,0 +1,14 @@
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f4f7ff;
+  --color-text-primary: #0a1c55;
+  --color-text-secondary: #4e5f8f;
+  --color-text-muted: #65749b;
+  --color-border-default: rgba(12, 42, 108, 0.13);
+  --color-border-focus: #592bd6;
+  --color-brand-primary: #592bd6;
+  --color-brand-secondary: #1d5add;
+
+  --font-family-sans: Arial, sans-serif;
+  --font-family-mono: monospace;
+}
