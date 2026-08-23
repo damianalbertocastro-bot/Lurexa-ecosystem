@@ -12,7 +12,7 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
@@ -223,6 +223,21 @@ async function callGemini(input: {
       if (!response.ok) {
         const errorText = await response.text().catch(() => "");
         console.error("Learn tutor Gemini request failed.", { model, status: response.status, errorText });
+
+        // Try alternative contents-only payload in case model endpoint dislikes systemInstruction
+        const fallbackResponse = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: `${system}\n\n${userInput}` }] }],
+            generationConfig: { maxOutputTokens: 180 },
+          }),
+        });
+
+        if (fallbackResponse.ok) {
+          const fallbackOutput = readGeminiOutputText(await fallbackResponse.json());
+          if (fallbackOutput) return fallbackOutput;
+        }
         continue;
       }
       const output = readGeminiOutputText(await response.json());
@@ -437,6 +452,13 @@ export const LearnTutorService = {
         recurringPatternCount: scoped.context.recurringPatterns?.length ?? 0,
       },
       provider,
+    };
+  },
+  getDiagnosticStatus(): { configured: boolean; keyPreview: string | null } {
+    const key = resolveGeminiApiKey();
+    return {
+      configured: Boolean(key),
+      keyPreview: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
     };
   },
 };

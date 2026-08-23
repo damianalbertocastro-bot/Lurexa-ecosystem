@@ -31,3 +31,19 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: message }, { status });
   }
 }
+
+export async function GET(request: Request): Promise<Response> {
+  try {
+    const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
+    const status = LearnTutorService.getDiagnosticStatus();
+    return Response.json({
+      status: "ok",
+      actorId: actor.uid,
+      geminiConfigured: status.configured,
+      keyPreview: status.keyPreview,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Authentication is required.";
+    return Response.json({ error: message }, { status: 401 });
+  }
+}
