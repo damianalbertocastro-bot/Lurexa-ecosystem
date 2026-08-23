@@ -1,4 +1,4 @@
-@import "../../../packages/tokens/src/theme.css";
+@import "@lurexa/tokens/theme.css";
 
 :root {
   --background: #ffffff;
