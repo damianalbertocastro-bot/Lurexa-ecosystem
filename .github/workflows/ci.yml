@@ -49,6 +49,9 @@ jobs:
       - name: Verify Curriculum Portfolio
         run: pnpm verify:curriculum-portfolio
 
+      - name: Verify Design Tokens
+        run: pnpm verify:tokens
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 
