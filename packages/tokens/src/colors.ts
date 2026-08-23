@@ -15,5 +15,11 @@ export const colors = {
   brand: {
     primary: "var(--color-brand-primary)",
     secondary: "var(--color-brand-secondary)",
+    accent: {
+      cyan: "var(--color-brand-accent-cyan)",
+      violetDeep: "var(--color-brand-accent-violet-deep)",
+      blueDeep: "var(--color-brand-accent-blue-deep)",
+      violetBright: "var(--color-brand-accent-violet-bright)",
+    },
   },
 } as const;
