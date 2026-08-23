@@ -82,7 +82,6 @@ if (!failures.some((item) => item.includes("undocumented public URL") || item.in
 const shellExpectations = [
   ["apps/web/app/layout.tsx", "Lurexa Learning Technologies"],
   ["apps/learn-web/app/layout.tsx", "Lurexa Learn"],
-  ["apps/teacher-portal/app/layout.tsx", "Lurexa Learn | Teacher Dashboard"],
   ["apps/teach-web/app/layout.tsx", "Lurexa Teach"],
   ["apps/admin-portal/app/layout.tsx", "Lurexa Admin"],
   ["apps/docs/app/layout.tsx", "Lurexa Docs"],
@@ -94,12 +93,21 @@ for (const [file, expected] of shellExpectations) {
   }
   if (!content.includes(expected)) fail(`${file} does not identify the expected Lurexa surface: ${expected}`);
 }
-if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web shells expose canonical product/company metadata");
+
+const teacherLayout = read("apps/learn-web/app/teacher/layout.tsx");
+if (!teacherLayout.includes('product="learn"')) {
+  fail("canonical Learn teacher workspace must render the Learn product identity");
+}
+if (teacherLayout.includes('product="teach"')) {
+  fail("canonical Learn teacher workspace must not render the Teach product identity");
+}
+if (!failures.some((item) => item.includes("layout.tsx") || item.includes("teacher workspace"))) {
+  pass("current web shells and nested Learn teacher workspace expose canonical product/company identity");
+}
 
 const shellDirectories = [
   "apps/web/app",
   "apps/learn-web/app",
-  "apps/teacher-portal/app",
   "apps/teach-web/app",
   "apps/admin-portal/app",
   "apps/docs/app",
@@ -110,7 +118,7 @@ for (const directory of shellDirectories) {
   if (!exists(icon)) fail(`Missing canonical shell icon: ${icon}`);
   if (exists(legacyFavicon)) fail(`Legacy favicon conflicts with canonical shell icon: ${legacyFavicon}`);
 }
-if (!failures.some((item) => item.includes("shell icon") || item.includes("favicon"))) pass("current web shells have one canonical browser icon source");
+if (!failures.some((item) => item.includes("shell icon") || item.includes("favicon"))) pass("current web application shells have one canonical browser icon source");
 
 const sizeContract = read("packages/ui/src/brand-mark-size.ts");
 for (const size of ["sm", "md", "lg"]) {
@@ -149,9 +157,6 @@ if (webPage.includes('"community"') || webPage.includes("Lurexa Community")) {
   pass("Community is absent from current ecosystem product navigation");
 }
 
-// The ecosystem homepage serves static copies of the product marks so their
-// appearance does not depend on consumer Tailwind output. Keep those copies
-// aligned with the canonical UI assets and make the page reference each one.
 for (const id of currentProducts) {
   const canonicalPath = `packages/ui/brand/marks/lurexa-${id}.svg`;
   const publicPath = `apps/web/public/brand/lurexa-${id}.svg`;
