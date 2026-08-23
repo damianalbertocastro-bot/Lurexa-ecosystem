@@ -52,6 +52,9 @@ jobs:
       - name: Verify Design Tokens
         run: pnpm verify:tokens
 
+      - name: Verify Teacher Workspace Boundary
+        run: pnpm verify:teacher-workspace
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 
