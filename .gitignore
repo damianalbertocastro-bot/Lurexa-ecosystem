@@ -11,6 +11,7 @@ out/
 .DS_Store
 .vercel
 .env*
+*.tsbuildinfo
 
 # Generated local repository inspection artifacts
 repo_snapshot.txt
