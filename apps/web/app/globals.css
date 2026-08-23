@@ -1,3 +1,5 @@
+@import "../../../packages/tokens/src/theme.css";
+
 :root {
   --background: #ffffff;
   --foreground: #071d67;
