@@ -23,7 +23,13 @@ function clampText(value: string, maxLength: number): string {
 }
 
 function resolveGeminiApiKey(): string | null {
-  return process.env.GEMINI_API_KEY?.trim() || null;
+  return (
+    process.env.GEMINI_API_KEY?.trim()
+    || process.env.GOOGLE_API_KEY?.trim()
+    || process.env.GEMINI_API_KEY_1?.trim()
+    || process.env.GOOGLE_GEMINI_API_KEY?.trim()
+    || null
+  );
 }
 
 function summarizeContext(context: Awaited<ReturnType<typeof getScopedLearnerContext>>["context"]): string {
@@ -136,9 +142,14 @@ async function callGemini(input: {
   turnIndex: number;
 }): Promise<string | null> {
   const apiKey = resolveGeminiApiKey();
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.warn("Learn tutor: GEMINI_API_KEY is not configured in server environment.");
+    return null;
+  }
 
-  const model = process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL;
+  const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || DEFAULT_MODEL;
+  const candidateModels = Array.from(new Set([configuredModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]));
+
   const phase = scenarioPhase(input.capability, input.turnIndex);
   const system = [
     "You are Lurexa Learn's curriculum-constrained English tutor running a bounded communicative scenario.",
@@ -174,26 +185,31 @@ async function callGemini(input: {
     "Respond only with the tutor's next roleplay turn. Do not label the phase or explain your reasoning.",
   ].join("\n\n");
 
-  try {
-    const response = await fetch(`${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts: [{ text: userInput }] }],
-        generationConfig: { maxOutputTokens: 180 },
-      }),
-    });
+  for (const model of candidateModels) {
+    try {
+      const url = `${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: userInput }] }],
+          generationConfig: { maxOutputTokens: 180 },
+        }),
+      });
 
-    if (!response.ok) {
-      console.error("Learn tutor Gemini request failed.", response.status);
-      return null;
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        console.error("Learn tutor Gemini request failed.", { model, status: response.status, errorText });
+        continue;
+      }
+      const output = readGeminiOutputText(await response.json());
+      if (output) return output;
+    } catch (error) {
+      console.error("Learn tutor Gemini request failed.", { model, error: error instanceof Error ? error.message : "unknown error" });
     }
-    return readGeminiOutputText(await response.json());
-  } catch (error) {
-    console.error("Learn tutor Gemini request failed.", error instanceof Error ? error.name : "unknown error");
-    return null;
   }
+  return null;
 }
 
 async function loadOrCreateSession(input: {
@@ -278,7 +294,7 @@ async function recordRoleplayEvidence(input: {
   const repository = new FirestoreLearningEvidenceRepository();
   const now = new Date().toISOString();
   const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}`
-    .replace(/[^a-zA-Z0-9._-]/g, "_");
+  .replace(/[^a-zA-Z0-9._-]/g, "_");
 
   await repository.append({
     contractVersion: "1",
