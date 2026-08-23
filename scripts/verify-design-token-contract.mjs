@@ -3,17 +3,20 @@ import path from "node:path";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+const readJson = (file) => JSON.parse(read(file));
 const theme = read("packages/tokens/src/theme.css");
 const colors = read("packages/tokens/src/colors.ts");
 const typography = read("packages/tokens/src/typography.ts");
 const spacing = read("packages/tokens/src/spacing.ts");
-const pkg = JSON.parse(read("packages/tokens/package.json"));
+const personality = read("packages/tokens/src/product-personality.ts");
+const pkg = readJson("packages/tokens/package.json");
 
 const failures = [];
 const ok = (condition, message) => {
   if (!condition) failures.push(message);
   else console.log(`✓ ${message}`);
 };
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const cssVars = new Map(
   [...theme.matchAll(/--([a-z0-9-]+)\s*:\s*([^;]+);/gi)].map((m) => [`--${m[1]}`, m[2].trim()]),
@@ -35,6 +38,25 @@ for (const [name, value] of Object.entries(canonical)) {
   ok(cssVars.get(name)?.toLowerCase() === value, `${name} preserves canonical ${value}`);
 }
 
+const personalityAnchors = {
+  navy: "#071d67",
+  violet: "#592bd6",
+  blue: "#1d5add",
+  cyan: "#12cdd4",
+  surface: "#ffffff",
+};
+for (const [name, value] of Object.entries(personalityAnchors)) {
+  ok(
+    new RegExp(`\\b${name}\\s*:\\s*["']${escapeRegExp(value)}["']`, "i").test(personality),
+    `foundationBrand.${name} preserves ${value}`,
+  );
+}
+
+const expectedSans = "var(--font-geist-sans, Arial), Arial, Helvetica, sans-serif";
+const expectedMono = 'var(--font-geist-mono, Consolas), Consolas, "Liberation Mono", monospace';
+ok(cssVars.get("--font-family-sans") === expectedSans, "sans typography prefers Geist with deterministic Arial fallback");
+ok(cssVars.get("--font-family-mono") === expectedMono, "mono typography prefers Geist Mono with deterministic platform fallbacks");
+
 const typographyContract = {
   xs: ["0.75rem", "--font-size-xs"],
   sm: ["0.875rem", "--font-size-sm"],
@@ -49,14 +71,29 @@ const typographyContract = {
   displayLg: ["clamp(3.375rem, 6.6vw, 5.875rem)", "--font-size-display-lg"],
 };
 for (const [key, [value, variable]] of Object.entries(typographyContract)) {
-  const tsPattern = new RegExp(`(?:["']?${key}["']?)\\s*:\\s*["']${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`);
+  const tsPattern = new RegExp(`(?:["']?${key}["']?)\\s*:\\s*["']${escapeRegExp(value)}["']`);
   ok(tsPattern.test(typography), `typography.${key} matches ${value}`);
   ok(cssVars.get(variable) === value, `${variable} matches typography.${key}`);
 }
 
-const spacingContract = {0:"0",1:"0.25rem",2:"0.5rem",3:"0.75rem",4:"1rem",5:"1.25rem",6:"1.5rem",8:"2rem",10:"2.5rem",12:"3rem",16:"4rem",20:"5rem",24:"6rem",32:"8rem"};
+const spacingContract = {
+  0: "0",
+  1: "0.25rem",
+  2: "0.5rem",
+  3: "0.75rem",
+  4: "1rem",
+  5: "1.25rem",
+  6: "1.5rem",
+  8: "2rem",
+  10: "2.5rem",
+  12: "3rem",
+  16: "4rem",
+  20: "5rem",
+  24: "6rem",
+  32: "8rem",
+};
 for (const [key, value] of Object.entries(spacingContract)) {
-  ok(new RegExp(`\\b${key}\\s*:\\s*["']${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(spacing), `spacing.${key} matches ${value}`);
+  ok(new RegExp(`\\b${key}\\s*:\\s*["']${escapeRegExp(value)}["']`).test(spacing), `spacing.${key} matches ${value}`);
   ok(cssVars.get(`--spacing-${key}`) === value, `--spacing-${key} matches spacing.${key}`);
 }
 
@@ -66,6 +103,7 @@ for (const alias of [
   "--color-lurexa-blue",
   "--color-lurexa-cyan",
   "--font-lurexa-sans",
+  "--font-lurexa-mono",
   "--text-lurexa-display-lg",
   "--spacing-lurexa-32",
 ]) {
@@ -73,6 +111,15 @@ for (const alias of [
 }
 ok(/@theme\s+inline\s*\{/.test(theme), "theme.css exposes an @theme inline block");
 ok(pkg.exports?.["./theme.css"] === "./src/theme.css", "package exports @lurexa/tokens/theme.css");
+
+const activeCssApps = ["web", "learn-web", "teach-web", "admin-portal", "docs"];
+for (const app of activeCssApps) {
+  const manifest = readJson(`apps/${app}/package.json`);
+  const globals = read(`apps/${app}/app/globals.css`);
+  ok(manifest.dependencies?.["@lurexa/tokens"] === "workspace:*", `${app} declares @lurexa/tokens as a workspace dependency`);
+  ok(globals.includes('@import "@lurexa/tokens/theme.css";'), `${app} imports the public token stylesheet`);
+  ok(!globals.includes("packages/tokens/src"), `${app} does not bypass the token package boundary`);
+}
 
 if (failures.length) {
   console.error(`\nDesign token contract failed (${failures.length}):`);
