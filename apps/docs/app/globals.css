@@ -1,3 +1,4 @@
+@import "../../../packages/tokens/src/theme.css";
 @import "tailwindcss";
 
 :root { --background:#f5f7ff; --foreground:#071d67; --focus:#315fd7; }
