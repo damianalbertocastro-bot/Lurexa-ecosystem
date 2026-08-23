@@ -15,8 +15,9 @@
   --color-brand-accent-blue-deep: #3853a4;
   --color-brand-accent-violet-bright: #6734dd;
 
-  --font-family-sans: Arial, sans-serif;
-  --font-family-mono: monospace;
+  /* Geist is preferred when the host app provides the Next font variables. */
+  --font-family-sans: var(--font-geist-sans, Arial), Arial, Helvetica, sans-serif;
+  --font-family-mono: var(--font-geist-mono, Consolas), Consolas, "Liberation Mono", monospace;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
