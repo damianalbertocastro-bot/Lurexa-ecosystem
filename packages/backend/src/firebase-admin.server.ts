@@ -17,8 +17,25 @@ interface ValidFirebaseServiceAccount {
   private_key: string;
 }
 
+export function getRawServiceAccountJson(): string | null {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) {
+    return process.env.FIREBASE_SERVICE_ACCOUNT_JSON.trim();
+  }
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON_1?.trim()) {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON_2?.trim()) {
+      return (
+        process.env.FIREBASE_SERVICE_ACCOUNT_JSON_1
+        + (process.env.FIREBASE_SERVICE_ACCOUNT_JSON_2 || "")
+        + (process.env.FIREBASE_SERVICE_ACCOUNT_JSON_3 || "")
+      ).trim();
+    }
+    return process.env.FIREBASE_SERVICE_ACCOUNT_JSON_1.trim();
+  }
+  return null;
+}
+
 function readServiceAccount(): ValidFirebaseServiceAccount | null {
-  const serializedServiceAccount = process.env[SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE];
+  const serializedServiceAccount = getRawServiceAccountJson();
 
   if (!serializedServiceAccount) return null;
 

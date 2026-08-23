@@ -1,6 +1,7 @@
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 
 import type { AuthenticatedActor } from "./course-platform.server";
+import { getRawServiceAccountJson } from "./firebase-admin.server";
 import { resolveLearningCapability } from "./learning-capability.server";
 
 const DEFAULT_LANGUAGE_CODE = "en-US";
@@ -9,7 +10,7 @@ const DEFAULT_VOICE = "en-US-Neural2-F";
 type GoogleServiceAccount = { project_id?: unknown; client_email?: unknown; private_key?: unknown };
 
 function createTextToSpeechClient(): TextToSpeechClient {
-  const serialized = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const serialized = getRawServiceAccountJson();
   if (!serialized) throw new Error("Production curriculum audio is not configured yet.");
   let serviceAccount: GoogleServiceAccount;
   try { serviceAccount = JSON.parse(serialized) as GoogleServiceAccount; } catch { throw new Error("Production curriculum audio is not configured yet."); }
