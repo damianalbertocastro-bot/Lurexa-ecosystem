@@ -6,13 +6,111 @@
   --color-text-muted: #65749b;
   --color-border-default: rgba(12, 42, 108, 0.13);
   --color-border-focus: #592bd6;
+
+  --color-brand-navy: #071d67;
   --color-brand-primary: #592bd6;
   --color-brand-secondary: #1d5add;
-  --color-brand-accent-cyan: #11c9d1;
+  --color-brand-accent-cyan: #12cdd4;
   --color-brand-accent-violet-deep: #6f28cd;
   --color-brand-accent-blue-deep: #3853a4;
   --color-brand-accent-violet-bright: #6734dd;
 
   --font-family-sans: Arial, sans-serif;
   --font-family-mono: monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-display: clamp(2.25rem, 5vw, 3.75rem);
+  --font-size-display-lg: clamp(3.375rem, 6.6vw, 5.875rem);
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-32: 8rem;
+}
+
+@theme inline {
+  --color-lurexa-background-primary: var(--color-background-primary);
+  --color-lurexa-background-secondary: var(--color-background-secondary);
+  --color-lurexa-text-primary: var(--color-text-primary);
+  --color-lurexa-text-secondary: var(--color-text-secondary);
+  --color-lurexa-text-muted: var(--color-text-muted);
+  --color-lurexa-border: var(--color-border-default);
+  --color-lurexa-focus: var(--color-border-focus);
+  --color-lurexa-navy: var(--color-brand-navy);
+  --color-lurexa-violet: var(--color-brand-primary);
+  --color-lurexa-blue: var(--color-brand-secondary);
+  --color-lurexa-cyan: var(--color-brand-accent-cyan);
+  --color-lurexa-violet-deep: var(--color-brand-accent-violet-deep);
+  --color-lurexa-blue-deep: var(--color-brand-accent-blue-deep);
+  --color-lurexa-violet-bright: var(--color-brand-accent-violet-bright);
+
+  --font-lurexa-sans: var(--font-family-sans);
+  --font-lurexa-mono: var(--font-family-mono);
+
+  --text-lurexa-xs: var(--font-size-xs);
+  --text-lurexa-sm: var(--font-size-sm);
+  --text-lurexa-base: var(--font-size-base);
+  --text-lurexa-lg: var(--font-size-lg);
+  --text-lurexa-xl: var(--font-size-xl);
+  --text-lurexa-2xl: var(--font-size-2xl);
+  --text-lurexa-3xl: var(--font-size-3xl);
+  --text-lurexa-4xl: var(--font-size-4xl);
+  --text-lurexa-5xl: var(--font-size-5xl);
+  --text-lurexa-display: var(--font-size-display);
+  --text-lurexa-display-lg: var(--font-size-display-lg);
+
+  --font-weight-lurexa-normal: var(--font-weight-normal);
+  --font-weight-lurexa-medium: var(--font-weight-medium);
+  --font-weight-lurexa-semibold: var(--font-weight-semibold);
+  --font-weight-lurexa-bold: var(--font-weight-bold);
+  --font-weight-lurexa-extrabold: var(--font-weight-extrabold);
+  --font-weight-lurexa-black: var(--font-weight-black);
+
+  --leading-lurexa-tight: var(--line-height-tight);
+  --leading-lurexa-normal: var(--line-height-normal);
+  --leading-lurexa-relaxed: var(--line-height-relaxed);
+
+  --spacing-lurexa-0: var(--spacing-0);
+  --spacing-lurexa-1: var(--spacing-1);
+  --spacing-lurexa-2: var(--spacing-2);
+  --spacing-lurexa-3: var(--spacing-3);
+  --spacing-lurexa-4: var(--spacing-4);
+  --spacing-lurexa-5: var(--spacing-5);
+  --spacing-lurexa-6: var(--spacing-6);
+  --spacing-lurexa-8: var(--spacing-8);
+  --spacing-lurexa-10: var(--spacing-10);
+  --spacing-lurexa-12: var(--spacing-12);
+  --spacing-lurexa-16: var(--spacing-16);
+  --spacing-lurexa-20: var(--spacing-20);
+  --spacing-lurexa-24: var(--spacing-24);
+  --spacing-lurexa-32: var(--spacing-32);
 }
