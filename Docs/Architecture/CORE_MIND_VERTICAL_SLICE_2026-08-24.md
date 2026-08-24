@@ -139,22 +139,35 @@ New scoped observations are returned only when both their declared purpose and p
 
 The current learner-facing context endpoint permits learners to request only their own context. Future teacher/admin access must be implemented as explicit Core authorization policies rather than weakening this rule.
 
+### Coach cross-product consumer
+
+`packages/backend/src/coach-session-context.server.ts` is the first explicit Coach consumer of the shared learner model. It requests Core context with:
+
+- `requestingProduct: "coach"`;
+- `purpose: "coach_session_adaptation"`;
+- only proficiency, curriculum, pronunciation, fluency, goals, and recommendation domains.
+
+Coach receives a purpose-built session focus containing CEFR context, current course/lesson, pronunciation targets, fluency targets, recurring patterns, approved recommendations, and goals. It does not read Firestore, raw evidence, or maintain a separate Coach learner profile.
+
+This proves that Learn activity evidence and teacher guidance can become Core-approved Mind intelligence that is reusable by Coach for the same learner.
+
 ## Server/client dependency boundary
 
 The browser-safe `@lurexa/backend` root barrel must not export Core/Mind server capabilities that transitively load Firebase Admin or Google Cloud Node libraries.
 
-Server-only capabilities such as Mind interpretation, teacher return-loop persistence, and capstone evaluation must be imported through explicit server module paths by API routes or other server-only code.
+Server-only capabilities such as Mind interpretation, teacher return-loop persistence, Coach context projection, and capstone evaluation must be imported through explicit server module paths by API routes or other server-only code.
 
 This rule is both architectural and operational: violating it caused Next.js production builds to pull Node built-ins (`fs`, `net`, `tls`, `child_process`, `http2`) into Client Component graphs. Separating the boundary restored production builds for Learn, Teach, Admin, Docs, and the ecosystem site.
 
 ## Fail-closed legacy paths
 
-Two older shortcuts are intentionally closed:
+Three older shortcuts are intentionally closed:
 
 - `LearnerModelService.submitInsight()` cannot persist a derived insight directly;
+- `FirestoreLearnerInsightRepository.save()` cannot write derived state without the Core approval gate;
 - unauthenticated `TeacherReturnLoopService.submitTeacherGuidance()` cannot accept a payload-supplied `teacherId` as authorization.
 
-Both methods remain only as migration-compatible failure points so old callers fail visibly rather than silently bypassing Core.
+These compatibility paths remain only as explicit failure points so old callers fail visibly rather than silently bypassing Core.
 
 ## Executable architecture checks
 
@@ -164,10 +177,12 @@ The repository now verifies the architecture rather than relying only on documen
 
 - Mind has no persistence access;
 - Core owns candidate approval;
+- direct learner-insight repository writes fail closed;
 - teacher guidance uses the trusted evidence path;
 - learner context enforces product/purpose scope;
+- Coach consumes Core learner context and does not access persistence directly;
 - server-only capabilities stay out of the client-safe backend barrel;
-- the Learn evidence → recommendation → dashboard projection remains connected.
+- the Learn evidence → recommendation → dashboard/Coach projection remains connected.
 
 `pnpm verify:mind-contract` checks behavioral invariants including:
 
@@ -185,12 +200,12 @@ Firestore emulator checks independently enforce that learner clients cannot forg
 This implementation now demonstrates the central Lurexa ecosystem loop:
 
 ```text
-Learn evidence
+Learn evidence / teacher guidance
   → Core trusted record
   → Mind interpretation
   → Core approval
   → scoped learner context
-  → adaptive Learn/Coach experience
+  → Learn next step + Coach session context
 ```
 
 That is sufficient to start building more products around the same learner rather than creating separate product-specific learner profiles.
@@ -200,12 +215,11 @@ That is sufficient to start building more products around the same learner rathe
 The next improvements should extend this foundation rather than create parallel intelligence stacks:
 
 1. migrate remaining direct/browser Firestore mutations behind trusted Core APIs;
-2. retire remaining generic direct learner-insight repository save paths after consumer verification;
-3. formalize server-only package exports so server/client separation is enforced by package exports in addition to source verification;
-4. add a real Coach API consumer of `coach_session_adaptation` to prove Learn → Core → Mind → Coach cross-product reuse;
-5. create Core-owned analytics projections instead of product-side/global aggregation;
-6. add explicit teacher/admin learner-context authorization policies when those workflows are implemented;
-7. evolve deterministic Mind implementations behind the existing contract rather than coupling products directly to an AI provider.
+2. formalize server-only package exports so server/client separation is enforced by package exports in addition to source verification;
+3. expose the approved Coach session context through the future authenticated Coach API/experience when that product surface is activated;
+4. create Core-owned analytics projections instead of product-side/global aggregation;
+5. add explicit teacher/admin learner-context authorization policies when those workflows are implemented;
+6. evolve deterministic Mind implementations behind the existing contract rather than coupling products directly to an AI provider.
 
 ## Release rule
 
