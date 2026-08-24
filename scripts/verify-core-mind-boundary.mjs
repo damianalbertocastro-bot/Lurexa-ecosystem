@@ -49,6 +49,7 @@ requireText(paths.modelService, content.modelService, "Direct learner insight pe
 requireText(paths.modelService, content.modelService, "approveDerivedObservation");
 requireText(paths.evidenceRepository, content.evidenceRepository, "assertApprovableDerivedObservation");
 requireText(paths.evidenceRepository, content.evidenceRepository, "authorizedEvidenceIds");
+requireText(paths.evidenceRepository, content.evidenceRepository, "Direct learner insight repository writes are disabled");
 
 requireText(paths.learnerContext, content.learnerContext, "allowedPurposesByProduct");
 requireText(paths.learnerContext, content.learnerContext, "assertProductPurpose(request)");
