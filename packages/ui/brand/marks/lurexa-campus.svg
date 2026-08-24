@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-labelledby="title desc">
+  <title id="title">Lurexa Campus mark</title>
+  <desc id="desc">A connected institutional gateway formed by three colored learning portals beneath a shared Lurexa canopy.</desc>
+  <path d="M9 66h62v7H9z" fill="#071D67"/>
+  <path d="M12 31 40 9l28 22-6 7-22-17-22 17-6-7Z" fill="#071D67"/>
+  <path d="M16 37h14v25H16z" rx="4" fill="#592BD6"/>
+  <path d="M33 37h14v25H33z" rx="4" fill="#2160DF"/>
+  <path d="M50 37h14v25H50z" rx="4" fill="#12CDD4"/>
+  <path d="M37 62V50a3 3 0 0 1 6 0v12h-6Z" fill="#fff"/>
+  <circle cx="40" cy="21" r="4" fill="#12CDD4"/>
+</svg>
