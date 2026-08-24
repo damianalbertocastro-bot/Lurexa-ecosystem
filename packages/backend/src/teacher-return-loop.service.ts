@@ -24,7 +24,8 @@ export class TeacherReturnLoopService {
   }
 
   /** @deprecated Unsafe legacy entrypoint; deliberately fails closed. */
-  static async submitTeacherGuidance(_guidance: TeacherGuidancePayload): Promise<never> {
+  static async submitTeacherGuidance(guidance: TeacherGuidancePayload): Promise<never> {
+    void guidance;
     throw new Error(
       "Unauthenticated teacher guidance is disabled. Use submitAuthenticatedTeacherGuidance with the verified actor.",
     );
