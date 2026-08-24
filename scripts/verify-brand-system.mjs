@@ -82,7 +82,6 @@ if (!failures.some((item) => item.includes("undocumented public URL") || item.in
 const shellExpectations = [
   ["apps/web/app/layout.tsx", "Lurexa Learning Technologies"],
   ["apps/learn-web/app/layout.tsx", "Lurexa Learn"],
-  ["apps/teacher-portal/app/layout.tsx", "Lurexa Learn | Teacher Dashboard"],
   ["apps/teach-web/app/layout.tsx", "Lurexa Teach"],
   ["apps/admin-portal/app/layout.tsx", "Lurexa Admin"],
   ["apps/docs/app/layout.tsx", "Lurexa Docs"],
@@ -99,7 +98,6 @@ if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web she
 const shellDirectories = [
   "apps/web/app",
   "apps/learn-web/app",
-  "apps/teacher-portal/app",
   "apps/teach-web/app",
   "apps/admin-portal/app",
   "apps/docs/app",

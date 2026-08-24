@@ -21,8 +21,6 @@ type ScenarioPhase = "establish" | "develop" | "transfer" | "close";
 function clampText(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
 }
-
-/* eslint-disable turbo/no-undeclared-env-vars */
 function resolveGeminiApiKey(): string | null {
   const direct = (
     process.env.GEMINI_API_KEY
@@ -33,7 +31,6 @@ function resolveGeminiApiKey(): string | null {
     || process.env["GOOGLE API KEY"]
     || process.env["Google_API_Key"]
   );
-/* eslint-enable turbo/no-undeclared-env-vars */
 
   if (direct?.trim()) return direct.trim();
 
