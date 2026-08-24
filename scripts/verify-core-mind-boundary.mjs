@@ -19,6 +19,7 @@ const paths = {
   modelService: "packages/backend/src/learner-model.service.ts",
   evidenceRepository: "packages/backend/src/learner-firestore.server.ts",
   learnerContext: "packages/backend/src/learner-context.server.ts",
+  coachContext: "packages/backend/src/coach-session-context.server.ts",
   teacherCore: "packages/backend/src/core/teacher-return-loop.server.ts",
   teacherFacade: "packages/backend/src/teacher-return-loop.service.ts",
   backendBarrel: "packages/backend/src/index.ts",
@@ -58,6 +59,13 @@ requireText(paths.learnerContext, content.learnerContext, "scoped.scope.products
 requireText(paths.learnerContext, content.learnerContext, 'input.actorId !== request.learnerId');
 requireText(paths.learnerContext, content.learnerContext, "never exposes raw evidence payloads");
 
+requireText(paths.coachContext, content.coachContext, "getScopedLearnerContext");
+requireText(paths.coachContext, content.coachContext, 'requestingProduct: "coach"');
+requireText(paths.coachContext, content.coachContext, 'purpose: "coach_session_adaptation"');
+forbidText(paths.coachContext, content.coachContext, "getServerFirestore");
+forbidText(paths.coachContext, content.coachContext, "FirestoreLearningEvidenceRepository");
+forbidText(paths.coachContext, content.coachContext, ".collection(");
+
 requireText(paths.teacherCore, content.teacherCore, "Authenticated teacher does not match the guidance author");
 requireText(paths.teacherCore, content.teacherCore, "FirestoreLearningEvidenceRepository");
 requireText(paths.teacherCore, content.teacherCore, "refreshLearnerIntelligence");
@@ -69,6 +77,7 @@ forbidText(paths.teacherFacade, content.teacherFacade, "getServerFirestore");
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./mind.service"');
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./teacher-return-loop.service"');
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./capstone-evaluator.service"');
+forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./coach-session-context.server"');
 requireText(paths.backendBarrel, content.backendBarrel, "Server-only capabilities intentionally do not belong");
 
 requireText(paths.coursePlatform, content.coursePlatform, "appendPlatformEvidence");
@@ -77,4 +86,4 @@ requireText(paths.learnProgress, content.learnProgress, "getScopedLearnerContext
 requireText(paths.learnProgress, content.learnProgress, "nextStep");
 requireText(paths.dashboard, content.dashboard, "Recommended next step");
 
-console.log("Core/Mind boundary verification passed: trusted evidence -> storage-free Mind -> Core approval -> scoped product projection.");
+console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> scoped Learn/Coach projection.");
