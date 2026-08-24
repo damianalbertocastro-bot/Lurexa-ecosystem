@@ -14,12 +14,29 @@ Lurexa Learning Technologies builds a multi-product learning ecosystem. Lurexa C
 | Lurexa Campus | institution-facing environment connecting organization identity, people, access, navigation and entitled Lurexa experiences | a monolithic LMS or replacement for specialist products |
 | Lurexa Learn | structured learning and instructional delivery for learners and teachers operating student learning | a separate learner-data silo |
 | Lurexa Coach | AI-powered speaking, pronunciation and fluency practice | the shared intelligence layer |
-| Lurexa Teach | educator professional development, growth, evidence, credentials and professional community | the Learn teacher operations dashboard |
+| Lurexa Teach | professional learning and teacher formation for practicing educators and teachers-to-be: academic/pedagogical development, teaching practice, AI + human support, evidence, credentials and professional community | the Learn teacher operations dashboard, a passive course catalog, or an AI-only teacher educator |
 | Lurexa Admin | platform and organization-scoped administration, access and operational management | a direct database console or monolithic learning product |
 | Lurexa Insight | authorized learning analytics and intelligible signals | opaque automated decision-making |
 | Lurexa Studio | authoring, review and publishing of learning objects | a bypass around curriculum governance |
 | Lurexa Core | trust, identity, authorization, persistence and contracts | a generic product UI |
-| Lurexa Mind | learning interpretation, personalization and AI capability | authoritative persistence or access control |
+| Lurexa Mind | learning and authorized educator-development interpretation, personalization and AI capability | authoritative persistence or access control |
+
+## Teach boundary
+
+Lurexa Teach intentionally serves both **practicing educators** and **teachers-to-be**.
+
+Its two primary pathways are:
+
+- **Teacher Formation Pathway** — methodology, academic/subject knowledge, planning, assessment, classroom practice, technology, reflection, simulations/microteaching and professional competencies for aspiring teachers.
+- **Practicing Educator Growth Pathway** — academic/subject growth, language proficiency where relevant, advanced methodology, professional practice, specialization, evidence, credentials and continued development for active educators.
+
+Teach combines structured professional learning with governed Lurexa Mind capabilities and explicit human support where the program requires instructors, mentors, reviewers, coaches or practicum supervision.
+
+Canonical distinction:
+
+> **Lurexa Learn is where teachers operate and support student learning. Lurexa Teach is where practicing and future teachers learn, practice, develop, and grow as educators.**
+
+See `Docs/Product/LUREXA_TEACH_PRODUCT_DEFINITION.md` and `Docs/Product/LUREXA_LEARN_TEACH_BOUNDARY.md`.
 
 ## Campus boundary
 
@@ -37,7 +54,7 @@ Campus may:
 Campus must not:
 
 - own learning content, submissions or assessment logic that belongs to Learn;
-- own educator professional-development workflows that belong to Teach;
+- own educator formation/professional-development workflows that belong to Teach;
 - duplicate Insight analytics;
 - become a second Admin implementation;
 - decide authorization independently of Core;
@@ -67,10 +84,11 @@ See [Lurexa Community — Future Product Vision](LUREXA_COMMUNITY_FUTURE_PRODUCT
 1. Products own experience flows and product-specific presentation state.
 2. Core owns identity, authorization, tenant boundaries, trusted records, evidence provenance and approved persistence.
 3. Mind interprets authorized evidence and context; its results are scoped, reviewable and persist only through Core.
-4. A product may not build a private authoritative learner profile or directly couple persistent intelligence to a model provider.
+4. A product may not build a private authoritative learner/educator profile or directly couple persistent intelligence to a model provider.
 5. Cross-product value is delivered through stable contracts, not database copies or client-to-client dependencies.
 6. Campus supplies institution context and orchestration, not product-domain ownership.
-7. Social participation is not trusted learning evidence by default; any future Community-to-Learner-Model pathway requires an explicit Core-governed evidence contract.
+7. Teach's human support and professional verification workflows must remain explicit and trustworthy; AI assistance is not equivalent to verified competency.
+8. Social participation is not trusted learning/professional evidence by default; any Community-to-evidence pathway requires an explicit Core-governed evidence contract.
 
 ## First product sequence
 
@@ -87,6 +105,8 @@ This order is a risk-reduction strategy, not a claim that later products are uni
 ## Product readiness gate
 
 Before a surface is treated as production-ready, it needs a defined user, outcome, permission model, Core/Mind interaction, evidence emitted, error/fallback behavior, accessibility and low-bandwidth expectations, and measurable acceptance criteria.
+
+Teach additionally needs defined educator pathways, competency/evidence rules, AI/human-support boundaries, professional verification rules and a distinction among completion, demonstrated competency and credentials.
 
 Campus additionally needs tested tenant isolation, organization-context preservation, role-aware navigation, entitlement enforcement, co-branding rules and safe switching between organizations.
 
