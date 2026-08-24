@@ -1,4 +1,4 @@
-import type { CefrLevel, LearnerDomain, LearnerRecommendationAction } from "./learner";
+import type { CefrLevel, LearnerDomain } from "./learner";
 
 export type TeacherReviewStatus =
   | "pending_review"
