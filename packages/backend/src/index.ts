@@ -23,11 +23,10 @@ export * from "./dominican-corpus-catalog.service";
 export * from "./teach.service";
 export * from "./teach-mind.service";
 export * from "./teach-credential";
-export * from "./mind.service";
 export * from "./curriculum/a1";
-export * from "./teacher-return-loop.service";
-export * from "./capstone-evaluator.service";
 export * from "./coach-a1.service";
 
-
-
+// Server-only capabilities intentionally do not belong in this browser-safe
+// barrel. Import them through their explicit server subpaths from API routes or
+// other server modules so Firebase Admin / Google Cloud code cannot leak into
+// Client Component dependency graphs.

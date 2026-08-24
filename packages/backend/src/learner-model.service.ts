@@ -1,4 +1,6 @@
 import type {
+  ApprovedDerivedObservation,
+  CandidateDerivedObservation,
   LearnerContext,
   LearnerContextRequest,
   LearnerInsight,
@@ -10,7 +12,8 @@ import type {
 export interface LearnerModelAuthorization {
   assertCanReadContext(request: LearnerContextRequest): Promise<void>;
   assertCanSubmitEvidence(evidence: LearningEvidence): Promise<void>;
-  assertCanPersistInsight(insight: LearnerInsight): Promise<void>;
+  /** @deprecated Derived state must pass the Core candidate-approval gate. */
+  assertCanPersistInsight?(insight: LearnerInsight): Promise<void>;
 }
 
 export interface LearnerContextProvider {
@@ -23,23 +26,34 @@ export interface LearningEvidenceStore {
   ): Promise<LearningEvidence<TPayload>>;
 }
 
+/** @deprecated Compatibility shape only; direct derived-state saves are disabled. */
 export interface LearnerInsightStore {
   save(insight: LearnerInsight): Promise<LearnerInsight>;
+}
+
+export interface DerivedObservationApprovalStore {
+  approveAndPersist(input: {
+    candidate: CandidateDerivedObservation;
+    authorizedEvidenceIds: readonly string[];
+    policyId: string;
+  }): Promise<ApprovedDerivedObservation>;
 }
 
 export interface LearnerModelServiceDependencies {
   authorization: LearnerModelAuthorization;
   contextProvider: LearnerContextProvider;
   evidenceStore: LearningEvidenceStore;
-  insightStore: LearnerInsightStore;
+  /** @deprecated Retained only so older dependency wiring still type-checks during migration. */
+  insightStore?: LearnerInsightStore;
+  derivedObservationStore?: DerivedObservationApprovalStore;
 }
 
 /**
  * Core-owned boundary for cross-product learner state.
  *
- * Products submit observations as evidence and request scoped context here.
- * Mind-produced insights may be persisted only through the same authorized
- * boundary. This service deliberately does not perform learning inference.
+ * Products submit observations as evidence and request scoped context. Mind
+ * output remains candidate state until Core validates its evidence basis and
+ * approval policy. This service deliberately performs no learning inference.
  */
 export class LearnerModelService {
   constructor(private readonly dependencies: LearnerModelServiceDependencies) {}
@@ -56,8 +70,22 @@ export class LearnerModelService {
     return this.dependencies.evidenceStore.append(submission.evidence);
   }
 
-  async submitInsight(submission: LearnerInsightSubmission): Promise<LearnerInsight> {
-    await this.dependencies.authorization.assertCanPersistInsight(submission.insight);
-    return this.dependencies.insightStore.save(submission.insight);
+  /** @deprecated Unsafe legacy entrypoint; deliberately fails closed. */
+  async submitInsight(submission: LearnerInsightSubmission): Promise<never> {
+    void submission;
+    throw new Error(
+      "Direct learner insight persistence is disabled. Submit a Mind candidate through Core approval.",
+    );
+  }
+
+  async approveDerivedObservation(input: {
+    candidate: CandidateDerivedObservation;
+    authorizedEvidenceIds: readonly string[];
+    policyId: string;
+  }): Promise<ApprovedDerivedObservation> {
+    if (!this.dependencies.derivedObservationStore) {
+      throw new Error("A Core derived-observation approval store is required.");
+    }
+    return this.dependencies.derivedObservationStore.approveAndPersist(input);
   }
 }

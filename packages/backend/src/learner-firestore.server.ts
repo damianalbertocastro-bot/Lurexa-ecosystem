@@ -189,8 +189,6 @@ export class FirestoreLearnerInsightRepository {
     };
     await getServerFirestore().collection("learner-insights").doc(approved.observationId).set(stripUndefined({
       ...approved,
-      // Legacy read models retain their stable fields while v1 provenance
-      // remains available for Core validation and future context projections.
       id: approved.observationId,
       validity: approved.expiresAt || approved.supersedesObservationId ? {
         ...(approved.expiresAt ? { expiresAt: approved.expiresAt } : {}),
@@ -200,10 +198,12 @@ export class FirestoreLearnerInsightRepository {
     return approved;
   }
 
-  async save(insight: LearnerInsight): Promise<LearnerInsight> {
-    const reference = getServerFirestore().collection("learner-insights").doc(insight.id);
-    await reference.set(stripUndefined(insight));
-    return insight;
+  /** @deprecated Direct derived-state persistence is intentionally disabled. */
+  async save(insight: LearnerInsight): Promise<never> {
+    void insight;
+    throw new Error(
+      "Direct learner insight repository writes are disabled. Use Core approveAndPersist with an authorized evidence basis.",
+    );
   }
 
   async listActiveByLearner(learnerId: string, organizationId?: string): Promise<LearnerInsight[]> {
@@ -219,8 +219,6 @@ export class FirestoreLearnerInsightRepository {
     }) as LearnerInsight);
     const inScope = insights
       .filter((insight) => !organizationId || insight.organizationId === organizationId)
-      // Legacy insights did not have a lifecycle status. New v1 observations
-      // must be explicitly active before they become a context source.
       .filter((insight) => !("status" in insight) || (insight as LearnerInsight & { status?: unknown }).status === "active");
     const superseded = new Set(
       inScope

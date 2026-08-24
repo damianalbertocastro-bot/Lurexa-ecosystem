@@ -8,7 +8,6 @@ import type {
   MindInterpretationRequestV1,
   PhonemeEvaluation,
   SpokenLearnerEvidencePayload,
-  TeacherGuidancePayload,
 } from "@lurexa/types";
 import {
   MIND_INTERPRETATION_CONTRACT_VERSION,
@@ -37,13 +36,12 @@ async function testCoachCalibration(): Promise<void> {
   console.log("▶ Testing Stage 4: Coach A1 Dominican Phonological Calibration...");
   assert.ok(DOMINICAN_A1_PHONOLOGICAL_PATTERNS.length >= 5, "Must declare core Dominican L1 phonological patterns");
 
-  // Simulate a Dominican learner utterance with final-consonant reduction and th-stopping
   const phonemes: PhonemeEvaluation[] = [
     { phoneme: "w", targetIpa: "w", isIntelligible: true, intelligibilityScore: 0.95, confidence: 0.9 },
     { phoneme: "e", targetIpa: "e", isIntelligible: true, intelligibilityScore: 0.95, confidence: 0.9 },
     { phoneme: "n", targetIpa: "n", isIntelligible: true, intelligibilityScore: 0.90, confidence: 0.88 },
-    { phoneme: "t", targetIpa: "t", isIntelligible: false, intelligibilityScore: 0.30, errorType: "deletion", confidence: 0.85 }, // "wen'" instead of "went"
-    { phoneme: "θ", targetIpa: "θ", isIntelligible: false, intelligibilityScore: 0.55, errorType: "stopping", confidence: 0.80 }, // "tink" instead of "think"
+    { phoneme: "t", targetIpa: "t", isIntelligible: false, intelligibilityScore: 0.30, errorType: "deletion", confidence: 0.85 },
+    { phoneme: "θ", targetIpa: "θ", isIntelligible: false, intelligibilityScore: 0.55, errorType: "stopping", confidence: 0.80 },
   ];
 
   const calibration = CoachA1Service.calibrateA1Utterance(phonemes, "I wen to tink about it", "guided_conversation");
@@ -115,7 +113,7 @@ async function testMindAdaptationEngine(): Promise<void> {
   assert.equal(result.contractVersion, MIND_INTERPRETATION_CONTRACT_VERSION);
   assert.equal(result.learnerId, "test-learner-123");
   assert.ok(result.outputs.length >= 3, "Must produce multiple adaptive observations");
-  
+
   const recommendation = result.outputs.find((o) => o.type === "recommendation");
   assert.ok(recommendation, "Must generate a targeted pronunciation practice recommendation");
   assert.equal(recommendation?.status, "candidate", "Derived observations must have candidate status before persistence");
@@ -173,13 +171,11 @@ async function testCapstoneEvaluator(): Promise<void> {
     },
   ];
 
-  // Note: We test evaluation logic without needing active Firestore in pure unit test mode
   const capstoneResult = await CapstoneEvaluatorService.evaluateCapstone({
     learnerId: "test-learner-capstone",
     capstoneId: "a1-capstone-my-life",
     evidences,
   }).catch((err) => {
-    // If Firestore emulator is not running in local test, verify the evaluation calculation directly
     if (err.message?.includes("Firestore") || err.message?.includes("app")) {
       return {
         capstoneId: "a1-capstone-my-life",

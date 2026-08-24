@@ -1,108 +1,56 @@
-import {
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import { Course, Module, Lesson, ContentBlock } from "@lurexa/types";
+import type { ContentBlock, Course, Lesson, Module } from "@lurexa/types";
 
+const directWriteError =
+  "Direct browser curriculum writes are disabled. Use the authenticated Lurexa Core learning API.";
+
+/**
+ * @deprecated Legacy client-side builder compatibility facade.
+ *
+ * The original implementation wrote courses/modules/lessons directly through
+ * the Firebase browser SDK, bypassing Core authorization and publication
+ * policy. The canonical Learn teacher workspace now uses the trusted server
+ * learning API, so these mutation methods deliberately fail closed while old
+ * imports are migrated or removed.
+ */
 export const CourseBuilderService = {
-  /**
-   * Create a new empty course draft
-   */
   async createCourse(
     orgId: string,
     authorId: string,
     title: string,
     description: string,
-    subject: Course["subject"]
-  ): Promise<Course> {
-    const courseId = doc(collection(db, "courses")).id;
-
-    const newCourse: Course = {
-      id: courseId,
-      orgId,
-      authorId,
-      title,
-      description,
-      subject,
-      status: "draft",
-      isTemplate: false,
-      moduleIds: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await setDoc(doc(db, "courses", courseId), newCourse);
-    return newCourse;
+    subject: Course["subject"],
+  ): Promise<never> {
+    void [orgId, authorId, title, description, subject];
+    throw new Error(directWriteError);
   },
 
-  /**
-   * Add a module to a course
-   */
-  async addModule(courseId: string, title: string, order: number): Promise<Module> {
-    const moduleId = doc(collection(db, "modules")).id;
-
-    const newModule: Module = {
-      id: moduleId,
-      courseId,
-      title,
-      order,
-      lessonIds: [],
-    };
-
-    await setDoc(doc(db, "modules", moduleId), newModule);
-
-    // Link module to course
-    const courseRef = doc(db, "courses", courseId);
-    await updateDoc(courseRef, {
-      moduleIds: arrayUnion(moduleId),
-      updatedAt: new Date().toISOString(),
-    });
-
-    return newModule;
+  async addModule(
+    courseId: string,
+    title: string,
+    order: number,
+  ): Promise<never> {
+    void [courseId, title, order];
+    throw new Error(directWriteError);
   },
 
-  /**
-   * Save or update a lesson with content blocks
-   */
   async saveLesson(
     moduleId: string,
     lessonId: string | null,
     title: string,
     contentBlocks: ContentBlock[],
     order: number,
-    estimatedMinutes: number
-  ): Promise<Lesson> {
-    const finalLessonId = lessonId || doc(collection(db, "lessons")).id;
-
-    const lesson: Lesson = {
-      id: finalLessonId,
-      moduleId,
-      title,
-      contentBlocks,
-      order,
-      estimatedMinutes,
-    };
-
-    await setDoc(doc(db, "lessons", finalLessonId), lesson, { merge: true });
-
-    if (!lessonId) {
-      const moduleRef = doc(db, "modules", moduleId);
-      await updateDoc(moduleRef, {
-        lessonIds: arrayUnion(finalLessonId),
-      });
-    }
-
-    return lesson;
+    estimatedMinutes: number,
+  ): Promise<never> {
+    void [moduleId, lessonId, title, contentBlocks, order, estimatedMinutes];
+    throw new Error(directWriteError);
   },
 
-  async publishCourse(courseId: string): Promise<void> {
-    await updateDoc(doc(db, "courses", courseId), {
-      status: "published",
-      updatedAt: new Date().toISOString(),
-    });
+  async publishCourse(courseId: string): Promise<never> {
+    void courseId;
+    throw new Error(directWriteError);
   },
 };
+
+// Keep type imports reachable for downstream migration tooling that historically
+// referenced the service's return concepts.
+export type LegacyCourseBuilderEntities = Course | Module | Lesson;
