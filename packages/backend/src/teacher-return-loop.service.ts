@@ -1,10 +1,9 @@
 import type {
   LearnerModel,
   LearningEvidence,
-  RetrievalScheduleItem,
-  ReturnLoopAction,
   TeacherGuidancePayload,
 } from "@lurexa/types";
+
 import { LEARNING_EVIDENCE_CONTRACT_VERSION } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 

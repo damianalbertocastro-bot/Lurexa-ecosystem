@@ -196,3 +196,78 @@ export interface TeachAssessmentReviewResult {
   newlyAwardedCredentials: TeachCredentialAward[];
   recommendation: TeachRecommendation | null;
 }
+
+export type TeachCompetencyLevel = "T1" | "T2" | "T3" | "T4" | "T5";
+
+export interface T1LessonPlanStage {
+  stage: "warmup" | "presentation" | "guided_practice" | "independent_practice" | "assessment_closure";
+  allocatedMinutes: number;
+  teacherActions: string;
+  studentActions: string;
+  formativeCheckStrategy: string;
+}
+
+export interface T1CompetencyMatrix {
+  lessonStructure: {
+    warmUpPresence: boolean;
+    explicitObjectiveStated: boolean;
+    guidedPracticeIncluded: boolean;
+    independentProductionIncluded: boolean;
+    closurePresent: boolean;
+  };
+  objectiveAlignment: {
+    bloomTaxonomyLevel: "remember" | "understand" | "apply" | "analyze" | "evaluate" | "create";
+    cefrTargetLevel: TeachCefrLevel;
+    measurableOutcomeDefined: boolean;
+  };
+  formativeChecks: {
+    checkFrequencyPerLesson: number;
+    feedbackStrategy: "immediate_corrective" | "delayed_peer" | "self_reflection";
+    scaffoldingNotesProvided: boolean;
+  };
+  instructionalPacing: {
+    totalDurationMinutes: number;
+    teacherTalkTimeRatio: number;
+    studentPracticeRatio: number;
+  };
+}
+
+export interface T1CapstoneSubmission {
+  id: string;
+  educatorId: string;
+  moduleCode: "T1_COHERENT_LESSON";
+  title: string;
+  targetCefr: TeachCefrLevel;
+  lessonPlanArtifact: T1LessonPlanStage[];
+  reflectiveRationale: {
+    whyThisObjective: string;
+    howL1TransferIsAddressed: string;
+    differentiationStrategy: string;
+  };
+  recordedMicroTeachingUrl?: string;
+  status: TeachEvidenceStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface T1EvaluationDimension {
+  score: number;
+  maxScore: number;
+  feedback: string;
+}
+
+export interface T1EvaluationRubric {
+  rubricId: "T1_RUBRIC_V1";
+  dimensionScores: {
+    coherenceAndStructure: T1EvaluationDimension;
+    objectiveMeasurability: T1EvaluationDimension;
+    studentCenteredPacing: T1EvaluationDimension;
+    formativeFeedbackScaffolding: T1EvaluationDimension;
+  };
+  totalScore: number;
+  passed: boolean;
+  recommendationsForT2: string[];
+  evaluatedAt: string;
+  evaluatorType: "mind_automated" | "peer_mentor" | "master_trainer";
+}
+

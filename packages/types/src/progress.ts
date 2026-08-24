@@ -31,7 +31,9 @@ export interface StudentProgress {
   attempts: QuizAttempt[];
   bestScore?: number;
   lastAccessedAt: string;
+  updatedAt?: string;
 }
+
 
 export interface GamificationRecord {
   studentId: string;

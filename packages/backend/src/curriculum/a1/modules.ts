@@ -1,6 +1,5 @@
-import type { Course, Lesson, Module } from "@lurexa/types";
-
 export interface A1ModuleData {
+
   id: string;
   order: number;
   title: string;

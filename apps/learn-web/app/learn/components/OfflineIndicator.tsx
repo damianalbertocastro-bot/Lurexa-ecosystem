@@ -16,9 +16,10 @@ export function OfflineIndicator() {
     const handleOnline = async () => {
       setIsOnline(true);
       setSyncing(true);
-      const count = await OfflineSyncService.processPendingSyncQueue();
-      if (count > 0) {
-        console.log(`Synced ${count} offline updates.`);
+      const result = await OfflineSyncService.processPendingSyncQueue();
+      const totalSynced = result.syncedMutations + result.syncedEvidence + result.syncedDeltas;
+      if (totalSynced > 0) {
+        console.log(`Synced ${totalSynced} offline updates.`);
       }
       setSyncing(false);
     };

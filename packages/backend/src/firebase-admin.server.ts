@@ -34,6 +34,8 @@ export function getRawServiceAccountJson(): string | null {
   return null;
 }
 
+
+
 function readServiceAccount(): ValidFirebaseServiceAccount | null {
   const serializedServiceAccount = getRawServiceAccountJson();
 

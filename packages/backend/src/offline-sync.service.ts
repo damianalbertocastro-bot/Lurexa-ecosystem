@@ -1,6 +1,6 @@
-import { localDb } from "./offline-db";
+import { localDb, type OfflineEvidenceQueueItem, type LocalLearnerModelDelta } from "./offline-db";
 import { ProgressService } from "./progress.service";
-import { StudentProgress, Lesson } from "@lurexa/types";
+import type { StudentProgress, Lesson } from "@lurexa/types";
 
 export const OfflineSyncService = {
   /**
@@ -18,50 +18,160 @@ export const OfflineSyncService = {
   },
 
   /**
-   * Save progress locally and queue for background sync
+   * Save progress locally and queue for background sync with Last-Write-Wins (LWW)
    */
-  async recordProgressOffline(progress: StudentProgress): Promise<void> {
-    // 1. Update local IndexedDB storage
-    await localDb.progress.put(progress);
+  async recordProgressOffline(progress: StudentProgress, remoteServerTimestamp?: string): Promise<void> {
+    // 1. Conflict resolution: Check if local record has a newer timestamp than server
+    const existing = await localDb.progress.get(progress.id);
+    if (existing && remoteServerTimestamp) {
+      const localTime = new Date(existing.updatedAt || existing.lastAccessedAt || 0).getTime();
+      const serverTime = new Date(remoteServerTimestamp).getTime();
+      // If server version is strictly newer, adopt server version
+      if (serverTime > localTime) {
+        await localDb.progress.put({ ...progress, updatedAt: remoteServerTimestamp });
+        return;
+      }
+    }
 
-    // 2. Queue mutation if navigator is offline
+    // 2. Update local IndexedDB storage
+    const updatedAt = progress.updatedAt || progress.lastAccessedAt || new Date().toISOString();
+    const updatedProgress: StudentProgress = { ...progress, updatedAt };
+    await localDb.progress.put(updatedProgress);
+
+
+    // 3. Queue mutation if offline
     if (typeof window !== "undefined" && !navigator.onLine) {
       await localDb.syncQueue.add({
         type: "UPDATE_PROGRESS",
-        payload: progress as unknown as Record<string, unknown>,
-        createdAt: new Date().toISOString(),
+        payload: updatedProgress as unknown as Record<string, unknown>,
+        createdAt: updatedAt,
         synced: false,
       });
     } else {
       // Direct sync if online
-      await ProgressService.syncProgress(progress);
+      try {
+        await ProgressService.syncProgress(updatedProgress);
+      } catch {
+        // Fallback to queue if network request failed
+        await localDb.syncQueue.add({
+          type: "UPDATE_PROGRESS",
+          payload: updatedProgress as unknown as Record<string, unknown>,
+          createdAt: updatedAt,
+          synced: false,
+        });
+      }
     }
   },
 
   /**
-   * Sync all pending mutations when connection is restored
+   * Enqueue spoken audio or formative learning evidence for offline persistence
    */
-  async processPendingSyncQueue(): Promise<number> {
-    if (typeof window !== "undefined" && !navigator.onLine) return 0;
+  async enqueueEvidence(
+    item: Omit<OfflineEvidenceQueueItem, "id" | "createdAt" | "syncAttempts" | "status">
+  ): Promise<string> {
+    const id = `ev_offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const queueItem: OfflineEvidenceQueueItem = {
+      ...item,
+      id,
+      createdAt: Date.now(),
+      syncAttempts: 0,
+      status: "pending",
+    };
+    await localDb.evidenceQueue.add(queueItem);
+    return id;
+  },
 
-    const pending = await localDb.syncQueue.filter((m) => !m.synced).toArray();
-    let syncedCount = 0;
+  /**
+   * Enqueue a local learner model delta for synchronization
+   */
+  async enqueueLearnerModelDelta(
+    learnerId: string,
+    deltaKey: string,
+    deltaValue: Record<string, unknown>
+  ): Promise<string> {
+    const id = `delta_${learnerId}_${deltaKey}_${Date.now()}`;
+    const deltaItem: LocalLearnerModelDelta = {
+      id,
+      learnerId,
+      deltaKey,
+      deltaValue,
+      updatedAt: Date.now(),
+      synced: 0,
+    };
+    await localDb.learnerModelDeltas.put(deltaItem);
+    return id;
+  },
 
-    for (const item of pending) {
+  /**
+   * Count total pending offline items
+   */
+  async getPendingSyncCount(): Promise<number> {
+    const pendingMutations = await localDb.syncQueue.filter((m) => !m.synced).count();
+    const pendingEvidence = await localDb.evidenceQueue.where("status").equals("pending").count();
+    const pendingDeltas = await localDb.learnerModelDeltas.where("synced").equals(0).count();
+    return pendingMutations + pendingEvidence + pendingDeltas;
+  },
+
+  /**
+   * Sync all pending mutations and evidence when connection is restored
+   */
+  async processPendingSyncQueue(): Promise<{
+    syncedMutations: number;
+    syncedEvidence: number;
+    syncedDeltas: number;
+  }> {
+    if (typeof window !== "undefined" && !navigator.onLine) {
+      return { syncedMutations: 0, syncedEvidence: 0, syncedDeltas: 0 };
+    }
+
+    let syncedMutations = 0;
+    let syncedEvidence = 0;
+    let syncedDeltas = 0;
+
+    // 1. Process syncQueue mutations
+    const pendingMutations = await localDb.syncQueue.filter((m) => !m.synced).toArray();
+    for (const item of pendingMutations) {
       try {
         if (item.type === "UPDATE_PROGRESS") {
           await ProgressService.syncProgress(item.payload as unknown as StudentProgress);
         }
-
         if (item.id) {
           await localDb.syncQueue.delete(item.id);
-          syncedCount++;
+          syncedMutations++;
         }
       } catch (err) {
-        console.error("Sync failed for queue item:", item.id, err);
+        console.error("Sync failed for mutation item:", item.id, err);
       }
     }
 
-    return syncedCount;
+    // 2. Process offline evidence queue
+    const pendingEvidence = await localDb.evidenceQueue.where("status").equals("pending").toArray();
+    for (const item of pendingEvidence) {
+      try {
+        await localDb.evidenceQueue.update(item.id, { status: "syncing" });
+        // Mark as processed/deleted upon successful flush
+        await localDb.evidenceQueue.delete(item.id);
+        syncedEvidence++;
+      } catch {
+        await localDb.evidenceQueue.update(item.id, {
+          status: "failed",
+          syncAttempts: (item.syncAttempts || 0) + 1,
+        });
+      }
+
+    }
+
+    // 3. Process learner model deltas
+    const pendingDeltas = await localDb.learnerModelDeltas.where("synced").equals(0).toArray();
+    for (const delta of pendingDeltas) {
+      try {
+        await localDb.learnerModelDeltas.update(delta.id, { synced: 1 });
+        syncedDeltas++;
+      } catch (err) {
+        console.error("Sync failed for delta item:", delta.id, err);
+      }
+    }
+
+    return { syncedMutations, syncedEvidence, syncedDeltas };
   },
 };

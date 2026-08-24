@@ -28,6 +28,10 @@ export * from "./curriculum/a1";
 export * from "./teacher-return-loop.service";
 export * from "./capstone-evaluator.service";
 export * from "./coach-a1.service";
+export * from "./teach-t1.service";
+export * from "./curriculum/a2";
+export * from "./capstone-a2.service";
+
 
 
 

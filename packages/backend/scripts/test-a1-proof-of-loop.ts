@@ -8,8 +8,8 @@ import type {
   MindInterpretationRequestV1,
   PhonemeEvaluation,
   SpokenLearnerEvidencePayload,
-  TeacherGuidancePayload,
 } from "@lurexa/types";
+
 import {
   MIND_INTERPRETATION_CONTRACT_VERSION,
   LEARNING_EVIDENCE_CONTRACT_VERSION,

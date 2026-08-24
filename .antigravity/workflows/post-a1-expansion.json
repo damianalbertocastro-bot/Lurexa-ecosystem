@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": "Post-A1 Ecosystem Expansion",
+    "executionMode": "sequential",
+    "stopOnFailure": true,
+    "stages": [
+        {
+            "stage": 1,
+            "name": "Lurexa Teach T1 Reference & Capstone",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "create_contracts",
+                    "target": "packages/types/src/teach.ts"
+                },
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "implement_service",
+                    "target": "packages/backend/src/teach-t1.service.ts"
+                }
+            ]
+        },
+        {
+            "stage": 2,
+            "name": "Level A2 Curriculum & Capstone",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/spark-bridge.json",
+                    "action": "mcp_ingest_a2",
+                    "targetDirectory": "packages/backend/src/curriculum/a2/"
+                },
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "implement_service",
+                    "target": "packages/backend/src/capstone-a2.service.ts"
+                }
+            ]
+        },
+        {
+            "stage": 3,
+            "name": "Offline-First PWA Sync Runtime",
+            "tasks": [
+                {
+                    "agent": ".antigravity/agents/engineering-architect.json",
+                    "action": "wire_dexie_runtime",
+                    "target": "packages/backend/src/offline-sync.service.ts"
+                },
+                {
+                    "agent": ".antigravity/agents/ui-designer.json",
+                    "action": "mount_indicator",
+                    "target": "apps/learn-web/app/layout.tsx"
+                }
+            ]
+        }
+    ]
+}

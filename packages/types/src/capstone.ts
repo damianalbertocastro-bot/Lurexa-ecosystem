@@ -79,3 +79,34 @@ export interface CapstoneAssessmentResult {
     actorId: string;
   };
 }
+
+export interface A2CapstoneSubmission {
+  id: string;
+  learnerId: string;
+  capstoneId: "english-a2-capstone";
+  spokenAudioEvidenceUrl?: string;
+  spokenTranscript?: string;
+  readingResponseSelected?: string;
+  writtenResolutionText?: string;
+  submittedAt: string;
+}
+
+export interface A2CapstoneSubscores {
+  fluencyAndPronunciation: number;
+  grammaticalControl: number;
+  vocabularyRepertoire: number;
+  taskAchievement: number;
+}
+
+export interface A2CapstoneEvaluationResult {
+  learnerId: string;
+  level: "A2";
+  decision: CapstoneDecision;
+  passed: boolean;
+  score: number;
+  subscores: A2CapstoneSubscores;
+  observedL1TransferStrengths: string[];
+  areasForB1Growth: string[];
+  evaluatedAt: string;
+}
+

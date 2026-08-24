@@ -1,6 +1,6 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
-import { StudentProgress } from "@lurexa/types";
+import type { StudentProgress } from "@lurexa/types";
 
 export interface StudentRiskMetric {
   studentId: string;
@@ -32,25 +32,28 @@ export const AnalyticsService = {
 
     if (progressDocs.length === 0) {
       return {
-        totalStudents: 24, // Fallback demo metric
-        avgCompletionRate: 68,
-        avgQuizScore: 74,
-        atRiskCount: 3,
+        totalStudents: 0,
+        avgCompletionRate: 0,
+        avgQuizScore: 0,
+        atRiskCount: 0,
         aiRecommendations: [
-          "3 students are scoring below 60% on Present Perfect Tense — consider reviewing Unit 2.",
-          "Student retention is high (+12% streak activity this week).",
+          "No student progress data recorded yet for this organization.",
         ],
       };
     }
 
     const totalScore = progressDocs.reduce((acc, curr) => acc + (curr.bestScore || 0), 0);
     const avgQuizScore = Math.round(totalScore / (progressDocs.length || 1));
+    const totalStudents = new Set(progressDocs.map((p) => p.studentId)).size;
+    const completedCount = progressDocs.filter((p) => p.status === "completed").length;
+    const avgCompletionRate = progressDocs.length > 0 ? Math.round((completedCount / progressDocs.length) * 100) : 0;
+    const atRiskCount = progressDocs.filter((p) => (p.bestScore || 0) < 60).length;
 
     return {
-      totalStudents: new Set(progressDocs.map((p) => p.studentId)).size,
-      avgCompletionRate: 68,
+      totalStudents,
+      avgCompletionRate,
       avgQuizScore,
-      atRiskCount: progressDocs.filter((p) => (p.bestScore || 0) < 60).length,
+      atRiskCount,
       aiRecommendations: [
         "Review module quizzes for students flagged with low first-attempt scores.",
       ],
@@ -61,7 +64,6 @@ export const AnalyticsService = {
    * Get list of students with flagged risk statuses
    */
   async getStudentRosterMetrics(orgId: string): Promise<StudentRiskMetric[]> {
-    // Preserve the public API until roster metrics are backed by an org-scoped query.
     void orgId;
 
     return [
