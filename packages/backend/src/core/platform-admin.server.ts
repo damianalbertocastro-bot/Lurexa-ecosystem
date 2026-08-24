@@ -9,12 +9,6 @@ import type {
 } from "@lurexa/types";
 import { getServerFirebaseAuth, getServerFirestore } from "../firebase-admin.server";
 
-export interface PlatformAdminActor {
-  uid: string;
-  email: string | null;
-  role: "super_admin";
-}
-
 function asOrganization(
   id: string,
   value: FirebaseFirestore.DocumentData,
@@ -26,6 +20,17 @@ function safeIsoMillis(value: unknown): number | null {
   if (typeof value !== "string") return null;
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function requireSuperAdmin(authorization: string | null): Promise<void> {
+  if (!authorization?.startsWith("Bearer ")) {
+    throw new Error("Authentication is required.");
+  }
+
+  const token = await getServerFirebaseAuth().verifyIdToken(authorization.slice(7));
+  if (token.role !== "super_admin") {
+    throw new Error("Superadmin access is required.");
+  }
 }
 
 async function organizationOverview(
@@ -88,25 +93,9 @@ function platformMetrics(input: {
 }
 
 export const PlatformAdminService = {
-  async authenticate(authorization: string | null): Promise<PlatformAdminActor> {
-    if (!authorization?.startsWith("Bearer ")) {
-      throw new Error("Authentication is required.");
-    }
+  async getSnapshot(authorization: string | null): Promise<PlatformAdminSnapshot> {
+    await requireSuperAdmin(authorization);
 
-    const token = await getServerFirebaseAuth().verifyIdToken(authorization.slice(7));
-    if (token.role !== "super_admin") {
-      throw new Error("Superadmin access is required.");
-    }
-
-    return {
-      uid: token.uid,
-      email: token.email ?? null,
-      role: "super_admin",
-    };
-  },
-
-  async getSnapshot(actor: PlatformAdminActor): Promise<PlatformAdminSnapshot> {
-    void actor;
     const database = getServerFirestore();
     const [organizationsSnapshot, progressSnapshot, conversationsSnapshot] = await Promise.all([
       database.collection("organizations").get(),
@@ -131,10 +120,11 @@ export const PlatformAdminService = {
   },
 
   async updateOrganizationStatus(
-    actor: PlatformAdminActor,
+    authorization: string | null,
     input: PlatformOrganizationStatusUpdate,
   ): Promise<AdminOrgOverview> {
-    void actor;
+    await requireSuperAdmin(authorization);
+
     if (!input.organizationId.trim()) throw new Error("Organization id is required.");
     if (input.status !== "active" && input.status !== "suspended") {
       throw new Error("Organization status is invalid.");
