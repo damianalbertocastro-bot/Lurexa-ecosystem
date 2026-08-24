@@ -71,7 +71,8 @@ export class LearnerModelService {
   }
 
   /** @deprecated Unsafe legacy entrypoint; deliberately fails closed. */
-  async submitInsight(_submission: LearnerInsightSubmission): Promise<never> {
+  async submitInsight(submission: LearnerInsightSubmission): Promise<never> {
+    void submission;
     throw new Error(
       "Direct learner insight persistence is disabled. Submit a Mind candidate through Core approval.",
     );
