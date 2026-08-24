@@ -22,6 +22,8 @@ const paths = {
   coachContext: "packages/backend/src/coach-session-context.server.ts",
   teacherCore: "packages/backend/src/core/teacher-return-loop.server.ts",
   teacherFacade: "packages/backend/src/teacher-return-loop.service.ts",
+  courseService: "packages/backend/src/course.service.ts",
+  courseBuilder: "packages/backend/src/course-builder.service.ts",
   backendBarrel: "packages/backend/src/index.ts",
   coursePlatform: "packages/backend/src/course-platform.server.ts",
   learnProgress: "packages/backend/src/learn-progress.server.ts",
@@ -74,6 +76,13 @@ forbidText(paths.teacherCore, content.teacherCore, 'collection("learning_evidenc
 requireText(paths.teacherFacade, content.teacherFacade, "Unauthenticated teacher guidance is disabled");
 forbidText(paths.teacherFacade, content.teacherFacade, "getServerFirestore");
 
+requireText(paths.courseService, content.courseService, "Direct browser course writes are disabled");
+forbidText(paths.courseService, content.courseService, "setDoc");
+requireText(paths.courseBuilder, content.courseBuilder, "Direct browser curriculum writes are disabled");
+forbidText(paths.courseBuilder, content.courseBuilder, "firebase/firestore");
+forbidText(paths.courseBuilder, content.courseBuilder, "setDoc");
+forbidText(paths.courseBuilder, content.courseBuilder, "updateDoc");
+
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./mind.service"');
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./teacher-return-loop.service"');
 forbidText(paths.backendBarrel, content.backendBarrel, 'export * from "./capstone-evaluator.service"');
@@ -86,4 +95,4 @@ requireText(paths.learnProgress, content.learnProgress, "getScopedLearnerContext
 requireText(paths.learnProgress, content.learnProgress, "nextStep");
 requireText(paths.dashboard, content.dashboard, "Recommended next step");
 
-console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> scoped Learn/Coach projection.");
+console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> scoped Learn/Coach projection; legacy browser mutations fail closed.");
