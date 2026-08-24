@@ -1,4 +1,4 @@
-import { ConservativeLearningIntelligenceService } from "../packages/backend/src/mind-learning-intelligence.server.ts";
+import { MindLearningIntelligenceService } from "../packages/backend/src/mind/learning-intelligence.server.ts";
 import { assertApprovableDerivedObservation } from "../packages/backend/src/learner-firestore.server.ts";
 
 const learnerId = "contract-fixture-learner";
@@ -35,7 +35,7 @@ function assert(condition, message) {
   console.log(`✓ ${message}`);
 }
 
-const service = new ConservativeLearningIntelligenceService();
+const service = new MindLearningIntelligenceService();
 const result = await service.interpretAuthorizedEvidence({
   contractVersion: "1",
   requestId: "contract-request-1",
@@ -45,10 +45,10 @@ const result = await service.interpretAuthorizedEvidence({
   modelPolicyVersion: "mind-policy-v1",
 });
 
-const candidate = result.outputs[0];
+const candidate = result.outputs.find((output) => output.type === "recommendation");
 assert(result.contractVersion === "1", "Mind result is versioned");
 assert(candidate?.status === "candidate", "Mind produces a candidate rather than persisted state");
-assert(candidate?.generatedBy.ruleVersion === "learn-next-step-v1", "candidate captures deterministic rule provenance");
+assert(candidate?.generatedBy.ruleVersion === "learn-next-step-v1", "Learn recommendation preserves deterministic rule provenance");
 assert(candidate?.basedOnEvidenceIds.length === 2, "candidate retains its authorized evidence basis");
 assert(candidate?.scope.products.includes("learn"), "candidate has a bounded product scope");
 
@@ -98,4 +98,43 @@ try {
 }
 assert(crossTenantRejected, "Mind rejects tenant-scoped evidence without an explicit organization boundary");
 
-console.log("Mind interpretation and Core approval contract fixtures passed.");
+const teacherEvidence = [{
+  contractVersion: "1",
+  id: "teacher-review-1",
+  learnerId,
+  organizationId,
+  source: { product: "learn", courseId: "course-1", lessonId: "lesson-1", activityId: "activity-1" },
+  type: "assessment_result",
+  observedAt: "2026-08-22T01:00:00.000Z",
+  dataClassification: "standard",
+  provenance: { method: "teacher_reported", actorId: "teacher-1", confidence: 1 },
+  payload: {
+    returnLoopActions: [{
+      id: "return-1",
+      actionType: "targeted_micropractice",
+      title: "Practice question formation",
+      instruction: "Complete one short supported question-formation practice before the next lesson.",
+      targetCompetencyIds: ["question-formation"],
+      assignedAt: "2026-08-22T01:00:00.000Z",
+    }],
+  },
+}];
+const teacherResult = await service.interpretAuthorizedEvidence({
+  contractVersion: "1",
+  requestId: "contract-request-teacher-1",
+  purpose: "mind_learning_interpretation",
+  interpretationTypes: ["recommendation"],
+  input: { learnerId, organizationId, evidence: teacherEvidence },
+  modelPolicyVersion: "mind-policy-v1",
+});
+const teacherRecommendation = teacherResult.outputs.find((output) => output.generatedBy.capability === "teacher-guidance-normalizer");
+assert(teacherRecommendation?.confidence === 1, "explicit teacher guidance remains authoritative rather than being re-inferred");
+assert(teacherRecommendation?.basedOnEvidenceIds[0] === "teacher-review-1", "teacher guidance recommendation retains audit provenance");
+assertApprovableDerivedObservation({
+  candidate: teacherRecommendation,
+  authorizedEvidenceIds: ["teacher-review-1"],
+  policyId: "core-derived-observation-v1",
+});
+assert(true, "Core approval accepts normalized teacher guidance with an authorized evidence basis");
+
+console.log("Unified Mind interpretation and Core approval contract fixtures passed.");
