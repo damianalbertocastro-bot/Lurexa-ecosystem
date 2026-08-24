@@ -48,26 +48,24 @@ Cross-product navigation should preserve organization context when linking into 
 
 ## Roles
 
-MVP roles should stay intentionally small:
-
-- `platform_admin` — Lurexa internal global administrator
-- `org_owner` — highest institution-level authority
-- `org_admin` — delegated institution administrator
-- `teacher` — instructional staff member
-- `student` — learner
+The repository already defines the trusted organization roles `owner`, `admin`, `teacher`, and `student` through `MemberRole`; institution workspaces should reuse those roles rather than introduce a parallel role vocabulary. Platform-wide Lurexa administration remains the separate `super_admin` user role.
 
 Add specialist roles only when a real permission requirement exists. Avoid role proliferation during MVP.
 
 ## Trusted Core records
 
-Core should remain authoritative for organization-scoped security and relationship facts. Candidate records/contracts:
+Core should remain authoritative for organization-scoped security and relationship facts. Existing trusted contracts already include:
 
 - `Organization`
-- `OrganizationMembership { organizationId, userId, role, status }`
-- `OrganizationInvitation { organizationId, email, role, status, expiresAt }`
-- `OrganizationBranding`
-- `ProductEntitlement { organizationId, product, plan, seats, status }`
-- `AuditEvent`
+- `OrganizationMember`
+- `Invitation`
+
+Institution workspaces add only contracts that are not already represented, beginning with:
+
+- `InstitutionBranding`
+- `InstitutionProductEntitlement`
+- `InstitutionWorkspaceContext`
+- a future trusted administrative `AuditEvent` contract when audit persistence is implemented
 
 Cohorts, classes, course assignments, and enrollments must be placed according to domain ownership. Admin may manage them, but this does not automatically mean Admin owns their canonical records. Course content, lesson content, submissions, and learner-model interpretation do not belong to Admin.
 
@@ -89,7 +87,7 @@ Later phases may add SAML/OIDC SSO, SCIM provisioning, SIS integrations, custom 
 
 ## Authorization rule
 
-Every institution-admin request must be authorized server-side against the requested organization. Client-side route guards are not sufficient. `platform_admin` authorization and organization-scoped authorization must remain separate concepts.
+Every institution-admin request must be authorized server-side against the requested organization. Client-side route guards are not sufficient. `super_admin` authorization and organization-scoped `owner`/`admin` authorization must remain separate concepts.
 
 Lurexa Mind must never decide access. It may consume authorized context supplied through Core contracts, but Core remains authoritative for identity, permissions, membership, and trusted persistence.
 
@@ -102,8 +100,9 @@ The institution sees one branded environment. A student primarily experiences Le
 ## MVP implementation guardrails
 
 - Preserve the existing Platform Operations dashboard as a global superadmin surface.
+- Reuse the existing `organizations/{organizationId}/members` membership model and trusted organization contracts.
 - Do not expose organization routes to institution administrators until server-side organization membership authorization exists.
 - Do not create fake institution metrics or mock trusted records in production paths.
 - Do not move learning, teaching, or analytics domain logic into Admin.
-- Add new organization-scoped API routes only after Core contracts and authorization rules are defined and tested.
+- Add new organization-scoped API routes only after Core authorization rules are defined and tested.
 - Prefer additive migration over renaming existing global-admin routes during MVP.
