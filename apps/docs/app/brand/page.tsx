@@ -4,7 +4,7 @@ import { MasterMark } from "@lurexa/ui/MasterMark";
 import { ProductMark, type LurexaProduct } from "@lurexa/ui/ProductMark";
 import { RelatedExperiences } from "@lurexa/ui/RelatedExperiences";
 
-const products: LurexaProduct[] = ["learn", "coach", "teach", "admin", "insight", "studio"];
+const products: LurexaProduct[] = ["learn", "coach", "teach", "admin", "insight", "studio", "campus"];
 
 export default function BrandIdentityPage() {
   return (

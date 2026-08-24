@@ -6,6 +6,7 @@ export type LurexaExperienceId =
   | "admin"
   | "insight"
   | "studio"
+  | "campus"
   | "docs";
 
 export type ProductPersonality = {
@@ -92,6 +93,15 @@ export const productPersonalities: Record<LurexaExperienceId, ProductPersonality
     shape: "creative",
     density: "balanced",
     motion: "expressive",
+  },
+  campus: {
+    name: "Lurexa Campus",
+    character: "Connected, institutional, intelligent, community-ready.",
+    interactionEmphasis: "Institutional deployment, cohort learning, campus community, and cross-departmental operations.",
+    palette: { ink: "#071d67", primary: "#071d67", secondary: "#2160df", accent: "#12cdd4", canvas: "#f4f7fc", surface: "#ffffff" },
+    shape: "institutional",
+    density: "balanced",
+    motion: "purposeful",
   },
   docs: {
     name: "Lurexa Docs",

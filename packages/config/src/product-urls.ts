@@ -7,6 +7,7 @@ export const lurexaPublicUrlEnv = {
   admin: "NEXT_PUBLIC_LUREXA_ADMIN_URL",
   insight: "NEXT_PUBLIC_LUREXA_INSIGHT_URL",
   studio: "NEXT_PUBLIC_LUREXA_STUDIO_URL",
+  campus: "NEXT_PUBLIC_LUREXA_CAMPUS_URL",
   docs: "NEXT_PUBLIC_LUREXA_DOCS_URL",
 } as const;
 
@@ -44,6 +45,7 @@ export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPub
     admin: cleanUrl(env[lurexaPublicUrlEnv.admin]) ?? ecosystem,
     insight: cleanUrl(env[lurexaPublicUrlEnv.insight]) ?? ecosystem,
     studio: cleanUrl(env[lurexaPublicUrlEnv.studio]) ?? ecosystem,
+    campus: cleanUrl(env[lurexaPublicUrlEnv.campus]) ?? ecosystem,
     docs: cleanUrl(env[lurexaPublicUrlEnv.docs]) ?? ecosystem,
   };
 }

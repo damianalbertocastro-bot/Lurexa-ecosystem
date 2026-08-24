@@ -16,6 +16,7 @@ Design principle: **shared grammar + distinct personalities**.
 - `marks/lurexa-admin.svg` — authoritative and controlled; shield/trust metaphor.
 - `marks/lurexa-insight.svg` — analytical and interpretive; evidence/lens metaphor.
 - `marks/lurexa-studio.svg` — creative and constructive; modular creation metaphor.
+- `marks/lurexa-campus.svg` — connected, institutional and intelligent; campus/portico community metaphor.
 
 ## Ecosystem surfaces and shared layers
 

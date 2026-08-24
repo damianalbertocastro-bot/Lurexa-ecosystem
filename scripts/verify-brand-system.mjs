@@ -8,17 +8,27 @@ const fail = (message) => failures.push(message);
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
 const exists = (relative) => fs.existsSync(path.join(root, relative));
 
+const ignoredSourceDirectories = new Set([
+  ".next",
+  ".turbo",
+  "node_modules",
+  "dist",
+  "build",
+  "coverage",
+  "out",
+]);
+
 function walk(relativeDir) {
   const absolute = path.join(root, relativeDir);
   if (!fs.existsSync(absolute)) return [];
   return fs.readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.isDirectory() && ignoredSourceDirectories.has(entry.name)) return [];
     const relative = path.join(relativeDir, entry.name);
-    if (entry.isDirectory()) return walk(relative);
-    return relative;
+    return entry.isDirectory() ? walk(relative) : [relative];
   });
 }
 
-const currentProducts = ["learn", "coach", "teach", "admin", "insight", "studio"];
+const currentProducts = ["learn", "coach", "teach", "admin", "insight", "studio", "campus"];
 const currentMarks = currentProducts.map((id) => `packages/ui/brand/marks/lurexa-${id}.svg`);
 const layerMarks = ["packages/ui/brand/marks/lurexa-core.svg", "packages/ui/brand/marks/lurexa-mind.svg"];
 const supportMarks = ["packages/ui/brand/marks/lurexa-master.svg", "packages/ui/brand/marks/lurexa-docs.svg"];
@@ -52,6 +62,7 @@ const requiredUrlVariables = [
   "NEXT_PUBLIC_LUREXA_ADMIN_URL",
   "NEXT_PUBLIC_LUREXA_INSIGHT_URL",
   "NEXT_PUBLIC_LUREXA_STUDIO_URL",
+  "NEXT_PUBLIC_LUREXA_CAMPUS_URL",
   "NEXT_PUBLIC_LUREXA_DOCS_URL",
 ];
 const reservedFutureVariables = ["NEXT_PUBLIC_LUREXA_COMMUNITY_URL"];

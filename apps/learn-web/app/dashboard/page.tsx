@@ -313,6 +313,27 @@ export default function StudentDashboardPage() {
               onStartLesson={handleStartFirstLesson}
             />
 
+            {/* Adaptive Placement Card */}
+            <Card
+              className="border-0 bg-white shadow-lg shadow-slate-200/60"
+              title="Placement Diagnostic"
+              subtitle="Calibrate your CEFR proficiency level"
+            >
+              <div className="space-y-3 pt-2">
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Take the adaptive multi-skill diagnostic to evaluate your listening, grammar, and pronunciation readiness across A1–C1.
+                </p>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => router.push("/placement")}
+                >
+                  Take Diagnostic Placement 🎯
+                </Button>
+              </div>
+            </Card>
+
             {/* Points & Learning Rewards Summary */}
             <Card
               className="border-0 bg-white shadow-lg shadow-slate-200/60"

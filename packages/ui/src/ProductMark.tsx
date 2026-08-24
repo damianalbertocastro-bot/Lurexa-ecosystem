@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { brandMarkGlyphDimensions, brandMarkSizeClasses, type BrandMarkSize } from "./brand-mark-size";
 
-export type LurexaProduct = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
+export type LurexaProduct = "learn" | "coach" | "teach" | "admin" | "insight" | "studio" | "campus";
 
 export interface ProductMarkProps extends HTMLAttributes<HTMLSpanElement> {
   product?: LurexaProduct;
@@ -17,6 +17,7 @@ const productLabel: Record<LurexaProduct, string> = {
   admin: "Admin",
   insight: "Insight",
   studio: "Studio",
+  campus: "Campus",
 };
 
 const productLabelClass: Record<LurexaProduct, string> = {
@@ -26,6 +27,7 @@ const productLabelClass: Record<LurexaProduct, string> = {
   admin: "text-[#071d67]",
   insight: "text-[#2160df]",
   studio: "text-[#8b3bd9]",
+  campus: "text-[#071d67]",
 };
 
 function ProductGlyph({ product }: { product: LurexaProduct }) {
@@ -73,6 +75,17 @@ function ProductGlyph({ product }: { product: LurexaProduct }) {
       <path d="M18 41 27 33l7 5 12-14 5 4" fill="none" stroke="#592bd6" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="46" cy="24" r="4" fill="#12cdd4" />
       <path d="m51 51 18 18" stroke="#2160df" strokeWidth="10" strokeLinecap="round" />
+    </svg>;
+  }
+
+  if (product === "campus") {
+    return <svg viewBox="0 0 80 80" className="h-full w-full" style={{ display: "block", width: "100%", height: "100%" }} aria-hidden="true">
+      <path d="M40 8 10 26h60L40 8Z" fill="#071D67" />
+      <rect x="10" y="27" width="60" height="5" rx="2.5" fill="#071D67" />
+      <rect x="16" y="36" width="11" height="24" rx="4" fill="#2160DF" />
+      <rect x="34.5" y="36" width="11" height="24" rx="4" fill="#12CDD4" />
+      <rect x="53" y="36" width="11" height="24" rx="4" fill="#2160DF" />
+      <rect x="10" y="64" width="60" height="8" rx="3" fill="#071D67" />
     </svg>;
   }
 

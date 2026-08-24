@@ -89,6 +89,11 @@
       "product": "Lurexa Studio",
       "expectedVercelProject": "lurexa-studio-web",
       "createWhen": "apps/studio-web exists"
+    },
+    {
+      "product": "Lurexa Campus",
+      "expectedVercelProject": "lurexa-campus-web",
+      "createWhen": "apps/campus-web exists"
     }
   ],
   "sharedLayers": [

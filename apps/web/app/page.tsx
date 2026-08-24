@@ -15,7 +15,7 @@ type ProductPresentation = {
 };
 
 const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "https://learn.lurexa.com";
-const productOrder = ["learn", "coach", "teach", "admin", "insight", "studio"] satisfies LurexaProductId[];
+const productOrder = ["learn", "coach", "teach", "admin", "insight", "studio", "campus"] satisfies LurexaProductId[];
 
 const productPresentation: Record<LurexaProductId, ProductPresentation> = {
   learn: { eyebrow: "Personal learning", href: learnUrl, status: "Explore Learn" },
@@ -24,6 +24,7 @@ const productPresentation: Record<LurexaProductId, ProductPresentation> = {
   admin: { eyebrow: "Institutional trust", href: process.env.NEXT_PUBLIC_LUREXA_ADMIN_URL ?? "#shared-intelligence", status: "In development" },
   insight: { eyebrow: "Learning evidence", href: process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? "#shared-intelligence", status: "In development" },
   studio: { eyebrow: "Learning creation", href: process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? "#shared-intelligence", status: "In development" },
+  campus: { eyebrow: "Institutional deployment", href: process.env.NEXT_PUBLIC_LUREXA_CAMPUS_URL ?? "#shared-intelligence", status: "In development" },
 };
 
 const products = productOrder.map((id) => ({
@@ -46,12 +47,12 @@ const productMarkSrc: Record<LurexaProductId, string> = {
   admin: "/brand/lurexa-admin.svg",
   insight: "/brand/lurexa-insight.svg",
   studio: "/brand/lurexa-studio.svg",
+  campus: "/brand/lurexa-campus.svg",
 };
 
 function ProductLogo({ product }: { product: LurexaProductId }) {
   return <Image src={productMarkSrc[product]} width={80} height={80} style={{ display: "block", width: "48px", height: "48px", maxWidth: "100%", objectFit: "contain" }} alt={`Lurexa ${products.find((item) => item.id === product)?.shortName ?? product} logo`} />;
 }
-
 const capabilities: Array<{ name: string; icon: CapabilityName }> = [
   { name: "Connect", icon: "connect" }, { name: "Cloud", icon: "cloud" }, { name: "Secure", icon: "secure" },
   { name: "Assess", icon: "assess" }, { name: "Schedule", icon: "schedule" }, { name: "Pay", icon: "pay" },

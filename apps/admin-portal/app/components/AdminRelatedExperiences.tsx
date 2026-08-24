@@ -8,12 +8,14 @@ const insightUrl = process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? ecosystemUrl;
 const docsUrl = process.env.NEXT_PUBLIC_LUREXA_DOCS_URL ?? ecosystemUrl;
 const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? ecosystemUrl;
 const teachUrl = process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? ecosystemUrl;
+const campusUrl = process.env.NEXT_PUBLIC_LUREXA_CAMPUS_URL ?? ecosystemUrl;
 
 export function AdminRelatedExperiences() {
   const pathname = usePathname();
   if (pathname !== "/") return null;
 
   const items: RelatedExperience[] = [
+    { kind: "campus", title: "Lurexa Campus", description: "Configure and govern institutional learning, academic cohorts, faculty, and campus-wide deployments.", href: campusUrl, badge: "Institutional", cta: "Manage Campus" },
     { kind: "insight", title: "Lurexa Insight", description: "Move from platform operations into learning intelligence, adoption patterns, outcomes, and decision-ready analysis.", href: insightUrl, badge: "Decision support", cta: "Explore Insight" },
     { kind: "docs", title: "Lurexa Docs", description: "Review the canonical architecture, governance, product boundaries, and operational standards behind the ecosystem.", href: docsUrl, cta: "Open Docs" },
     { kind: "learn", title: "Lurexa Learn", description: "Inspect the learner and teacher-facing operational experience that Admin helps govern and support.", href: learnUrl, cta: "View Learn" },

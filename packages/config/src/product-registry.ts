@@ -1,4 +1,4 @@
-export type LurexaProductId = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
+export type LurexaProductId = "learn" | "coach" | "teach" | "admin" | "insight" | "studio" | "campus";
 export type LurexaLayerId = "core" | "mind";
 export type LurexaSurfaceId = "docs";
 export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "enterprise";
@@ -60,6 +60,14 @@ export const lurexaProducts: Record<LurexaProductId, LurexaRegistryEntry> = {
     personality: "creative and constructive",
     description: "Course, lesson, assessment and reusable learning-experience authoring and publishing.",
     canonicalMark: "lurexa-studio.svg",
+  },
+  campus: {
+    id: "campus",
+    name: "Lurexa Campus",
+    classification: "product",
+    personality: "connected, institutional and intelligent",
+    description: "Campus-wide and institutional learning deployments connecting programs, cohorts, educators, and community experiences.",
+    canonicalMark: "lurexa-campus.svg",
   },
 };
 

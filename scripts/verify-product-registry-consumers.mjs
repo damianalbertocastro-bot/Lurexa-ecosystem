@@ -57,8 +57,8 @@ const sharedLayerNames = new Set([...registry.values()].filter((entry) => entry.
 const surfaceNames = new Set([...registry.values()].filter((entry) => entry.classification === "ecosystem-surface").map((entry) => entry.name));
 const inactiveNames = new Set([...registry.values()].filter((entry) => entry.classification === "future-product-concept" || entry.classification === "future-concept").map((entry) => entry.name));
 
-if (currentProductIds.size !== 6) fail(`Expected 6 current product ids; typed contract exposes ${currentProductIds.size}`);
-else pass("typed registry exposes exactly the six current products");
+if (currentProductIds.size !== 7) fail(`Expected 7 current product ids; typed contract exposes ${currentProductIds.size}`);
+else pass("typed registry exposes exactly the seven current products");
 
 for (const id of currentProductIds) {
   const entry = registry.get(id);
