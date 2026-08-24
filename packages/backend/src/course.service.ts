@@ -5,7 +5,6 @@ import {
   getDocs,
   query,
   where,
-  setDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Course, Lesson } from "@lurexa/types";
@@ -31,8 +30,10 @@ export const CourseService = {
     return { id: snap.id, ...snap.data() } as Lesson;
   },
 
-  async saveCourse(course: Course): Promise<void> {
-    const ref = doc(db, "courses", course.id);
-    await setDoc(ref, course, { merge: true });
+  /** @deprecated Authoritative course mutations must use the trusted Core API. */
+  async saveCourse(_course: Course): Promise<never> {
+    throw new Error(
+      "Direct browser course writes are disabled. Use the authenticated Lurexa Core learning API.",
+    );
   },
 };
