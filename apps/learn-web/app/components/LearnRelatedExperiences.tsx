@@ -13,9 +13,9 @@ export function LearnRelatedExperiences() {
 
   const items: RelatedExperience[] = pathname === "/dashboard"
     ? [
-        { kind: "coach", title: "Practice with Lurexa Coach", description: "Turn what you are learning into guided speaking and pronunciation practice that can use your existing learner context.", href: "/coach", badge: "Best next step", cta: "Start practicing" },
         { kind: "teach", title: "Lurexa Teach", description: "Professional learning, English growth, credentials, and community for educators.", href: teachUrl, cta: "Explore Teach" },
         { kind: "docs", title: "Lurexa Docs", description: "Explore the methodology, learning architecture, and ecosystem documentation behind Lurexa.", href: docsUrl, cta: "Open Docs" },
+        { kind: "ecosystem", title: "Explore the full ecosystem", description: "See how Learn, Coach, Teach, Admin, Insight, Studio, Core, and Mind fit together.", href: ecosystemUrl, cta: "View ecosystem" },
       ]
     : [
         { kind: "coach", title: "Lurexa Coach", description: "Build speaking confidence with guided conversation and pronunciation practice connected to the wider Lurexa learner model.", href: "/coach", badge: "For learners", cta: "Meet Coach" },

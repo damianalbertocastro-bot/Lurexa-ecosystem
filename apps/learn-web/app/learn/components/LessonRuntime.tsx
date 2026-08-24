@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
 import type {
@@ -63,7 +64,16 @@ function readActivity(data: Record<string, unknown>): LearnerLearningActivity | 
   const activity = data.activity;
   if (typeof activity !== "object" || activity === null || Array.isArray(activity)) return null;
   const candidate = activity as Partial<LearnerLearningActivity>;
-  if (candidate.schemaVersion !== "1" || typeof candidate.type !== "string" || typeof candidate.stage !== "string" || typeof candidate.title !== "string" || typeof candidate.instructions !== "string" || typeof candidate.prompt !== "string") return null;
+  if (
+    candidate.schemaVersion !== "1" ||
+    typeof candidate.type !== "string" ||
+    typeof candidate.stage !== "string" ||
+    typeof candidate.title !== "string" ||
+    typeof candidate.instructions !== "string" ||
+    typeof candidate.prompt !== "string"
+  ) {
+    return null;
+  }
   return candidate as LearnerLearningActivity;
 }
 
@@ -72,15 +82,36 @@ function readCapability(data: Record<string, unknown>): LearningCapability | nul
   if (typeof capability !== "object" || capability === null || Array.isArray(capability)) return null;
   const candidate = capability as Partial<LearningCapability>;
   if (
-    candidate.schemaVersion !== "1"
-    || !["model_listening", "recorded_speaking", "ai_roleplay"].includes(candidate.kind ?? "")
-    || typeof candidate.id !== "string"
-    || typeof candidate.title !== "string"
-    || typeof candidate.instructions !== "string"
-    || !Array.isArray(candidate.competencyIds)
-    || !candidate.competencyIds.every((id) => typeof id === "string")
-  ) return null;
+    candidate.schemaVersion !== "1" ||
+    !["model_listening", "recorded_speaking", "ai_roleplay"].includes(candidate.kind ?? "") ||
+    typeof candidate.id !== "string" ||
+    typeof candidate.title !== "string" ||
+    typeof candidate.instructions !== "string" ||
+    !Array.isArray(candidate.competencyIds) ||
+    !candidate.competencyIds.every((id) => typeof id === "string")
+  ) {
+    return null;
+  }
   return candidate as LearningCapability;
+}
+
+function getStageBadge(stage?: string): { label: string; color: string; icon: string } {
+  switch (stage) {
+    case "CONTEXTUAL_INPUT":
+      return { label: "Contextual Input", color: "bg-sky-50 text-sky-700 border-sky-200", icon: "🎧" };
+    case "COMPREHENSION":
+      return { label: "Comprehension Check", color: "bg-violet-50 text-violet-700 border-violet-200", icon: "🎯" };
+    case "GUIDED_PRACTICE":
+      return { label: "Guided Practice", color: "bg-indigo-50 text-indigo-700 border-indigo-200", icon: "🧩" };
+    case "PHONETICS_FOCUS":
+      return { label: "Phonetics & Pronunciation", color: "bg-amber-50 text-amber-700 border-amber-200", icon: "🗣️" };
+    case "CONVERSATION":
+      return { label: "AI Conversation", color: "bg-teal-50 text-teal-700 border-teal-200", icon: "💬" };
+    case "CREATE_APPLY":
+      return { label: "Create & Apply", color: "bg-rose-50 text-rose-700 border-rose-200", icon: "✍️" };
+    default:
+      return { label: "Interactive Practice", color: "bg-slate-50 text-slate-700 border-slate-200", icon: "⚡" };
+  }
 }
 
 export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: LessonRuntimeProps) {
@@ -106,7 +137,9 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
       openedAt.current = Date.now();
       try {
-        const response = await authenticatedFetch(`/api/learning?courseId=${encodeURIComponent(courseId)}&lessonId=${encodeURIComponent(lessonId)}`);
+        const response = await authenticatedFetch(
+          `/api/learning?courseId=${encodeURIComponent(courseId)}&lessonId=${encodeURIComponent(lessonId)}`
+        );
         const body: unknown = await response.json();
         if (!response.ok) throw new Error(readError(body, "Unable to load this lesson."));
         const lessonPayload = body as LessonPayload;
@@ -120,7 +153,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           });
           const startBody: unknown = await startResponse.json();
           if (!startResponse.ok) throw new Error(readError(startBody, "Unable to save lesson progress."));
-          setPayload((current) => current ? { ...current, progress: startBody as StudentProgress } : current);
+          setPayload((current) => (current ? { ...current, progress: startBody as StudentProgress } : current));
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : "Unable to load this lesson.");
@@ -131,31 +164,57 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
     return unsubscribe;
   }, [courseId, lessonId]);
 
-  function toggleOption(blockId: string, option: string, type: LearnerLearningActivity["type"] | "quiz") {
+  function handleSingleChoice(blockId: string, option: string) {
+    setSelections((current) => ({ ...current, [blockId]: [option] }));
+  }
+
+  function handleMultipleChoice(blockId: string, option: string) {
     setSelections((current) => {
       const existing = current[blockId] ?? [];
-      if (type === "multiple_selection") {
-        return { ...current, [blockId]: existing.includes(option) ? existing.filter((item) => item !== option) : [...existing, option] };
-      }
-      if (type === "sentence_builder") {
-        return { ...current, [blockId]: existing.includes(option) ? existing.filter((item) => item !== option) : [...existing, option] };
-      }
-      return { ...current, [blockId]: [option] };
+      const updated = existing.includes(option)
+        ? existing.filter((item) => item !== option)
+        : [...existing, option];
+      return { ...current, [blockId]: updated };
     });
+  }
+
+  function addSentenceToken(blockId: string, token: string) {
+    setSelections((current) => {
+      const existing = current[blockId] ?? [];
+      return { ...current, [blockId]: [...existing, token] };
+    });
+  }
+
+  function removeSentenceToken(blockId: string, indexToRemove: number) {
+    setSelections((current) => {
+      const existing = current[blockId] ?? [];
+      return {
+        ...current,
+        [blockId]: existing.filter((_, index) => index !== indexToRemove),
+      };
+    });
+  }
+
+  function clearSentenceBuilder(blockId: string) {
+    setSelections((current) => ({ ...current, [blockId]: [] }));
   }
 
   async function submitBlock(blockId: string, kind: "quiz" | "activity", activity?: LearnerLearningActivity) {
     const answers = selections[blockId] ?? [];
     if (!answers.length) {
-      setFeedback((current) => ({ ...current, [blockId]: { passed: false, message: "Choose an answer before submitting.", kind: "notice" } }));
+      setFeedback((current) => ({
+        ...current,
+        [blockId]: { passed: false, message: "Choose or assemble an answer before submitting.", kind: "notice" },
+      }));
       return;
     }
 
     setSubmittingId(blockId);
     try {
-      const requestBody = kind === "quiz"
-        ? { action: "submitQuizAttempt", courseId, lessonId, quizId: blockId, answer: answers[0] }
-        : { action: "submitActivityAttempt", courseId, lessonId, activityId: blockId, answers };
+      const requestBody =
+        kind === "quiz"
+          ? { action: "submitQuizAttempt", courseId, lessonId, quizId: blockId, answer: answers[0] }
+          : { action: "submitActivityAttempt", courseId, lessonId, activityId: blockId, answers };
       const response = await authenticatedFetch("/api/learning", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,15 +223,35 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body, "Unable to submit this activity."));
       const result = body as { attempt: StudentProgress["attempts"][number]; explanation: string | null };
-      const message = result.explanation ?? (result.attempt.passed ? "Nice work. Your response was saved." : "Your response was saved. Try again when you are ready.");
+      const message =
+        result.explanation ??
+        (result.attempt.passed
+          ? "Excellent! Your response is correct and saved to your learning evidence."
+          : "Your attempt was saved. Review the clue and try again when you are ready.");
       setFeedback((current) => ({ ...current, [blockId]: { passed: result.attempt.passed, message, kind: "notice" } }));
-      setPayload((current) => current ? {
-        ...current,
-        progress: current.progress ? { ...current.progress, lastAccessedAt: result.attempt.completedAt } : current.progress,
-      } : current);
+      setPayload((current) =>
+        current
+          ? {
+              ...current,
+              progress: current.progress
+                ? {
+                    ...current.progress,
+                    lastAccessedAt: result.attempt.completedAt,
+                    attempts: [
+                      ...current.progress.attempts.filter((a) => a.quizId !== blockId),
+                      result.attempt,
+                    ],
+                  }
+                : current.progress,
+            }
+          : current
+      );
       if (activity?.type === "single_choice") setSelections((current) => ({ ...current, [blockId]: answers.slice(0, 1) }));
     } catch (caught) {
-      setFeedback((current) => ({ ...current, [blockId]: { passed: false, message: caught instanceof Error ? caught.message : "Unable to submit this activity.", kind: "error" } }));
+      setFeedback((current) => ({
+        ...current,
+        [blockId]: { passed: false, message: caught instanceof Error ? caught.message : "Unable to submit this activity.", kind: "error" },
+      }));
     } finally {
       setSubmittingId(null);
     }
@@ -181,7 +260,10 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
   async function submitShortResponse(blockId: string) {
     const responseText = (responses[blockId] ?? "").trim();
     if (responseText.length < 8) {
-      setFeedback((current) => ({ ...current, [blockId]: { passed: false, message: "Write a little more before submitting.", kind: "notice" } }));
+      setFeedback((current) => ({
+        ...current,
+        [blockId]: { passed: false, message: "Write at least a full phrase (8+ characters) before saving.", kind: "notice" },
+      }));
       return;
     }
     setSubmittingId(blockId);
@@ -194,9 +276,32 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body, "Unable to submit this response."));
       const result = body as { attempt: StudentProgress["attempts"][number]; explanation: string | null };
-      setFeedback((current) => ({ ...current, [blockId]: { passed: true, message: result.explanation ?? "Your response was saved as learning evidence.", kind: "notice" } }));
+      setFeedback((current) => ({
+        ...current,
+        [blockId]: { passed: true, message: result.explanation ?? "Your response was preserved as authentic productive evidence.", kind: "notice" },
+      }));
+      setPayload((current) =>
+        current
+          ? {
+              ...current,
+              progress: current.progress
+                ? {
+                    ...current.progress,
+                    lastAccessedAt: result.attempt.completedAt,
+                    attempts: [
+                      ...current.progress.attempts.filter((a) => a.quizId !== blockId),
+                      result.attempt,
+                    ],
+                  }
+                : current.progress,
+            }
+          : current
+      );
     } catch (caught) {
-      setFeedback((current) => ({ ...current, [blockId]: { passed: false, message: caught instanceof Error ? caught.message : "Unable to submit this response.", kind: "error" } }));
+      setFeedback((current) => ({
+        ...current,
+        [blockId]: { passed: false, message: caught instanceof Error ? caught.message : "Unable to submit this response.", kind: "error" },
+      }));
     } finally {
       setSubmittingId(null);
     }
@@ -215,7 +320,14 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
         const body: unknown = await response.json();
         if (!response.ok) throw new Error(readError(body, "Unable to complete this retrieval check."));
         setRetrievalCompleted(true);
-        setFeedback((current) => ({ ...current, completion: { passed: true, message: "Retrieval evidence saved. This strengthens retention evidence without changing mastery by itself.", kind: "notice" } }));
+        setFeedback((current) => ({
+          ...current,
+          completion: {
+            passed: true,
+            message: "Retrieval evidence saved! This reinforces long-term retention in your Learner Model.",
+            kind: "notice",
+          },
+        }));
         return;
       }
 
@@ -228,7 +340,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       });
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body, "Unable to complete this lesson."));
-      setPayload((current) => current ? { ...current, progress: body as StudentProgress } : current);
+      setPayload((current) => (current ? { ...current, progress: body as StudentProgress } : current));
 
       let retrievalScheduled = false;
       try {
@@ -248,18 +360,48 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           passed: true,
           kind: "notice",
           message: retrievalScheduled
-            ? "Lesson complete. Progress is saved and delayed retrieval has been scheduled; completion is not a mastery claim."
-            : "Lesson complete. Progress is saved; delayed retrieval scheduling can be retried later.",
+            ? "Lesson complete! +25 XP earned and spaced retrieval scheduled."
+            : "Lesson complete! +25 XP earned and progress saved.",
         },
       }));
     } catch (caught) {
-      setFeedback((current) => ({ ...current, completion: { passed: false, message: caught instanceof Error ? caught.message : "Unable to finish this learning step.", kind: "error" } }));
+      setFeedback((current) => ({
+        ...current,
+        completion: { passed: false, message: caught instanceof Error ? caught.message : "Unable to finish this learning step.", kind: "error" },
+      }));
     } finally {
       setCompleting(false);
     }
   }
 
-  if (loading) return <div className="mx-auto max-w-3xl px-6 py-16 text-slate-500" role="status" aria-live="polite" aria-busy="true">Loading lesson…</div>;
+  // Progress metrics calculation
+  const blocks = useMemo(() => {
+    if (!payload?.lesson?.contentBlocks) return [];
+    return [...payload.lesson.contentBlocks].sort((a, b) => a.order - b.order);
+  }, [payload]);
+
+  const totalInteractiveBlocks = useMemo(() => {
+    return blocks.filter((b) => b.type === "interactive" || b.type === "quiz_embed").length;
+  }, [blocks]);
+
+  const completedInteractiveBlocks = useMemo(() => {
+    if (!payload?.progress?.attempts) return 0;
+    const completedIds = new Set(payload.progress.attempts.map((a) => a.quizId));
+    return blocks.filter((b) => (b.type === "interactive" || b.type === "quiz_embed") && completedIds.has(b.id)).length;
+  }, [blocks, payload]);
+
+  const progressPercent = totalInteractiveBlocks > 0
+    ? Math.min(100, Math.round((completedInteractiveBlocks / totalInteractiveBlocks) * 100))
+    : 0;
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center" role="status" aria-live="polite" aria-busy="true">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <p className="mt-4 text-sm font-semibold text-slate-600">Loading interactive lesson…</p>
+      </div>
+    );
+  }
 
   if (error || !payload) {
     return (
@@ -269,8 +411,8 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           <h1 className="mt-3 text-3xl font-bold text-slate-950">This lesson is not available.</h1>
           <p className="mt-3 text-slate-600">{error ?? "We could not find this lesson in your learning path."}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white" onClick={() => router.refresh()}>Try again</button>
-            <button className="rounded-xl border border-indigo-200 px-5 py-3 font-semibold text-indigo-700" onClick={() => router.push("/dashboard")}>Back to dashboard</button>
+            <button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-500" onClick={() => router.refresh()}>Try again</button>
+            <button className="rounded-xl border border-indigo-200 px-5 py-3 font-semibold text-indigo-700 hover:bg-indigo-50" onClick={() => router.push("/dashboard")}>Back to dashboard</button>
           </div>
         </div>
       </div>
@@ -278,45 +420,113 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
   }
 
   const { lesson, progress, nextLesson } = payload;
-  const blocks = [...lesson.contentBlocks].sort((first, second) => first.order - second.order);
   const inRetrievalMode = Boolean(retrievalScheduleId);
+  const isLessonCompleted = Boolean(progress?.completed || retrievalCompleted);
 
   return (
-    <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-8 sm:px-8">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <header className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <button className="text-sm font-semibold text-indigo-700" onClick={() => router.push("/dashboard")}>← Dashboard</button>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase tracking-[.12em] text-indigo-700">
-              {inRetrievalMode ? "Retrieval review" : progress?.completed ? "Completed" : "In progress"}
+    <main className="min-h-screen bg-[var(--learn-canvas)] pb-16">
+      {/* Sticky Top Header & Progress */}
+      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto max-w-4xl px-4 py-3 sm:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 transition"
+            >
+              <span>←</span>
+              <span>Dashboard</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700 ring-1 ring-indigo-200">
+                A1 Foundations
+              </span>
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${isLessonCompleted ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"}`}>
+                {inRetrievalMode ? "Retrieval Review" : isLessonCompleted ? "✓ Completed" : "In Progress"}
+              </span>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-3 flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-slate-500">
+              {completedInteractiveBlocks}/{totalInteractiveBlocks} done ({progressPercent}%)
             </span>
           </div>
-          <p className="mt-8 text-xs font-bold uppercase tracking-[.18em] text-indigo-600">Production lesson</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">{lesson.title}</h1>
-          {lesson.summary ? <p className="mt-3 max-w-2xl text-slate-600">{lesson.summary}</p> : null}
-          <p className="mt-4 text-sm text-slate-500">About {lesson.estimatedMinutes} minutes · progress saves automatically</p>
-        </header>
+        </div>
+      </header>
+
+      {/* Lesson Content Body */}
+      <div className="mx-auto max-w-4xl space-y-6 px-4 pt-6 sm:px-8">
+        {/* Title Hero */}
+        <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">English A1 Core Lesson</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
+            {lesson.title}
+          </h1>
+          {lesson.summary ? <p className="mt-3 max-w-2xl text-base text-slate-600 leading-relaxed">{lesson.summary}</p> : null}
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <span>⏱️</span>
+              <span>~{lesson.estimatedMinutes} minutes</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span>✨</span>
+              <span>+25 XP upon completion</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span>💾</span>
+              <span>Progress saves automatically</span>
+            </span>
+          </div>
+        </section>
 
         {inRetrievalMode ? (
           <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-amber-800">Delayed retrieval</p>
-            <h2 className="mt-2 text-xl font-bold text-slate-950">Recall before you review.</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-700">Complete at least one activity from memory now. Lurexa will only close this retrieval check after fresh activity or assessment evidence is captured.</p>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-amber-800">Spaced Retrieval Session</p>
+            <h2 className="mt-2 text-xl font-bold text-slate-950">Recall before reviewing solutions.</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Complete at least one activity from memory now. Lurexa records retention evidence without lowering your existing level.
+            </p>
           </section>
         ) : null}
 
+        {/* Content Blocks */}
         {blocks.map((block) => {
           const text = readText(block.data);
           if (block.type === "text" && text) {
-            return <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm sm:p-8"><p className="whitespace-pre-wrap leading-7 text-slate-700">{text}</p></section>;
+            return (
+              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-700">
+                    📖 Lesson Dialogue &amp; Goal
+                  </span>
+                </div>
+                <div className="whitespace-pre-wrap leading-7 text-slate-800 font-medium">
+                  {text}
+                </div>
+              </section>
+            );
           }
 
           if (block.type === "video" || block.type === "image") {
             const url = readMediaUrl(block.data);
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-                <p className="text-sm font-semibold text-slate-900">Learning media</p>
-                {url ? <a className="mt-3 inline-block font-semibold text-indigo-700 underline" href={url} target="_blank" rel="noreferrer">Open resource ↗</a> : <p className="mt-2 text-sm text-slate-500">This media resource is unavailable.</p>}
+              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+                <p className="text-sm font-semibold text-slate-900">Learning Media</p>
+                {url ? (
+                  <a className="mt-3 inline-flex items-center gap-1 font-semibold text-indigo-700 underline hover:text-indigo-900" href={url} target="_blank" rel="noreferrer">
+                    <span>Open resource</span>
+                    <span>↗</span>
+                  </a>
+                ) : (
+                  <p className="mt-2 text-sm text-slate-500">This media resource is unavailable.</p>
+                )}
               </section>
             );
           }
@@ -325,54 +535,254 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             const quiz = readQuiz(block.data);
             if (!quiz) return null;
             const selected = selections[block.id] ?? [];
+            const blockFeedback = feedback[block.id];
+            const isSubmitted = Boolean(blockFeedback);
+
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-indigo-600">Quick check</p>
-                <h2 className="mt-2 text-xl font-bold text-slate-950">{quiz.prompt}</h2>
-                <div className="mt-5 grid gap-3" role="group" aria-label={quiz.prompt}>
-                  {quiz.options.map((option) => <button key={option} type="button" aria-pressed={selected.includes(option)} onClick={() => toggleOption(block.id, option, "quiz")} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
+              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-bold text-indigo-700">
+                    🎯 Quick Comprehension Check
+                  </span>
                 </div>
-                <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "quiz")} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Check answer"}</button>
-                {feedback[block.id] ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback[block.id].passed ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`} role={feedback[block.id].kind === "error" ? "alert" : "status"} aria-live={feedback[block.id].kind === "error" ? "assertive" : "polite"}>{feedback[block.id].message}</p> : null}
+                <h2 className="mt-4 text-xl font-bold text-slate-950">{quiz.prompt}</h2>
+                <div className="mt-5 grid gap-3" role="group" aria-label={quiz.prompt}>
+                  {quiz.options.map((option) => {
+                    const isSelected = selected.includes(option);
+                    let optionStyle = "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-slate-50";
+                    if (isSelected) {
+                      optionStyle = "border-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
+                    }
+                    if (isSubmitted && isSelected) {
+                      optionStyle = blockFeedback.passed
+                        ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20"
+                        : "border-amber-600 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-500/20";
+                    }
+
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => handleSingleChoice(block.id, option)}
+                        className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left text-sm font-medium transition ${optionStyle}`}
+                      >
+                        <span>{option}</span>
+                        {isSelected ? <span className="text-xs font-bold">✓</span> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-5 flex items-center gap-3">
+                  <button
+                    disabled={submittingId === block.id || !selected.length}
+                    onClick={() => void submitBlock(block.id, "quiz")}
+                    className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
+                  >
+                    {submittingId === block.id ? "Checking…" : "Check Answer"}
+                  </button>
+                </div>
+                {blockFeedback ? (
+                  <div
+                    className={`mt-4 rounded-2xl p-4 text-sm leading-relaxed ${
+                      blockFeedback.passed ? "bg-emerald-50 text-emerald-900 border border-emerald-200" : "bg-amber-50 text-amber-900 border border-amber-200"
+                    }`}
+                    role={blockFeedback.kind === "error" ? "alert" : "status"}
+                  >
+                    <p className="font-semibold">{blockFeedback.passed ? "✓ Correct" : "Keep going"}</p>
+                    <p className="mt-1">{blockFeedback.message}</p>
+                  </div>
+                ) : null}
               </section>
             );
           }
 
           if (block.type === "interactive") {
             const capability = readCapability(block.data);
-            if (capability?.kind === "model_listening") return <ModelListeningActivity key={block.id} capability={capability} />;
-            if (capability?.kind === "recorded_speaking") return <RecordedSpeakingActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
-            if (capability?.kind === "ai_roleplay") return <AIRoleplayActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+            if (capability?.kind === "model_listening") {
+              return <ModelListeningActivity key={block.id} capability={capability} />;
+            }
+            if (capability?.kind === "recorded_speaking") {
+              return <RecordedSpeakingActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+            }
+            if (capability?.kind === "ai_roleplay") {
+              return <AIRoleplayActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+            }
 
             const activity = readActivity(block.data);
             if (!activity) return null;
             const selected = selections[block.id] ?? [];
-            return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold uppercase tracking-[.12em] text-violet-700">{activity.stage.replaceAll("_", " ")}</span>
-                  {activity.required ? <span className="text-xs font-semibold text-slate-500">Required</span> : null}
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-slate-950">{activity.title}</h2>
-                <p className="mt-2 text-sm text-slate-600">{activity.instructions}</p>
-                <p className="mt-4 font-semibold text-slate-900">{activity.prompt}</p>
+            const blockFeedback = feedback[block.id];
+            const isSubmitted = Boolean(blockFeedback);
+            const stageBadge = getStageBadge(activity.stage);
 
+            return (
+              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${stageBadge.color}`}>
+                    {stageBadge.icon} {stageBadge.label}
+                  </span>
+                  {activity.required ? (
+                    <span className="text-xs font-bold text-slate-400">Required Activity</span>
+                  ) : null}
+                </div>
+
+                <h2 className="mt-4 text-xl font-bold text-slate-950">{activity.title}</h2>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{activity.instructions}</p>
+                <div className="mt-4 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                  <p className="text-sm font-semibold text-slate-900">{activity.prompt}</p>
+                </div>
+
+                {/* Short Response Type */}
                 {activity.type === "short_response" ? (
-                  <>
-                    <label className="sr-only" htmlFor={`response-${block.id}`}>Your response to: {activity.prompt}</label>
-                    <textarea id={`response-${block.id}`} value={responses[block.id] ?? ""} onChange={(event) => setResponses((current) => ({ ...current, [block.id]: event.target.value }))} className="mt-4 min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-slate-800 outline-none focus:border-indigo-500" placeholder="Write your response…" />
-                    <button disabled={submittingId === block.id} onClick={() => void submitShortResponse(block.id)} className="mt-4 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Save response"}</button>
-                  </>
-                ) : (
-                  <>
-                    {activity.type === "sentence_builder" && selected.length ? <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">Your sequence: {selected.join(" ")}</p> : null}
-                    <div className="mt-4 grid gap-3" role="group" aria-label={activity.prompt}>
-                      {(activity.options ?? []).map((option) => <button key={option} type="button" aria-pressed={selected.includes(option)} onClick={() => toggleOption(block.id, option, activity.type)} className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selected.includes(option) ? "border-indigo-600 bg-indigo-50 text-indigo-900" : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300"}`}>{option}</button>)}
+                  <div className="mt-5 space-y-3">
+                    <label className="sr-only" htmlFor={`response-${block.id}`}>
+                      Your response to: {activity.prompt}
+                    </label>
+                    <textarea
+                      id={`response-${block.id}`}
+                      value={responses[block.id] ?? ""}
+                      onChange={(event) =>
+                        setResponses((current) => ({ ...current, [block.id]: event.target.value }))
+                      }
+                      className="min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                      placeholder="Write your response in English…"
+                    />
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>{(responses[block.id] ?? "").length} characters written</span>
+                      <span>Target: Clear, short A1 sentences</span>
                     </div>
-                    <button disabled={submittingId === block.id} onClick={() => void submitBlock(block.id, "activity", activity)} className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{submittingId === block.id ? "Saving…" : "Submit activity"}</button>
-                  </>
-                )}
-                {feedback[block.id] ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback[block.id].passed ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`} role={feedback[block.id].kind === "error" ? "alert" : "status"} aria-live={feedback[block.id].kind === "error" ? "assertive" : "polite"}>{feedback[block.id].message}</p> : null}
+                    <button
+                      disabled={submittingId === block.id || !(responses[block.id] ?? "").trim()}
+                      onClick={() => void submitShortResponse(block.id)}
+                      className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
+                    >
+                      {submittingId === block.id ? "Saving…" : "Save Response"}
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* Sentence Builder Type */}
+                {activity.type === "sentence_builder" ? (
+                  <div className="mt-5 space-y-4">
+                    {/* Active Assembly Slot */}
+                    <div className="min-h-16 rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/40 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-2">
+                        Your Built Sentence (Tap a word to remove):
+                      </p>
+                      {selected.length === 0 ? (
+                        <p className="text-sm italic text-slate-400">Tap the word chips below to build your sentence in order.</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {selected.map((token, index) => (
+                            <button
+                              key={`${token}-${index}`}
+                              type="button"
+                              onClick={() => removeSentenceToken(block.id, index)}
+                              className="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-bold text-white shadow-sm hover:bg-rose-600 transition flex items-center gap-1.5"
+                            >
+                              <span>{token}</span>
+                              <span className="text-xs opacity-75">✕</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Word Bank */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Available Words:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(activity.options ?? []).map((token, index) => (
+                          <button
+                            key={`${token}-${index}`}
+                            type="button"
+                            onClick={() => addSentenceToken(block.id, token)}
+                            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 transition"
+                          >
+                            + {token}
+                          </button>
+                        ))}
+                        {selected.length > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => clearSentenceBuilder(block.id)}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 transition"
+                          >
+                            Reset
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={submittingId === block.id || selected.length === 0}
+                      onClick={() => void submitBlock(block.id, "activity", activity)}
+                      className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
+                    >
+                      {submittingId === block.id ? "Checking…" : "Submit Sentence"}
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* Single Choice / Multiple Selection */}
+                {activity.type === "single_choice" || activity.type === "multiple_selection" ? (
+                  <div className="mt-5 space-y-4">
+                    <div className="grid gap-3" role="group" aria-label={activity.prompt}>
+                      {(activity.options ?? []).map((option) => {
+                        const isSelected = selected.includes(option);
+                        let optionStyle = "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-slate-50";
+                        if (isSelected) {
+                          optionStyle = "border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
+                        }
+                        if (isSubmitted && isSelected) {
+                          optionStyle = blockFeedback.passed
+                            ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20"
+                            : "border-amber-600 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-500/20";
+                        }
+
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            aria-pressed={isSelected}
+                            onClick={() =>
+                              activity.type === "multiple_selection"
+                                ? handleMultipleChoice(block.id, option)
+                                : handleSingleChoice(block.id, option)
+                            }
+                            className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left text-sm font-medium transition ${optionStyle}`}
+                          >
+                            <span>{option}</span>
+                            {isSelected ? <span className="text-xs font-bold">✓</span> : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button
+                      disabled={submittingId === block.id || selected.length === 0}
+                      onClick={() => void submitBlock(block.id, "activity", activity)}
+                      className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
+                    >
+                      {submittingId === block.id ? "Checking…" : "Submit Answer"}
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* Feedback Callout */}
+                {blockFeedback ? (
+                  <div
+                    className={`mt-4 rounded-2xl p-4 text-sm leading-relaxed ${
+                      blockFeedback.passed
+                        ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
+                        : "bg-amber-50 text-amber-900 border border-amber-200"
+                    }`}
+                    role={blockFeedback.kind === "error" ? "alert" : "status"}
+                  >
+                    <p className="font-semibold">{blockFeedback.passed ? "✓ Great work" : "Almost there"}</p>
+                    <p className="mt-1">{blockFeedback.message}</p>
+                  </div>
+                ) : null}
               </section>
             );
           }
@@ -380,19 +790,92 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           return null;
         })}
 
-        <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-300">{inRetrievalMode ? "Finish retrieval" : "Finish the lesson"}</p>
-          <h2 className="mt-2 text-2xl font-bold">{inRetrievalMode ? "Save the recall you demonstrated." : "Save what you accomplished."}</h2>
-          <p className="mt-2 text-sm text-slate-300">{inRetrievalMode ? "Retrieval completion requires fresh evidence from this review session." : "Completing a lesson records progress; it does not claim mastery by itself."}</p>
-          {inRetrievalMode ? (
-            !retrievalCompleted ? <button disabled={completing} onClick={() => void finish()} className="mt-5 rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{completing ? "Checking evidence…" : "Complete retrieval check"}</button> : null
-          ) : !progress?.completed ? (
-            <button disabled={completing} onClick={() => void finish()} className="mt-5 rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{completing ? "Saving…" : "Complete lesson"}</button>
+        {/* Finish & Progression Section */}
+        <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">
+                {inRetrievalMode ? "Finish Retrieval Review" : "Lesson Milestone"}
+              </p>
+              <h2 className="mt-2 text-2xl font-black sm:text-3xl">
+                {isLessonCompleted ? "🎉 Lesson Completed!" : "Ready to Save Your Progress?"}
+              </h2>
+            </div>
+            {isLessonCompleted ? (
+              <span className="rounded-full bg-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-300 ring-1 ring-emerald-400/30">
+                +25 XP Earned
+              </span>
+            ) : null}
+          </div>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            {isLessonCompleted
+              ? "Your learning evidence is safely recorded in your Learner Model. Continue your journey below!"
+              : inRetrievalMode
+              ? "Retrieval completion requires fresh evidence from this review session."
+              : "Completing this lesson records authentic progress across listening, speaking, grammar, and applied communication."}
+          </p>
+
+          {/* Action CTAs */}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {inRetrievalMode ? (
+              !retrievalCompleted ? (
+                <button
+                  disabled={completing}
+                  onClick={() => void finish()}
+                  className="rounded-xl bg-white px-6 py-3 font-bold text-slate-950 hover:bg-slate-100 disabled:opacity-50 transition"
+                >
+                  {completing ? "Saving Evidence…" : "Complete Retrieval Check"}
+                </button>
+              ) : null
+            ) : !isLessonCompleted ? (
+              <button
+                disabled={completing}
+                onClick={() => void finish()}
+                className="rounded-xl bg-emerald-500 px-6 py-3 font-bold text-slate-950 shadow-md hover:bg-emerald-400 disabled:opacity-50 transition"
+              >
+                {completing ? "Saving Progress…" : "Complete Lesson & Save Progress"}
+              </button>
+            ) : null}
+
+            {isLessonCompleted && nextLesson ? (
+              <button
+                onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)}
+                className="rounded-xl bg-indigo-500 px-6 py-3 font-bold text-white shadow-md hover:bg-indigo-400 transition"
+              >
+                Continue to Next Lesson →
+              </button>
+            ) : null}
+
+            {isLessonCompleted ? (
+              <Link
+                href="/coach"
+                className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white hover:bg-white/20 transition"
+              >
+                Practice Spoken English in Coach 🗣️
+              </Link>
+            ) : null}
+
+            {isLessonCompleted ? (
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-500 transition"
+              >
+                Return to Dashboard
+              </button>
+            ) : null}
+          </div>
+
+          {feedback.completion ? (
+            <div
+              className={`mt-5 rounded-2xl p-4 text-sm ${
+                feedback.completion.passed ? "bg-emerald-950/80 text-emerald-100 border border-emerald-800" : "bg-amber-950/80 text-amber-100 border border-amber-800"
+              }`}
+              role={feedback.completion.kind === "error" ? "alert" : "status"}
+            >
+              {feedback.completion.message}
+            </div>
           ) : null}
-          {feedback.completion ? <p className={`mt-4 rounded-xl p-3 text-sm ${feedback.completion.passed ? "bg-emerald-950 text-emerald-100" : "bg-amber-950 text-amber-100"}`} role={feedback.completion.kind === "error" ? "alert" : "status"} aria-live={feedback.completion.kind === "error" ? "assertive" : "polite"}>{feedback.completion.message}</p> : null}
-          {retrievalCompleted ? <button onClick={() => router.push("/dashboard")} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Return to dashboard</button> : null}
-          {!inRetrievalMode && progress?.completed && nextLesson ? <button onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Continue to next lesson →</button> : null}
-          {!inRetrievalMode && progress?.completed && !nextLesson ? <button onClick={() => router.push("/dashboard")} className="mt-5 rounded-xl bg-indigo-500 px-5 py-3 font-semibold text-white">Return to dashboard</button> : null}
         </section>
       </div>
     </main>
