@@ -24,4 +24,10 @@ export * from "./teach.service";
 export * from "./teach-mind.service";
 export * from "./teach-credential";
 export * from "./mind.service";
+export * from "./curriculum/a1";
+export * from "./teacher-return-loop.service";
+export * from "./capstone-evaluator.service";
+export * from "./coach-a1.service";
+
+
 
