@@ -1,11 +1,4 @@
-export const institutionRoles = [
-  "org_owner",
-  "org_admin",
-  "teacher",
-  "student",
-] as const;
-
-export type InstitutionRole = (typeof institutionRoles)[number];
+import type { MemberRole } from "./user";
 
 export const institutionProducts = [
   "learn",
@@ -16,33 +9,14 @@ export const institutionProducts = [
 ] as const;
 
 export type InstitutionProduct = (typeof institutionProducts)[number];
-
-export type InstitutionMembershipStatus = "invited" | "active" | "suspended";
+export type InstitutionRole = MemberRole;
 export type InstitutionEntitlementStatus = "active" | "suspended";
 
 /**
- * Trusted organization-scoped relationship facts belong to Lurexa Core.
- * Admin manages these records through server-authorized Core services.
+ * Institution membership and invitation records already exist as
+ * OrganizationMember and Invitation in user.ts. Do not duplicate those
+ * trusted Core relationship contracts here.
  */
-export interface InstitutionMembership {
-  organizationId: string;
-  userId: string;
-  role: InstitutionRole;
-  status: InstitutionMembershipStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface InstitutionInvitation {
-  id: string;
-  organizationId: string;
-  email: string;
-  role: InstitutionRole;
-  status: "pending" | "accepted" | "expired" | "revoked";
-  expiresAt: string;
-  createdAt: string;
-}
-
 export interface InstitutionBranding {
   organizationId: string;
   displayName: string;
