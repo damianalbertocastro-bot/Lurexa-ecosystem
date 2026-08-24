@@ -29,12 +29,12 @@ const trustedAnalyticsBoundaryError =
  * platform analytics use the Core-owned PlatformAdminService projection.
  */
 export const AnalyticsService = {
-  async getClassSummary(orgId: string): Promise<never> {
+  async getClassSummary(orgId: string): Promise<ClassAnalyticsSummary> {
     void orgId;
     throw new Error(trustedAnalyticsBoundaryError);
   },
 
-  async getStudentRosterMetrics(orgId: string): Promise<never> {
+  async getStudentRosterMetrics(orgId: string): Promise<StudentRiskMetric[]> {
     void orgId;
     throw new Error(trustedAnalyticsBoundaryError);
   },
