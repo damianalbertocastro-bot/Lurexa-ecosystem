@@ -14,35 +14,39 @@ const directWriteError =
  */
 export const CourseBuilderService = {
   async createCourse(
-    _orgId: string,
-    _authorId: string,
-    _title: string,
-    _description: string,
-    _subject: Course["subject"],
+    orgId: string,
+    authorId: string,
+    title: string,
+    description: string,
+    subject: Course["subject"],
   ): Promise<never> {
+    void [orgId, authorId, title, description, subject];
     throw new Error(directWriteError);
   },
 
   async addModule(
-    _courseId: string,
-    _title: string,
-    _order: number,
+    courseId: string,
+    title: string,
+    order: number,
   ): Promise<never> {
+    void [courseId, title, order];
     throw new Error(directWriteError);
   },
 
   async saveLesson(
-    _moduleId: string,
-    _lessonId: string | null,
-    _title: string,
-    _contentBlocks: ContentBlock[],
-    _order: number,
-    _estimatedMinutes: number,
+    moduleId: string,
+    lessonId: string | null,
+    title: string,
+    contentBlocks: ContentBlock[],
+    order: number,
+    estimatedMinutes: number,
   ): Promise<never> {
+    void [moduleId, lessonId, title, contentBlocks, order, estimatedMinutes];
     throw new Error(directWriteError);
   },
 
-  async publishCourse(_courseId: string): Promise<never> {
+  async publishCourse(courseId: string): Promise<never> {
+    void courseId;
     throw new Error(directWriteError);
   },
 };
