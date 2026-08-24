@@ -1,14 +1,14 @@
 # Lurexa Product Personality System
 
 - Status: **Normative design direction**
-- Applies to: Lurexa master brand, current product experiences, ecosystem surfaces, and approved future product concepts
+- Applies to: Lurexa master brand, current product experiences, ecosystem surfaces, approved future product concepts, and the Lurexa Campus institutional experience
 - Principle: **Shared grammar + distinct personalities**
 
 ## Core rule
 
-Lurexa products must feel like members of one ecosystem without becoming visually interchangeable.
+Lurexa experiences must feel like members of one ecosystem without becoming visually interchangeable.
 
-The ecosystem shares a recognizable design grammar: brand discipline, typography quality, accessible interaction states, spacing rhythm, component anatomy, semantic status patterns, product-family marks, and a common standard of polish. Each product then expresses a distinct personality through palette emphasis, density, shape language, information hierarchy, motion character, illustration/icon behavior, and interaction tone.
+The ecosystem shares a recognizable design grammar: brand discipline, typography quality, accessible interaction states, spacing rhythm, component anatomy, semantic status patterns, product-family marks, and a common standard of polish. Each product or major experience then expresses a distinct personality through palette emphasis, density, shape language, information hierarchy, motion character, illustration/icon behavior, and interaction tone.
 
 Similarity should communicate family. Difference should communicate purpose.
 
@@ -30,6 +30,7 @@ Every Lurexa experience must preserve:
 | Experience | Status | Personality | Primary experience signal |
 | --- | --- | --- | --- |
 | Master Lurexa | Parent identity | Institutional and foundational | Trust, ecosystem orientation, company-level narrative |
+| Lurexa Campus | Institutional experience | Connected, welcoming and institutionally confident | Organization identity, orientation, belonging, entitled ecosystem access |
 | Lurexa Learn | Current product | Inviting and progressive | Momentum, clarity, confidence, next useful learning action |
 | Lurexa Coach | Current product | Conversational and alive | Speaking turns, immediacy, listening/feedback state, safe experimentation |
 | Lurexa Teach | Current product | Professional and developmental | Growth, reflection, evidence, credentials, educator community |
@@ -39,7 +40,7 @@ Every Lurexa experience must preserve:
 | Lurexa Docs | Ecosystem surface | Structured and knowledge-oriented | Reading, search, provenance, hierarchy, cross-reference |
 | Lurexa Community | Future product concept | Social, welcoming and participatory | Conversation, discovery, contribution, belonging, trusted community |
 
-The Community entry documents an approved future visual/personality direction. It does not add Community to the current product family or authorize implementation.
+Campus is an institutional experience, not a sibling product owner. Community remains an approved future concept and is not part of the active production product family.
 
 ## Master Lurexa
 
@@ -54,6 +55,40 @@ Design behavior:
 - lower interface density than operational products.
 
 Avoid making the master site look like a student dashboard, analytics console, or authoring tool.
+
+## Lurexa Campus
+
+Campus should feel like an institution has entered its own place inside Lurexa: recognizable, coherent, welcoming, and governed.
+
+Personality:
+
+**Connected, welcoming, institutionally confident, intelligent.**
+
+Design behavior:
+
+- institution identity and Lurexa identity visible together;
+- stronger orientation and wayfinding than any specialist product;
+- spacious home surfaces combined with structured operational sections;
+- meaningful product entry points rather than a generic app launcher;
+- visible organization, role, and entitlement context;
+- controlled co-branding with institution logo and approved accent customization;
+- calm, polished motion that reinforces transitions between institution and product contexts;
+- enough visual warmth to feel more inviting than Admin;
+- enough structure to feel more institutionally grounded than Learn;
+- shared product-family grammar without forcing Campus to inherit one product's personality.
+
+Campus navigation may expose destinations such as Learning, Professional Growth, Analytics, Coaching, Creation, People, Products & Access, and Settings according to role and entitlements.
+
+Avoid:
+
+- making Campus visually indistinguishable from Admin;
+- using a dense enterprise dashboard as the default Campus home;
+- reducing Campus to a grid of product tiles with no meaningful institution context;
+- hiding which institution or role the user is operating under;
+- allowing institution customization to override accessibility or semantic states;
+- presenting Campus as the owner of Learn, Teach, Admin, Insight, Coach, or Studio.
+
+Customer-facing language should use **Lurexa Campus**. Technical implementations may continue to use Institution Workspace terminology where precise.
 
 ## Lurexa Learn
 
@@ -111,7 +146,9 @@ Design behavior:
 - minimal decorative motion;
 - visible permission, organization, environment, audit, and system-health context.
 
-Avoid playful cards, decorative gradients without informational purpose, or ambiguous action hierarchy.
+Inside Campus, Admin remains the administrative control plane. Campus may surface administrative summaries and links, but consequential administration should enter a clearly authoritative Admin context.
+
+Avoid playful cards, decorative gradients without informational purpose, ambiguous action hierarchy, or turning Admin into the overall Campus shell.
 
 ## Lurexa Insight
 
@@ -182,9 +219,9 @@ Canonical concept mark: `packages/ui/brand/concepts/lurexa-community-concept.svg
 
 Community remains a future product concept until an explicit activation decision moves it into the current product family and runtime personality contracts.
 
-## What may vary by product
+## What may vary by product or experience
 
-Products may intentionally vary:
+Products and major experiences may intentionally vary:
 - primary/accent emphasis;
 - corner radius and shape expression;
 - spacing density;
@@ -196,16 +233,17 @@ Products may intentionally vary:
 - hero composition;
 - product-specific interaction metaphors.
 
-These differences are desirable when they reinforce product purpose.
+These differences are desirable when they reinforce purpose.
 
 ## What must not drift
 
-Products must not independently redefine:
+Experiences must not independently redefine:
 - accessibility baseline;
 - semantic error/success meaning;
 - identity/authentication trust patterns;
 - Core/Mind ownership language;
 - product-family naming;
+- Campus vs product ownership boundaries;
 - master/product mark relationship;
 - basic typographic quality;
 - foundational spacing scale;
@@ -216,16 +254,18 @@ Products must not independently redefine:
 
 The semantic current-product personality tokens live in `@lurexa/tokens` under `productPersonalities`.
 
-They are guardrails rather than a hard-coded theme engine. Product teams should use them to guide local CSS variables, visual QA, component variants, and future design automation. A product should not import another product's personality simply to make implementation faster.
+Campus is an institutional experience rather than an ordinary product personality. Do not automatically add Campus to current-product runtime enums or product registries merely because its personality is documented. Campus-specific tokens may be introduced later through an explicit implementation decision if needed.
+
+Product personality tokens are guardrails rather than a hard-coded theme engine. Product teams should use them to guide local CSS variables, visual QA, component variants, and future design automation. A product should not import another product's personality simply to make implementation faster.
 
 **Community must not be added to the runtime current-product personality type or navigation merely because its future personality is documented here.** Promotion requires an explicit activation/product-architecture decision.
 
 When a new major surface is designed, reviewers should ask:
 
 1. Does this unmistakably belong to Lurexa?
-2. Can a user tell which Lurexa product they are in without reading the product name?
-3. Does the visual personality reinforce the job this product performs?
+2. Can a user tell which Lurexa product or Campus context they are in without confusion?
+3. Does the visual personality reinforce the job this surface performs?
 4. Are shared components being reused without forcing visual sameness?
-5. Has product distinctiveness been achieved without weakening accessibility or trust?
+5. Has distinctiveness been achieved without weakening accessibility or trust?
 
 If the answer to #2 or #3 is no, the surface is too generic or too homogenized.
