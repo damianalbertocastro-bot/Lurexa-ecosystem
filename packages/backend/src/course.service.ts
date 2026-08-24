@@ -31,7 +31,8 @@ export const CourseService = {
   },
 
   /** @deprecated Authoritative course mutations must use the trusted Core API. */
-  async saveCourse(_course: Course): Promise<never> {
+  async saveCourse(course: Course): Promise<never> {
+    void course;
     throw new Error(
       "Direct browser course writes are disabled. Use the authenticated Lurexa Core learning API.",
     );
