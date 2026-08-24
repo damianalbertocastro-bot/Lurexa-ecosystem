@@ -35,8 +35,9 @@ function readStatusUpdate(value: unknown): PlatformOrganizationStatusUpdate {
 
 export async function GET(request: Request): Promise<Response> {
   try {
-    const actor = await PlatformAdminService.authenticate(request.headers.get("authorization"));
-    return Response.json(await PlatformAdminService.getSnapshot(actor));
+    return Response.json(
+      await PlatformAdminService.getSnapshot(request.headers.get("authorization")),
+    );
   } catch (error) {
     return failure(error);
   }
@@ -44,9 +45,13 @@ export async function GET(request: Request): Promise<Response> {
 
 export async function PATCH(request: Request): Promise<Response> {
   try {
-    const actor = await PlatformAdminService.authenticate(request.headers.get("authorization"));
     const input = readStatusUpdate(await request.json());
-    return Response.json(await PlatformAdminService.updateOrganizationStatus(actor, input));
+    return Response.json(
+      await PlatformAdminService.updateOrganizationStatus(
+        request.headers.get("authorization"),
+        input,
+      ),
+    );
   } catch (error) {
     return failure(error);
   }
