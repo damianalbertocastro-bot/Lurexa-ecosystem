@@ -249,6 +249,74 @@ async function callGemini(input: {
   return null;
 }
 
+async function callGeminiOpener(input: {
+  capability: AIRoleplayCapability;
+  contextSummary: string;
+}): Promise<string | null> {
+  const apiKey = resolveGeminiApiKey();
+  if (!apiKey) {
+    console.warn("Learn tutor: GEMINI_API_KEY is not configured in server environment.");
+    return null;
+  }
+
+  const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || DEFAULT_MODEL;
+  const candidateModels = Array.from(new Set([configuredModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]));
+
+  const system = [
+    "You are Lurexa Learn's curriculum-constrained English conversational partner beginning a bounded communicative roleplay.",
+    `Target level: ${input.capability.cefr}. Language: ${input.capability.language}.`,
+    `Scenario role: ${input.capability.scenario.role}.`,
+    `Situation: ${input.capability.scenario.situation}`,
+    `Learner goal: ${input.capability.scenario.learnerGoal}`,
+    input.capability.cefr === "A1"
+      ? "For A1, produce 1 to 2 short, friendly, natural sentences to open the conversation and warmly invite the learner to respond or introduce themselves. Keep vocabulary concrete, simple, and standard."
+      : "Produce 1 to 2 natural sentences to open the conversation in character.",
+    "Do not include quotes, system notes, or meta-commentary. Output only the character's opening speech line.",
+    "Learner context:",
+    input.contextSummary,
+  ].join("\n");
+
+  const userInput = `Start the conversation as ${input.capability.scenario.role} according to the situation: "${input.capability.scenario.situation}".`;
+
+  for (const model of candidateModels) {
+    try {
+      const url = `${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: userInput }] }],
+          generationConfig: { maxOutputTokens: 80 },
+        }),
+      });
+
+      if (!response.ok) {
+        const fallbackResponse = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: `${system}\n\n${userInput}` }] }],
+            generationConfig: { maxOutputTokens: 80 },
+          }),
+        });
+
+        if (fallbackResponse.ok) {
+          const fallbackOutput = readGeminiOutputText(await fallbackResponse.json());
+          if (fallbackOutput) return fallbackOutput;
+        }
+        continue;
+      }
+      const output = readGeminiOutputText(await response.json());
+      if (output) return output;
+    } catch (error) {
+      console.error("Learn tutor opener Gemini request failed.", { model, error: error instanceof Error ? error.message : "unknown error" });
+    }
+  }
+  return null;
+}
+
+
 async function loadOrCreateSession(input: {
   actor: AuthenticatedActor;
   organizationId: string;
@@ -373,6 +441,91 @@ async function recordRoleplayEvidence(input: {
 }
 
 export const LearnTutorService = {
+  async generateOpener(actor: AuthenticatedActor, input: {
+    courseId: string;
+    lessonId: string;
+    activityId: string;
+  }): Promise<{
+    sessionId: string;
+    openingLine: string;
+    transcript: LearnTutorTurn[];
+    provider: LearnTutorTurnResult["provider"];
+  }> {
+    const capability = normalizeTrustedCapability(await resolveRoleplayCapability({
+      actor,
+      courseId: input.courseId,
+      lessonId: input.lessonId,
+      activityId: input.activityId,
+    }));
+
+    const courseSnapshot = await getServerFirestore().collection("courses").doc(input.courseId).get();
+    if (!courseSnapshot.exists) throw new Error("Course not found.");
+    const organizationId = courseSnapshot.data()?.orgId;
+    if (typeof organizationId !== "string" || !organizationId) throw new Error("Course organization is unavailable.");
+
+    const { session } = await loadOrCreateSession({
+      actor,
+      organizationId,
+      request: {
+        courseId: input.courseId,
+        lessonId: input.lessonId,
+        activityId: input.activityId,
+        learnerMessage: "",
+      },
+    });
+
+    if (session.transcript.length > 0) {
+      const firstTutorTurn = session.transcript.find((t) => t.sender === "tutor");
+      return {
+        sessionId: session.id,
+        openingLine: firstTutorTurn?.text ?? capability.scenario.openingLine,
+        transcript: session.transcript,
+        provider: session.provider ?? "deterministic_fallback",
+      };
+    }
+
+    const scoped = await getScopedLearnerContext({
+      actorId: actor.uid,
+      request: {
+        contractVersion: "1",
+        learnerId: actor.uid,
+        requestingProduct: "learn",
+        purpose: "learn_adaptive_practice",
+        domains: ["proficiency", "curriculum", "goal", "recommendation"],
+      },
+    });
+
+    const geminiOpener = await callGeminiOpener({
+      capability,
+      contextSummary: summarizeContext(scoped.context),
+    });
+
+    const provider: LearnTutorTurnResult["provider"] = geminiOpener ? "gemini" : "deterministic_fallback";
+    const openingLine = geminiOpener ?? capability.scenario.openingLine;
+    const openingTurn: LearnTutorTurn = {
+      sender: "tutor",
+      text: openingLine,
+      timestamp: new Date().toISOString(),
+    };
+
+    const database = getServerFirestore();
+    const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(session.id);
+    const updatedSession: LearnTutorSession = {
+      ...session,
+      transcript: [openingTurn],
+      provider,
+      updatedAt: openingTurn.timestamp,
+    };
+    await reference.set(updatedSession, { merge: true });
+
+    return {
+      sessionId: session.id,
+      openingLine,
+      transcript: [openingTurn],
+      provider,
+    };
+  },
+
   async respond(actor: AuthenticatedActor, request: LearnTutorTurnRequest): Promise<LearnTutorTurnResult> {
     const capability = normalizeTrustedCapability(await resolveRoleplayCapability({
       actor,

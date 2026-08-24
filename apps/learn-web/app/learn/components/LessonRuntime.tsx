@@ -126,6 +126,9 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [retrievalCompleted, setRetrievalCompleted] = useState(false);
+  const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
+  const [incompleteTargetBlockId, setIncompleteTargetBlockId] = useState<string | null>(null);
+  const [incompleteTargetTitle, setIncompleteTargetTitle] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
@@ -163,6 +166,65 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
     });
     return unsubscribe;
   }, [courseId, lessonId]);
+
+  // Content blocks sorted
+  const blocks = useMemo(() => {
+    if (!payload?.lesson?.contentBlocks) return [];
+    return [...payload.lesson.contentBlocks].sort((a, b) => a.order - b.order);
+  }, [payload]);
+
+  const totalInteractiveBlocks = useMemo(() => {
+    return blocks.filter((b) => b.type === "interactive" || b.type === "quiz_embed").length;
+  }, [blocks]);
+
+  const completedInteractiveBlocks = useMemo(() => {
+    if (!payload?.progress?.attempts) return 0;
+    const completedIds = new Set(payload.progress.attempts.map((a) => a.quizId));
+    return blocks.filter((b) => (b.type === "interactive" || b.type === "quiz_embed") && completedIds.has(b.id)).length;
+  }, [blocks, payload]);
+
+  const progressPercent = totalInteractiveBlocks > 0
+    ? Math.min(100, Math.round((completedInteractiveBlocks / totalInteractiveBlocks) * 100))
+    : 0;
+
+  function scrollToBlock(blockId: string) {
+    setHighlightedBlockId(blockId);
+    const element = document.getElementById(`block-${blockId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    setTimeout(() => {
+      setHighlightedBlockId((curr) => (curr === blockId ? null : curr));
+    }, 4500);
+  }
+
+  function handleCapabilityCompleted(activityId: string) {
+    setPayload((current) => {
+      if (!current) return current;
+      const existingAttempts = current.progress?.attempts ?? [];
+      const updatedAttempts = [
+        ...existingAttempts.filter((a) => a.quizId !== activityId),
+        {
+          quizId: activityId,
+          score: 100,
+          maxScore: 100,
+          passed: true,
+          completedAt: new Date().toISOString(),
+          firstAttemptPassed: true,
+          timeSpentSeconds: 15,
+        },
+      ];
+      return {
+        ...current,
+        progress: current.progress
+          ? {
+              ...current.progress,
+              attempts: updatedAttempts,
+            }
+          : null,
+      };
+    });
+  }
 
   function handleSingleChoice(blockId: string, option: string) {
     setSelections((current) => ({ ...current, [blockId]: [option] }));
@@ -365,34 +427,50 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
         },
       }));
     } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "Unable to finish this learning step.";
+      let targetId: string | null = null;
+      let targetTitle: string | null = null;
+
+      // Identify the incomplete activity from the message or by finding first incomplete interactive block
+      for (const block of blocks) {
+        const cap = readCapability(block.data);
+        const act = readActivity(block.data);
+        const title = cap?.title ?? act?.title ?? (block.type === "quiz_embed" ? "Quiz" : "");
+        if (title && message.toLowerCase().includes(title.toLowerCase())) {
+          targetId = block.id;
+          targetTitle = title;
+          break;
+        }
+      }
+
+      if (!targetId) {
+        const completedIds = new Set(payload.progress?.attempts.map((a) => a.quizId) ?? []);
+        const firstIncomplete = blocks.find(
+          (b) => (b.type === "interactive" || b.type === "quiz_embed") && !completedIds.has(b.id)
+        );
+        if (firstIncomplete) {
+          targetId = firstIncomplete.id;
+          const cap = readCapability(firstIncomplete.data);
+          const act = readActivity(firstIncomplete.data);
+          targetTitle = cap?.title ?? act?.title ?? "Incomplete activity";
+        }
+      }
+
+      setIncompleteTargetBlockId(targetId);
+      setIncompleteTargetTitle(targetTitle);
       setFeedback((current) => ({
         ...current,
-        completion: { passed: false, message: caught instanceof Error ? caught.message : "Unable to finish this learning step.", kind: "error" },
+        completion: { passed: false, message, kind: "error" },
       }));
+
+      // Programmatically auto-scroll to the incomplete exercise section
+      if (targetId) {
+        scrollToBlock(targetId);
+      }
     } finally {
       setCompleting(false);
     }
   }
-
-  // Progress metrics calculation
-  const blocks = useMemo(() => {
-    if (!payload?.lesson?.contentBlocks) return [];
-    return [...payload.lesson.contentBlocks].sort((a, b) => a.order - b.order);
-  }, [payload]);
-
-  const totalInteractiveBlocks = useMemo(() => {
-    return blocks.filter((b) => b.type === "interactive" || b.type === "quiz_embed").length;
-  }, [blocks]);
-
-  const completedInteractiveBlocks = useMemo(() => {
-    if (!payload?.progress?.attempts) return 0;
-    const completedIds = new Set(payload.progress.attempts.map((a) => a.quizId));
-    return blocks.filter((b) => (b.type === "interactive" || b.type === "quiz_embed") && completedIds.has(b.id)).length;
-  }, [blocks, payload]);
-
-  const progressPercent = totalInteractiveBlocks > 0
-    ? Math.min(100, Math.round((completedInteractiveBlocks / totalInteractiveBlocks) * 100))
-    : 0;
 
   if (loading) {
     return (
@@ -498,10 +576,21 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
         {/* Content Blocks */}
         {blocks.map((block) => {
+          const isHighlighted = highlightedBlockId === block.id;
+          const blockWrapperClass = `transition-all duration-500 ${
+            isHighlighted
+              ? "ring-4 ring-indigo-500 shadow-2xl scale-[1.01] rounded-3xl"
+              : ""
+          }`;
+
           const text = readText(block.data);
           if (block.type === "text" && text) {
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+              <section
+                key={block.id}
+                id={`block-${block.id}`}
+                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-700">
                     📖 Lesson Dialogue &amp; Goal
@@ -517,7 +606,11 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           if (block.type === "video" || block.type === "image") {
             const url = readMediaUrl(block.data);
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+              <section
+                key={block.id}
+                id={`block-${block.id}`}
+                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+              >
                 <p className="text-sm font-semibold text-slate-900">Learning Media</p>
                 {url ? (
                   <a className="mt-3 inline-flex items-center gap-1 font-semibold text-indigo-700 underline hover:text-indigo-900" href={url} target="_blank" rel="noreferrer">
@@ -539,7 +632,11 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             const isSubmitted = Boolean(blockFeedback);
 
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+              <section
+                key={block.id}
+                id={`block-${block.id}`}
+                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+              >
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-bold text-indigo-700">
                     🎯 Quick Comprehension Check
@@ -600,13 +697,42 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           if (block.type === "interactive") {
             const capability = readCapability(block.data);
             if (capability?.kind === "model_listening") {
-              return <ModelListeningActivity key={block.id} capability={capability} />;
+              return (
+                <div key={block.id} id={`block-${block.id}`} className={blockWrapperClass}>
+                  <ModelListeningActivity
+                    capability={capability}
+                    courseId={courseId}
+                    lessonId={lessonId}
+                    onCompleted={handleCapabilityCompleted}
+                  />
+                </div>
+              );
             }
             if (capability?.kind === "recorded_speaking") {
-              return <RecordedSpeakingActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+              return (
+                <div key={block.id} id={`block-${block.id}`} className={blockWrapperClass}>
+                  <RecordedSpeakingActivity
+                    key={block.id}
+                    courseId={courseId}
+                    lessonId={lessonId}
+                    capability={capability}
+                    onCompleted={handleCapabilityCompleted}
+                  />
+                </div>
+              );
             }
             if (capability?.kind === "ai_roleplay") {
-              return <AIRoleplayActivity key={block.id} courseId={courseId} lessonId={lessonId} capability={capability} />;
+              return (
+                <div key={block.id} id={`block-${block.id}`} className={blockWrapperClass}>
+                  <AIRoleplayActivity
+                    key={block.id}
+                    courseId={courseId}
+                    lessonId={lessonId}
+                    capability={capability}
+                    onCompleted={handleCapabilityCompleted}
+                  />
+                </div>
+              );
             }
 
             const activity = readActivity(block.data);
@@ -617,7 +743,11 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             const stageBadge = getStageBadge(activity.stage);
 
             return (
-              <section key={block.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+              <section
+                key={block.id}
+                id={`block-${block.id}`}
+                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${stageBadge.color}`}>
                     {stageBadge.icon} {stageBadge.label}
@@ -866,14 +996,37 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             ) : null}
           </div>
 
+          {/* Actionable Validation Banner with Deep-Link Trigger */}
           {feedback.completion ? (
             <div
-              className={`mt-5 rounded-2xl p-4 text-sm ${
-                feedback.completion.passed ? "bg-emerald-950/80 text-emerald-100 border border-emerald-800" : "bg-amber-950/80 text-amber-100 border border-amber-800"
+              className={`mt-5 rounded-2xl p-5 border transition-all ${
+                feedback.completion.passed
+                  ? "bg-emerald-950/80 text-emerald-100 border-emerald-800"
+                  : "bg-amber-950/90 text-amber-100 border-amber-800 shadow-lg"
               }`}
               role={feedback.completion.kind === "error" ? "alert" : "status"}
             >
-              {feedback.completion.message}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex-1">
+                  {!feedback.completion.passed ? (
+                    <p className="font-bold text-amber-200 flex items-center gap-2 mb-1">
+                      <span>⚠️</span>
+                      <span>Required Learning Step Incomplete</span>
+                    </p>
+                  ) : null}
+                  <p className="text-sm leading-relaxed">{feedback.completion.message}</p>
+                </div>
+                {!feedback.completion.passed && incompleteTargetBlockId ? (
+                  <button
+                    type="button"
+                    onClick={() => scrollToBlock(incompleteTargetBlockId)}
+                    className="shrink-0 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-md hover:bg-amber-300 transition flex items-center gap-1.5"
+                  >
+                    <span>Jump to {incompleteTargetTitle ?? "Activity"}</span>
+                    <span>↑</span>
+                  </button>
+                ) : null}
+              </div>
             </div>
           ) : null}
         </section>

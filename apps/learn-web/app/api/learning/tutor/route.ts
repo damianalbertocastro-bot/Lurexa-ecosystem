@@ -13,14 +13,26 @@ export async function POST(request: Request): Promise<Response> {
       throw new Error("Invalid tutor request.");
     }
 
-    const payload = body as Partial<LearnTutorTurnRequest>;
+    const payload = body as Partial<LearnTutorTurnRequest> & { action?: string };
     if (
       typeof payload.courseId !== "string"
       || typeof payload.lessonId !== "string"
       || typeof payload.activityId !== "string"
-      || typeof payload.learnerMessage !== "string"
-      || (payload.sessionId !== undefined && typeof payload.sessionId !== "string")
     ) {
+      throw new Error("Tutor request is incomplete.");
+    }
+
+    if (payload.action === "generateOpener" || payload.action === "startSession") {
+      return Response.json(
+        await LearnTutorService.generateOpener(actor, {
+          courseId: payload.courseId,
+          lessonId: payload.lessonId,
+          activityId: payload.activityId,
+        })
+      );
+    }
+
+    if (typeof payload.learnerMessage !== "string" || (payload.sessionId !== undefined && typeof payload.sessionId !== "string")) {
       throw new Error("Tutor request is incomplete.");
     }
 
