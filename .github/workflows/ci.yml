@@ -58,6 +58,9 @@ jobs:
       - name: Verify Core Mind Contract
         run: pnpm verify:mind-contract
 
+      - name: Verify Core Analytics Boundary
+        run: pnpm verify:core-analytics
+
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
 
