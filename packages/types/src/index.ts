@@ -13,5 +13,4 @@ export * from "./teach";
 export * from "./learning-experience";
 export * from "./capstone";
 export * from "./teacher-guidance";
-
-
+export * from "./platform-analytics";
