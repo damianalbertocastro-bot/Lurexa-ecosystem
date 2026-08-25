@@ -16,12 +16,42 @@ async function loadOwnedSession(actor: AuthenticatedActor, sessionId: string): P
   return session;
 }
 
+async function redactCompletedCoachTurnEvidence(input: {
+  learnerId: string;
+  sessionId: string;
+}): Promise<void> {
+  const database = getServerFirestore();
+  const snapshots = await database
+    .collection("learning-evidence")
+    .where("source.activityId", "==", input.sessionId)
+    .get();
+
+  const writes = snapshots.docs.flatMap((snapshot) => {
+    const value = snapshot.data();
+    if (value.learnerId !== input.learnerId || value.source?.product !== "coach") return [];
+    if (typeof value.payload !== "object" || value.payload === null || Array.isArray(value.payload)) return [];
+
+    const payload = value.payload as Record<string, unknown>;
+    if (!("learnerForm" in payload)) return [];
+    const { learnerForm: _discardedLearnerForm, ...minimizedPayload } = payload;
+    void _discardedLearnerForm;
+    return [snapshot.ref.set({ payload: minimizedPayload }, { merge: true })];
+  });
+
+  await Promise.all(writes);
+}
+
 /**
  * Closes a Coach session through Core-owned evidence and returns a purpose-scoped
  * Product Bridge. Downstream work happens before the session is marked complete,
  * so a transient failure does not strand the learner in a completed session with
  * no return path. The completion evidence ID/timestamp are deterministic across
  * retries for the same session.
+ *
+ * Completion is also the privacy retention boundary for v1: raw learner turns
+ * may exist while a session is active so Coach can continue the conversation and
+ * recover safely after refresh, but completed session storage is redacted and
+ * persisted linguistic evidence retains the structured pattern signal only.
  */
 export async function endCoachSession(
   actor: AuthenticatedActor,
@@ -66,6 +96,11 @@ export async function endCoachSession(
     organizationId: SELF_PACED_ORGANIZATION_ID,
   });
 
+  await redactCompletedCoachTurnEvidence({
+    learnerId: actor.uid,
+    sessionId: session.id,
+  });
+
   const returnBridge = await createProductBridge({
     actorId: actor.uid,
     learnerId: actor.uid,
@@ -82,6 +117,7 @@ export async function endCoachSession(
   const completedSession: CoachSession = {
     ...session,
     status: "completed",
+    transcript: [],
     completedAt,
     updatedAt: completedAt,
   };
