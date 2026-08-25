@@ -1,4 +1,5 @@
 import type {
+  Course,
   LearnerContext,
   LearnerContextPurpose,
   LearnerContextRequest,
@@ -10,7 +11,7 @@ import type {
   LearningEvidence,
   StudentProgress,
 } from "@lurexa/types";
-import { getEducatorAuthorizedCourseIds } from "./educator-access.server";
+import { getEducatorCourseAccessDecision } from "./educator-access.server";
 import { getServerFirestore } from "./firebase-admin.server";
 import {
   FirestoreLearnerInsightRepository,
@@ -56,6 +57,12 @@ async function readMembership(userId: string, organizationId: string): Promise<{
   return snapshot.exists ? snapshot.data() as { role?: string } : null;
 }
 
+async function readCourse(courseId: string): Promise<Course> {
+  const snapshot = await getServerFirestore().collection("courses").doc(courseId).get();
+  if (!snapshot.exists) throw new Error("The requested Learn course does not exist.");
+  return { id: snapshot.id, ...snapshot.data() } as Course;
+}
+
 async function authorizeContextRead(input: { actorId: string; request: LearnerContextRequest }): Promise<void> {
   const { actorId, request } = input;
   if (actorId === request.learnerId) {
@@ -68,29 +75,28 @@ async function authorizeContextRead(input: { actorId: string; request: LearnerCo
   if (request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "learn") {
     throw new Error("Delegated learner context is not authorized for this product and purpose.");
   }
-  if (!request.organizationId) {
-    throw new Error("Delegated instructional support requires an explicit organization boundary.");
+  if (!request.organizationId || !request.courseId) {
+    throw new Error("Delegated instructional support requires explicit organization and course boundaries.");
   }
 
-  const [actorMembership, learnerMembership] = await Promise.all([
+  const [actorMembership, learnerMembership, course] = await Promise.all([
     readMembership(actorId, request.organizationId),
     readMembership(request.learnerId, request.organizationId),
+    readCourse(request.courseId),
   ]);
   if (!actorMembership?.role || !["owner", "admin", "teacher"].includes(actorMembership.role)) {
-    throw new Error("An educator, organization admin, or owner membership is required for delegated instructional support.");
+    throw new Error("An educator organization membership is required for delegated instructional support.");
   }
   if (learnerMembership?.role !== "student") {
     throw new Error("The supported learner must be a student member of the requested organization.");
   }
+  if (course.orgId !== request.organizationId) {
+    throw new Error("The requested course does not belong to the authorized organization.");
+  }
 
-  if (actorMembership.role === "teacher") {
-    const authorizedCourseIds = await getEducatorAuthorizedCourseIds({
-      userId: actorId,
-      organizationId: request.organizationId,
-    });
-    if (authorizedCourseIds.length === 0) {
-      throw new Error("Teacher instructional support requires an active educator qualification linked to a teaching authorization in this organization.");
-    }
+  const decision = await getEducatorCourseAccessDecision({ userId: actorId, course });
+  if (!decision.allowed) {
+    throw new Error(`Teacher instructional support requires qualification-linked authorization for this exact course (${decision.reason}).`);
   }
 }
 
@@ -104,8 +110,16 @@ function pushUnique(target: string[], values: string[]): void {
   for (const value of values) if (!target.includes(value)) target.push(value);
 }
 
-function scopeEvidence(evidence: LearningEvidence[], organizationId: string | null): LearningEvidence[] {
-  return evidence.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
+function scopeEvidence(
+  evidence: LearningEvidence[],
+  organizationId: string | null,
+  courseId?: string,
+): LearningEvidence[] {
+  return evidence.filter((entry) => {
+    if (organizationId ? entry.organizationId !== organizationId : entry.organizationId) return false;
+    if (courseId && entry.source.courseId !== courseId) return false;
+    return true;
+  });
 }
 
 function scopeInsights(
@@ -127,9 +141,9 @@ function scopeInsights(
 /**
  * Trusted Core read boundary for learner context. Self-service remains the
  * default. The only v1 delegated read is Lurexa Learn teacher instructional
- * support, explicitly organization-scoped and authorization checked inside
- * Core. A teacher membership by itself is not sufficient: ordinary teachers
- * need an active educator qualification linked to an explicit teaching grant.
+ * support, explicitly organization- and course-scoped. A membership role is
+ * affiliation, not sufficient authority: every delegated educator requires an
+ * active qualification linked to a teaching authorization for the exact course.
  * Lurexa Teach has no delegated student-context entitlement.
  */
 export async function getScopedLearnerContext(input: {
@@ -159,7 +173,9 @@ export async function getScopedLearnerContext(input: {
 
   let activeOrganizationId: string | null = request.organizationId ?? null;
   let progress = allProgress;
-  if (request.organizationId) {
+  if (request.courseId) {
+    progress = allProgress.filter((record) => record.courseId === request.courseId);
+  } else if (request.organizationId) {
     const organizationCourses = await database.collection("courses").where("orgId", "==", request.organizationId).get();
     const courseIds = new Set(organizationCourses.docs.map((document) => document.id));
     progress = allProgress.filter((record) => courseIds.has(record.courseId));
@@ -174,8 +190,11 @@ export async function getScopedLearnerContext(input: {
   }
 
   const latestProgress = progress[0];
-  const evidence = scopeEvidence(allEvidence, activeOrganizationId);
-  const insights = scopeInsights(allInsights, activeOrganizationId, request);
+  const delegatedTeacher = request.purpose === "teacher_instructional_support" && input.actorId !== request.learnerId;
+  const evidence = scopeEvidence(allEvidence, activeOrganizationId, delegatedTeacher ? request.courseId : undefined);
+  const insights = delegatedTeacher
+    ? []
+    : scopeInsights(allInsights, activeOrganizationId, request);
   const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
 
   const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
@@ -191,7 +210,7 @@ export async function getScopedLearnerContext(input: {
     generatedAt: new Date().toISOString(),
   };
 
-  if (domainSet.has("goal") && goals.length > 0) context.goals = goals;
+  if (domainSet.has("goal") && goals.length > 0 && !delegatedTeacher) context.goals = goals;
 
   if (domainSet.has("curriculum") && latestProgress) {
     context.curriculum = {
@@ -274,8 +293,8 @@ export async function getScopedLearnerContext(input: {
       request.organizationId
         ? "Organization-scoped intelligence is pinned to the explicitly authorized organization boundary."
         : "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
-      request.purpose === "teacher_instructional_support"
-        ? "Teacher instructional support is organization-scoped in v1; course-level intelligence isolation requires course-scoped evidence/insight contracts."
+      delegatedTeacher
+        ? "Delegated instructional support is pinned to the explicitly authorized course; broader organization-level derived insights are withheld until derived-insight provenance supports course scope."
         : "Self-service context follows the requesting learner's authorized product purpose.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
       "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
