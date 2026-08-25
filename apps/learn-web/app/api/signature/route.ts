@@ -18,6 +18,15 @@ const supported = new Set<SignatureProjectionKind>([
   "mind_trace",
 ]);
 
+function privateJson(value: unknown, status = 200): Response {
+  return Response.json(value, {
+    status,
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0",
+    },
+  });
+}
+
 function failureClass(status: number): "authentication" | "authorization" | "validation" | "internal" {
   if (status === 401) return "authentication";
   if (status === 403) return "authorization";
@@ -37,7 +46,7 @@ export async function GET(request: Request): Promise<Response> {
     requestedProjection = projection;
 
     if (!projection || !supported.has(projection)) {
-      return Response.json({ error: "A supported signature projection is required." }, { status: 400 });
+      return privateJson({ error: "A supported signature projection is required." }, 400);
     }
 
     const projectionRequest: SignatureProjectionRequestV1 = {
@@ -66,7 +75,7 @@ export async function GET(request: Request): Promise<Response> {
       projection,
       durationMs: Date.now() - startedAt,
     });
-    return Response.json(value);
+    return privateJson(value);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load signature experience.";
     const status = message === "Authentication is required."
@@ -84,6 +93,6 @@ export async function GET(request: Request): Promise<Response> {
         failureClass: failureClass(status),
       });
     }
-    return Response.json({ error: message }, { status });
+    return privateJson({ error: message }, status);
   }
 }
