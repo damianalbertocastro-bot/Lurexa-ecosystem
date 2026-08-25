@@ -363,8 +363,8 @@ export class PlacementAssessmentService {
     } else if (overallScorePercent >= 65 && answeredItems.some((i) => i.cefr === "B1")) {
       estimatedLevel = "B1";
       recommendedCourseId = "english-b1-independent-speaker";
-      recommendedLessonId = "b1-workplace-dialogue";
-      recommendedStartingPoint = "English B1 Intermediate Track";
+      recommendedLessonId = "b1-m1-lesson-1";
+      recommendedStartingPoint = "English B1 Intermediate Track — Module 1";
       rationale = "Solid foundational grammar and listening comprehension. Ready for independent communication and varied registers.";
     } else if (overallScorePercent >= 50) {
       estimatedLevel = "A2";

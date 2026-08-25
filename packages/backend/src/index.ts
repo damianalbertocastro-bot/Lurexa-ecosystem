@@ -28,6 +28,7 @@ export * from "./coach-a1.service";
 export * from "./teach-t1.service";
 export * from "./curriculum/a2";
 export * from "./capstone-a2.service";
+export * from "./curriculum/b1";
 
 
 // Server-only capabilities intentionally do not belong in this browser-safe

@@ -43,7 +43,7 @@
       "moduleBlueprints": true,
       "productionBlueprints": true,
       "integratedCapstone": "designed",
-      "runtimeIntegrated": false,
+      "runtimeIntegrated": true,
       "representativePilot": "not-started",
       "curriculumComplete": false,
       "documents": [
@@ -64,7 +64,7 @@
       "moduleBlueprints": true,
       "productionBlueprints": true,
       "integratedCapstone": "designed",
-      "runtimeIntegrated": false,
+      "runtimeIntegrated": true,
       "representativePilot": "not-started",
       "curriculumComplete": false,
       "documents": [
