@@ -51,6 +51,24 @@ const objects: readonly KnowledgeObjectV1[] = [
   },
   {
     contractVersion: "1",
+    id: "eng.pronunciation.initial-s-consonant-clusters",
+    kind: "pronunciation_target",
+    title: "Initial /s/ + consonant clusters",
+    description: "Intelligible production of English word-initial /s/ clusters without inserting a preceding vowel, with special relevance to Spanish-to-English transfer.",
+    status: "active",
+    language: "en",
+    cefrLevels: ["A1", "A2", "B1", "B2"],
+    skillDimensions: ["phonetics", "speaking", "listening"],
+    curriculumRefs: [],
+    relations: [],
+    aliases: ["s clusters", "s-consonant clusters", "epenthesis before s clusters"],
+    tags: ["english", "pronunciation", "phonetics", "spanish-transfer", "dominican-spanish"],
+    version: 1,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    contractVersion: "1",
     id: "eng.skill.narrative-speaking.past-events",
     kind: "skill",
     title: "Speaking about past events",
@@ -74,10 +92,24 @@ const objects: readonly KnowledgeObjectV1[] = [
 
 const byId = new Map(objects.map((object) => [object.id, object]));
 
+const linguisticPatternKnowledgeObjects: Readonly<Record<string, readonly string[]>> = {
+  "DO-ENG-PRO-002": ["eng.pronunciation.initial-s-consonant-clusters"],
+  "DO-ENG-PRO-006": [
+    "eng.pronunciation.regular-past-endings",
+    "eng.grammar.simple-past.regular-form",
+    "eng.skill.narrative-speaking.past-events",
+  ],
+};
+
 export function getKnowledgeObjectById(id: string): KnowledgeObjectV1 | null {
   return byId.get(id) ?? null;
 }
 
 export function listKnowledgeObjects(): KnowledgeObjectV1[] {
   return [...objects];
+}
+
+export function getKnowledgeObjectIdsForLinguisticPattern(patternId?: string): string[] {
+  if (!patternId) return [];
+  return [...(linguisticPatternKnowledgeObjects[patternId] ?? [])];
 }
