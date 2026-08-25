@@ -1,13 +1,9 @@
+import type { LurexaProduct } from "./learner";
+
 export const SIGNATURE_EXPERIENCE_CONTRACT_VERSION = "1" as const;
 
 /** Product owners. Campus is intentionally excluded: it is an institutional experience shell. */
-export type LurexaProductId =
-  | "learn"
-  | "coach"
-  | "teach"
-  | "admin"
-  | "insight"
-  | "studio";
+export type LurexaProductId = LurexaProduct;
 
 export type SignatureExperienceConsumer = LurexaProductId | "campus";
 
@@ -286,13 +282,17 @@ export type KnowledgeObjectV1 = {
 // -----------------------------------------------------------------------------
 
 export type SignatureProjectionKind = "learner_pulse" | "adaptive_path" | "memory_thread" | "mind_trace";
+export type SignatureProjectionPurpose =
+  | "learn_signature_experience"
+  | "coach_signature_experience"
+  | "teach_signature_experience";
 
 export type SignatureProjectionRequestV1 = {
   contractVersion: typeof SIGNATURE_EXPERIENCE_CONTRACT_VERSION;
   learnerId: string;
   organizationId?: string;
   consumer: SignatureExperienceConsumer;
-  purpose: string;
+  purpose: SignatureProjectionPurpose;
   projection: SignatureProjectionKind;
   knowledgeObjectId?: string;
 };
