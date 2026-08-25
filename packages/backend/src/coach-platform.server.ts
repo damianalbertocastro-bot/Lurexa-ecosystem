@@ -1,4 +1,5 @@
 import type {
+  CefrLevel,
   CoachSession,
   CoachSessionStartResult,
   LinguisticEvidencePayload,
@@ -241,7 +242,7 @@ export const CoachPlatformService = {
             variety: "DO",
             useForTransferHypotheses: true,
           },
-          cefr: (session.focus?.cefr as any) ?? "A1",
+          cefr: (session.focus?.cefr as CefrLevel | undefined) ?? "A1",
         },
         {
           domain: "pronunciation",
