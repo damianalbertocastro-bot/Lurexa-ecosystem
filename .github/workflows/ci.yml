@@ -79,6 +79,12 @@ jobs:
       - name: Verify Signature Experience Contracts
         run: pnpm verify:signature-experience
 
+      - name: Verify Signature Rollout S9
+        run: pnpm verify:signature-rollout
+
+      - name: Verify Delegated Signature Authorization
+        run: pnpm test:signature-delegation
+
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules
 
