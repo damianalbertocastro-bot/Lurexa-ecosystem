@@ -43,6 +43,20 @@ export async function getInsightOrganizationSignatureOverview(input: {
   const database = getServerFirestore();
   const teacherCourses = (await CoursePlatformService.getTeacherCourses(input.actor))
     .filter(({ course }) => course.orgId === input.organizationId);
+  const studentMembershipCache = new Map<string, boolean>();
+  const isCurrentStudent = async (learnerId: string): Promise<boolean> => {
+    const cached = studentMembershipCache.get(learnerId);
+    if (cached !== undefined) return cached;
+    const membership = await database
+      .collection("user-memberships")
+      .doc(learnerId)
+      .collection("organizations")
+      .doc(input.organizationId)
+      .get();
+    const allowed = membership.exists && membership.data()?.role === "student";
+    studentMembershipCache.set(learnerId, allowed);
+    return allowed;
+  };
 
   const now = Date.now();
   const activeCutoff = now - 14 * 86_400_000;
@@ -61,6 +75,7 @@ export async function getInsightOrganizationSignatureOverview(input: {
     }
 
     for (const [learnerId, records] of byLearner) {
+      if (!await isCurrentStudent(learnerId)) continue;
       participatingLearners.add(learnerId);
       if (records.some((record) => Date.parse(record.lastAccessedAt) >= activeCutoff)) activeLearners.add(learnerId);
       const completed = new Set(records.filter((record) => record.completed).map((record) => record.lessonId)).size;
@@ -74,6 +89,7 @@ export async function getInsightOrganizationSignatureOverview(input: {
   const knowledgeObjectCounts = new Map<string, number>();
   for (const document of evidenceSnapshot.docs) {
     const value = document.data() as LearningEvidence;
+    if (!await isCurrentStudent(value.learnerId)) continue;
     for (const knowledgeObjectId of knowledgeObjectIdsFromEvidence(value)) {
       knowledgeObjectCounts.set(knowledgeObjectId, (knowledgeObjectCounts.get(knowledgeObjectId) ?? 0) + 1);
     }
@@ -95,8 +111,8 @@ export async function getInsightOrganizationSignatureOverview(input: {
       .slice(0, 20),
     limitations: [
       "Insight v1 is aggregate-first and returns no learner identifiers or raw learning evidence.",
-      "Participation reflects recorded course progress, not all enrolled seats.",
-      "Knowledge Object coverage counts governed references attached to organization-scoped evidence; legacy evidence without semantic references is not inferred.",
+      "Participation reflects recorded course progress for current student members, not all enrolled seats.",
+      "Knowledge Object coverage counts governed references from current student members' organization-scoped evidence; legacy evidence without semantic references is not inferred.",
       "Average progress is descriptive course participation, not mastery or proficiency.",
     ],
   };
