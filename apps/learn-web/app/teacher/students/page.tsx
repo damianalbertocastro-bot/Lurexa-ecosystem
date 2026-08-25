@@ -80,6 +80,7 @@ export default function TeacherStudentsPage() {
     const params = new URLSearchParams({
       learnerId: selected.learnerId,
       organizationId: selected.organizationId,
+      courseId: selected.courseId,
     });
     void authenticatedJson<LearnerPulseProjectionV1>(user, `/api/teacher/signature?${params.toString()}`)
       .then((value) => {
