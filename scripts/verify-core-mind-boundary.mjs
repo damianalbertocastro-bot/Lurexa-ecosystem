@@ -82,7 +82,7 @@ requireText(paths.educatorAccess, content.educatorAccess, "authorization.courseI
 forbidText(paths.educatorAccess, content.educatorAccess, "governanceRole");
 requireText(paths.educatorAccess, content.educatorAccess, 'teach: verifiedEducator || explicitTeach');
 requireText(paths.educatorAccess, content.educatorAccess, 'coachFull: verifiedEducator || explicitCoach');
-requireText(paths.educatorAccess, content.educatorAccess, 'reason: "extend_level_scope"');
+requireText(paths.educatorAccess, content.educatorAccess, 'developmentRecommendation(course, "extend_level_scope")');
 
 requireText(paths.coachContext, content.coachContext, "getScopedLearnerContext");
 requireText(paths.coachContext, content.coachContext, 'requestingProduct: "coach"');
