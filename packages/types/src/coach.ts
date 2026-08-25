@@ -1,4 +1,5 @@
 import type { CefrLevel, LearnerContext, LearnerRecommendationAction } from "./learner";
+import type { ProductBridgeV1 } from "./signature-experience";
 
 export interface CoachSessionFocus {
   cefr?: CefrLevel;
@@ -24,9 +25,15 @@ export interface CoachSession {
   transcript: CoachTranscriptMessage[];
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
 }
 
 export interface CoachSessionStartResult {
   session: CoachSession;
   learnerContext: LearnerContext;
+}
+
+export interface CoachSessionEndResult {
+  session: CoachSession;
+  returnBridge: ProductBridgeV1;
 }
