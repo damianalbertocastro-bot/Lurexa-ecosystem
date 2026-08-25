@@ -38,19 +38,14 @@ async function loadProjection<T>(projection: SignatureProjectionKind): Promise<T
 
 export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelProps) {
   const [state, setState] = useState<SignatureState>(emptyState);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (!enabled) {
-      setState(emptyState);
-      return;
-    }
+    if (!enabled) return;
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     Promise.allSettled([
       loadProjection<LearnerPulseProjectionV1>("learner_pulse"),
@@ -69,9 +64,15 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
       setState(next);
 
       const failures = results.filter((result) => result.status === "rejected") as PromiseRejectedResult[];
-      if (failures.length === results.length) {
+      if (failures.length > 0) {
         const reason = failures[0]?.reason;
-        setError(reason instanceof Error ? reason.message : "Unable to load your Lurexa learning view.");
+        setError(
+          failures.length === results.length && reason instanceof Error
+            ? reason.message
+            : "Some signature projections could not be loaded.",
+        );
+      } else {
+        setError(null);
       }
       setLoading(false);
     });
@@ -81,13 +82,20 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
   if (!enabled) return null;
 
+  const retry = () => {
+    setState(emptyState);
+    setError(null);
+    setLoading(true);
+    setReloadKey((value) => value + 1);
+  };
+
   if (loading && !state.pulse) {
     return (
       <section aria-label="Loading Lurexa learning intelligence" className="rounded-[28px] border border-indigo-100 bg-white p-6 shadow-sm">
-        <div className="h-3 w-28 animate-pulse rounded bg-indigo-100" />
-        <div className="mt-3 h-7 w-64 max-w-full animate-pulse rounded bg-slate-100" />
+        <div className="h-3 w-28 animate-pulse rounded bg-indigo-100 motion-reduce:animate-none" />
+        <div className="mt-3 h-7 w-64 max-w-full animate-pulse rounded bg-slate-100 motion-reduce:animate-none" />
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[0, 1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-50" />)}
+          {[0, 1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-50 motion-reduce:animate-none" />)}
         </div>
       </section>
     );
@@ -98,7 +106,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
       <section role="status" className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
         <p className="font-bold text-slate-900">Your evolving learning view is temporarily unavailable.</p>
         <p className="mt-1">{error}</p>
-        <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</button>
+        <button type="button" onClick={retry} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</button>
       </section>
     );
   }
@@ -123,7 +131,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
       {state.thread && <MemoryThread thread={state.thread} />}
 
-      {error && <p className="text-xs text-amber-700">Some signature projections could not be loaded. Available projections are still shown.</p>}
+      {error && <p className="text-xs text-amber-700">{error} Available projections are still shown.</p>}
     </section>
   );
 }
