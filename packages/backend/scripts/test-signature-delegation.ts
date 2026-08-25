@@ -1,4 +1,9 @@
-import type { Course, EducatorQualificationScopeV1, TeachingAuthorizationV1 } from "@lurexa/types";
+import type {
+  Course,
+  EducatorEntitlementV1,
+  EducatorQualificationScopeV1,
+  TeachingAuthorizationV1,
+} from "@lurexa/types";
 import { getEducatorBenefitEntitlements, getEducatorCourseAccessDecision } from "../src/educator-access.server";
 import { getServerFirestore } from "../src/firebase-admin.server";
 import { getScopedLearnerContext } from "../src/learner-context.server";
@@ -39,6 +44,7 @@ async function main(): Promise<void> {
   const database = getServerFirestore();
   const suffix = Date.now().toString(36);
   const teacherId = `teacher_${suffix}`;
+  const candidateId = `candidate_${suffix}`;
   const ownerId = `owner_${suffix}`;
   const learnerId = `learner_${suffix}`;
   const outsiderId = `outsider_${suffix}`;
@@ -50,12 +56,22 @@ async function main(): Promise<void> {
   const qualificationId = `qualification_${suffix}`;
   const authorizationId = `authorization_${suffix}`;
 
+  const teachCandidateEntitlement: EducatorEntitlementV1 = {
+    contractVersion: "1",
+    userId: candidateId,
+    product: "teach",
+    status: "active",
+    source: "direct",
+    grantedAt: "2026-08-25T00:00:00.000Z",
+  };
+
   await Promise.all([
     database.collection("user-memberships").doc(teacherId).collection("organizations").doc(orgA).set({ role: "teacher" }),
     database.collection("user-memberships").doc(ownerId).collection("organizations").doc(orgA).set({ role: "owner" }),
     database.collection("user-memberships").doc(learnerId).collection("organizations").doc(orgA).set({ role: "student" }),
     database.collection("user-memberships").doc(learnerId).collection("organizations").doc(orgB).set({ role: "student" }),
     database.collection("user-memberships").doc(outsiderId).collection("organizations").doc(orgA).set({ role: "student" }),
+    database.collection("user-entitlements").doc(candidateId).collection("products").doc("teach").set(teachCandidateEntitlement),
     database.collection("courses").doc(courseA).set({ id: courseA, orgId: orgA, title: "Org A course", subject: "english", level: "A1" }),
     database.collection("courses").doc(courseB).set({ id: courseB, orgId: orgB, title: "Org B course", subject: "english", level: "A1" }),
     database.collection("courses").doc(courseHigher).set({ id: courseHigher, orgId: orgA, title: "Org A B2 course", subject: "english", level: "B2" }),
@@ -67,12 +83,20 @@ async function main(): Promise<void> {
       id: `${learnerId}_b`, studentId: learnerId, lessonId: "lesson-b", moduleId: "module-b", courseId: courseB,
       completed: false, timeSpentSeconds: 60, attempts: [], lastAccessedAt: "2026-08-25T10:00:00.000Z",
     }),
+    database.collection("progress").doc(`${learnerId}_b2`).set({
+      id: `${learnerId}_b2`, studentId: learnerId, lessonId: "lesson-b2", moduleId: "module-b2", courseId: courseHigher,
+      completed: false, timeSpentSeconds: 60, attempts: [], lastAccessedAt: "2026-08-25T11:00:00.000Z",
+    }),
   ]);
+
+  const candidateBenefits = await getEducatorBenefitEntitlements(candidateId);
+  check(candidateBenefits.teach && !candidateBenefits.coachFull && candidateBenefits.source === "explicit_entitlement", "Teach learner can use Teach under the same Lurexa identity without receiving practicing-educator privileges");
 
   const request = {
     contractVersion: "1" as const,
     learnerId,
     organizationId: orgA,
+    courseId: courseA,
     requestingProduct: "learn" as const,
     purpose: "teacher_instructional_support" as const,
     domains: ["curriculum" as const, "pronunciation" as const, "fluency" as const],
@@ -80,8 +104,14 @@ async function main(): Promise<void> {
 
   await expectFailure(
     () => getScopedLearnerContext({ actorId: teacherId, request }),
-    "qualification linked to a teaching authorization",
+    "qualification-linked authorization",
     "teacher membership alone does not authorize student instructional context",
+  );
+
+  await expectFailure(
+    () => getScopedLearnerContext({ actorId: ownerId, request }),
+    "qualification-linked authorization",
+    "organization ownership does not substitute for professional teaching qualification and authorization",
   );
 
   const qualification: EducatorQualificationScopeV1 = {
@@ -125,28 +155,32 @@ async function main(): Promise<void> {
   check(allowedCourse.allowed && allowedCourse.reason === "authorized", "qualification and teaching authorization unlock only the approved Learn course scope");
 
   const higherCourse = await getEducatorCourseAccessDecision({ userId: teacherId, course: course({ id: courseHigher, orgId: orgA, level: "B2" }) });
-  check(!higherCourse.allowed && higherCourse.reason === "authorization_scope_mismatch", "higher-level course stays locked when it is outside the educator authorization scope");
+  check(!higherCourse.allowed && higherCourse.reason === "qualification_scope_mismatch", "higher-level course stays locked when it exceeds the educator qualification scope");
+  check(higherCourse.developmentRecommendation?.product === "teach" && higherCourse.developmentRecommendation.coachRecommended, "higher-level denial produces a governed Teach growth target with Coach support for English");
 
   const teacherContext = await getScopedLearnerContext({ actorId: teacherId, request });
   check(teacherContext.context.organizationId === orgA, "qualified Learn teacher delegation stays inside the explicitly requested organization");
-  check(teacherContext.context.curriculum?.courseId === courseA, "requested organization wins over newer progress in another organization");
+  check(teacherContext.context.curriculum?.courseId === courseA, "delegated learner context is pinned to the exact authorized Learn course");
 
-  const ownerContext = await getScopedLearnerContext({ actorId: ownerId, request });
-  check(ownerContext.context.organizationId === orgA, "organization owner retains governance instructional-support access without being represented as a qualified teacher");
+  await expectFailure(
+    () => getScopedLearnerContext({ actorId: teacherId, request: { ...request, courseId: courseHigher } }),
+    "qualification-linked authorization",
+    "qualified A1-B1 educator cannot inspect B2 learner context without B2 qualification and authorization",
+  );
 
   const selfContext = await getScopedLearnerContext({ actorId: learnerId, request });
-  check(selfContext.context.organizationId === orgA, "learner self-service may request an organization they belong to");
+  check(selfContext.context.organizationId === orgA, "learner self-service remains available under the learner's own identity");
 
   await expectFailure(
     () => getScopedLearnerContext({ actorId: outsiderId, request }),
-    "educator, organization admin, or owner",
+    "educator organization membership",
     "student membership cannot delegate instructional support for another learner",
   );
 
   await expectFailure(
-    () => getScopedLearnerContext({ actorId: teacherId, request: { ...request, organizationId: orgB } }),
-    "educator, organization admin, or owner",
-    "teacher membership in Org A cannot read a learner through Org B",
+    () => getScopedLearnerContext({ actorId: teacherId, request: { ...request, organizationId: orgB, courseId: courseB } }),
+    "educator organization membership",
+    "teacher affiliation and authorization in Org A cannot read a learner through Org B",
   );
 
   await expectFailure(
@@ -161,7 +195,7 @@ async function main(): Promise<void> {
     "Lurexa Teach cannot request student instructional context even for an entitled educator",
   );
 
-  console.log("Educator qualification, entitlement, teaching authorization, and delegated learner-context integration passed.");
+  console.log("Educator identity, entitlement, qualification, exact-course authorization, benefits, and delegated learner-context integration passed.");
 }
 
 void main().catch((error) => {
