@@ -74,15 +74,17 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Classify Campus as institutional experience/shell.
 - [x] Classify the six signature primitives as a shared experience layer.
 - [x] Reconcile the Lurexa Bible and Product Personality System.
-- [ ] Reconcile remaining stale Campus wording in secondary docs and agent context.
+- [x] Reconcile the main AI-agent ecosystem context.
+- [ ] Reconcile any remaining stale Campus wording found in secondary docs during audit.
 
 ## S1 — Contract foundations
 
 - [x] Add v1 shared signature contracts to `@lurexa/types`.
+- [x] Reuse canonical `LurexaProduct` rather than maintaining a second product union.
+- [x] Add typed signature projection purposes.
 - [x] Add SDK service boundary.
 - [x] Establish Core projection services for Pulse, Path, Mind Trace and Memory Thread.
 - [x] Add canonical knowledge-object references to Learning Evidence source metadata.
-- [ ] Remove any duplicate product ID definitions and converge on canonical type aliases.
 - [ ] Add contract validators and compatibility tests for signature records.
 
 ## S2 — Prototype and usability validation
