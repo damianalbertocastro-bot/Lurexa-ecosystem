@@ -11,10 +11,34 @@ Authority: subordinate to `Docs/00-Lurexa-Bible.md`, authoritative for implement
 
 The distinction is based on the **subject of the workflow**, not simply the identity of the signed-in person.
 
-A teacher can use both products:
+A teacher can use both products under one canonical Lurexa identity:
 
-- inside **Learn**, the teacher acts as an educator operating another learner's instructional experience;
-- inside **Teach**, the same person is the learner and the product adapts around their own professional growth.
+- inside **Learn**, the person acts as an educator operating another learner's instructional experience;
+- inside **Teach**, the same person is the learner and the product adapts around their own professional growth;
+- inside **Coach**, the same person may develop speaking, pronunciation and English proficiency without creating another account.
+
+Product ownership stays separate while identity, approved evidence and governed entitlements remain cross-product.
+
+See `Docs/Architecture/LUREXA_EDUCATOR_IDENTITY_QUALIFICATION_MODEL.md` for the normative educator identity, entitlement, qualification and authorization model.
+
+## Identity and access rule
+
+A Learn educator must not need to sign up for Lurexa Teach again.
+
+The same Core-owned identity should receive:
+
+- immediate Teach entitlement or a lightweight activation/opt-in path without account recreation;
+- full Lurexa Coach access as an educator benefit, subject to commercial/safety policy;
+- a professional learner state in Teach that is separate from their student-operation permissions in Learn.
+
+A Teach learner does **not** automatically gain Learn Teacher Workspace access.
+
+Learn Teacher Workspace access requires both:
+
+1. an evidence-backed educator qualification scope; and
+2. explicit platform/institution/program/course teaching authorization.
+
+English proficiency alone is not sufficient teaching qualification.
 
 ## Product ownership matrix
 
@@ -36,6 +60,9 @@ A teacher can use both products:
 | Credentials/certifications | Does not own | Owns |
 | Professional community | Links/bridges only | Owns |
 | Teacher-growth recommendations | Links/bridges only | Owns |
+| Educator qualification preparation | Consumes resulting authorization | Owns learning pathway/evidence contribution |
+| Teaching authorization | Enforces Core decision | Does not grant |
+| Educator English development | May link | Owns pathway; may bridge to Coach |
 
 ## Repository mapping
 
@@ -82,6 +109,55 @@ Lurexa Teach receives no delegated student-context entitlement in v1.
 
 A future Teach professional-growth projection must use the educator's **own professional evidence/model scope**, not student-context browsing disguised as professional development.
 
+### Future qualified-teacher authorization
+
+The current membership role is an initial authorization mechanism, not the intended final educator model.
+
+The target check is conceptually:
+
+```text
+canOperateLearnTeacherWorkspace =
+  hasLearnTeacherEntitlement
+  && hasEligibleEducatorQualification(requestedTeachingScope)
+  && hasTeachingAuthorization(organization, program/course, requestedTeachingScope)
+```
+
+A global `teacher = true` flag must not become the sole long-term basis for access.
+
+## Qualification-scoped teaching
+
+A Teach learner may develop toward authorization to teach, but completion or English mastery does not automatically unlock Learn Teacher Workspace.
+
+Qualification should be scoped by subject and level, and should combine evidence such as:
+
+- language proficiency;
+- teaching methodology;
+- lesson planning;
+- activity/assessment design;
+- instructional practice;
+- required credentials.
+
+If a person is qualified to teach A1–B1 but requests B2 teaching scope, access remains closed for B2 until the qualification gap is addressed and the broader teaching scope is authorized.
+
+Mind should explain the gap and recommend a development path in Teach and, where appropriate, Coach.
+
+## Lurexa Teach curriculum responsibility
+
+Teach is a full educator-learning product rather than a methodology library.
+
+Its professional curriculum should integrate:
+
+- English knowledge and CEFR development;
+- language-teaching methodologies;
+- lesson planning;
+- activity and learning-experience creation;
+- assessment literacy;
+- instructional practice and reflection;
+- digital/AI teaching competence;
+- professional portfolio and credentials.
+
+Teach may bridge into Coach for language/pronunciation development and into Studio for governed creation workflows, while those capabilities remain owned by their respective products.
+
 ## Signature Experience contract
 
 ### Learn Teacher Workspace
@@ -103,20 +179,25 @@ Teach may use the same shared Signature grammar **only around the educator's own
 - professional competency Pulse;
 - professional growth path;
 - professional evidence/reflection thread;
-- approved explanation of a growth recommendation;
+- approved explanation of a growth or qualification-readiness recommendation;
 - bridge from a Learn teaching-practice event into a Teach development activity;
+- bridge into Coach for educator language development;
 - professional Knowledge Objects/competencies.
 
 Teach must not reuse student-oriented language or views blindly.
 
 ## Data-model separation
 
-Identity may be shared across products, but evidence purpose must remain scoped.
+Identity may be shared across products, but evidence purpose and permissions must remain scoped.
 
-A teacher can simultaneously have:
+A person can simultaneously have:
 
-1. an educator role in Learn, authorizing them to operate student learning; and
-2. their own professional learner state in Teach.
+1. one canonical Lurexa identity;
+2. product entitlements for Learn/Teach/Coach;
+3. an educator qualification scope;
+4. an institution/program/course teaching authorization;
+5. an educator role in Learn, authorizing them to operate specific student learning;
+6. their own professional learner state in Teach.
 
 These must not collapse into one undifferentiated record.
 
@@ -146,9 +227,10 @@ Mind professional interpretation
   ↓ minimized professional context
 Lurexa Teach
   ↓ professional learning / reflection / growth activity
+  ↓ optional Coach / Studio bridges
 Core
   ↓ updated educator professional evidence
-Teach adapts future growth path
+Teach adapts future growth + qualification-readiness path
 ```
 
 Student evidence should be aggregated/minimized before it contributes to educator-development interpretation unless a specific governance policy authorizes otherwise.
@@ -189,6 +271,7 @@ Design cues:
 - violet/navy professional-growth personality;
 - editorial/professional-learning hierarchy;
 - competencies, reflection, evidence, credentials and growth pathways;
+- visible educator-readiness/qualification progression where appropriate;
 - no classroom roster density or gradebook metaphors;
 - no student-management navigation.
 
@@ -206,6 +289,7 @@ Expected operational navigation may include:
 - Insights
 - Studio/content entry points when authorized
 - Professional Growth → explicit Product Bridge/link to Lurexa Teach
+- Coach → educator benefit / language-development entry point
 
 ### Lurexa Teach
 
@@ -213,12 +297,17 @@ Expected professional-development navigation may include:
 
 - Dashboard
 - Professional Learning
-- Growth
+- English for Educators
+- Methodology
+- Lesson Planning
+- Activity & Assessment Design
+- Growth / Qualification Readiness
 - Assessment
 - Credentials
 - Reflection / Portfolio
 - Community
 - My professional profile
+- Coach → language/pronunciation development
 
 `Students`, `Classes`, `Grades`, and `Submissions` must not become primary Teach navigation.
 
@@ -233,7 +322,11 @@ CI should fail if:
 5. operational roster contracts are named as Teach contracts;
 6. Learn teacher APIs return cacheable learner projections;
 7. the real educator actor is replaced with learner impersonation;
-8. cross-tenant membership checks are removed.
+8. cross-tenant membership checks are removed;
+9. product entitlement is treated as equivalent to teaching authorization;
+10. Teach completion alone directly grants student-operation access;
+11. English proficiency alone directly grants a teaching scope;
+12. a qualification or authorization check silently broadens an educator's teaching level.
 
 ## Current rollout flag
 
@@ -245,9 +338,12 @@ The flag name intentionally encodes the product owner.
 
 ## End-state statement
 
-A teacher should be able to move naturally between two distinct jobs:
+A teacher should be able to move naturally between distinct jobs without creating duplicate accounts:
 
 > **I am teaching my learners → Lurexa Learn Teacher Workspace.**  
-> **I am improving myself as an educator → Lurexa Teach.**
+> **I am improving myself as an educator → Lurexa Teach.**  
+> **I am developing my spoken English/pronunciation → Lurexa Coach.**
 
-The ecosystem should connect those jobs without merging them.
+A Teach learner can grow into an authorized Learn educator, but only through evidence-backed qualification plus explicit teaching authorization.
+
+The ecosystem should connect those jobs without merging their product responsibilities.
