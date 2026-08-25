@@ -1,10 +1,10 @@
 import type { SignatureProjectionKind, SignatureProjectionRequestV1 } from "@lurexa/types";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import {
-  getAdaptiveLearningPathProjection,
   getLearnerPulseProjection,
   getMindTraceProjection,
 } from "@lurexa/backend/signature-experience.server";
+import { getGovernedAdaptiveLearningPathProjection } from "@lurexa/backend/adaptive-learning-path.server";
 import { getScopedMemoryThreadProjection } from "@lurexa/backend/memory-thread.server";
 
 export const runtime = "nodejs";
@@ -41,7 +41,7 @@ export async function GET(request: Request): Promise<Response> {
 
     const input = { actorId: actor.uid, request: projectionRequest };
     if (projection === "learner_pulse") return Response.json(await getLearnerPulseProjection(input));
-    if (projection === "adaptive_path") return Response.json(await getAdaptiveLearningPathProjection(input));
+    if (projection === "adaptive_path") return Response.json(await getGovernedAdaptiveLearningPathProjection(input));
     if (projection === "memory_thread") return Response.json(await getScopedMemoryThreadProjection(input));
     return Response.json(await getMindTraceProjection(input));
   } catch (error) {
