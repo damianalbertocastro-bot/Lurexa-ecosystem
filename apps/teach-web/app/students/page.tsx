@@ -35,8 +35,11 @@ export default function StudentsPage() {
     void authenticatedJson<TeachInstructionalRosterV1>(user, "/api/teach/roster")
       .then((value) => {
         if (!active) return;
+        const firstLearner = value.courses.flatMap((course) => course.learners)[0] ?? null;
         setRoster(value);
-        setSelected(value.courses.flatMap((course) => course.learners)[0] ?? null);
+        setPulse(null);
+        setLoadingPulse(Boolean(firstLearner && signatureEnabled));
+        setSelected(firstLearner);
       })
       .catch((reason) => active && setError(reason instanceof Error ? reason.message : "Unable to load roster."))
       .finally(() => active && setLoadingRoster(false));
@@ -46,8 +49,6 @@ export default function StudentsPage() {
   useEffect(() => {
     if (!user || !selected || !signatureEnabled) return;
     let active = true;
-    setLoadingPulse(true);
-    setError(null);
     const params = new URLSearchParams({
       learnerId: selected.learnerId,
       organizationId: selected.organizationId,
@@ -62,6 +63,7 @@ export default function StudentsPage() {
   function selectLearner(learner: TeachRosterLearnerV1): void {
     setPulse(null);
     setError(null);
+    setLoadingPulse(signatureEnabled);
     setSelected(learner);
   }
 
