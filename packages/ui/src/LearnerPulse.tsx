@@ -1,13 +1,26 @@
 import React from "react";
-import type { LearnerPulseDimensionV1, LearnerPulseProjectionV1 } from "@lurexa/types";
+
+export type LearnerPulseDimensionView = {
+  dimension: string;
+  state: "unknown" | "emerging" | "developing" | "stable" | "strong";
+  momentum: "declining" | "watch" | "steady" | "improving" | "accelerating" | "unknown";
+  summary: string;
+};
+
+export type LearnerPulseView = {
+  learnerId: string;
+  dimensions: LearnerPulseDimensionView[];
+  overallMomentum: LearnerPulseDimensionView["momentum"];
+  highlights: Array<{ kind: string; label: string }>;
+};
 
 export interface LearnerPulseProps {
-  pulse: LearnerPulseProjectionV1;
+  pulse: LearnerPulseView;
   className?: string;
   compact?: boolean;
 }
 
-const stateStyles: Record<LearnerPulseDimensionV1["state"], string> = {
+const stateStyles: Record<LearnerPulseDimensionView["state"], string> = {
   unknown: "border-slate-200 bg-slate-50 text-slate-500",
   emerging: "border-amber-200 bg-amber-50 text-amber-800",
   developing: "border-sky-200 bg-sky-50 text-sky-800",
@@ -15,7 +28,7 @@ const stateStyles: Record<LearnerPulseDimensionV1["state"], string> = {
   strong: "border-indigo-200 bg-indigo-50 text-indigo-800",
 };
 
-const momentumGlyph: Record<LearnerPulseDimensionV1["momentum"], string> = {
+const momentumGlyph: Record<LearnerPulseDimensionView["momentum"], string> = {
   declining: "↓",
   watch: "↘",
   steady: "→",
@@ -24,7 +37,7 @@ const momentumGlyph: Record<LearnerPulseDimensionV1["momentum"], string> = {
   unknown: "·",
 };
 
-function Dimension({ item }: { item: LearnerPulseDimensionV1 }) {
+function Dimension({ item }: { item: LearnerPulseDimensionView }) {
   return (
     <li className={`rounded-2xl border px-3 py-3 ${stateStyles[item.state]}`}>
       <div className="flex items-center justify-between gap-3">
@@ -66,7 +79,7 @@ export function LearnerPulse({ pulse, className = "", compact = false }: Learner
           </div>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-          <span className="rounded-full border border-indigo-100 bg-white/80 px-3 py-1.5 font-semibold">{known}/7 evidence-aware dimensions</span>
+          <span className="rounded-full border border-indigo-100 bg-white/80 px-3 py-1.5 font-semibold">{known}/{pulse.dimensions.length} evidence-aware dimensions</span>
           <span className="rounded-full border border-indigo-100 bg-white/80 px-3 py-1.5">Momentum: {pulse.overallMomentum}</span>
         </div>
       </div>
