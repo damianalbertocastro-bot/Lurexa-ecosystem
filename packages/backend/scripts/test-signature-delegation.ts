@@ -49,17 +49,17 @@ const request = {
   contractVersion: "1" as const,
   learnerId,
   organizationId: orgA,
-  requestingProduct: "teach" as const,
+  requestingProduct: "learn" as const,
   purpose: "teacher_instructional_support" as const,
   domains: ["curriculum" as const, "pronunciation" as const, "fluency" as const],
 };
 
 const teacherContext = await getScopedLearnerContext({ actorId: teacherId, request });
-check(teacherContext.context.organizationId === orgA, "teacher delegation stays inside the explicitly requested organization");
+check(teacherContext.context.organizationId === orgA, "Learn teacher delegation stays inside the explicitly requested organization");
 check(teacherContext.context.curriculum?.courseId === courseA, "requested organization wins over newer progress in another organization");
 
 const ownerContext = await getScopedLearnerContext({ actorId: ownerId, request });
-check(ownerContext.context.organizationId === orgA, "organization owner may perform delegated instructional support");
+check(ownerContext.context.organizationId === orgA, "organization owner may perform Learn instructional support");
 
 const selfContext = await getScopedLearnerContext({ actorId: learnerId, request });
 check(selfContext.context.organizationId === orgA, "learner self-service may request an organization they belong to");
@@ -79,10 +79,19 @@ await expectFailure(
 await expectFailure(
   () => getScopedLearnerContext({
     actorId: teacherId,
-    request: { ...request, requestingProduct: "learn", purpose: "learn_adaptive_practice" },
+    request: { ...request, purpose: "learn_adaptive_practice" },
   }),
   "Delegated learner context is not authorized",
   "delegated access cannot reuse a self-service Learn purpose",
 );
 
-console.log("Delegated learner-context Firestore integration passed.");
+await expectFailure(
+  () => getScopedLearnerContext({
+    actorId: teacherId,
+    request: { ...request, requestingProduct: "teach" },
+  }),
+  "requesting product is not authorized",
+  "Lurexa Teach cannot request student instructional context",
+);
+
+console.log("Learn teacher delegated learner-context Firestore integration passed.");
