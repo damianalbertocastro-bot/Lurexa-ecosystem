@@ -33,6 +33,21 @@ export interface InsightLearnerPulseProjectionV1 extends LearnerPulseProjectionV
   organizationId: string;
 }
 
+export interface InsightOrganizationSignatureOverviewV1 {
+  contractVersion: typeof SIGNATURE_ROLLOUT_CONTRACT_VERSION;
+  organizationId: string;
+  generatedAt: string;
+  courseCount: number;
+  participatingLearners: number;
+  activeLearners14d: number;
+  averageCourseProgressPercent: number | null;
+  knowledgeObjectCoverage: Array<{
+    knowledgeObjectId: string;
+    evidenceCount: number;
+  }>;
+  limitations: string[];
+}
+
 export interface SignatureOperationalRollupV1 {
   contractVersion: typeof SIGNATURE_ROLLOUT_CONTRACT_VERSION;
   generatedAt: string;
