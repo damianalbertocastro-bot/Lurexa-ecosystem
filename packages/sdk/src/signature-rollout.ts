@@ -1,4 +1,5 @@
 import type {
+  EducatorBenefitEntitlementsV1,
   InsightOrganizationSignatureOverviewV1,
   LearnTeacherInstructionalRosterV1,
   SignatureOperationalRollupV1,
@@ -10,6 +11,7 @@ import type {
  */
 export interface SignatureRolloutService {
   getLearnTeacherInstructionalRoster(): Promise<LearnTeacherInstructionalRosterV1>;
+  getEducatorBenefits(): Promise<EducatorBenefitEntitlementsV1>;
   getInsightOrganizationOverview(organizationId: string): Promise<InsightOrganizationSignatureOverviewV1>;
   getSignatureOperationalRollup(windowMinutes?: number): Promise<SignatureOperationalRollupV1>;
 }
