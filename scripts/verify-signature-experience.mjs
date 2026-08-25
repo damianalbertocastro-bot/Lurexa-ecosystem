@@ -13,8 +13,20 @@ const coachTypes = read("packages/types/src/coach.ts");
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const coachService = read("packages/backend/src/coach-platform.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
+const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
+const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
+const memoryThread = read("packages/backend/src/memory-thread.server.ts");
+const signaturePanel = read("apps/learn-web/app/dashboard/components/SignatureExperiencePanel.tsx");
 const uiPackage = JSON.parse(read("packages/ui/package.json"));
 const catalog = read("packages/backend/src/knowledge-object-catalog.server.ts");
+const uiFiles = [
+  "packages/ui/src/LearnerPulse.tsx",
+  "packages/ui/src/AdaptiveLearningPath.tsx",
+  "packages/ui/src/MemoryThread.tsx",
+  "packages/ui/src/MindTrace.tsx",
+  "packages/ui/src/ProductBridge.tsx",
+  "packages/ui/src/KnowledgeObject.tsx",
+].map(read);
 
 check(contracts.includes('export const SIGNATURE_EXPERIENCE_CONTRACT_VERSION = "1"'), "signature contracts remain explicitly versioned at v1");
 check(contracts.includes('"return_to_learning"'), "Product Bridge contract includes the Coach → Learn return purpose");
@@ -38,5 +50,20 @@ check(!persistedPayload.includes("learnerForm:"), "durable Coach linguistic evid
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
+check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern maps to a canonical Knowledge Object");
+check(catalog.includes('"DO-ENG-PRO-006"'), "regular-past pronunciation pattern maps to canonical Knowledge Objects");
+check(coachService.includes("getKnowledgeObjectIdsForLinguisticPattern"), "Coach evidence emits governed Knowledge Object references");
+check(adaptiveAdapter.includes("getKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed catalog");
+check(adaptiveAdapter.includes("Competency identifiers are not treated as Knowledge Object identifiers"), "competency and Knowledge Object namespaces remain distinct");
+check(signatureRoute.includes("getGovernedAdaptiveLearningPathProjection"), "Learn API routes Adaptive Path through the semantic governance adapter");
+check(signatureRoute.includes("getScopedMemoryThreadProjection"), "Learn API routes Memory Thread through the tenant-safe projection");
+check(memoryThread.includes("entry.organizationId === activeOrganizationId"), "Memory Thread scopes institutional evidence to the active organization");
+check(memoryThread.includes("entry.source.knowledgeObjectIds?.includes"), "Memory Thread performs exact Knowledge Object filtering");
 
-console.log("Lurexa Signature Experience contract/security verification passed.");
+check(signaturePanel.includes('NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on"'), "Signature Experience learner rollout is feature-flagged and default-off");
+check(signaturePanel.includes('aria-live="polite"'), "Signature Experience asynchronous status uses a polite live region");
+check(signaturePanel.includes("motion-reduce:animate-none"), "Signature Experience loading motion respects reduced-motion preferences");
+check(uiFiles.every((content) => content.includes("aria-")), "all six shared signature primitives expose accessibility semantics");
+check(uiFiles.filter((content) => content.includes("<button")).every((content) => content.includes("focus-visible")), "interactive shared signature primitives expose visible keyboard focus");
+
+console.log("Lurexa Signature Experience contract/security/accessibility verification passed.");
