@@ -13,6 +13,8 @@ import type {
 } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
+const COACH_SESSION_STORAGE_KEY = "lurexa.coach.active-session";
+
 function MessageBubble({ sender, text }: { sender: "coach" | "learner"; text: string }) {
   const isCoach = sender === "coach";
   return (
@@ -50,6 +52,30 @@ export default function LurexaCoachPage() {
     transcriptBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.transcript]);
 
+  useEffect(() => {
+    const storedSessionId = window.sessionStorage.getItem(COACH_SESSION_STORAGE_KEY);
+    if (!storedSessionId) return;
+
+    let cancelled = false;
+    void authenticatedFetch("/api/coach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "resumeSession", sessionId: storedSessionId }),
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as CoachSessionStartResult & { error?: string };
+        if (!response.ok || !payload.session) throw new Error(payload.error ?? "Unable to restore Coach session.");
+        if (cancelled) return;
+        setSession(payload.session);
+        setLearnerContext(payload.learnerContext);
+      })
+      .catch(() => {
+        if (!cancelled) window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
+
   const handleStartCoaching = async () => {
     setLoading(true);
     setError(null);
@@ -61,6 +87,7 @@ export default function LurexaCoachPage() {
       });
       const payload = (await response.json()) as CoachSessionStartResult & { error?: string };
       if (!response.ok || !payload.session) throw new Error(payload.error ?? "Unable to start Coach session.");
+      window.sessionStorage.setItem(COACH_SESSION_STORAGE_KEY, payload.session.id);
       setSession(payload.session);
       setLearnerContext(payload.learnerContext);
     } catch (cause) {
@@ -140,6 +167,7 @@ export default function LurexaCoachPage() {
         throw new Error(resolution.error ?? "Your return to Learn could not be validated.");
       }
 
+      window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY);
       setSession(completion.session);
       router.push(resolution.destinationRef);
     } catch (finishError) {
