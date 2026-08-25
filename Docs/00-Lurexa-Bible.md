@@ -1,7 +1,7 @@
 ---
 title: Lurexa Bible
 subtitle: Authoritative Guide to the Lurexa Ecosystem
-version: 1.5.0
+version: 1.6.0
 status: Approved
 owner: Lurexa Learning Technologies
 author: Damian + AI collaborators
@@ -179,9 +179,11 @@ A learner moving from Learn to Coach should not need to restate reliable authori
 
 ### Lurexa Learn
 
-Lurexa Learn is the learning-management and instructional-delivery product for learners and the teachers who operate their learning experiences.
+Lurexa Learn is the learning-management and instructional-delivery product for learners and the educators who operate their learning experiences.
 
-Learn owns student and teacher operational dashboards, course/lesson experience, classes/assignments, learner progress/support workflows, assessment, structured learning delivery and trustworthy learning evidence generated through Core-governed contracts.
+Learn owns the learner experience **and the operational teacher workspace for those learners**. The Learn Teacher Workspace owns course/class operations, authorized rosters, learner access/invitations, assignments and submissions, assessment/grading workflows, learner progress, instructional analytics, teacher feedback/interventions, and student-facing Signature Experience projections used for instructional decisions.
+
+A teacher acting inside Learn is an **educator operating student learning**, not a learner in the Teach product. Delegated access to a student's learner context is therefore a Lurexa Learn capability, purpose-scoped through Core as `teacher_instructional_support`.
 
 The teacher workspace inside Learn is not Lurexa Teach.
 
@@ -195,16 +197,20 @@ Dominican Spanish is the first deep linguistic profile, not a permanent technica
 
 ### Lurexa Teach
 
-Lurexa Teach is the independent educator professional-development product.
+Lurexa Teach is the independent educator professional-development product. **In Teach, the teacher is the learner.**
 
-Teach owns professional learning, educator English/CEFR development, competency pathways, teaching-practice growth, training/certification, educator community/professional circles, professional evidence/reflection, credentials and Mind-supported growth recommendations.
+Teach owns professional learning, educator English/CEFR development, educator competency pathways, teaching-practice growth, training/certification, educator community/professional circles, professional evidence/reflection, credentials, professional goals and Mind-supported growth recommendations.
 
-**Learn is where teachers operate student learning; Teach is where teachers develop themselves professionally.**
+Teach does **not** own classroom rosters, student invitations, student progress dashboards, grading, submissions, student-level instructional interventions, or direct browsing of student Learner Pulse/Memory Thread. Those operational responsibilities belong to the Lurexa Learn Teacher Workspace.
 
-Repository mapping remains:
+Authorized teaching-practice evidence may later flow from Learn through Core/Mind into Teach as minimized professional-development evidence. Student weaknesses must never be copied into the teacher's own professional learner model.
 
-- `apps/teacher-portal` = Lurexa Learn teacher operational workspace.
-- `apps/teach-web` = independent Lurexa Teach product.
+> **Learn is where teachers operate student learning. Teach is where teachers develop themselves professionally.**
+
+Repository mapping is authoritative:
+
+- `apps/learn-web/app/teacher` = **Lurexa Learn Teacher Workspace** (student/class/course operations).
+- `apps/teach-web` = **Lurexa Teach** (teacher professional learning and growth).
 
 ### Lurexa Admin
 
@@ -305,6 +311,7 @@ The following are obsolete unless explicitly reintroduced:
 - accent erasure as a Coach objective;
 - Dominican Spanish as Coach's permanent technical limit;
 - Lurexa Teach as the class/learner-management teacher dashboard;
+- student rosters, grading, submissions or student-level instructional support inside Lurexa Teach;
 - Institution Workspace as the preferred customer-facing institution name;
 - **Lurexa Campus as a sibling product in the product family**;
 - Campus as owner of specialist products;
