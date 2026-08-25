@@ -106,6 +106,8 @@ export interface LearningEvidenceSource {
   sessionId?: string;
   courseId?: string;
   lessonId?: string;
+  /** Canonical semantic targets carried across products without exposing learner payloads. */
+  knowledgeObjectIds?: string[];
 }
 
 export interface LearningEvidenceProvenance {
@@ -371,13 +373,15 @@ export interface LearningEvidenceSubmission<TPayload = unknown> {
 export function isLearningEvidenceV1(value: unknown): value is LearningEvidence {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const evidence = value as Record<string, unknown>;
+  const source = evidence.source as Record<string, unknown> | null;
   return evidence.contractVersion === LEARNING_EVIDENCE_CONTRACT_VERSION
     && typeof evidence.id === "string"
     && typeof evidence.learnerId === "string"
     && typeof evidence.observedAt === "string"
     && (evidence.dataClassification === "standard" || evidence.dataClassification === "sensitive")
-    && typeof evidence.source === "object"
-    && evidence.source !== null
+    && typeof source === "object"
+    && source !== null
+    && (source.knowledgeObjectIds === undefined || isStringList(source.knowledgeObjectIds))
     && typeof evidence.type === "string"
     && typeof evidence.provenance === "object"
     && evidence.provenance !== null;

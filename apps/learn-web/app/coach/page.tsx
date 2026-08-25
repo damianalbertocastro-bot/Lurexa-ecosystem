@@ -4,8 +4,16 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
-import type { CoachSession, CoachSessionStartResult, LearnerContext } from "@lurexa/types";
+import type {
+  CoachSession,
+  CoachSessionEndResult,
+  CoachSessionStartResult,
+  LearnerContext,
+  ProductBridgeResolutionV1,
+} from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
+
+const COACH_SESSION_STORAGE_KEY = "lurexa.coach.active-session";
 
 function MessageBubble({ sender, text }: { sender: "coach" | "learner"; text: string }) {
   const isCoach = sender === "coach";
@@ -36,12 +44,37 @@ export default function LurexaCoachPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sendingTurn, setSendingTurn] = useState(false);
+  const [endingSession, setEndingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeCoachingCue, setActiveCoachingCue] = useState<string | null>(null);
 
   useEffect(() => {
     transcriptBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.transcript]);
+
+  useEffect(() => {
+    const storedSessionId = window.sessionStorage.getItem(COACH_SESSION_STORAGE_KEY);
+    if (!storedSessionId) return;
+
+    let cancelled = false;
+    void authenticatedFetch("/api/coach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "resumeSession", sessionId: storedSessionId }),
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as CoachSessionStartResult & { error?: string };
+        if (!response.ok || !payload.session) throw new Error(payload.error ?? "Unable to restore Coach session.");
+        if (cancelled) return;
+        setSession(payload.session);
+        setLearnerContext(payload.learnerContext);
+      })
+      .catch(() => {
+        if (!cancelled) window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
 
   const handleStartCoaching = async () => {
     setLoading(true);
@@ -54,6 +87,7 @@ export default function LurexaCoachPage() {
       });
       const payload = (await response.json()) as CoachSessionStartResult & { error?: string };
       if (!response.ok || !payload.session) throw new Error(payload.error ?? "Unable to start Coach session.");
+      window.sessionStorage.setItem(COACH_SESSION_STORAGE_KEY, payload.session.id);
       setSession(payload.session);
       setLearnerContext(payload.learnerContext);
     } catch (cause) {
@@ -65,7 +99,7 @@ export default function LurexaCoachPage() {
 
   const handleSendTurn = async (textToSend?: string) => {
     const text = (textToSend ?? learnerInput).trim();
-    if (!session || !text || sendingTurn) return;
+    if (!session || !text || sendingTurn || endingSession) return;
 
     setSendingTurn(true);
     setError(null);
@@ -104,8 +138,47 @@ export default function LurexaCoachPage() {
     }
   };
 
+  const handleFinishSession = async () => {
+    if (!session || endingSession || sendingTurn) return;
+
+    setEndingSession(true);
+    setError(null);
+    try {
+      const completionResponse = await authenticatedFetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "endSession", sessionId: session.id }),
+      });
+      const completion = (await completionResponse.json()) as CoachSessionEndResult & { error?: string };
+      if (!completionResponse.ok || !completion.returnBridge) {
+        throw new Error(completion.error ?? "Unable to finish this Coach session safely.");
+      }
+
+      const resolutionResponse = await authenticatedFetch("/api/product-bridge?action=resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bridgeId: completion.returnBridge.bridgeId,
+          destination: "learn",
+        }),
+      });
+      const resolution = (await resolutionResponse.json()) as ProductBridgeResolutionV1 & { error?: string };
+      if (!resolutionResponse.ok || !resolution.destinationRef) {
+        throw new Error(resolution.error ?? "Your return to Learn could not be validated.");
+      }
+
+      window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY);
+      setSession(completion.session);
+      router.push(resolution.destinationRef);
+    } catch (finishError) {
+      setError(finishError instanceof Error ? finishError.message : "Unable to finish this Coach session.");
+    } finally {
+      setEndingSession(false);
+    }
+  };
+
   const toggleVoiceRecording = () => {
-    if (!session || isRecording || sendingTurn) return;
+    if (!session || isRecording || sendingTurn || endingSession) return;
     setIsRecording(true);
 
     // Voice recognition simulation / fallback turn
@@ -146,12 +219,23 @@ export default function LurexaCoachPage() {
           <header className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <ProductMark product="coach" inverse />
-              <Link
-                href="/dashboard"
-                className="text-xs font-bold uppercase tracking-wider text-indigo-200 hover:text-white transition"
-              >
-                ← Back to Dashboard
-              </Link>
+              {session ? (
+                <button
+                  type="button"
+                  disabled={endingSession || sendingTurn}
+                  onClick={() => void handleFinishSession()}
+                  className="text-xs font-bold uppercase tracking-wider text-indigo-200 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#39228f] disabled:opacity-60"
+                >
+                  {endingSession ? "Finishing session…" : "Finish & return to Learn"}
+                </button>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="text-xs font-bold uppercase tracking-wider text-indigo-200 hover:text-white transition"
+                >
+                  ← Back to Dashboard
+                </Link>
+              )}
             </div>
             <span
               className={`inline-flex min-h-10 items-center rounded-full border px-4 text-xs font-black uppercase tracking-[.12em] ${
@@ -160,8 +244,8 @@ export default function LurexaCoachPage() {
                   : "border-white/15 bg-white/10 text-indigo-100"
               }`}
             >
-              <span className={`mr-2 h-2 w-2 rounded-full ${session ? "bg-[#65f0d3] animate-pulse" : "bg-indigo-300"}`} />
-              {session ? "Adaptive Session Active" : "Speaking Space"}
+              <span className={`mr-2 h-2 w-2 rounded-full ${session ? "bg-[#65f0d3] animate-pulse motion-reduce:animate-none" : "bg-indigo-300"}`} />
+              {endingSession ? "Saving Session" : session ? "Adaptive Session Active" : "Speaking Space"}
             </span>
           </header>
 
@@ -253,7 +337,7 @@ export default function LurexaCoachPage() {
               </article>
 
               {activeCoachingCue ? (
-                <article className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 animate-in fade-in duration-300">
+                <article className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 animate-in fade-in duration-300 motion-reduce:animate-none">
                   <p className="text-[10px] font-black uppercase tracking-[.17em] text-amber-800">COACHING TIP</p>
                   <p className="mt-2 text-sm font-semibold text-amber-950 leading-relaxed">{activeCoachingCue}</p>
                 </article>
@@ -268,11 +352,15 @@ export default function LurexaCoachPage() {
 
               <button
                 type="button"
-                onClick={() => router.push("/dashboard")}
-                className="w-full rounded-2xl border border-slate-300 bg-white py-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+                disabled={endingSession || sendingTurn}
+                onClick={() => void handleFinishSession()}
+                className="w-full rounded-2xl border border-slate-300 bg-white py-3.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-60"
               >
-                ← Return to Learner Dashboard
+                {endingSession ? "Saving session & validating return…" : "Finish session & return to Learn →"}
               </button>
+              <p className="px-2 text-[11px] leading-5 text-slate-500">
+                Finishing records the session outcome, refreshes your learner intelligence, and validates a one-time return bridge before Learn opens.
+              </p>
             </aside>
 
             {/* Conversation Window */}
@@ -283,8 +371,8 @@ export default function LurexaCoachPage() {
                   <h2 className="mt-1 text-xl font-black">Live Speaking Session</h2>
                 </div>
                 <span className="inline-flex items-center rounded-full bg-[#e6faf5] px-3.5 py-1.5 text-xs font-black text-[#147c68]">
-                  <span className="mr-2 h-2 w-2 rounded-full bg-[#31c99b] animate-ping" />
-                  Active
+                  <span className="mr-2 h-2 w-2 rounded-full bg-[#31c99b] animate-ping motion-reduce:animate-none" />
+                  {endingSession ? "Finishing" : "Active"}
                 </span>
               </header>
 
@@ -299,7 +387,7 @@ export default function LurexaCoachPage() {
                 ))}
                 {sendingTurn ? (
                   <div className="flex justify-start">
-                    <div className="rounded-2xl bg-white border border-slate-200 px-4 py-3 text-xs italic text-slate-400 animate-pulse">
+                    <div className="rounded-2xl bg-white border border-slate-200 px-4 py-3 text-xs italic text-slate-400 animate-pulse motion-reduce:animate-none">
                       Coach is listening and preparing feedback…
                     </div>
                   </div>
@@ -315,7 +403,7 @@ export default function LurexaCoachPage() {
                     <button
                       key={topic}
                       type="button"
-                      disabled={sendingTurn}
+                      disabled={sendingTurn || endingSession}
                       onClick={() => void handleSendTurn(topic)}
                       className="rounded-xl border border-indigo-100 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm hover:border-indigo-300 hover:bg-indigo-50 transition disabled:opacity-40"
                     >
@@ -332,16 +420,17 @@ export default function LurexaCoachPage() {
                     <input
                       type="text"
                       value={learnerInput}
+                      disabled={endingSession}
                       onChange={(e) => setLearnerInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") void handleSendTurn();
                       }}
                       placeholder="Type your response or question in English…"
-                      className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none focus:border-indigo-600 focus:bg-white focus:ring-2 focus:ring-indigo-500/20"
+                      className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none focus:border-indigo-600 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                     />
                     <button
                       type="button"
-                      disabled={!learnerInput.trim() || sendingTurn}
+                      disabled={!learnerInput.trim() || sendingTurn || endingSession}
                       onClick={() => void handleSendTurn()}
                       className="rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
                     >
@@ -350,10 +439,10 @@ export default function LurexaCoachPage() {
                     <button
                       type="button"
                       onClick={toggleVoiceRecording}
-                      disabled={isRecording || sendingTurn}
+                      disabled={isRecording || sendingTurn || endingSession}
                       className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition ${
                         isRecording
-                          ? "bg-rose-500 text-white animate-pulse"
+                          ? "bg-rose-500 text-white animate-pulse motion-reduce:animate-none"
                           : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
                       }`}
                       title={isRecording ? "Listening…" : "Speak with microphone"}
