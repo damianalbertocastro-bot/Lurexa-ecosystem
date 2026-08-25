@@ -76,6 +76,9 @@ jobs:
       - name: Verify Mind Recommendations
         run: pnpm verify:mind-recommendations
 
+      - name: Verify Signature Experience Contracts
+        run: pnpm verify:signature-experience
+
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules
 
