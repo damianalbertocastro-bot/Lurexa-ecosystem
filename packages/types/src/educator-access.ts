@@ -52,6 +52,17 @@ export interface TeachingAuthorizationV1 {
   validUntil?: string | null;
 }
 
+export interface EducatorDevelopmentRecommendationV1 {
+  contractVersion: "1";
+  targetSubject: EducatorSubject;
+  targetLevel?: EducatorLevel | null;
+  product: "teach";
+  coachRecommended: boolean;
+  reason: "build_qualification" | "extend_level_scope" | "obtain_teaching_authorization";
+  focusAreas: Array<"language_proficiency" | "methodology" | "lesson_planning" | "assessment" | "instructional_practice" | "institution_authorization">;
+  note: string;
+}
+
 export interface EducatorAccessDecisionV1 {
   contractVersion: "1";
   userId: string;
@@ -67,12 +78,12 @@ export interface EducatorAccessDecisionV1 {
   authorization: TeachingAuthorizationV1 | null;
   reason:
     | "authorized"
-    | "governance_role"
     | "missing_learn_teacher_entitlement"
     | "missing_qualification"
     | "missing_teaching_authorization"
     | "qualification_scope_mismatch"
     | "authorization_scope_mismatch";
+  developmentRecommendation?: EducatorDevelopmentRecommendationV1;
 }
 
 export interface EducatorBenefitEntitlementsV1 {
