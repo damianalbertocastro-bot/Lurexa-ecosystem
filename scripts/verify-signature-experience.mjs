@@ -85,6 +85,9 @@ check(teachSignatureService.includes('consumer: "teach"'), "Teach projection use
 check(teachSignatureRoute.includes("CoursePlatformService.authenticate"), "Teach Signature API authenticates the caller server-side");
 check(teachSignatureRoute.includes("learnerId and organizationId are required"), "Teach Signature API requires explicit learner and tenant identifiers");
 check(!teachSignatureRoute.includes("payload"), "Teach Signature API does not expose raw learner evidence payload plumbing");
+check(teachSignatureRoute.includes('kind: "projection_success"'), "Teach Signature API emits successful projection health telemetry");
+check(teachSignatureRoute.includes('kind: "projection_failure"'), "Teach Signature API emits failed projection health telemetry");
+check(teachSignatureRoute.includes('consumer: "teach"'), "Teach telemetry uses the canonical Teach consumer identity");
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
@@ -108,6 +111,8 @@ check(bridgeService.includes('kind: "bridge_resolved"'), "Product Bridge resolut
 check(signatureRoute.includes('kind: "projection_success"'), "successful signature projections emit health telemetry");
 check(signatureRoute.includes('kind: "projection_failure"'), "failed signature projections emit coarse health telemetry");
 check(signatureRoute.includes("durationMs: Date.now() - startedAt"), "signature projection telemetry includes latency");
+check(signatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Learn signature projections explicitly disable shared/intermediary caching");
+check(teachSignatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Teach instructional-support projections explicitly disable shared/intermediary caching");
 
 check(signaturePanel.includes('NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on"'), "Signature Experience learner rollout is feature-flagged and default-off");
 check(signaturePanel.includes('aria-live="polite"'), "Signature Experience asynchronous status uses a polite live region");
