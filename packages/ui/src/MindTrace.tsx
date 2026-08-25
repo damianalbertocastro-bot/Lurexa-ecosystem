@@ -1,8 +1,17 @@
 import React from "react";
-import type { MindTraceV1 } from "@lurexa/types";
+
+export type MindTraceView = {
+  id: string;
+  signal: string;
+  interpretation: string;
+  action: { label: string };
+  confidence: string;
+  evidenceBasis: { freshness: string };
+  limitations: string[];
+};
 
 export interface MindTraceProps {
-  trace: MindTraceV1;
+  trace: MindTraceView;
   className?: string;
   onAction?: () => void;
 }
