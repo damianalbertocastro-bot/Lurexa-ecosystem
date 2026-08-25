@@ -65,26 +65,32 @@ function courseMatchesAuthorization(course: Course, authorization: TeachingAutho
   if (authorization.organizationId !== course.orgId) return false;
   if (!authorization.courseIds.includes(course.id)) return false;
   if (authorization.subject !== course.subject) return false;
-  const courseLevel = course.level;
-  return !courseLevel || authorization.levels.includes(courseLevel);
+  return !course.level || authorization.levels.includes(course.level);
 }
 
-async function hasVerifiedEducatorState(userId: string): Promise<boolean> {
+async function readVerifiedEducatorState(userId: string) {
   const [qualifications, authorizations] = await Promise.all([
     readQualifications(userId),
     readAuthorizations(userId),
   ]);
-  return authorizations.some((authorization) => qualifications.some((qualification) => qualificationSupportsAuthorization(qualification, authorization)));
+  const linked = authorizations
+    .map((authorization) => ({
+      authorization,
+      qualification: qualifications.find((qualification) => qualificationSupportsAuthorization(qualification, authorization)) ?? null,
+    }))
+    .filter((entry): entry is { authorization: TeachingAuthorizationV1; qualification: EducatorQualificationScopeV1 } => entry.qualification !== null);
+  return { qualifications, authorizations, linked };
 }
 
 export async function getEducatorBenefitEntitlements(userId: string): Promise<EducatorBenefitEntitlementsV1> {
-  const [explicitEntitlements, verifiedEducator] = await Promise.all([
+  const [explicitEntitlements, educatorState] = await Promise.all([
     readEntitlements(userId),
-    hasVerifiedEducatorState(userId),
+    readVerifiedEducatorState(userId),
   ]);
   const has = (product: EducatorEntitlementV1["product"]) => explicitEntitlements.some((entry) => entry.product === product);
   const explicitTeach = has("teach");
   const explicitCoach = has("coach_full");
+  const verifiedEducator = educatorState.linked.length > 0;
 
   return {
     contractVersion: "1",
@@ -95,25 +101,27 @@ export async function getEducatorBenefitEntitlements(userId: string): Promise<Ed
   };
 }
 
+export async function getEducatorAuthorizedCourseIds(input: {
+  userId: string;
+  organizationId: string;
+}): Promise<string[]> {
+  const educatorState = await readVerifiedEducatorState(input.userId);
+  return [...new Set(educatorState.linked
+    .filter(({ authorization }) => authorization.organizationId === input.organizationId)
+    .flatMap(({ authorization }) => authorization.courseIds))];
+}
+
 export async function getEducatorCourseAccessDecision(input: {
   userId: string;
   course: Course;
   governanceRole?: "owner" | "admin" | null;
 }): Promise<EducatorAccessDecisionV1> {
   const { userId, course, governanceRole = null } = input;
-  const [entitlements, qualifications, authorizations] = await Promise.all([
+  const [entitlements, educatorState] = await Promise.all([
     readEntitlements(userId),
-    readQualifications(userId),
-    readAuthorizations(userId),
+    readVerifiedEducatorState(userId),
   ]);
-
-  const activeQualificationAuthorization = authorizations
-    .map((authorization) => ({
-      authorization,
-      qualification: qualifications.find((qualification) => qualificationSupportsAuthorization(qualification, authorization)) ?? null,
-    }))
-    .filter((entry) => entry.qualification !== null);
-  const verifiedEducator = activeQualificationAuthorization.length > 0;
+  const verifiedEducator = educatorState.linked.length > 0;
   const hasExplicit = (product: EducatorEntitlementV1["product"]) => entitlements.some((entry) => entry.product === product);
   const entitlement = {
     learnTeacher: verifiedEducator || hasExplicit("learn_teacher"),
@@ -149,7 +157,7 @@ export async function getEducatorCourseAccessDecision(input: {
     };
   }
 
-  if (qualifications.length === 0) {
+  if (educatorState.qualifications.length === 0) {
     return {
       contractVersion: "1",
       userId,
@@ -163,7 +171,7 @@ export async function getEducatorCourseAccessDecision(input: {
     };
   }
 
-  const courseAuthorization = activeQualificationAuthorization.find(({ authorization }) => courseMatchesAuthorization(course, authorization));
+  const courseAuthorization = educatorState.linked.find(({ authorization }) => courseMatchesAuthorization(course, authorization));
   if (!courseAuthorization) {
     return {
       contractVersion: "1",
@@ -172,9 +180,9 @@ export async function getEducatorCourseAccessDecision(input: {
       courseId: course.id,
       allowed: false,
       entitlement,
-      qualification: qualifications[0] ?? null,
+      qualification: educatorState.qualifications[0] ?? null,
       authorization: null,
-      reason: authorizations.some((authorization) => authorization.organizationId === course.orgId)
+      reason: educatorState.authorizations.some((authorization) => authorization.organizationId === course.orgId)
         ? "authorization_scope_mismatch"
         : "missing_teaching_authorization",
     };
@@ -191,16 +199,4 @@ export async function getEducatorCourseAccessDecision(input: {
     authorization: courseAuthorization.authorization,
     reason: "authorized",
   };
-}
-
-export async function canEducatorSupportLearnerInOrganization(input: {
-  userId: string;
-  organizationId: string;
-}): Promise<boolean> {
-  const [qualifications, authorizations] = await Promise.all([
-    readQualifications(input.userId),
-    readAuthorizations(input.userId),
-  ]);
-  return authorizations.some((authorization) => authorization.organizationId === input.organizationId
-    && qualifications.some((qualification) => qualificationSupportsAuthorization(qualification, authorization)));
 }
