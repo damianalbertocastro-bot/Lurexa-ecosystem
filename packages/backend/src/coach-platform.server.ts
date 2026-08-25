@@ -1,9 +1,17 @@
-import type { CoachSession, CoachSessionStartResult, PhonemeEvaluation } from "@lurexa/types";
+import type {
+  CefrLevel,
+  CoachSession,
+  CoachSessionStartResult,
+  LinguisticEvidencePayload,
+  PhonemeEvaluation,
+} from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 import { getScopedLearnerContext } from "./learner-context.server";
 import type { AuthenticatedActor } from "./course-platform.server";
 import { CoachA1Service } from "./coach-a1.service";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
+import { LinguisticIntelligenceService } from "./linguistic-intelligence.service";
+import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -32,11 +40,45 @@ function buildOpeningMessage(result: CoachSessionStartResult["learnerContext"]):
   return parts.join(" ");
 }
 
+function detectLinguisticObservation(learnerText: string) {
+  const normalized = learnerText.trim().toLowerCase();
+
+  // DO-ENG-PRO-002: S-consonant cluster epenthesis (e.g., "estudent", "espeak", "eschool")
+  if (/\b(e|es)(student|special|speak|school|start|spanish|study)\b/i.test(normalized)) {
+    return {
+      patternId: "DO-ENG-PRO-002",
+      domain: "E01" as const,
+      learnerForm: normalized,
+      intendedMeaning: "Word-initial /s/ + consonant cluster",
+      communicativeImpact: "CI1" as const,
+      recurrence: "R1_REPEATED_SAME_SESSION" as const,
+      cue: "Tip: Start words like 'study' or 'speak' directly with a soft 's' sound without an 'e' in front: 's-tudent'.",
+    };
+  }
+
+  // DO-ENG-PRO-006: Past tense regular -ed weakening (e.g., "i finish yesterday", "i work yesterday")
+  if (/\b(yesterday|last (week|month|year))\b/i.test(normalized) && /\b(work|play|finish|start|watch)\b/i.test(normalized) && !/\b(worked|played|finished|started|watched)\b/i.test(normalized)) {
+    return {
+      patternId: "DO-ENG-PRO-006",
+      domain: "E01" as const,
+      learnerForm: normalized,
+      intendedMeaning: "Regular past tense -ed closure",
+      communicativeImpact: "CI2" as const,
+      recurrence: "R1_REPEATED_SAME_SESSION" as const,
+      cue: "Tip: When talking about the past, make sure the regular '-ed' ending is audible (e.g., 'worked', 'finished').",
+    };
+  }
+
+  // General intelligible utterance
+  return null;
+}
+
 function generateCoachResponse(
   learnerText: string,
   cefr: string = "A1"
-): { reply: string; coachingCue?: string; intelligibilityScore: number } {
+): { reply: string; coachingCue?: string; intelligibilityScore: number; detectedPatternId?: string } {
   const normalized = learnerText.trim().toLowerCase();
+  const linguisticObs = detectLinguisticObservation(learnerText);
 
   // Phonological pattern evaluation
   const phonemeEvals: PhonemeEvaluation[] = normalized.split(/\s+/).map((word) => {
@@ -74,10 +116,13 @@ function generateCoachResponse(
       : "Great job expressing yourself clearly! Tell me one more detail about that.";
   }
 
+  const coachingCue = linguisticObs?.cue ?? calibration.coachingCue;
+
   return {
     reply,
-    coachingCue: calibration.coachingCue,
+    coachingCue,
     intelligibilityScore: calibration.intelligibilityScore,
+    detectedPatternId: linguisticObs?.patternId,
   };
 }
 
@@ -155,7 +200,7 @@ export const CoachPlatformService = {
     if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
 
     const now = new Date().toISOString();
-    const { reply, coachingCue, intelligibilityScore } = generateCoachResponse(
+    const { reply, coachingCue, intelligibilityScore, detectedPatternId } = generateCoachResponse(
       message,
       session.focus?.cefr ?? "A1"
     );
@@ -182,9 +227,49 @@ export const CoachPlatformService = {
 
     await database.collection("coach-sessions").doc(session.id).set(updatedSession, { merge: true });
 
-    // Append learning evidence to Core
+    // Append structured learning evidence to Core with complete provenance
     try {
       const evidenceRepository = new FirestoreLearningEvidenceRepository();
+      const intelligenceService = new LinguisticIntelligenceService();
+
+      const decision = intelligenceService.decideIntervention(
+        {
+          learnerId: actor.uid,
+          taskMode: "guided_conversation",
+          sessionGoal: "conversation",
+          l1Profile: {
+            language: "es",
+            variety: "DO",
+            useForTransferHypotheses: true,
+          },
+          cefr: (session.focus?.cefr as CefrLevel | undefined) ?? "A1",
+        },
+        {
+          domain: "pronunciation",
+          patternId: detectedPatternId,
+          learnerForm: message,
+          communicativeImpact: detectedPatternId ? "CI2" : "CI1",
+          communicationBreakdown: false,
+          currentTarget: Boolean(detectedPatternId),
+          acceptableVariation: false,
+          learnerSelfCorrected: false,
+        }
+      );
+
+      const payload: LinguisticEvidencePayload = {
+        patternId: detectedPatternId ?? "DO-ENG-GEN-001",
+        domain: "pronunciation",
+        learnerForm: message,
+        intendedMeaning: "Spoken communicative turn in Coach session",
+        communicativeImpact: detectedPatternId ? "CI2" : "CI1",
+        recurrence: "R1_REPEATED_SAME_SESSION",
+        taskMode: "guided_conversation",
+        intervention: decision.action,
+        correctionTiming: decision.timing,
+        selfCorrected: false,
+        retrySuccessful: intelligibilityScore > 0.8,
+      };
+
       await evidenceRepository.append({
         contractVersion: "1",
         id: `coach_turn_${actor.uid}_${Date.now()}`,
@@ -194,21 +279,23 @@ export const CoachPlatformService = {
           product: "coach",
           activityId: session.id,
         },
-        type: "activity_result",
+        type: "pronunciation_observation",
         observedAt: now,
         dataClassification: "sensitive",
-        payload: {
-          event: "coach.turn_completed",
-          learnerMessage: message,
-          coachingCue: coachingCue ?? null,
-          intelligibilityScore,
-          taskMode: "guided_conversation",
-        },
+        payload,
         provenance: {
           method: "system_observed",
           actorId: actor.uid,
           confidence: 0.9,
         },
+      });
+
+      // Orchestrate Core/Mind intelligence refresh to update shared recommendations
+      void refreshLearnerIntelligence({
+        learnerId: actor.uid,
+        organizationId: "lurexa-self-paced",
+      }).catch((refreshErr) => {
+        console.warn("Learner intelligence refresh deferred:", refreshErr);
       });
     } catch (evidenceError) {
       console.error("Failed to append coach turn evidence:", evidenceError);
