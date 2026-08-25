@@ -3,9 +3,9 @@ import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import {
   getAdaptiveLearningPathProjection,
   getLearnerPulseProjection,
-  getMemoryThreadProjection,
   getMindTraceProjection,
 } from "@lurexa/backend/signature-experience.server";
+import { getScopedMemoryThreadProjection } from "@lurexa/backend/memory-thread.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export async function GET(request: Request): Promise<Response> {
     const input = { actorId: actor.uid, request: projectionRequest };
     if (projection === "learner_pulse") return Response.json(await getLearnerPulseProjection(input));
     if (projection === "adaptive_path") return Response.json(await getAdaptiveLearningPathProjection(input));
-    if (projection === "memory_thread") return Response.json(await getMemoryThreadProjection(input));
+    if (projection === "memory_thread") return Response.json(await getScopedMemoryThreadProjection(input));
     return Response.json(await getMindTraceProjection(input));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load signature experience.";
