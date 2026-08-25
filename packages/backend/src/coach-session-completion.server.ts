@@ -18,8 +18,10 @@ async function loadOwnedSession(actor: AuthenticatedActor, sessionId: string): P
 
 /**
  * Closes a Coach session through Core-owned evidence and returns a purpose-scoped
- * Product Bridge. The bridge contains opaque references only; Learn must
- * re-authorize any learner context after arrival.
+ * Product Bridge. Downstream work happens before the session is marked complete,
+ * so a transient failure does not strand the learner in a completed session with
+ * no return path. The completion evidence ID/timestamp are deterministic across
+ * retries for the same session.
  */
 export async function endCoachSession(
   actor: AuthenticatedActor,
@@ -31,20 +33,11 @@ export async function endCoachSession(
   const session = await loadOwnedSession(actor, input.sessionId);
   if (session.status !== "active") throw new Error("This Coach session has already been completed.");
 
-  const completedAt = new Date().toISOString();
-  const completedSession: CoachSession = {
-    ...session,
-    status: "completed",
-    completedAt,
-    updatedAt: completedAt,
-  };
-
-  await database.collection("coach-sessions").doc(session.id).set(completedSession, { merge: true });
-
+  const completionEvidenceAt = session.updatedAt;
   const evidenceRepository = new FirestoreLearningEvidenceRepository();
   await evidenceRepository.append({
     contractVersion: "1",
-    id: `coach_session_completed_${actor.uid}_${Date.now()}`,
+    id: `coach_session_completed_${session.id}`,
     learnerId: actor.uid,
     organizationId: SELF_PACED_ORGANIZATION_ID,
     source: {
@@ -52,7 +45,7 @@ export async function endCoachSession(
       sessionId: session.id,
     },
     type: "activity_result",
-    observedAt: completedAt,
+    observedAt: completionEvidenceAt,
     dataClassification: "standard",
     payload: {
       event: "coach.session_completed",
@@ -84,6 +77,15 @@ export async function endCoachSession(
     contextRef: `coach-session:${session.id}`,
     singleUse: true,
   });
+
+  const completedAt = new Date().toISOString();
+  const completedSession: CoachSession = {
+    ...session,
+    status: "completed",
+    completedAt,
+    updatedAt: completedAt,
+  };
+  await database.collection("coach-sessions").doc(session.id).set(completedSession, { merge: true });
 
   return {
     session: completedSession,
