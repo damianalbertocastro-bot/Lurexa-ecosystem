@@ -14,6 +14,7 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { LinguisticIntelligenceService } from "./linguistic-intelligence.service";
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
 import { createProductBridge } from "./product-bridge.server";
+import { getKnowledgeObjectIdsForLinguisticPattern } from "./knowledge-object-catalog.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -24,12 +25,8 @@ export interface CoachTurnResult {
 function buildOpeningMessage(result: CoachSessionStartResult["learnerContext"]): string {
   const parts = ["Welcome to Lurexa Coach! I'm here to practice spoken English with you."];
 
-  if (result.proficiency?.cefr) {
-    parts.push(`I'll keep our speaking practice comfortable for CEFR ${result.proficiency.cefr}.`);
-  }
-  if (result.curriculum?.lessonId) {
-    parts.push("We can connect our conversation to what you've recently practiced in Learn.");
-  }
+  if (result.proficiency?.cefr) parts.push(`I'll keep our speaking practice comfortable for CEFR ${result.proficiency.cefr}.`);
+  if (result.curriculum?.lessonId) parts.push("We can connect our conversation to what you've recently practiced in Learn.");
   if (result.activeTargets?.pronunciation?.length) {
     parts.push(`Pronunciation focus: ${result.activeTargets.pronunciation.slice(0, 2).join(", ")}.`);
   } else if (result.activeTargets?.fluency?.length) {
@@ -48,11 +45,9 @@ function detectLinguisticObservation(learnerText: string) {
   if (/\b(e|es)(student|special|speak|school|start|spanish|study)\b/i.test(normalized)) {
     return {
       patternId: "DO-ENG-PRO-002",
-      domain: "E01" as const,
       learnerForm: normalized,
       intendedMeaning: "Word-initial /s/ + consonant cluster",
       communicativeImpact: "CI1" as const,
-      recurrence: "R1_REPEATED_SAME_SESSION" as const,
       cue: "Tip: Start words like 'study' or 'speak' directly with a soft 's' sound without an 'e' in front: 's-tudent'.",
     };
   }
@@ -60,11 +55,9 @@ function detectLinguisticObservation(learnerText: string) {
   if (/\b(yesterday|last (week|month|year))\b/i.test(normalized) && /\b(work|play|finish|start|watch)\b/i.test(normalized) && !/\b(worked|played|finished|started|watched)\b/i.test(normalized)) {
     return {
       patternId: "DO-ENG-PRO-006",
-      domain: "E01" as const,
       learnerForm: normalized,
       intendedMeaning: "Regular past tense -ed closure",
       communicativeImpact: "CI2" as const,
-      recurrence: "R1_REPEATED_SAME_SESSION" as const,
       cue: "Tip: When talking about the past, make sure the regular '-ed' ending is audible (e.g., 'worked', 'finished').",
     };
   }
@@ -83,16 +76,8 @@ function generateCoachResponse(
     const hasFinalReductionTarget = ["went", "friend", "student", "fast", "first", "last"].some((w) => word.includes(w));
     const hasThTarget = ["think", "this", "that", "the", "with"].some((w) => word.includes(w));
     const hasSConsonant = ["student", "special", "speak", "school", "start"].some((w) => word.includes(w));
-
     const phonemeStr = hasFinalReductionTarget ? "t" : hasThTarget ? "θ" : hasSConsonant ? "st" : "ə";
-
-    return {
-      phoneme: phonemeStr,
-      targetIpa: phonemeStr,
-      isIntelligible: true,
-      intelligibilityScore: 0.85,
-      confidence: 0.9,
-    };
+    return { phoneme: phonemeStr, targetIpa: phonemeStr, isIntelligible: true, intelligibilityScore: 0.85, confidence: 0.9 };
   });
 
   const calibration = CoachA1Service.calibrateA1Utterance(phonemeEvals, learnerText, "guided_conversation");
@@ -114,11 +99,9 @@ function generateCoachResponse(
       : "Great job expressing yourself clearly! Tell me one more detail about that.";
   }
 
-  const coachingCue = linguisticObs?.cue ?? calibration.coachingCue;
-
   return {
     reply,
-    coachingCue,
+    coachingCue: linguisticObs?.cue ?? calibration.coachingCue,
     intelligibilityScore: calibration.intelligibilityScore,
     detectedPatternId: linguisticObs?.patternId,
   };
@@ -141,16 +124,7 @@ export const CoachPlatformService = {
         learnerId: actor.uid,
         requestingProduct: "coach",
         purpose: "coach_session_adaptation",
-        domains: [
-          "proficiency",
-          "curriculum",
-          "grammar",
-          "vocabulary",
-          "pronunciation",
-          "fluency",
-          "goal",
-          "recommendation",
-        ],
+        domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
       },
     });
 
@@ -166,23 +140,11 @@ export const CoachPlatformService = {
         ...(scoped.context.curriculum?.courseId ? { courseId: scoped.context.curriculum.courseId } : {}),
         ...(scoped.context.curriculum?.lessonId ? { lessonId: scoped.context.curriculum.lessonId } : {}),
         ...(scoped.context.goals?.length ? { goals: scoped.context.goals } : {}),
-        ...(scoped.context.activeTargets?.pronunciation?.length
-          ? { pronunciationTargets: scoped.context.activeTargets.pronunciation }
-          : {}),
-        ...(scoped.context.activeTargets?.fluency?.length
-          ? { fluencyTargets: scoped.context.activeTargets.fluency }
-          : {}),
-        ...(scoped.context.recommendations?.length
-          ? { recommendedActions: scoped.context.recommendations }
-          : {}),
+        ...(scoped.context.activeTargets?.pronunciation?.length ? { pronunciationTargets: scoped.context.activeTargets.pronunciation } : {}),
+        ...(scoped.context.activeTargets?.fluency?.length ? { fluencyTargets: scoped.context.activeTargets.fluency } : {}),
+        ...(scoped.context.recommendations?.length ? { recommendedActions: scoped.context.recommendations } : {}),
       },
-      transcript: [
-        {
-          sender: "coach",
-          text: buildOpeningMessage(scoped.context),
-          timestamp: now,
-        },
-      ],
+      transcript: [{ sender: "coach", text: buildOpeningMessage(scoped.context), timestamp: now }],
       createdAt: now,
       updatedAt: now,
     };
@@ -191,10 +153,7 @@ export const CoachPlatformService = {
     return { session, learnerContext: scoped.context };
   },
 
-  async sendTurn(
-    actor: AuthenticatedActor,
-    input: { sessionId: string; message: string; audioDurationMs?: number }
-  ): Promise<CoachTurnResult> {
+  async sendTurn(actor: AuthenticatedActor, input: { sessionId: string; message: string; audioDurationMs?: number }): Promise<CoachTurnResult> {
     const message = input.message.trim();
     if (!message) throw new Error("A message is required to continue the Coach conversation.");
 
@@ -203,28 +162,14 @@ export const CoachPlatformService = {
     if (session.status !== "active") throw new Error("This Coach session has already been completed.");
 
     const now = new Date().toISOString();
-    const { reply, coachingCue, intelligibilityScore, detectedPatternId } = generateCoachResponse(
-      message,
-      session.focus?.cefr ?? "A1"
-    );
-
-    const updatedTranscript = [
-      ...session.transcript,
-      {
-        sender: "learner" as const,
-        text: message,
-        timestamp: now,
-      },
-      {
-        sender: "coach" as const,
-        text: reply,
-        timestamp: new Date(Date.now() + 500).toISOString(),
-      },
-    ];
-
+    const { reply, coachingCue, intelligibilityScore, detectedPatternId } = generateCoachResponse(message, session.focus?.cefr ?? "A1");
     const updatedSession: CoachSession = {
       ...session,
-      transcript: updatedTranscript,
+      transcript: [
+        ...session.transcript,
+        { sender: "learner", text: message, timestamp: now },
+        { sender: "coach", text: reply, timestamp: new Date(Date.now() + 500).toISOString() },
+      ],
       updatedAt: now,
     };
 
@@ -233,17 +178,12 @@ export const CoachPlatformService = {
     try {
       const evidenceRepository = new FirestoreLearningEvidenceRepository();
       const intelligenceService = new LinguisticIntelligenceService();
-
       const decision = intelligenceService.decideIntervention(
         {
           learnerId: actor.uid,
           taskMode: "guided_conversation",
           sessionGoal: "conversation",
-          l1Profile: {
-            language: "es",
-            variety: "DO",
-            useForTransferHypotheses: true,
-          },
+          l1Profile: { language: "es", variety: "DO", useForTransferHypotheses: true },
           cefr: (session.focus?.cefr as CefrLevel | undefined) ?? "A1",
         },
         {
@@ -255,7 +195,7 @@ export const CoachPlatformService = {
           currentTarget: Boolean(detectedPatternId),
           acceptableVariation: false,
           learnerSelfCorrected: false,
-        }
+        },
       );
 
       const payload: LinguisticEvidencePayload = {
@@ -270,6 +210,7 @@ export const CoachPlatformService = {
         selfCorrected: false,
         retrySuccessful: intelligibilityScore > 0.8,
       };
+      const knowledgeObjectIds = getKnowledgeObjectIdsForLinguisticPattern(detectedPatternId);
 
       await evidenceRepository.append({
         contractVersion: "1",
@@ -279,33 +220,23 @@ export const CoachPlatformService = {
         source: {
           product: "coach",
           activityId: session.id,
+          ...(knowledgeObjectIds.length ? { knowledgeObjectIds } : {}),
         },
         type: "pronunciation_observation",
         observedAt: now,
         dataClassification: "sensitive",
         payload,
-        provenance: {
-          method: "system_observed",
-          actorId: actor.uid,
-          confidence: 0.9,
-        },
+        provenance: { method: "system_observed", actorId: actor.uid, confidence: 0.9 },
       });
 
-      void refreshLearnerIntelligence({
-        learnerId: actor.uid,
-        organizationId: "lurexa-self-paced",
-      }).catch((refreshErr) => {
+      void refreshLearnerIntelligence({ learnerId: actor.uid, organizationId: "lurexa-self-paced" }).catch((refreshErr) => {
         console.warn("Learner intelligence refresh deferred:", refreshErr);
       });
     } catch (evidenceError) {
       console.error("Failed to append coach turn evidence:", evidenceError);
     }
 
-    return {
-      session: updatedSession,
-      coachingCue,
-      intelligibilityScore,
-    };
+    return { session: updatedSession, coachingCue, intelligibilityScore };
   },
 
   async endSession(actor: AuthenticatedActor, input: { sessionId: string }): Promise<CoachSessionEndResult> {
@@ -314,13 +245,7 @@ export const CoachPlatformService = {
     if (session.status !== "active") throw new Error("This Coach session has already been completed.");
 
     const completedAt = new Date().toISOString();
-    const completedSession: CoachSession = {
-      ...session,
-      status: "completed",
-      completedAt,
-      updatedAt: completedAt,
-    };
-
+    const completedSession: CoachSession = { ...session, status: "completed", completedAt, updatedAt: completedAt };
     await database.collection("coach-sessions").doc(session.id).set(completedSession, { merge: true });
 
     const evidenceRepository = new FirestoreLearningEvidenceRepository();
@@ -329,13 +254,10 @@ export const CoachPlatformService = {
       id: `coach_session_completed_${actor.uid}_${Date.now()}`,
       learnerId: actor.uid,
       organizationId: "lurexa-self-paced",
-      source: {
-        product: "coach",
-        activityId: session.id,
-      },
+      source: { product: "coach", activityId: session.id },
       type: "activity_result",
       observedAt: completedAt,
-      dataClassification: "internal",
+      dataClassification: "standard",
       payload: {
         event: "coach.session_completed",
         sessionId: session.id,
@@ -343,17 +265,10 @@ export const CoachPlatformService = {
         courseId: session.focus.courseId ?? null,
         lessonId: session.focus.lessonId ?? null,
       },
-      provenance: {
-        method: "system_observed",
-        actorId: actor.uid,
-        confidence: 1,
-      },
+      provenance: { method: "system_observed", actorId: actor.uid, confidence: 1 },
     });
 
-    await refreshLearnerIntelligence({
-      learnerId: actor.uid,
-      organizationId: "lurexa-self-paced",
-    });
+    await refreshLearnerIntelligence({ learnerId: actor.uid, organizationId: "lurexa-self-paced" });
 
     const returnBridge = await createProductBridge({
       actorId: actor.uid,
