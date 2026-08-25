@@ -26,7 +26,8 @@ export async function GET(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const learnerId = url.searchParams.get("learnerId")?.trim();
     const organizationId = url.searchParams.get("organizationId")?.trim();
-    if (!learnerId || !organizationId) {
+    const courseId = url.searchParams.get("courseId")?.trim();
+    if (!learnerId || !organizationId || !courseId) {
       await recordSignatureTelemetry({
         kind: "projection_failure",
         consumer: "learn",
@@ -34,13 +35,14 @@ export async function GET(request: Request): Promise<Response> {
         durationMs: Date.now() - startedAt,
         failureClass: "validation",
       });
-      return privateJson({ error: "learnerId and organizationId are required for Learn teacher instructional support." }, 400);
+      return privateJson({ error: "learnerId, organizationId, and courseId are required for Learn teacher instructional support." }, 400);
     }
 
     const projection = await getLearnTeacherLearnerPulseProjection({
       actorId: actor.uid,
       learnerId,
       organizationId,
+      courseId,
     });
     await recordSignatureTelemetry({
       kind: "projection_success",
@@ -55,8 +57,10 @@ export async function GET(request: Request): Promise<Response> {
       ? 401
       : message.includes("membership")
         || message.includes("not a member")
+        || message.includes("not authorized")
         || message.includes("supporting another learner")
         || message.includes("No current learner context")
+        || message.includes("does not belong")
         ? 403
         : 400;
     await recordSignatureTelemetry({
