@@ -1,12 +1,13 @@
 import { CoachPlatformService } from "@lurexa/backend/coach-platform.server";
 import { endCoachSession } from "@lurexa/backend/coach-session-completion.server";
+import { resumeCoachSession } from "@lurexa/backend/coach-session-state.server";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CoachActionBody = {
-  action?: "sendTurn" | "endSession" | "startSession";
+  action?: "sendTurn" | "endSession" | "resumeSession" | "startSession";
   sessionId?: string;
   message?: string;
   audioDurationMs?: number;
@@ -38,6 +39,11 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json(await endCoachSession(actor, { sessionId: body.sessionId }));
     }
 
+    if (body.action === "resumeSession") {
+      if (!body.sessionId) throw new Error("sessionId is required for resuming a Coach session.");
+      return Response.json(await resumeCoachSession(actor, { sessionId: body.sessionId }));
+    }
+
     return Response.json(await CoachPlatformService.startSession(actor));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to process Coach request.";
@@ -47,7 +53,9 @@ export async function POST(request: Request): Promise<Response> {
         ? 403
         : message.includes("already been completed")
           ? 409
-          : 400;
+          : message.includes("not found")
+            ? 404
+            : 400;
     return Response.json({ error: message }, { status });
   }
 }
