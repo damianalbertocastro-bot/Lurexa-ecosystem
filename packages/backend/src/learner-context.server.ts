@@ -39,9 +39,49 @@ const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"
   studio: [],
 };
 
+const delegatedTeacherRoles = new Set(["owner", "admin", "teacher"]);
+
 function assertProductPurpose(request: LearnerContextRequest): void {
   if (!allowedPurposesByProduct[request.requestingProduct].includes(request.purpose)) {
     throw new Error("The requesting product is not authorized for this learner-context purpose.");
+  }
+}
+
+async function readMembership(userId: string, organizationId: string): Promise<{ role?: string } | null> {
+  const snapshot = await getServerFirestore()
+    .collection("user-memberships")
+    .doc(userId)
+    .collection("organizations")
+    .doc(organizationId)
+    .get();
+  return snapshot.exists ? snapshot.data() as { role?: string } : null;
+}
+
+async function authorizeContextRead(input: { actorId: string; request: LearnerContextRequest }): Promise<void> {
+  const { actorId, request } = input;
+  if (actorId === request.learnerId) {
+    if (request.organizationId && !await readMembership(request.learnerId, request.organizationId)) {
+      throw new Error("The learner is not a member of the requested organization.");
+    }
+    return;
+  }
+
+  if (request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "teach") {
+    throw new Error("Delegated learner context is not authorized for this product and purpose.");
+  }
+  if (!request.organizationId) {
+    throw new Error("Delegated instructional support requires an explicit organization boundary.");
+  }
+
+  const [actorMembership, learnerMembership] = await Promise.all([
+    readMembership(actorId, request.organizationId),
+    readMembership(request.learnerId, request.organizationId),
+  ]);
+  if (!actorMembership?.role || !delegatedTeacherRoles.has(actorMembership.role)) {
+    throw new Error("A teacher, organization admin, or owner membership is required for delegated instructional support.");
+  }
+  if (learnerMembership?.role !== "student") {
+    throw new Error("The supported learner must be a student member of the requested organization.");
   }
 }
 
@@ -66,8 +106,6 @@ function scopeInsights(
 ): LearnerInsight[] {
   return insights.filter((entry) => {
     if (organizationId ? entry.organizationId !== organizationId : entry.organizationId) return false;
-    // Legacy insights predate the v1 scope envelope. New observations are
-    // returned only when the Core-approved purpose and product both match.
     const scoped = entry as LearnerInsight & { scope?: { purposes?: unknown; products?: unknown } };
     if (!scoped.scope) return true;
     return Array.isArray(scoped.scope.purposes)
@@ -78,21 +116,17 @@ function scopeInsights(
 }
 
 /**
- * Trusted Core read boundary for learner context. It intentionally returns a
- * small purpose-scoped projection and never exposes raw evidence payloads.
- * Organization-scoped evidence follows the learner's most recently accessed
- * Learn course so institution-specific signals are never mixed implicitly.
+ * Trusted Core read boundary for learner context. Self-service remains the
+ * default. The only v1 delegated read is Teach instructional support, which is
+ * explicitly organization-scoped and role checked inside Core.
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
   request: LearnerContextRequest;
 }): Promise<ScopedLearnerContext> {
   const { request } = input;
-  if (input.actorId !== request.learnerId) {
-    throw new Error("You may only request your own learner context.");
-  }
-
   assertProductPurpose(request);
+  await authorizeContextRead(input);
 
   const domains = request.domains.filter((domain) => allowedDomains.includes(domain));
   const domainSet = new Set(domains);
@@ -107,16 +141,27 @@ export async function getScopedLearnerContext(input: {
     database.collection("learner-profiles").doc(request.learnerId).get(),
   ]);
 
-  const progress = progressSnapshot.docs
+  const allProgress = progressSnapshot.docs
     .map((snapshot) => snapshot.data() as StudentProgress)
     .sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt));
+
+  let activeOrganizationId: string | null = request.organizationId ?? null;
+  let progress = allProgress;
+  if (request.organizationId) {
+    const organizationCourses = await database.collection("courses").where("orgId", "==", request.organizationId).get();
+    const courseIds = new Set(organizationCourses.docs.map((document) => document.id));
+    progress = allProgress.filter((record) => courseIds.has(record.courseId));
+  } else {
+    const latestProgress = allProgress[0];
+    const latestCourseSnapshot = latestProgress
+      ? await database.collection("courses").doc(latestProgress.courseId).get()
+      : null;
+    activeOrganizationId = latestCourseSnapshot?.exists && typeof latestCourseSnapshot.data()?.orgId === "string"
+      ? latestCourseSnapshot.data()!.orgId as string
+      : null;
+  }
+
   const latestProgress = progress[0];
-  const latestCourseSnapshot = latestProgress
-    ? await database.collection("courses").doc(latestProgress.courseId).get()
-    : null;
-  const activeOrganizationId = latestCourseSnapshot?.exists && typeof latestCourseSnapshot.data()?.orgId === "string"
-    ? latestCourseSnapshot.data()!.orgId as string
-    : null;
   const evidence = scopeEvidence(allEvidence, activeOrganizationId);
   const insights = scopeInsights(allInsights, activeOrganizationId, request);
   const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
@@ -214,7 +259,9 @@ export async function getScopedLearnerContext(input: {
     },
     limitations: [
       "Context is purpose-scoped and excludes raw learner responses.",
-      "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
+      request.organizationId
+        ? "Organization-scoped intelligence is pinned to the explicitly authorized organization boundary."
+        : "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
       "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
       "Recent activity is evidence of participation, not a mastery determination.",
