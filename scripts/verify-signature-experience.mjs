@@ -13,10 +13,12 @@ const coachTypes = read("packages/types/src/coach.ts");
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
+const coachPage = read("apps/learn-web/app/coach/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
 const memoryThread = read("packages/backend/src/memory-thread.server.ts");
 const signaturePanel = read("apps/learn-web/app/dashboard/components/SignatureExperiencePanel.tsx");
+const adaptiveUi = read("packages/ui/src/AdaptiveLearningPath.tsx");
 const uiPackage = JSON.parse(read("packages/ui/package.json"));
 const catalog = read("packages/backend/src/knowledge-object-catalog.server.ts");
 const uiFiles = [
@@ -43,6 +45,13 @@ check(coachRoute.includes("endCoachSession"), "Coach completion route delegates 
 check(completionService.includes('purpose: "return_to_learning"'), "Coach completion creates a purpose-scoped return bridge");
 check(completionService.includes('event: "coach.session_completed"'), "Coach completion contributes explicit Core evidence");
 check(!completionService.includes("transcript:"), "Coach completion evidence does not persist the conversation transcript");
+check(completionService.includes('id: `coach_session_completed_${session.id}`'), "Coach completion evidence is idempotently keyed by session");
+check(completionService.indexOf("createProductBridge") < completionService.indexOf('status: "completed"'), "Coach is finalized only after the return bridge is created");
+check(coachPage.includes("handleFinishSession"), "Coach exposes an explicit learner-visible completion action");
+check(coachPage.includes('action: "endSession"'), "Coach UI closes the server session before leaving");
+check(coachPage.includes('/api/product-bridge?action=resolve'), "Coach UI resolves the return bridge before navigation");
+check(coachPage.includes('destination: "learn"'), "Coach return bridge is validated for the Learn destination");
+check(coachPage.includes("Finish session & return to Learn"), "Coach labels the semantic completion transition clearly");
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
@@ -58,7 +67,10 @@ check(memoryThread.includes("entry.source.knowledgeObjectIds?.includes"), "Memor
 check(signaturePanel.includes('NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on"'), "Signature Experience learner rollout is feature-flagged and default-off");
 check(signaturePanel.includes('aria-live="polite"'), "Signature Experience asynchronous status uses a polite live region");
 check(signaturePanel.includes("motion-reduce:animate-none"), "Signature Experience loading motion respects reduced-motion preferences");
+check(adaptiveUi.startsWith('"use client"'), "interactive Adaptive Path is declared as a Client Component");
 check(uiFiles.every((content) => content.includes("aria-")), "all six shared signature primitives expose accessibility semantics");
 check(uiFiles.filter((content) => content.includes("<button")).every((content) => content.includes("focus-visible")), "interactive shared signature primitives expose visible keyboard focus");
+check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
+check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
 
 console.log("Lurexa Signature Experience contract/security/accessibility verification passed.");
