@@ -1,12 +1,26 @@
 import React from "react";
-import type { MemoryThreadEventV1, MemoryThreadV1 } from "@lurexa/types";
+
+export type MemoryThreadEventView = {
+  id: string;
+  occurredAt: string;
+  kind: "observed" | "practiced" | "feedback" | "improved" | "stabilized" | "regressed" | "context";
+  sourceProduct: string;
+  title: string;
+  summary: string;
+};
+
+export type MemoryThreadView = {
+  topic: { title: string };
+  events: MemoryThreadEventView[];
+  currentSummary?: string;
+};
 
 export interface MemoryThreadProps {
-  thread: MemoryThreadV1;
+  thread: MemoryThreadView;
   className?: string;
 }
 
-const eventLabel: Record<MemoryThreadEventV1["kind"], string> = {
+const eventLabel: Record<MemoryThreadEventView["kind"], string> = {
   observed: "Observed",
   practiced: "Practiced",
   feedback: "Feedback",
@@ -16,7 +30,7 @@ const eventLabel: Record<MemoryThreadEventV1["kind"], string> = {
   context: "Context",
 };
 
-const dotStyle: Record<MemoryThreadEventV1["kind"], string> = {
+const dotStyle: Record<MemoryThreadEventView["kind"], string> = {
   observed: "bg-amber-400",
   practiced: "bg-sky-400",
   feedback: "bg-violet-400",
