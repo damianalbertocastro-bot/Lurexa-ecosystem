@@ -58,6 +58,9 @@ check(!insightContract.includes("learnerId"), "Insight organization overview con
 check(insight.includes('INSIGHT_ROLES = new Set(["owner", "admin"])'), "Insight organization analytics is restricted to owner/admin roles");
 check(insight.includes("Aggregate-first Insight consumer"), "Insight explicitly documents aggregate-first privacy semantics");
 check(insight.includes('where("organizationId", "==", input.organizationId)'), "Insight evidence aggregation remains organization-scoped");
+check(insight.includes('membership.data()?.role === "student"'), "Insight aggregates only current student members");
+check(insight.includes("if (!await isCurrentStudent(learnerId)) continue;"), "Insight excludes stale progress from former/non-student members");
+check(insight.includes("if (!await isCurrentStudent(value.learnerId)) continue;"), "Insight Knowledge Object coverage excludes evidence from former/non-student members");
 check(rolloutSdk.includes("getInsightOrganizationOverview"), "supported SDK declares the Insight aggregate consumer boundary");
 
 // Operations and privacy.
