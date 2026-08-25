@@ -100,6 +100,57 @@ export const TEACH_MVP_COURSES: TeachCourse[] = [
 
 export const TEACH_MVP_CREDENTIALS: TeachCredentialDefinition[] = [
   {
+    id: "t1-the-first-coherent-lesson",
+    name: "T1: The First Coherent Lesson",
+    description: "Demonstrates evidence-backed capability in lesson staging, goal alignment, clear task instructions, and cohesive flow.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "t1-the-first-coherent-lesson" },
+      { id: "evidence", type: "verified-evidence", competencyId: "lesson-planning", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "t2-pronunciation-clearer-instruction",
+    name: "T2: Pronunciation for Clearer Instruction",
+    description: "Demonstrates phonetic modeling, intelligibility calibration, and constructive feedback for Dominican and ESL learners.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "pronunciation-clearer-instruction" },
+      { id: "evidence", type: "verified-evidence", competencyId: "pronunciation-pedagogy", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "t3-interactive-learning-delivery",
+    name: "T3: Interactive Learning Delivery & Engagement",
+    description: "Demonstrates active elicitation, student talk-time optimization, and immediate communicative feedback loops.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "teaching-speaking-confidence" },
+      { id: "evidence", type: "verified-evidence", competencyId: "speaking-instruction", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "t4-cefr-adaptation-and-assessment",
+    name: "T4: CEFR Adaptation & Formative Assessment",
+    description: "Demonstrates mastery of rubric design, diagnostic placement analysis, and individualized adaptive remediation.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "assessment-supports-learning" },
+      { id: "evidence", type: "verified-evidence", competencyId: "assessment-for-learning", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "t5-pedagogical-leadership-mastery",
+    name: "T5: Pedagogical Leadership & Mastery",
+    description: "Demonstrates curriculum leadership, educator mentorship, advanced C1/C2 discourse modeling, and AI-assisted workflow governance.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "ai-literacy-language-teachers" },
+      { id: "cefr", type: "cefr-level", cefrLevel: "C1" },
+      { id: "evidence", type: "verified-evidence", competencyId: "ai-literacy", minimumCount: 1 },
+    ],
+  },
+  {
     id: "speaking-instruction-foundations",
     name: "Speaking Instruction Foundations",
     description: "Demonstrates evidence-backed capability in designing and facilitating speaking development.",
