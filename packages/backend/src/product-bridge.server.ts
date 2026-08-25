@@ -6,6 +6,7 @@ import type {
   SignatureExperienceConsumer,
 } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
+import { recordSignatureTelemetry } from "./signature-telemetry.server";
 
 const COLLECTION = "product-bridges";
 const VERSION = "1" as const;
@@ -85,6 +86,12 @@ export async function createProductBridge(input: CreateProductBridgeInput): Prom
   };
 
   await getServerFirestore().collection(COLLECTION).doc(bridge.bridgeId).set(bridge);
+  await recordSignatureTelemetry({
+    kind: "bridge_created",
+    source: bridge.source,
+    destination: bridge.destination,
+    purpose: bridge.purpose,
+  });
   return bridge;
 }
 
@@ -98,8 +105,9 @@ export async function resolveProductBridge(input: {
 
   const database = getServerFirestore();
   const reference = database.collection(COLLECTION).doc(input.bridgeId);
+  const startedAt = Date.now();
 
-  return database.runTransaction(async (transaction) => {
+  const result = await database.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(reference);
     if (!snapshot.exists) throw new Error("Product Bridge was not found or is no longer available.");
 
@@ -117,16 +125,31 @@ export async function resolveProductBridge(input: {
     if (bridge.singleUse) transaction.update(reference, { consumedAt: resolvedAt });
 
     return {
-      contractVersion: VERSION,
-      bridgeId: bridge.bridgeId,
-      resolvedAt,
-      destination: bridge.destination,
-      destinationRef: bridge.destinationRef,
-      ...(bridge.contextRef ? { authorizedContextRef: bridge.contextRef } : {}),
-      limitations: [
-        "The bridge carries opaque references only; learner context must be re-authorized by the destination capability.",
-        "Resolution does not grant access to raw learner evidence.",
-      ],
+      resolution: {
+        contractVersion: VERSION,
+        bridgeId: bridge.bridgeId,
+        resolvedAt,
+        destination: bridge.destination,
+        destinationRef: bridge.destinationRef,
+        ...(bridge.contextRef ? { authorizedContextRef: bridge.contextRef } : {}),
+        limitations: [
+          "The bridge carries opaque references only; learner context must be re-authorized by the destination capability.",
+          "Resolution does not grant access to raw learner evidence.",
+        ],
+      } satisfies ProductBridgeResolutionV1,
+      telemetry: {
+        source: bridge.source,
+        destination: bridge.destination,
+        purpose: bridge.purpose,
+      },
     };
   });
+
+  await recordSignatureTelemetry({
+    kind: "bridge_resolved",
+    ...result.telemetry,
+    durationMs: Date.now() - startedAt,
+  });
+
+  return result.resolution;
 }
