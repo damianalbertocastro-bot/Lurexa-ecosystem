@@ -6,206 +6,172 @@ Depends on: PR #61 / S0–S8 Signature Experience foundation
 
 ## Objective
 
-Move the Signature Experience system from its Learn ↔ Coach proving ground into governed institutional consumption without weakening Core/Mind trust boundaries.
+Move the Signature Experience system from its Learn ↔ Coach proving ground into governed institutional consumption without weakening product boundaries or Core/Mind trust boundaries.
 
-S9 is a rollout and hardening phase. It does not introduce a seventh signature primitive, another learner model, or a new product tier.
+S9 does not introduce a new product tier. It makes one boundary explicit and enforceable:
+
+> **Lurexa Learn is where educators operate student learning. Lurexa Teach is where educators develop themselves professionally.**
 
 ## Structural placement
 
-The six signature primitives remain a shared experience/read-model layer used by products and institutional surfaces.
-
 - Learn, Coach, Teach, Admin, Insight, and Studio remain product owners.
-- Campus remains the institutional experience/shell and is not a sibling product owner.
-- Core remains the authorization, trusted-record, persistence, provenance, and server-projection authority.
-- Mind remains the interpretation/adaptation layer and does not become an authorization or persistence owner.
-- Shared signature UI continues to inherit `@lurexa/ui` and the Lurexa token/accessibility grammar; product shells keep their distinct personalities.
+- Campus remains the institutional experience/shell.
+- Core remains authorization, trusted-record, persistence, provenance, and server-projection authority.
+- Mind remains the interpretation/adaptation layer.
+- Signature UI remains shared grammar; product shells keep distinct personalities.
 
-## S9 workstreams
+## 1. Roster-backed Lurexa Learn Teacher Workspace
 
-### 1. Roster-backed Teach instructional support
+The operational roster belongs to `apps/learn-web/app/teacher`, not `apps/teach-web`.
 
-Teach now exposes a `Students` workspace sourced from trusted course participation rather than free-form learner IDs.
+The Learn Teacher Workspace now combines:
 
-The v1 roster is derived from:
+- student invitations/access management;
+- course rosters derived from courses the educator is authorized to teach;
+- trusted course-participation progress;
+- explicit current-student membership checks;
+- purpose-scoped Learner Pulse for instructional decisions.
 
-1. courses the signed-in educator is already authorized to teach;
-2. trusted course-progress records;
-3. an explicit student-membership check in the same organization.
+The roster contains only minimum display identity and participation metadata. Learner evidence remains behind Core projections.
 
-The roster returns only the minimum identity and participation metadata required to select a learner for instructional support. Learner evidence is not embedded in roster responses.
+The instructional Pulse rollout is independently controlled by:
 
-The selected learner's Learner Pulse remains separately authorized through Core and is independently controlled by `NEXT_PUBLIC_TEACH_SIGNATURE_V1=on`.
+`NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1=on`
 
-#### Known limitation
+### Known limitation
 
-The roster represents **participating learners**, not every allocated/enrolled seat. Learners who have never generated course progress will require a future Core-owned enrollment index. S9 intentionally does not create a second enrollment table merely to fill that gap.
+The v1 roster represents participating learners, not every enrolled seat. Never-started learners require a future Core-owned enrollment index. S9 does not create a second enrollment table.
 
-### 2. First-class delegated Core authorization
+## 2. Authoritative Lurexa Teach boundary
 
-The S8 Teach adapter performed tenant and role checks before delegating to a self-authorized projection. S9 removes that compatibility workaround.
+Lurexa Teach is the educator professional-development product. It does not own classroom/student operations.
 
-Core's learner-context boundary now receives the real educator actor and owns the delegated-access decision.
+S9 therefore removes from Teach:
+
+- `/students` operational roster UI;
+- student roster API;
+- delegated student Signature API;
+- Teach-owned roster backend capability;
+- Teach-owned student Learner Pulse adapter;
+- Students navigation/footer entry.
+
+Teach retains professional learning, educator competency growth, assessment, reflection, credentials, community, and professional-growth experiences.
+
+Future Learn → Teach handoffs may contribute minimized professional-development evidence about the educator's practice, but student weaknesses must not become attributes of the educator's own learner model.
+
+## 3. First-class delegated Core authorization
+
+Core receives the real educator actor and owns the delegated-access decision.
 
 Current delegated policy:
 
-- approved product: Teach;
+- approved product: **Lurexa Learn**;
 - approved purpose: `teacher_instructional_support`;
 - organization ID: required;
 - actor role: `owner`, `admin`, or `teacher` in the requested organization;
-- supported learner: must be a `student` member of the same organization;
-- explicit organization scope wins over a learner's more recent activity in another institution.
+- supported learner: must be a `student` member of that organization;
+- explicit organization scope wins over more recent learner activity elsewhere.
 
-Other products/purposes cannot reuse this delegated path.
+Lurexa Teach has **no delegated student-context purpose**.
 
-### 3. Insight as aggregate-first consumer
+The generic Signature service treats a `consumer: "learn"` request as learner self-service when actor and learner match, and as Learn teacher instructional support when they differ. Teach is not an authorized student Signature consumer.
 
-There is no dedicated `apps/insight-web` deployment surface yet. S9 therefore establishes Insight at the governed service/contract boundary rather than creating a premature shell.
+## 4. Insight as aggregate-first consumer
 
-`InsightOrganizationSignatureOverviewV1` returns organization-level learning signals only:
+There is no dedicated `apps/insight-web` deployment surface yet. S9 establishes Insight at the governed service/contract boundary.
 
-- number of governed courses;
-- participating **current student-member** count;
-- active current student members in the last 14 days;
-- descriptive average course progress for current student members;
-- Knowledge Object evidence coverage from current student members.
+`InsightOrganizationSignatureOverviewV1` returns only organization-level signals:
 
-Insight checks current student membership before counting either progress or semantic evidence, so stale activity from former or non-student members does not inflate the organization overview.
+- governed course count;
+- participating current-student count;
+- active current students in the last 14 days;
+- descriptive average course progress for current students;
+- Knowledge Object evidence coverage from current students.
 
-Insight v1 deliberately returns no learner IDs, raw learning evidence, transcripts, or individual recommendations. Organization analytics is restricted to owner/admin membership.
+Insight returns no learner IDs, raw evidence, transcripts, or individual recommendations. Owner/admin membership is required.
 
-A future Insight application should consume this supported contract rather than reading Firestore directly.
+## 5. Knowledge Object corpus coverage
 
-### 4. Knowledge Object corpus coverage
-
-The governed Knowledge Object catalog now maps every pattern in the current 21-entry Dominican-English linguistic corpus.
-
-Coverage includes:
-
-- Spanish orthographic/phonological transfer;
-- initial `/s/` clusters;
-- English vowel spelling/sound variation;
-- cognate pronunciation transfer;
-- regular-past form and ending pronunciation;
-- `/θ/` and `/ð/` perception/production;
-- English clause order;
-- `do/does` question formation;
-- third-person singular `-s`;
-- spontaneous advanced grammar use;
-- conventional requests/pragmatic directness;
-- spoken sentence automaticity;
-- mental translation reduction;
-- productive lexical retrieval and range;
-- semantic range/collocation;
-- spaced lexical retrieval;
-- receptive-to-productive transfer.
+The governed Knowledge Object catalog maps every pattern in the current 21-entry Dominican-English linguistic corpus across pronunciation, grammar, pragmatics, fluency, vocabulary, and receptive/productive transfer.
 
 These mappings are semantic references, not claims that a learner has a pattern. Learner state still requires authorized evidence and Core-approved interpretation.
 
-### 5. Delegated-authorization integration tests
+## 6. Delegated-authorization integration test
 
-S9 adds an executable Firestore Emulator integration test.
+The Firestore Emulator integration test proves:
 
-The critical fixture gives one learner older progress in Organization A and newer progress in Organization B, then verifies that an authorized Organization A teacher receives only Organization A context when that tenant is explicitly requested.
+- Learn teacher delegation stays inside the explicitly requested organization;
+- newer cross-organization activity does not override explicit tenant scope;
+- owner access succeeds;
+- student-to-student delegation fails;
+- cross-organization educator access fails;
+- delegated actors cannot reuse `learn_adaptive_practice`;
+- **the same delegated instructional request using `requestingProduct: "teach"` fails.**
 
-The test also verifies:
-
-- owner access;
-- learner self-access within an organization they belong to;
-- student-to-student delegation denial;
-- cross-organization educator denial;
-- denial when a delegated actor attempts to reuse a self-service Learn purpose.
-
-### 6. Performance and visual-regression gates
-
-S9 introduces two layers of protection.
-
-#### Operational performance
+## 7. Performance and structural visual gates
 
 Signature Operations reports average and p95 projection duration from privacy-minimized telemetry.
 
-Initial operational warning budget:
+Initial operational watch budget:
 
 - projection p95: **1,200 ms**.
 
-Exceeding the budget produces a `watch` state. It is not treated as a learner-outcome or mastery metric.
+S9 also enforces source-size budgets plus responsive/accessibility/focus anatomy. These are structural regression gates, not pixel-level screenshot regression or runtime Web Vitals.
 
-#### Source/bundle-risk guardrails
+## 8. Rollout and telemetry operations
 
-Until runtime bundle and Web Vitals instrumentation is introduced, S9 also caps the source size of the new high-level client/service slices. These limits are engineering guardrails, not runtime-performance claims.
-
-#### Structural visual regression
-
-The current CI can enforce responsive anatomy, accessibility semantics, and visible focus behavior, but it does not yet run a browser screenshot comparison suite. S9 deliberately calls these **structural visual-regression gates**, not pixel-level visual regression.
-
-A browser-backed screenshot runner remains follow-up work.
-
-### 7. Rollout and telemetry operations
-
-Admin gains a superadmin-only Signature Operations surface based on the identity-free telemetry introduced in S8.
-
-It reports:
+Admin exposes a superadmin-only Signature Operations surface reporting:
 
 - Product Bridges created/resolved;
 - bridge resolution ratio;
 - projection successes/failures;
 - average projection duration;
-- p95 projection duration against the warning budget.
+- p95 projection duration.
 
-Telemetry continues to exclude actor IDs, learner IDs, organization IDs, evidence IDs, utterances, recommendation content, and destination/context references.
-
-The operations API is private/no-store.
+Telemetry excludes actor IDs, learner IDs, organization IDs, evidence IDs, utterances, recommendation content, and destination/context references. The API is private/no-store.
 
 ## Supported SDK boundaries
 
-`@lurexa/sdk` now defines supported rollout consumers for:
+`@lurexa/sdk` exposes:
 
-- Teach instructional roster;
+- `getLearnTeacherInstructionalRoster`;
 - Insight organization overview;
 - Signature Operations rollup.
 
-The SDK interfaces are not authorization grants. Implementations must call authenticated server capabilities.
+The SDK does not expose an operational Teach roster method.
 
 ## CI gates
 
-S9 adds the following required checks to Phase 0:
+S9 requires:
 
-- `verify:signature-rollout`
-- `test:signature-delegation`
+- `verify:signature-rollout`;
+- `test:signature-delegation`;
+- existing Signature Experience, Core/Mind, linguistic-intelligence, Firestore security, Phase 0, and deployment validation gates.
 
-The rollout verifier protects:
-
-- full current corpus → Knowledge Object mapping coverage;
-- Core-owned delegated authorization;
-- no Teach learner impersonation;
-- roster-only learner selection and no free-form learner ID input;
-- private/no-store roster and operations APIs;
-- aggregate-first Insight contract privacy;
-- current-student membership filtering for Insight progress and semantic coverage;
-- identity-free telemetry;
-- p95 operational latency reporting;
-- source-size budgets;
-- responsive/accessibility/focus anatomy for the new UIs.
+The rollout verifier explicitly fails if student-roster/student-Signature capabilities reappear inside Lurexa Teach.
 
 ## Exit criteria
 
 S9 is merge-ready when:
 
-1. Phase 0, including emulator delegation and rollout verification, is green on the PR merge tree;
-2. Teach Web, Admin, Learn, Docs, and other affected deployment surfaces pass lint, typecheck, and production build;
-3. no roster path permits free-form learner-ID lookup;
-4. explicit organization scope is honored inside Core;
-5. all 21 current corpus patterns resolve to governed Knowledge Objects;
-6. Insight remains aggregate-first, current-member scoped, and identity-free by contract;
-7. Signature Operations remains superadmin-only and telemetry remains identity-free;
-8. roadmap/PR documentation distinguishes implemented runtime gates from future screenshot/Web-Vitals infrastructure.
+1. Phase 0 is green on the PR merge tree;
+2. affected deployment surfaces pass lint, typecheck, and production build;
+3. Learn owns the operational teacher roster and student instructional support;
+4. Teach contains no operational student-management surface or delegated student-context entitlement;
+5. explicit organization scope is honored inside Core;
+6. all 21 corpus patterns resolve to governed Knowledge Objects;
+7. Insight remains aggregate-first, current-member scoped, and identity-free;
+8. Signature Operations remains superadmin-only and identity-free;
+9. documentation and CI agree on the Learn/Teach boundary.
 
 ## Post-S9 follow-up
 
-- Core-owned enrollment index so Teach can represent never-started enrolled learners;
+- Core-owned enrollment index for never-started enrolled learners;
+- professional evidence bridge from Learn teaching practice into Teach professional growth;
 - dedicated Insight product shell when its deployment phase begins;
-- browser-backed visual screenshot regression at desktop/mobile/high zoom;
+- browser-backed screenshot regression at desktop/mobile/high zoom;
 - real-user Web Vitals and route/bundle budgets;
-- maintained telemetry aggregates instead of bounded collection scans at scale;
-- finer institutional permissions beyond the initial owner/admin/teacher policy;
-- curriculum references attached to Knowledge Objects as A1/A2 production content is semantically indexed;
+- maintained telemetry aggregates at scale;
+- finer institutional permissions;
+- curriculum references attached to Knowledge Objects;
 - learner feedback/override policy for adaptive recommendations.
