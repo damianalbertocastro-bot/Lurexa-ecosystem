@@ -14,3 +14,4 @@ export * from "./learning-experience";
 export * from "./capstone";
 export * from "./teacher-guidance";
 export * from "./platform-analytics";
+export * from "./institution";
