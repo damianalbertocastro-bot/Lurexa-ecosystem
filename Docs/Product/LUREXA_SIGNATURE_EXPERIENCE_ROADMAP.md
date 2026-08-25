@@ -1,710 +1,331 @@
 # Lurexa Signature Experience Roadmap
 
-Status: Execution roadmap
-Date: 2026-08-25
-Scope: Learner Pulse, Adaptive Learning Path, Memory Thread, Mind Trace, Product Bridge, Knowledge Object
+Status: Implementation hardening / pre-merge
+Last reconciled: 2026-08-25
+Active implementation: PR #61 — `design/signature-experience-system`
 
 ## Strategic objective
 
-Turn Lurexa's architectural differentiator — one persistent learner model across a multi-product ecosystem — into a recognizable user experience.
+Turn Lurexa's architectural differentiator — one persistent cross-product Learner Model — into a recognizable, trustworthy interaction system rather than another generic LMS dashboard.
 
-The target is not visual novelty. The target is a coherent set of interaction primitives that competitors cannot reproduce credibly without equivalent cross-product learning architecture.
+The signature system is not a new product and does not own learner truth. It is a shared experience/read-model layer that makes Core-owned evidence and Mind-approved interpretation understandable and actionable across Lurexa experiences.
+
+## Architectural position
+
+Current product family:
+
+- Lurexa Learn
+- Lurexa Coach
+- Lurexa Teach
+- Lurexa Admin
+- Lurexa Insight
+- Lurexa Studio
+
+Shared ecosystem layers:
+
+- Lurexa Core — identity, authorization, trusted records, persistence, provenance, contracts, and server-authorized projections.
+- Lurexa Mind — interpretation, recommendations, adaptive guidance, learner-model intelligence, tutoring/coaching intelligence.
+
+Structurally different experience:
+
+- Campus — institutional experience/shell. Campus is not a sibling product owner and must not be added to the canonical product registry as if it were Learn/Coach/Teach/Admin/Insight/Studio.
+
+Signature Experience primitives:
+
+- Learner Pulse
+- Adaptive Learning Path
+- Memory Thread
+- Mind Trace
+- Product Bridge
+- Knowledge Object
+
+These primitives sit below the product-composition tier and above Core/Mind service boundaries. They are shared capabilities, not products, databases, or new sources of learner truth.
+
+## Design-system inheritance
+
+Signature primitives inherit Lurexa's shared design grammar:
+
+- `@lurexa/tokens` foundations and semantic states;
+- `@lurexa/ui` accessibility and component conventions;
+- shared focus, motion, spacing, typography, state, and responsive rules.
+
+Products do **not** become visually identical. Each product composes the shared primitives through its own personality:
+
+- Learn — inviting and progressive;
+- Coach — conversational and alive;
+- Teach — professional and developmental;
+- Admin — authoritative;
+- Insight — analytical;
+- Studio — creative;
+- master Lurexa — institutional and foundational.
+
+Shared semantic meaning must remain stable even when product composition, color emphasis, hierarchy, copy, and surrounding layout differ.
 
 ---
 
-# 1. Program structure
+# Delivery status
 
-The work is divided into eight phases.
+## S0 — Architecture reconciliation
 
-- S0 — architecture reconciliation and source-of-truth cleanup
-- S1 — contract foundations
-- S2 — prototype system and visual validation
-- S3 — Learner Pulse vertical slice
-- S4 — Memory Thread vertical slice
-- S5 — Adaptive Learning Path vertical slice
-- S6 — Mind Trace + Product Bridge
-- S7 — Knowledge Object semantic layer
-- S8 — cross-product hardening, measurement, rollout
+Status: **Complete for this vertical slice**.
 
-The first production proving ground is Learn + Coach. Teach/Insight/Campus follow after contracts are stable.
+Implemented:
+
+- authoritative product tiering reconciled;
+- Campus classified as an institutional shell rather than sibling product;
+- signature layer classified as shared experience/read-model capability;
+- Bible, product personality system, root roadmap, and agent context reconciled;
+- shared product identities reused rather than duplicated.
+
+Exit condition: met.
+
+## S1 — Contract foundations
+
+Status: **Complete for v1 vertical slice; broader runtime schema migration remains incremental**.
+
+Implemented:
+
+- versioned v1 contracts for Pulse, Path, Thread, Trace, Bridge, and Knowledge Object;
+- canonical product identities reused;
+- purpose-scoped projection requests;
+- Knowledge Object references added to evidence source metadata;
+- Core/Mind ownership boundaries preserved;
+- CI verifier protects versioning, consumer boundaries, security invariants, and semantic separation.
+
+Remaining after merge:
+
+- migrate more boundaries from structural/static verification to reusable runtime validators where high-value;
+- add migration fixtures when v2 contract work begins.
+
+## S2 — Prototype and visual validation
+
+Status: **Implemented; qualitative recognizability research remains post-merge**.
+
+Implemented:
+
+- deterministic `/developer/signature` gallery for all six primitives;
+- responsive shared primitives;
+- loading/partial/error states in Learn composition;
+- reduced-motion and keyboard-focus hardening;
+- production build regression fixed for interactive Adaptive Path.
+
+Remaining after merge:
+
+- logo-hidden recognizability study;
+- formal visual-regression suite;
+- high-zoom/localization-expansion QA.
+
+## S3 — Learner Pulse
+
+Status: **Vertical slice implemented in Learn**.
+
+Implemented:
+
+- Core-authorized projection;
+- conservative unknown states;
+- evidence-basis/limitations metadata;
+- Learn dashboard composition behind staged feature flag;
+- shared accessible UI primitive.
+
+## S4 — Memory Thread
+
+Status: **Vertical slice implemented**.
+
+Implemented:
+
+- cross-product normalized thread projection;
+- tenant-safe organization scoping;
+- exact Knowledge Object filtering;
+- no raw evidence structures exposed to product UI;
+- shared accessible UI primitive.
+
+## S5 — Adaptive Learning Path
+
+Status: **Governed v1 vertical slice implemented**.
+
+Implemented:
+
+- canonical curriculum remains unchanged;
+- adaptive nodes are overlays rather than mutations;
+- competency IDs are not treated as Knowledge Object IDs;
+- Knowledge Object references are validated through the governed catalog;
+- interactive shared UI is correctly isolated as a Client Component.
+
+Policy retained:
+
+- v1 does not autonomously skip required curriculum.
+
+## S6 — Mind Trace + Product Bridge
+
+Status: **Learn ↔ Coach closed loop implemented**.
+
+Implemented:
+
+- approved-summary-only Mind Trace;
+- opaque, expiring, single-use Product Bridge;
+- allowlisted product-purpose pairs;
+- expiry/replay/destination checks;
+- Learn → Coach targeted-practice handoff;
+- Coach → Learn return-to-learning handoff;
+- explicit learner-visible Coach completion action;
+- completion evidence written through Core;
+- learner intelligence refreshed before return;
+- return bridge resolved before navigation;
+- retry-safe completion ordering;
+- active Coach session refresh recovery through server reauthorization.
+
+## S7 — Knowledge Object semantic layer
+
+Status: **Initial governed catalog implemented; semantic expansion continues**.
+
+Implemented:
+
+- versioned Knowledge Object contract;
+- initial deterministic English catalog;
+- initial Dominican-English pronunciation mappings;
+- evidence can carry governed Knowledge Object references;
+- Memory Thread and Adaptive Path use canonical references;
+- competency and Knowledge Object namespaces are explicitly distinct.
+
+Next semantic expansion:
+
+- broaden A1/A2 curriculum mappings;
+- map additional Dominican transfer/error taxonomy patterns;
+- connect more Mind recommendations directly to governed Knowledge Objects;
+- prepare Insight/Studio consumption without creating a new semantic source of truth.
+
+## S8 — Cross-product hardening, measurement, rollout
+
+Status: **In progress; current pre-merge focus**.
+
+Implemented in this PR:
+
+- learner rollout flag: `NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1=on`, default off;
+- keyboard-focus and reduced-motion hardening;
+- polite live-region handling for asynchronous signature states;
+- privacy-minimized operational telemetry;
+- bridge creation/resolution telemetry;
+- projection success/failure latency telemetry;
+- telemetry excludes actor, learner, tenant, evidence, utterance, recommendation text, and destination/context references;
+- learner-model/signature API responses explicitly use private/no-store caching policy;
+- Coach completion acts as a retention boundary: completed transcript storage is redacted and persisted turn evidence removes raw `learnerForm` while retaining structured linguistic signal;
+- first governed Teach Signature consumer boundary added;
+- Teach instructional-support access requires explicit organization scope, educator role, learner membership in the same organization, and matching organization projection;
+- Teach API remains server-authenticated and is not exposed as an unsafe free-form learner-ID UI.
+
+### S8 merge blockers
+
+1. Final CI after Teach/privacy/no-store/telemetry commits.
+2. Confirm PR remains mergeable against current `main`.
+3. Reconcile PR description with actual S8 implementation.
+4. Review changed-file set for accidental/generated artifacts or stale duplicate definitions.
+5. Final merge recommendation.
+
+### S8 post-merge rollout work
+
+- roster-backed Teach instructional-support UI; do not expose manual learner-ID entry as a production workflow;
+- Insight consumer built on shared contracts;
+- formal authorization-matrix integration tests for delegated Teach access;
+- visual-regression coverage;
+- performance and low-bandwidth budgets;
+- telemetry aggregation/operational dashboard;
+- localization expansion tests;
+- abandoned/incomplete Coach-session retention/TTL policy;
+- broader Knowledge Object mapping;
+- learner feedback/override policy for adaptive recommendations;
+- qualitative signature-recognition research.
 
 ---
 
-# S0 — Architecture reconciliation and source-of-truth cleanup
-
-## Goal
-
-Remove documentation contradictions and make the signature system's architectural tier explicit before implementation.
-
-## Tasks
-
-- [ ] Reconcile Campus classification across Bible, ROADMAP, product registry, product personality system, and Campus architecture docs.
-- [ ] State explicitly that signature primitives are a shared experience layer, not products.
-- [ ] Add signature-system reference to `Docs/00-Lurexa-Bible.md`.
-- [ ] Add signature-system reference to `Docs/Lurexa Ecosystem Agent Context.md`.
-- [ ] Add roadmap pointer to root `ROADMAP.md`.
-- [ ] Add docs navigation links from `Docs/README.md`.
-- [ ] Confirm no existing component/package already claims conflicting names.
-- [ ] Confirm product IDs and Campus tier before Product Bridge types are frozen.
-
-## Exit condition
-
-Every authoritative document agrees on product tiers, Core/Mind ownership, and the signature shared-experience layer.
-
----
-
-# S1 — Contract foundations
-
-## Goal
-
-Define stable read models and service boundaries before UI code.
-
-## Workstream A — shared domain types
-
-Proposed location:
+# Governing interaction loop
 
 ```text
-packages/types/src/signature/
-├── learner-pulse.ts
-├── adaptive-path.ts
-├── memory-thread.ts
-├── mind-trace.ts
-├── product-bridge.ts
-├── knowledge-object.ts
-└── index.ts
-```
-
-Tasks:
-
-- [ ] Define `LearnerPulseProjectionV1`.
-- [ ] Define `AdaptivePathProjectionV1`.
-- [ ] Define `MemoryThreadProjectionV1`.
-- [ ] Define `MindTraceV1`.
-- [ ] Define `ProductBridgeIntentV1`.
-- [ ] Define `KnowledgeObjectV1`.
-- [ ] Define shared `ExperienceRef`, `ProductId`, `KnowledgeObjectRef`, and provenance references.
-- [ ] Add runtime validation for server boundaries.
-- [ ] Add contract versioning rules.
-- [ ] Add compatibility tests.
-
-## Workstream B — Core projection services
-
-Proposed server boundaries:
-
-```text
-packages/backend/
-├── signature/
-│   ├── learner-pulse.server.ts
-│   ├── adaptive-path.server.ts
-│   ├── memory-thread.server.ts
-│   ├── product-bridge.server.ts
-│   └── knowledge-object.server.ts
-```
-
-Tasks:
-
-- [ ] Pulse projection reads authorized evidence/approved observations only.
-- [ ] Thread projection normalizes events without exposing raw sensitive payloads.
-- [ ] Path projection combines canonical curriculum eligibility with approved adaptation decisions.
-- [ ] Bridge service validates actor, tenant, entitlement, purpose, expiry, and destination.
-- [ ] Knowledge Object read service returns canonical/versioned objects.
-- [ ] Add authorization tests for each projection.
-- [ ] Add missing/stale/partial evidence tests.
-- [ ] Add tenant-isolation tests.
-
-## Workstream C — Mind services
-
-Tasks:
-
-- [ ] Define adaptation recommendation output.
-- [ ] Define explanation-summary output for Mind Trace.
-- [ ] Require evidence/observation basis on every adaptive recommendation.
-- [ ] Require limitations/confidence metadata where applicable.
-- [ ] Keep provider-specific output behind service adapters.
-- [ ] Add deterministic fallback explanations for rule-based decisions.
-- [ ] Add AI evaluation fixtures.
-
-## Exit condition
-
-All six primitives have versioned contracts and server-authorized projection/service boundaries without UI dependencies.
-
----
-
-# S2 — Prototype system and visual validation
-
-## Goal
-
-Validate recognizability and comprehension before hardening shared components.
-
-## Prototype A — Learn dashboard
-
-Include:
-
-- Learner Pulse;
-- Adaptive Path;
-- one Mind Trace explanation;
-- current lesson/next action.
-
-Questions to test:
-
-- Can the learner explain what the Pulse means?
-- Do they understand that unknown ≠ weak?
-- Can they identify why the next recommendation exists?
-- Is the UI distinctive after hiding the logo?
-
-## Prototype B — Learn → Coach handoff
-
-Include:
-
-- recommendation from path;
-- Product Bridge;
-- Coach session target;
-- Pulse change after session.
-
-Questions:
-
-- Does the learner perceive continuity?
-- Is context-sharing understandable?
-- Is the transition trustworthy rather than magical?
-
-## Prototype C — Memory Thread
-
-Use a real Lurexa scenario:
-
-regular past pronunciation difficulty → Coach practice → Learn listening reinforcement → teacher feedback → later stable performance.
-
-Questions:
-
-- Can the learner explain what improved?
-- Is the difference between evidence and interpretation clear?
-- Is the timeline useful or overwhelming?
-
-## Design deliverables
-
-- [ ] desktop prototype;
-- [ ] mobile prototype;
-- [ ] reduced-motion prototype;
-- [ ] screen-reader content model;
-- [ ] component anatomy diagrams;
-- [ ] product-variant study for Learn/Coach/Teach/Insight;
-- [ ] signature iconography study for Mind Trace and Bridge;
-- [ ] visual distinctiveness review.
-
-## Exit condition
-
-The three prototype scenarios pass comprehension, accessibility, and recognizability review before the shared component API is frozen.
-
----
-
-# S3 — Learner Pulse vertical slice
-
-## Goal
-
-Ship the first recognizable signature primitive in Learn using real Core/Mind data.
-
-## Backend
-
-- [ ] Implement Pulse projection service.
-- [ ] Start with seven English learning skill dimensions where evidence exists.
-- [ ] Do not fabricate missing dimensions.
-- [ ] Compute trend from approved observation/evidence windows using transparent policy.
-- [ ] Return limitations.
-- [ ] Add caching/projection invalidation strategy.
-
-## SDK
-
-- [ ] Add typed Pulse fetch method.
-- [ ] Preserve purpose and actor context.
-- [ ] Define expected error states.
-
-## UI
-
-Proposed shared components:
-
-```text
-LearnerPulse
-LearnerPulseCompact
-LearnerPulseLegend
-LearnerPulseDimensionDetail
-PulseChangeAnnotation
-```
-
-- [ ] keyboard and screen-reader support;
-- [ ] compact/mobile layout;
-- [ ] reduced-motion behavior;
-- [ ] loading/empty/insufficient-data/error states;
-- [ ] product personality API;
-- [ ] no hard-coded Learn-only semantics in shared primitive.
-
-## Learn integration
-
-- [ ] learner dashboard Pulse;
-- [ ] lesson completion Pulse change summary;
-- [ ] entry point to dimension details;
-- [ ] link to relevant next action.
-
-## Tests
-
-- [ ] component tests;
-- [ ] projection tests;
-- [ ] authorization tests;
-- [ ] accessibility tests;
-- [ ] snapshot/visual regression where useful;
-- [ ] stale-data behavior.
-
-## Exit condition
-
-A learner completing a real Learn activity can see a trustworthy, accessible Pulse update derived from persisted evidence.
-
----
-
-# S4 — Memory Thread vertical slice
-
-## Goal
-
-Make learning history understandable across Learn and Coach.
-
-## Backend
-
-- [ ] Normalize Learn and Coach evidence into thread entries.
-- [ ] Introduce thread subject references keyed to knowledge concepts/skills.
-- [ ] Enforce visibility scopes.
-- [ ] Exclude raw audio and sensitive payloads.
-- [ ] Generate optional summary only from authorized thread entries.
-
-## UI
-
-Shared components:
-
-```text
-MemoryThread
-MemoryThreadEntry
-MemoryThreadFilter
-MemoryThreadSummary
-ThreadProductMarker
-```
-
-## First use case
-
-Regular past pronunciation thread:
-
-1. initial instability observed;
-2. Learn activity evidence;
-3. Coach targeted practice;
-4. later speaking attempt;
-5. stability/improvement observation.
-
-## Exit condition
-
-A learner can open one concept/skill and see a coherent multi-product history without seeing raw internal evidence structures.
-
----
-
-# S5 — Adaptive Learning Path vertical slice
-
-## Goal
-
-Make adaptation visible, inspectable, and pedagogically bounded.
-
-## Canonical-path rule
-
-The curriculum remains canonical. Personalized routes are overlays over eligible content, not mutations of published curriculum.
-
-## First supported adaptation reasons
-
-- `reinforce_recurring_error`
-- `practice_prerequisite`
-- `coach_speaking_transfer`
-- `review_after_instability`
-- `optional_enrichment`
-
-Do not introduce autonomous skipping of required curriculum until pedagogy and mastery policy are validated.
-
-## Backend
-
-- [ ] path projection;
-- [ ] deterministic rule engine baseline;
-- [ ] Mind recommendation adapter;
-- [ ] reason/provenance storage;
-- [ ] expiry/re-evaluation policy;
-- [ ] learner override policy for recommendations where appropriate.
-
-## UI
-
-Shared components:
-
-```text
-AdaptiveLearningPath
-AdaptivePathNode
-AdaptiveBranch
-AdaptationReason
-PathProductDestination
-```
-
-## Learn integration
-
-- [ ] current course/unit path;
-- [ ] prerequisite reinforcement;
-- [ ] Coach recommendation branch;
-- [ ] explanation for adaptive insertion.
-
-## Exit condition
-
-Learn can insert one governed personalized branch based on real evidence, explain it, and keep canonical curriculum unchanged.
-
----
-
-# S6 — Mind Trace + Product Bridge
-
-## Goal
-
-Create the trust/explanation pattern and the cross-product continuity pattern.
-
-## Mind Trace tasks
-
-- [ ] unique shared icon/mark;
-- [ ] compact + expanded components;
-- [ ] observed/inferred/recommended language taxonomy;
-- [ ] limitations state;
-- [ ] user feedback state;
-- [ ] policy/model version metadata for expert/admin debugging, hidden from normal learner view;
-- [ ] no chain-of-thought exposure.
-
-## Product Bridge tasks
-
-- [ ] server-issued bridge intent;
-- [ ] destination validation;
-- [ ] expiration;
-- [ ] entitlement check;
-- [ ] tenant/role check;
-- [ ] analytics instrumentation;
-- [ ] source/destination product identity;
-- [ ] contextual continuation copy;
-- [ ] graceful failure and return path.
-
-## First bridge
-
-Learn → Coach:
-
-“Practice regular past endings in Coach using your current lesson context.”
-
-## Second bridge
-
-Coach → Learn:
-
-“Review the listening/pronunciation activity connected to this target.”
-
-## Exit condition
-
-A learner can move Learn → Coach → Learn with authorized continuity, understandable context transfer, and no raw learner context in URLs.
-
----
-
-# S7 — Knowledge Object semantic layer
-
-## Goal
-
-Create stable concept identity connecting curriculum, evidence, recommendations, authoring, and analytics.
-
-## Phase 7A — taxonomy foundation
-
-- [ ] define ID convention;
-- [ ] define versioning;
-- [ ] define domain/skill/CEFR relationships;
-- [ ] define prerequisite graph rules;
-- [ ] define misconception/error relationships;
-- [ ] map current A1 curriculum concepts to initial objects;
-- [ ] map pronunciation taxonomy targets to objects where valid;
-- [ ] validate with curriculum architecture.
-
-## Phase 7B — repository implementation
-
-Suggested location:
-
-```text
-packages/types/src/knowledge/
-packages/backend/knowledge/
-packages/sdk/src/knowledge.ts
-```
-
-If the domain grows substantially, evaluate a dedicated shared package later. Do not create one preemptively.
-
-## Phase 7C — product consumption
-
-- [ ] Learn references objects from activities/lessons;
-- [ ] Coach references eligible speaking/pronunciation objects;
-- [ ] Memory Thread groups by object;
-- [ ] Pulse dimensions can aggregate object evidence;
-- [ ] Adaptive Path nodes can target objects;
-- [ ] Insight can aggregate object outcomes;
-- [ ] Studio eventually authors/versions objects.
-
-## Exit condition
-
-At least one curriculum slice uses stable Knowledge Object IDs across Learn, Coach, Thread, and Path without duplicating concept definitions.
-
----
-
-# S8 — Cross-product hardening and rollout
-
-## Goal
-
-Move from promising feature set to durable ecosystem design language.
-
-## Product rollout order
-
-1. Learn
-2. Coach
-3. Teach
-4. Insight
-5. Campus
-6. Studio
-7. Admin only where governance/operations require it
-
-## Hardening work
-
-- [ ] shared Storybook/examples;
-- [ ] accessibility regression suite;
-- [ ] visual regression coverage;
-- [ ] contract compatibility tests;
-- [ ] authorization matrix tests;
-- [ ] performance budgets;
-- [ ] low-bandwidth behavior;
-- [ ] telemetry dashboards;
-- [ ] design QA checklist;
-- [ ] copy/terminology glossary;
-- [ ] localization readiness;
-- [ ] privacy review;
-- [ ] learner control/feedback policies;
-- [ ] feature flags for staged rollout.
-
-## Recognition research
-
-Run qualitative tests with logo hidden.
-
-Success criterion:
-
-Participants repeatedly identify the Pulse/Thread/Path/Bridge interaction family as belonging to the same system and distinguish it from generic LMS dashboards.
-
----
-
-# 2. Dependency map
-
-```text
-Existing Core evidence contracts
-        ↓
-S0 architecture reconciliation
-        ↓
-S1 signature contracts
-        ↓
-Knowledge Object ID foundation ─────────────┐
-        ↓                                   │
-Learner Pulse                               │
-        ↓                                   │
-Memory Thread ← Learn + Coach evidence      │
-        ↓                                   │
-Adaptive Path ← Mind recommendation ────────┘
-        ↓
-Mind Trace
-        ↓
+Learn activity
+  ↓
+Core evidence
+  ↓
+Mind interpretation
+  ↓
+Learner Pulse / Adaptive Path / Mind Trace
+  ↓
 Product Bridge
-        ↓
-Cross-product rollout
+  ↓
+Coach targeted practice
+  ↓
+Core evidence + completion boundary
+  ↓
+Mind refresh
+  ↓
+Memory Thread / updated Pulse / updated Path
+  ↓
+validated return to Learn
 ```
 
-The Knowledge Object taxonomy starts early but should not block the first Pulse prototype.
+Teach consumes only explicitly authorized projections; it does not bypass Core or gain raw evidence access.
 
 ---
 
-# 3. Repository ownership map
+# Repository ownership
 
-| Concern | Proposed owner |
+| Concern | Owner |
 | --- | --- |
-| signature contract types | `@lurexa/types` |
-| trusted projections/authorization | `@lurexa/backend` / Core |
-| interpretation/adaptation/explanation | Mind server services |
-| supported product consumption APIs | `@lurexa/sdk` |
+| signature contracts | `@lurexa/types` |
+| trusted projections / authorization | `@lurexa/backend` / Core |
+| interpretation / recommendation / explanation | Mind server capabilities |
 | shared visual primitives | `@lurexa/ui` |
-| foundational + semantic personality tokens | `@lurexa/tokens` |
-| Learn compositions | `apps/learn-web` |
-| Coach compositions | Coach product surface/server routes |
-| authoring/versioning of canonical knowledge objects | Studio, later phase |
-| aggregate analytical views | Insight |
+| shared foundations / semantic tokens | `@lurexa/tokens` |
+| Learn composition | `apps/learn-web` |
+| Coach composition | current Coach surface inside `apps/learn-web`, until product topology changes explicitly |
+| Teach instructional-support consumer | `apps/teach-web` + Core-authorized Teach adapter |
+| future aggregate analytics | Insight |
+| future semantic authoring/versioning | Studio |
 
 ---
 
-# 4. Engineering rules
+# Non-negotiable engineering rules
 
-1. No shared primitive may write Firestore directly from the browser.
-2. No primitive imports an AI provider SDK.
-3. No product creates its own competing Learner Pulse schema.
-4. No product creates a private Memory Thread store.
-5. No path adaptation mutates canonical curriculum content.
-6. No Product Bridge carries raw learner context in URLs.
-7. No Mind Trace exposes hidden reasoning.
-8. No Knowledge Object label is used as its stable identifier.
-9. No product-specific visual variant changes semantic meaning.
-10. No signature token bypasses accessibility or semantic-state foundations.
+1. Core remains the trusted record and authorization boundary.
+2. Mind does not own authoritative persistence or authorization.
+3. Signature primitives do not write Firestore directly from the browser.
+4. Products do not create competing Pulse, Thread, Bridge, or Knowledge Object schemas.
+5. Adaptive Path never mutates canonical curriculum in v1.
+6. Product Bridge never carries raw learner context in URLs.
+7. Mind Trace never exposes hidden chain-of-thought.
+8. Unknown remains unknown when evidence is insufficient.
+9. Tenant-scoped evidence is never implicitly mixed across organizations.
+10. Teach delegated learner access requires explicit organization authorization.
+11. Completed Coach sessions do not retain raw conversation transcripts under the v1 retention boundary.
+12. Signature telemetry must remain operational and privacy-minimized, never a shadow learner-data store.
+13. Product personality may change composition and presentation, never semantic meaning or accessibility guarantees.
 
 ---
 
-# 5. Testing strategy
+# Merge gate
 
-## Contract
-- schema validation;
-- version compatibility;
-- missing fields;
-- unknown enum states;
-- migration fixtures.
+PR #61 can be recommended for merge only when all of the following are true:
 
-## Core security
-- wrong learner;
-- wrong tenant;
-- wrong role;
-- wrong purpose;
-- expired bridge;
-- unauthorized product-purpose pair.
+- Phase 0 CI green on final head;
+- Product Deployment Validation green on final head;
+- Signature Experience verifier green;
+- Learn Firestore security rules green;
+- Learn, Teach, Admin, Docs, ecosystem web, and teacher workspace production builds green where affected;
+- PR mergeable against current `main`;
+- no unresolved review threads requiring code changes;
+- PR description and this roadmap reflect the final implementation.
 
-## Data integrity
-- duplicate evidence;
-- stale evidence;
-- conflicting observations;
-- insufficient data;
-- deprecated Knowledge Object;
-- missing source product.
+Until those conditions are satisfied on the final head, the branch remains pre-merge even if an earlier commit was green.
 
-## UI
-- keyboard;
-- screen reader;
-- reduced motion;
-- responsive;
-- empty/loading/error;
-- very long labels;
-- localization expansion;
-- high zoom.
+---
 
-## AI/Mind
-- unsupported recommendation;
-- explanation basis mismatch;
-- hallucinated evidence reference;
-- missing limitation;
-- low-confidence decision;
-- provider failure fallback.
-
-## End-to-end
-
-Minimum flagship E2E:
+# Immediate next sequence
 
 ```text
-learner completes Learn activity
-→ evidence persists through Core
-→ Mind interprets approved basis
-→ Pulse updates
-→ Adaptive Path inserts Coach recommendation
-→ learner opens Mind Trace
-→ Product Bridge validates transition
-→ Coach consumes scoped context
-→ Coach evidence persists
-→ Memory Thread updates
-→ returning Learn Pulse/path reflect approved new state
+final CI
+→ inspect failures if any
+→ reconcile PR body
+→ changed-file / mergeability audit
+→ merge recommendation
+→ user review / merge decision
 ```
 
----
-
-# 6. Metrics
-
-## UX
-- next-action comprehension;
-- recommendation explanation comprehension;
-- cross-product handoff completion;
-- Pulse detail engagement;
-- Thread usefulness rating.
-
-## Learning
-- practice completion after recommendation;
-- repeated-error reduction;
-- time to demonstrated stability;
-- intervention effectiveness;
-- adaptive vs non-adaptive outcome comparison.
-
-## Trust
-- explanation disagreement rate;
-- user override rate;
-- false-certainty reports;
-- privacy/support incidents;
-- authorization failures.
-
-## Platform
-- projection latency;
-- bridge failure rate;
-- contract error rate;
-- cache hit/miss;
-- Mind cost per adaptive decision;
-- AI fallback rate.
-
----
-
-# 7. Delivery gates
-
-## Gate A — architecture
-
-- authoritative tiering reconciled;
-- contracts reviewed;
-- Core/Mind boundary accepted.
-
-## Gate B — design
-
-- accessible prototypes;
-- distinctiveness test passed;
-- mobile/reduced-motion states complete.
-
-## Gate C — vertical slice
-
-- Learn real-data Pulse;
-- Learn/Coach Memory Thread;
-- one governed adaptive branch.
-
-## Gate D — trust/continuity
-
-- Mind Trace;
-- secure Product Bridge;
-- Learn → Coach → Learn E2E.
-
-## Gate E — semantic scale
-
-- Knowledge Object IDs used across at least two products;
-- Insight/Teach consumers begin using shared contracts.
-
-## Gate F — rollout
-
-- telemetry healthy;
-- accessibility green;
-- security review green;
-- feature-flag rollout complete;
-- documentation updated.
-
----
-
-# 8. Priority recommendation
-
-Do not spend the next cycle polishing all seven products visually. The highest-leverage implementation is one complete signature loop in Learn + Coach.
-
-Build this first:
-
-```text
-Learner Pulse
-   ↓
-Adaptive recommendation
-   ↓
-Mind Trace
-   ↓
-Product Bridge
-   ↓
-Coach practice
-   ↓
-Memory Thread
-   ↓
-Pulse/path update
-```
-
-If this loop works, Lurexa's architecture becomes visible to the user. If it does not, adding more product-specific visual polish will not create a truly distinctive system.
+After merge, continue S8 with roster-backed Teach UI and Insight as the next cross-product consumer rather than widening visual rollout indiscriminately.
