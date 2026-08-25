@@ -260,38 +260,97 @@ export interface CandidateDerivedObservation {
     purposes: LearnerContextPurpose[];
     products: LurexaProduct[];
   };
-}
-
-export interface DerivedObservation extends Omit<CandidateDerivedObservation, "status"> {
-  status: DerivedObservationStatus;
-  persistedAt: string;
-  reviewedAt?: string;
-  reviewedBy?: string;
   reviewStatus: DerivedObservationReviewStatus;
+  provenance: {
+    method: "deterministic_rule" | "model" | "hybrid";
+    modelId?: string;
+  };
 }
 
 export interface MindInterpretationResultV1 {
   contractVersion: typeof MIND_INTERPRETATION_CONTRACT_VERSION;
-  requestId: string;
+  interpretationId: string;
   learnerId: string;
-  organizationId?: string;
-  interpretations: Array<{
-    type: MindInterpretationType;
-    summary: string;
-    confidence: number;
-    basedOnEvidenceIds: string[];
-    data?: LearnerInsightData;
-  }>;
-  candidateObservations: CandidateDerivedObservation[];
   generatedAt: string;
-  generatedBy: {
-    capability: string;
-    modelPolicyVersion: string;
-    ruleVersion?: string;
-  };
+  purpose: "mind_learning_interpretation";
+  outputs: CandidateDerivedObservation[];
   limitations: string[];
+  modelPolicyVersion: string;
 }
 
+export interface ApprovedDerivedObservation extends Omit<CandidateDerivedObservation, "status"> {
+  status: "active";
+  approvedAt: string;
+  approvedByPolicy: string;
+  supersedesObservationId?: string;
+}
+
+const mindInterpretationTypes: readonly MindInterpretationType[] = [
+  "recommendation", "adaptation_guidance", "candidate_observation", "feedback_plan", "content_ranking", "intervention_suggestion",
+];
+const learnerDomains: readonly LearnerDomain[] = [
+  "proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "preference", "recommendation",
+];
+const learnerContextPurposes: readonly LearnerContextPurpose[] = [
+  "learn_adaptive_practice", "coach_session_adaptation", "teacher_instructional_support", "mind_learning_interpretation",
+];
+const lurexaProducts: readonly LurexaProduct[] = ["learn", "coach", "teach", "admin", "insight", "studio"];
+const reviewStatuses: readonly DerivedObservationReviewStatus[] = ["automated_approved", "pending_review", "human_approved", "rejected"];
+const observationMethods: readonly CandidateDerivedObservation["provenance"]["method"][] = ["deterministic_rule", "model", "hybrid"];
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isStringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isNonEmptyString);
+}
+
+function hasValidObservationScope(value: unknown): boolean {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const scope = value as Record<string, unknown>;
+  const purposes = scope.purposes;
+  const products = scope.products;
+  return isStringList(purposes)
+    && purposes.every((purpose) => learnerContextPurposes.includes(purpose as LearnerContextPurpose))
+    && isStringList(products)
+    && products.every((product) => lurexaProducts.includes(product as LurexaProduct));
+}
+
+export function isCandidateDerivedObservation(value: unknown): value is CandidateDerivedObservation {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const observation = value as Record<string, unknown>;
+  const scope = observation.scope;
+  const generatedBy = observation.generatedBy;
+  const provenance = observation.provenance;
+  return observation.contractVersion === DERIVED_OBSERVATION_CONTRACT_VERSION
+    && isNonEmptyString(observation.observationId)
+    && isNonEmptyString(observation.learnerId)
+    && mindInterpretationTypes.includes(observation.type as MindInterpretationType)
+    && observation.status === "candidate"
+    && learnerDomains.includes(observation.domain as LearnerDomain)
+    && isNonEmptyString(observation.summary)
+    && typeof observation.confidence === "number"
+    && Number.isFinite(observation.confidence)
+    && observation.confidence >= 0
+    && observation.confidence <= 1
+    && isStringList(observation.basedOnEvidenceIds)
+    && new Set(observation.basedOnEvidenceIds).size === observation.basedOnEvidenceIds.length
+    && isNonEmptyString(observation.generatedAt)
+    && isNonEmptyString(observation.effectiveAt)
+    && (observation.expiresAt === undefined || isNonEmptyString(observation.expiresAt))
+    && typeof generatedBy === "object"
+    && generatedBy !== null
+    && isNonEmptyString((generatedBy as Record<string, unknown>).capability)
+    && isNonEmptyString((generatedBy as Record<string, unknown>).modelPolicyVersion)
+    && hasValidObservationScope(scope)
+    && reviewStatuses.includes(observation.reviewStatus as DerivedObservationReviewStatus)
+    && typeof provenance === "object"
+    && provenance !== null
+    && observationMethods.includes((provenance as Record<string, unknown>).method as CandidateDerivedObservation["provenance"]["method"]);
+}
+
+/** Core's minimized response; raw evidence and internal inference are excluded. */
 export interface LearnerContextResponse {
   contractVersion: "1";
   purpose: LearnerContextPurpose;
@@ -303,34 +362,54 @@ export interface LearnerContextResponse {
   limitations: string[];
 }
 
-export function isLearnerContextRequest(value: unknown): value is LearnerContextRequest {
-  if (!value || typeof value !== "object") return false;
-  const input = value as Record<string, unknown>;
-  return input.contractVersion === "1"
-    && typeof input.learnerId === "string"
-    && typeof input.requestingProduct === "string"
-    && (input.organizationId === undefined || typeof input.organizationId === "string")
-    && (input.courseId === undefined || typeof input.courseId === "string")
-    && typeof input.purpose === "string"
-    && Array.isArray(input.domains)
-    && input.domains.every((domain) => typeof domain === "string");
+export interface LearningEvidenceSubmission<TPayload = unknown> {
+  evidence: LearningEvidence<TPayload>;
 }
 
-export function isLearningEvidence(value: unknown): value is LearningEvidence {
-  if (!value || typeof value !== "object") return false;
-  const input = value as Record<string, unknown>;
-  const source = input.source as Record<string, unknown> | undefined;
-  return input.contractVersion === LEARNING_EVIDENCE_CONTRACT_VERSION
-    && typeof input.id === "string"
-    && typeof input.learnerId === "string"
-    && (input.organizationId === undefined || typeof input.organizationId === "string")
-    && typeof input.type === "string"
-    && typeof input.observedAt === "string"
-    && (input.dataClassification === "standard" || input.dataClassification === "sensitive")
-    && !!source
-    && typeof source.product === "string"
-    && (source.knowledgeObjectIds === undefined
-      || (Array.isArray(source.knowledgeObjectIds) && source.knowledgeObjectIds.every((id) => typeof id === "string")))
-    && !!input.provenance
-    && typeof input.provenance === "object";
+/**
+ * Lightweight structural guard at the Core persistence boundary. Domain
+ * authorization and payload validation remain the responsibility of the
+ * relevant capability service; this guard prevents unversioned records from
+ * becoming new trusted evidence.
+ */
+export function isLearningEvidenceV1(value: unknown): value is LearningEvidence {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const evidence = value as Record<string, unknown>;
+  const source = evidence.source as Record<string, unknown> | null;
+  return evidence.contractVersion === LEARNING_EVIDENCE_CONTRACT_VERSION
+    && typeof evidence.id === "string"
+    && typeof evidence.learnerId === "string"
+    && typeof evidence.observedAt === "string"
+    && (evidence.dataClassification === "standard" || evidence.dataClassification === "sensitive")
+    && typeof source === "object"
+    && source !== null
+    && (source.knowledgeObjectIds === undefined || isStringList(source.knowledgeObjectIds))
+    && typeof evidence.type === "string"
+    && typeof evidence.provenance === "object"
+    && evidence.provenance !== null;
+}
+
+export function assertLearningEvidenceV1(value: unknown): asserts value is LearningEvidence {
+  if (!isLearningEvidenceV1(value)) {
+    throw new Error("Learning evidence must conform to v1 before trusted persistence.");
+  }
+}
+
+export interface LearnerInsightSubmission {
+  insight: LearnerInsight;
+}
+
+export interface LearnerInterpretationRequest {
+  learnerId: string;
+  organizationId?: string;
+  evidence: LearningEvidence[];
+  currentContext?: LearnerContext;
+  requestedDomains?: LearnerDomain[];
+}
+
+export interface LearnerInterpretationResult {
+  learnerId: string;
+  insights: LearnerInsight[];
+  evidenceIds: string[];
+  generatedAt: string;
 }
