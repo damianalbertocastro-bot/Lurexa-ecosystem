@@ -12,6 +12,7 @@ const contracts = read("packages/types/src/signature-experience.ts");
 const coachTypes = read("packages/types/src/coach.ts");
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
+const resumeService = read("packages/backend/src/coach-session-state.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const coachPage = read("apps/learn-web/app/coach/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
@@ -53,6 +54,15 @@ check(coachPage.includes('/api/product-bridge?action=resolve'), "Coach UI resolv
 check(coachPage.includes('destination: "learn"'), "Coach return bridge is validated for the Learn destination");
 check(coachPage.includes("Finish session & return to Learn"), "Coach labels the semantic completion transition clearly");
 
+check(resumeService.includes("resumeCoachSession"), "Coach refresh recovery is isolated behind an authorized server capability");
+check(resumeService.includes("session.learnerId !== actor.uid"), "Coach resume verifies session ownership");
+check(resumeService.includes('session.status !== "active"'), "Coach resume rejects completed sessions");
+check(resumeService.includes("getScopedLearnerContext"), "Coach resume re-authorizes learner context instead of trusting restored client data");
+check(coachRoute.includes('body.action === "resumeSession"'), "Coach API exposes authenticated active-session restoration");
+check(coachPage.includes("window.sessionStorage.setItem(COACH_SESSION_STORAGE_KEY, payload.session.id)"), "Coach stores only its opaque active session ID for refresh recovery");
+check(coachPage.includes('action: "resumeSession"'), "Coach client revalidates a stored session through the server after refresh");
+check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY)"), "Coach clears stale/completed client session references");
+
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
 check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern has a canonical Knowledge Object mapping");
@@ -73,4 +83,4 @@ check(uiFiles.filter((content) => content.includes("<button")).every((content) =
 check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
 check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
 
-console.log("Lurexa Signature Experience contract/security/accessibility verification passed.");
+console.log("Lurexa Signature Experience contract/security/accessibility/continuity verification passed.");
