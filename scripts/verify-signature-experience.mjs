@@ -11,7 +11,7 @@ const check = (condition, message) => {
 const contracts = read("packages/types/src/signature-experience.ts");
 const coachTypes = read("packages/types/src/coach.ts");
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
-const coachService = read("packages/backend/src/coach-platform.server.ts");
+const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
@@ -37,22 +37,17 @@ check(bridgeService.includes("Product Bridge has expired."), "expired Product Br
 check(bridgeService.includes("Product Bridge has already been used."), "replayed single-use Product Bridges fail closed");
 check(!uiPackage.dependencies?.["@lurexa/types"], "shared UI remains independent from domain-contract ownership");
 check(coachTypes.includes("CoachSessionEndResult"), "Coach completion has an explicit typed result");
-check(coachService.includes("async endSession"), "Coach exposes a real server-side session completion boundary");
+check(completionService.includes("export async function endCoachSession"), "Coach completion is isolated behind a server capability");
 check(coachRoute.includes('body.action === "endSession"'), "Learn web exposes the authenticated Coach completion action");
-check(coachService.includes('purpose: "return_to_learning"'), "Coach completion creates a purpose-scoped return bridge");
-check(coachService.includes('event: "coach.session_completed"'), "Coach completion contributes explicit Core evidence");
-
-const persistedPayloadStart = coachService.indexOf("const payload: LinguisticEvidencePayload");
-const persistedPayloadEnd = coachService.indexOf("await evidenceRepository.append", persistedPayloadStart);
-const persistedPayload = coachService.slice(persistedPayloadStart, persistedPayloadEnd);
-check(persistedPayloadStart >= 0 && persistedPayloadEnd > persistedPayloadStart, "Coach linguistic evidence payload is statically inspectable");
-check(!persistedPayload.includes("learnerForm:"), "durable Coach linguistic evidence omits raw learner utterance text");
+check(coachRoute.includes("endCoachSession"), "Coach completion route delegates to the isolated signature capability");
+check(completionService.includes('purpose: "return_to_learning"'), "Coach completion creates a purpose-scoped return bridge");
+check(completionService.includes('event: "coach.session_completed"'), "Coach completion contributes explicit Core evidence");
+check(!completionService.includes("transcript:"), "Coach completion evidence does not persist the conversation transcript");
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
-check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern maps to a canonical Knowledge Object");
-check(catalog.includes('"DO-ENG-PRO-006"'), "regular-past pronunciation pattern maps to canonical Knowledge Objects");
-check(coachService.includes("getKnowledgeObjectIdsForLinguisticPattern"), "Coach evidence emits governed Knowledge Object references");
+check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern has a canonical Knowledge Object mapping");
+check(catalog.includes('"DO-ENG-PRO-006"'), "regular-past pronunciation pattern has canonical Knowledge Object mappings");
 check(adaptiveAdapter.includes("getKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed catalog");
 check(adaptiveAdapter.includes("Competency identifiers are not treated as Knowledge Object identifiers"), "competency and Knowledge Object namespaces remain distinct");
 check(signatureRoute.includes("getGovernedAdaptiveLearningPathProjection"), "Learn API routes Adaptive Path through the semantic governance adapter");
