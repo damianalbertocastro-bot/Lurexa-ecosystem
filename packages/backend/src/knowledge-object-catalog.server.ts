@@ -2,7 +2,12 @@ import type { KnowledgeObjectV1 } from "@lurexa/types";
 
 const NOW = "2026-08-25T00:00:00.000Z";
 
-function object(input: Omit<KnowledgeObjectV1, "contractVersion" | "status" | "language" | "curriculumRefs" | "version" | "createdAt" | "updatedAt">): KnowledgeObjectV1 {
+type KnowledgeObjectInput = Omit<
+  KnowledgeObjectV1,
+  "contractVersion" | "status" | "language" | "version" | "createdAt" | "updatedAt"
+> & { curriculumRefs?: string[] };
+
+function object(input: KnowledgeObjectInput): KnowledgeObjectV1 {
   return {
     contractVersion: "1",
     status: "active",
@@ -17,8 +22,9 @@ function object(input: Omit<KnowledgeObjectV1, "contractVersion" | "status" | "l
 
 /**
  * Deterministic semantic catalog. These identifiers represent learning concepts,
- * skills, strategies, and targets—not learner state. Every current Dominican-
- * English corpus pattern resolves to at least one governed Knowledge Object.
+ * skills, strategies, and targets—not learner state. The catalog combines
+ * curriculum-linked Knowledge Objects with the governed Dominican-English
+ * linguistic-transfer taxonomy; neither source overwrites the other.
  */
 const objects: readonly KnowledgeObjectV1[] = [
   object({ id: "eng.strategy.sound-before-spelling", kind: "strategy", title: "Sound before spelling", description: "Build an auditory representation of unfamiliar English words before relying on Spanish letter-to-sound expectations.", cefrLevels: ["A1", "A2"], skillDimensions: ["phonetics", "listening", "speaking"], relations: [{ kind: "supports", targetId: "eng.pronunciation.unpredictable-vowel-spelling" }], aliases: ["auditory-first decoding", "sound-before-print"], tags: ["english", "pronunciation", "orthographic-transfer", "spanish-transfer"] }),
@@ -43,6 +49,12 @@ const objects: readonly KnowledgeObjectV1[] = [
   object({ id: "eng.strategy.spaced-lexical-retrieval", kind: "strategy", title: "Spaced lexical retrieval", description: "Strengthen vocabulary retention with repeated retrieval across time and contexts rather than relying on one exposure.", cefrLevels: ["A2", "B1", "B2", "C1", "C2"], skillDimensions: ["vocabulary", "reading", "listening", "speaking", "writing"], relations: [{ kind: "supports", targetId: "eng.skill.productive-lexical-retrieval" }], aliases: ["vocabulary retrieval practice", "spaced vocabulary review"], tags: ["english", "vocabulary", "retention", "retrieval-practice"] }),
   object({ id: "eng.skill.receptive-productive-balance", kind: "skill", title: "Receptive-to-productive transfer", description: "Close a material gap between what a learner can understand in listening/reading and what they can produce in speaking/writing.", cefrLevels: ["B2", "C1", "C2"], skillDimensions: ["listening", "reading", "speaking", "writing", "vocabulary"], relations: [{ kind: "supports", targetId: "eng.skill.productive-lexical-retrieval" }, { kind: "supports", targetId: "eng.skill.spoken-sentence-automaticity" }], aliases: ["receptive productive gap", "productive transfer"], tags: ["english", "discourse", "productive-skills", "receptive-skills"] }),
   object({ id: "eng.skill.narrative-speaking.past-events", kind: "skill", title: "Speaking about past events", description: "Organize and express comprehensible spoken narratives about completed past experiences.", cefrLevels: ["A2", "B1"], skillDimensions: ["speaking", "grammar", "vocabulary", "phonetics"], relations: [{ kind: "prerequisite", targetId: "eng.grammar.simple-past.regular-form" }, { kind: "supports", targetId: "eng.pronunciation.regular-past-endings" }], aliases: ["past storytelling", "talking about past experiences"], tags: ["english", "speaking", "narrative", "past-events"] }),
+
+  // Curriculum-linked objects added by the current main curriculum runner work.
+  object({ id: "eng.skill.introductions.personal-identity", kind: "skill", title: "Personal introductions and identity", description: "Introducing oneself, sharing country of origin, and responding to formulaic social greetings in English.", cefrLevels: ["A1"], skillDimensions: ["speaking", "listening", "vocabulary"], curriculumRefs: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.CONV.PERSONAL_INTRODUCTION"], relations: [], aliases: ["introducing yourself", "meet and greet", "basic introductions"], tags: ["english", "speaking", "introductions", "a1-foundations"] }),
+  object({ id: "eng.grammar.frequency-adverbs.routines", kind: "language_form", title: "Adverbs of frequency in daily routines", description: "Accurate placement and use of frequency adverbs (always, usually, rarely, hardly ever) to describe recurring schedules.", cefrLevels: ["A2"], skillDimensions: ["grammar", "speaking", "writing"], curriculumRefs: ["EN.A2.GRAMMAR.FREQUENCY_ADVERBS", "EN.A2.SPEAK.DESCRIBE_ROUTINE"], relations: [{ kind: "supports", targetId: "eng.pronunciation.consonant-linking" }], aliases: ["frequency adverbs", "routine descriptions", "habitual actions"], tags: ["english", "grammar", "routines", "a2-core"] }),
+  object({ id: "eng.pronunciation.consonant-linking", kind: "pronunciation_target", title: "Consonant-to-vowel linking", description: "Connecting the final consonant of one word smoothly to the initial vowel of the following word in natural spoken English.", cefrLevels: ["A2", "B1"], skillDimensions: ["phonetics", "speaking", "listening"], curriculumRefs: ["EN.A2.PHON.LINKED_SOUNDS"], relations: [{ kind: "prerequisite", targetId: "eng.grammar.frequency-adverbs.routines" }], aliases: ["c-to-v linking", "catenation", "connected speech linking"], tags: ["english", "pronunciation", "phonetics", "connected-speech"] }),
+  object({ id: "eng.skill.directions-and-transit", kind: "skill", title: "Navigating transit and giving directions", description: "Asking for wayfinding directions, buying transit tickets, and understanding public transit schedules in English.", cefrLevels: ["A2"], skillDimensions: ["speaking", "listening", "vocabulary"], curriculumRefs: ["EN.A2.SPEAK.GIVE_DIRECTIONS", "EN.A2.LISTEN.TRANSIT_ANNOUNCEMENTS"], relations: [], aliases: ["asking for directions", "transit navigation", "city wayfinding"], tags: ["english", "speaking", "transit", "travel"] }),
 ] as const;
 
 const byId = new Map(objects.map((entry) => [entry.id, entry]));
