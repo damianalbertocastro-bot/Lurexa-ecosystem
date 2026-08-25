@@ -32,6 +32,13 @@ const consumerPolicy = {
 
 type AuthorizedSignatureConsumer = keyof typeof consumerPolicy;
 
+type SignatureServerInput = {
+  actorId: string;
+  request: SignatureProjectionRequestV1;
+  /** Trusted server-only authorization scope. Not part of the reusable Signature visual contract. */
+  authorizationCourseId?: string;
+};
+
 function assertAuthorizedConsumer(
   consumer: SignatureProjectionRequestV1["consumer"],
 ): asserts consumer is AuthorizedSignatureConsumer {
@@ -135,10 +142,7 @@ function buildDimension(
   };
 }
 
-async function loadScopedContext(input: {
-  actorId: string;
-  request: SignatureProjectionRequestV1;
-}) {
+async function loadScopedContext(input: SignatureServerInput) {
   assertAuthorizedConsumer(input.request.consumer);
   const delegatedLearnTeacher = input.request.consumer === "learn" && input.actorId !== input.request.learnerId;
   const policy = delegatedLearnTeacher
@@ -150,6 +154,7 @@ async function loadScopedContext(input: {
       contractVersion: "1",
       learnerId: input.request.learnerId,
       ...(input.request.organizationId ? { organizationId: input.request.organizationId } : {}),
+      ...(delegatedLearnTeacher && input.authorizationCourseId ? { courseId: input.authorizationCourseId } : {}),
       requestingProduct: policy.product,
       purpose: policy.purpose,
       domains: [
@@ -165,10 +170,7 @@ async function loadScopedContext(input: {
   });
 }
 
-export async function getLearnerPulseProjection(input: {
-  actorId: string;
-  request: SignatureProjectionRequestV1;
-}): Promise<LearnerPulseProjectionV1> {
+export async function getLearnerPulseProjection(input: SignatureServerInput): Promise<LearnerPulseProjectionV1> {
   const scoped = await loadScopedContext(input);
   const freshness = evidenceFreshness(scoped.evidenceSummary.latestEvidenceAt);
   const dimensions: LearnerPulseDimensionId[] = [
@@ -230,10 +232,7 @@ function recommendationNode(
   };
 }
 
-export async function getAdaptiveLearningPathProjection(input: {
-  actorId: string;
-  request: SignatureProjectionRequestV1;
-}): Promise<AdaptiveLearningPathV1> {
+export async function getAdaptiveLearningPathProjection(input: SignatureServerInput): Promise<AdaptiveLearningPathV1> {
   const scoped = await loadScopedContext(input);
   const curriculum = scoped.context.curriculum;
   const currentNode: AdaptivePathNodeV1 | null = curriculum?.lessonId
@@ -294,10 +293,7 @@ function mindTraceAction(context: LearnerContext): MindTraceV1["action"] {
   };
 }
 
-export async function getMindTraceProjection(input: {
-  actorId: string;
-  request: SignatureProjectionRequestV1;
-}): Promise<MindTraceV1> {
+export async function getMindTraceProjection(input: SignatureServerInput): Promise<MindTraceV1> {
   const scoped = await loadScopedContext(input);
   const pattern = scoped.context.recurringPatterns?.[0];
   const recommendation = scoped.context.recommendations?.[0];
