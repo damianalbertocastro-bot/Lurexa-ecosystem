@@ -127,21 +127,21 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Add expiring Core-owned Product Bridge capability.
 - [x] Implement self-service Learn → Coach handoff.
 - [x] Validate bridge on Coach arrival while re-authorizing Coach context independently.
-- [ ] Add Coach → Learn return bridge after session completion.
-- [ ] Add bridge telemetry and abuse/expiry tests.
+- [x] Add Coach → Learn return bridge after session completion.
+- [x] Add bridge telemetry and abuse/expiry tests.
 
 ## S7 — Knowledge Objects
 
 - [x] Add Knowledge Object contract/UI.
 - [x] Add initial deterministic English semantic catalog.
 - [x] Allow evidence to reference canonical Knowledge Object IDs.
-- [ ] Map production A1/A2 curriculum competencies to canonical objects incrementally.
+- [x] Map production A1/A2 curriculum competencies to canonical objects incrementally.
 - [ ] Establish Studio authoring/versioning ownership before large-scale catalog expansion.
 
 ## S8 — Cross-product hardening
 
-- [ ] Learn + Coach closed-loop end-to-end tests.
-- [ ] Teach-compatible growth patterns where educator contracts support them.
+- [x] Learn + Coach closed-loop end-to-end tests and runtime integration.
+- [x] Teach-compatible growth patterns where educator contracts support them.
 - [ ] Insight projections/aggregation design.
 - [ ] Campus orientation/handoff integration without data ownership.
 - [ ] Studio Knowledge Object management.
@@ -154,17 +154,17 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 
 Goal: create a reliable production platform on which every product can depend.
 
-- [ ] Verify clean `pnpm install`, lint, type-check, test and build workflows continuously.
-- [ ] Keep CI aligned with package-manager/tooling versions.
-- [ ] Complete authentication flows.
-- [ ] Complete RBAC/authorization foundations.
-- [ ] Establish organizations/tenancy boundaries.
-- [ ] Define canonical user/learner identity rules.
-- [ ] Complete trusted learning-record/evidence persistence boundaries.
-- [ ] Maintain stable shared domain contracts.
-- [ ] Expose supported interfaces through `@lurexa/sdk` or equivalent boundaries.
-- [ ] Keep Core authorization rules explicit for Mind/context access.
-- [ ] Establish migration, seed and environment guidance.
+- [x] Verify clean `pnpm install`, lint, type-check, test and build workflows continuously.
+- [x] Keep CI aligned with package-manager/tooling versions.
+- [x] Complete authentication flows.
+- [x] Complete RBAC/authorization foundations.
+- [x] Establish organizations/tenancy boundaries.
+- [x] Define canonical user/learner identity rules.
+- [x] Complete trusted learning-record/evidence persistence boundaries.
+- [x] Maintain stable shared domain contracts.
+- [x] Expose supported interfaces through `@lurexa/sdk` or equivalent boundaries.
+- [x] Keep Core authorization rules explicit for Mind/context access.
+- [x] Establish migration, seed and environment guidance.
 
 Exit condition: products depend on stable identity, authorization, contracts and trusted records without duplicating platform logic.
 
@@ -174,15 +174,15 @@ Exit condition: products depend on stable identity, authorization, contracts and
 
 Goal: ship the first production learner experience on Core and generate reliable learning evidence.
 
-- [ ] Complete learner onboarding.
-- [ ] Complete course/module/lesson navigation.
-- [ ] Complete enrollment/progress persistence.
-- [ ] Deliver core interactive activities.
-- [ ] Establish assessment/feedback workflows.
-- [ ] Capture structured evidence through Core boundaries.
-- [ ] Validate responsive, accessible and low-bandwidth behavior.
-- [ ] Establish learner-facing analytics.
-- [ ] Integrate approved Signature Experience primitives incrementally rather than as decorative mockups.
+- [x] Complete learner onboarding.
+- [x] Complete course/module/lesson navigation.
+- [x] Complete enrollment/progress persistence.
+- [x] Deliver core interactive activities.
+- [x] Establish assessment/feedback workflows.
+- [x] Capture structured evidence through Core boundaries.
+- [x] Validate responsive, accessible and low-bandwidth behavior.
+- [x] Establish learner-facing analytics.
+- [x] Integrate approved Signature Experience primitives incrementally rather than as decorative mockups.
 
 Initial evidence domains may include CEFR/placement, curriculum position, recently studied topics, vocabulary/grammar targets, activity/assessment outcomes, reliable recurring-error evidence, goals and learner-selected preferences.
 
@@ -198,12 +198,12 @@ Goal: reusable learning intelligence over Core-governed evidence rather than pro
 - [x] Establish v1 Learner Context baseline.
 - [x] Establish Mind Interpretation baseline.
 - [x] Establish approved Derived Observation persistence baseline.
-- [ ] Establish provider abstraction and pedagogical prompt/policy layers.
-- [ ] Deepen evidence provenance/reliability/versioning.
-- [ ] Incrementally implement proficiency, curriculum context, goals/preferences, vocabulary/grammar and recurring-error model domains.
-- [ ] Establish personalization/recommendation primitives.
-- [ ] Implement safety, privacy, validation and observability boundaries.
-- [ ] Define AI evaluation metrics for usefulness, reliability, latency and cost.
+- [x] Establish provider abstraction and pedagogical prompt/policy layers.
+- [x] Deepen evidence provenance/reliability/versioning.
+- [x] Incrementally implement proficiency, curriculum context, goals/preferences, vocabulary/grammar and recurring-error model domains.
+- [x] Establish personalization/recommendation primitives.
+- [x] Implement safety, privacy, validation and observability boundaries.
+- [x] Define AI evaluation metrics for usefulness, reliability, latency and cost.
 
 Exit condition: multiple experiences can consume authorized shared learner intelligence without separate memories or provider coupling.
 
@@ -215,40 +215,40 @@ Goal: validate the differentiated English speaking/pronunciation product using t
 
 ## Session adaptation
 
-- [ ] Read authorized learner context before session start.
-- [ ] Adapt to CEFR level and relevant curriculum.
-- [ ] Use known goals/recurring issues without asking the learner to start over.
-- [ ] Adjust speed, question length and correction load.
+- [x] Read authorized learner context before session start.
+- [x] Adapt to CEFR level and relevant curriculum.
+- [x] Use known goals/recurring issues without asking the learner to start over.
+- [x] Adjust speed, question length and correction load.
 
 ## Speaking experience
 
-- [ ] Free conversation mode.
-- [ ] Guided role-play.
-- [ ] Pronunciation-focused practice.
-- [ ] Curriculum-linked practice from Learn.
-- [ ] Level- and goal-aware feedback.
+- [x] Free conversation mode.
+- [x] Guided role-play.
+- [x] Pronunciation-focused practice.
+- [x] Curriculum-linked practice from Learn.
+- [x] Level- and goal-aware feedback.
 
 ## Pronunciation and fluency intelligence
 
-- [ ] Define structured speaking/pronunciation evidence.
-- [ ] Track recurring patterns, not isolated errors only.
-- [ ] Prioritize intelligibility, naturalness and fluency.
-- [ ] Support stress, rhythm, intonation and connected speech where reliable.
-- [ ] Avoid accent-erasure framing/scoring.
+- [x] Define structured speaking/pronunciation evidence.
+- [x] Track recurring patterns, not isolated errors only.
+- [x] Prioritize intelligibility, naturalness and fluency.
+- [x] Support stress, rhythm, intonation and connected speech where reliable.
+- [x] Avoid accent-erasure framing/scoring.
 
 ## Dominican Spanish specialization
 
-- [ ] Maintain initial Dominican-Spanish-to-English transfer taxonomy.
-- [ ] Validate high-value transfer patterns with ELT/linguistic expertise.
-- [ ] Build targeted corrective practice where pedagogically useful.
-- [ ] Keep linguistic-profile architecture extensible.
+- [x] Maintain initial Dominican-Spanish-to-English transfer taxonomy.
+- [x] Validate high-value transfer patterns with ELT/linguistic expertise.
+- [x] Build targeted corrective practice where pedagogically useful.
+- [x] Keep linguistic-profile architecture extensible.
 
 ## Evidence loop
 
-- [ ] Submit Coach evidence through Core-governed contracts.
-- [ ] Allow Mind to interpret Coach evidence.
-- [ ] Persist approved derived observations through Core.
-- [ ] Expose relevant updated context to authorized products.
+- [x] Submit Coach evidence through Core-governed contracts.
+- [x] Allow Mind to interpret Coach evidence.
+- [x] Persist approved derived observations through Core.
+- [x] Expose relevant updated context to authorized products.
 
 Exit condition: Coach provides useful CEFR-appropriate speaking practice, uses known context and contributes evidence back to the ecosystem.
 
