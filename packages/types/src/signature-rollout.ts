@@ -1,6 +1,10 @@
 export const SIGNATURE_ROLLOUT_CONTRACT_VERSION = "1" as const;
 
-export interface TeachRosterLearnerV1 {
+/**
+ * Operational teacher-workspace contracts belong to Lurexa Learn.
+ * Lurexa Teach is reserved for the educator's own professional learning.
+ */
+export interface LearnTeacherRosterLearnerV1 {
   learnerId: string;
   displayName: string;
   organizationId: string;
@@ -12,17 +16,17 @@ export interface TeachRosterLearnerV1 {
   lastActivityAt: string | null;
 }
 
-export interface TeachRosterCourseV1 {
+export interface LearnTeacherRosterCourseV1 {
   courseId: string;
   courseTitle: string;
   organizationId: string;
-  learners: TeachRosterLearnerV1[];
+  learners: LearnTeacherRosterLearnerV1[];
 }
 
-export interface TeachInstructionalRosterV1 {
+export interface LearnTeacherInstructionalRosterV1 {
   contractVersion: typeof SIGNATURE_ROLLOUT_CONTRACT_VERSION;
   generatedAt: string;
-  courses: TeachRosterCourseV1[];
+  courses: LearnTeacherRosterCourseV1[];
   limitations: string[];
 }
 
