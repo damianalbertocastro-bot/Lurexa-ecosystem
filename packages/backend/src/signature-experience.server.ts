@@ -25,9 +25,8 @@ const VERSION = "1" as const;
 const consumerPolicy = {
   learn: { product: "learn", purpose: "learn_adaptive_practice" },
   coach: { product: "coach", purpose: "coach_session_adaptation" },
-  teach: { product: "teach", purpose: "teacher_instructional_support" },
 } as const satisfies Record<
-  "learn" | "coach" | "teach",
+  "learn" | "coach",
   { product: LearnerContextRequest["requestingProduct"]; purpose: LearnerContextPurpose }
 >;
 
@@ -141,7 +140,10 @@ async function loadScopedContext(input: {
   request: SignatureProjectionRequestV1;
 }) {
   assertAuthorizedConsumer(input.request.consumer);
-  const policy = consumerPolicy[input.request.consumer];
+  const delegatedLearnTeacher = input.request.consumer === "learn" && input.actorId !== input.request.learnerId;
+  const policy = delegatedLearnTeacher
+    ? { product: "learn", purpose: "teacher_instructional_support" } as const
+    : consumerPolicy[input.request.consumer];
   return getScopedLearnerContext({
     actorId: input.actorId,
     request: {
