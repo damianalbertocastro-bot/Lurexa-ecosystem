@@ -1,8 +1,19 @@
 import React from "react";
-import type { KnowledgeObjectV1 } from "@lurexa/types";
+
+export type KnowledgeObjectView = {
+  id: string;
+  kind: string;
+  title: string;
+  description: string;
+  skillDimensions: string[];
+  cefrLevels?: string[];
+  version: number;
+  status: string;
+  relations: Array<{ kind: string; targetId: string }>;
+};
 
 export interface KnowledgeObjectProps {
-  object: KnowledgeObjectV1;
+  object: KnowledgeObjectView;
   className?: string;
   compact?: boolean;
 }
