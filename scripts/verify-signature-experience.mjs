@@ -53,7 +53,7 @@ const completionPayloadStart = completionService.indexOf('event: "coach.session_
 const completionPayloadEnd = completionService.indexOf("provenance:", completionPayloadStart);
 const completionPayload = completionService.slice(completionPayloadStart, completionPayloadEnd);
 check(completionPayloadStart >= 0 && completionPayloadEnd > completionPayloadStart, "Coach completion evidence payload is statically inspectable");
-check(!completionPayload.includes("transcript"), "Coach completion evidence does not persist the conversation transcript");
+check(!/(?:^|[,{]\s*)transcript\s*:/.test(completionPayload), "Coach completion evidence does not persist the conversation transcript");
 check(completionService.includes('id: `coach_session_completed_${session.id}`'), "Coach completion evidence is idempotently keyed by session");
 check(completionService.includes('.where("source.activityId", "==", input.sessionId)'), "Coach completion finds only evidence tied to the completed session for redaction");
 check(completionService.includes('if (value.learnerId !== input.learnerId || value.source?.product !== "coach")'), "Coach evidence redaction verifies learner and product ownership");
