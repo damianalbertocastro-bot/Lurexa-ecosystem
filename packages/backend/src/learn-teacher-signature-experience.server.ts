@@ -49,6 +49,7 @@ export async function getLearnTeacherLearnerPulseProjection(input: {
 
   const projection = await getLearnerPulseProjection({
     actorId: input.actorId,
+    authorizationCourseId: input.courseId,
     request: {
       contractVersion: "1",
       learnerId: input.learnerId,
@@ -67,8 +68,8 @@ export async function getLearnTeacherLearnerPulseProjection(input: {
     ...projection,
     limitations: [
       ...projection.limitations,
-      `Instructional access was authorized against Learn course ${input.courseId}.`,
-      "Derived learner insights are still organization-scoped in Signature v1; course-scoped derived-insight provenance is required before finer-grained inference can be exposed.",
+      `Instructional access and learner context were pinned to Learn course ${input.courseId}.`,
+      "Broader organization-level derived insights are withheld until derived-insight provenance supports explicit course scope.",
     ],
   };
 }
