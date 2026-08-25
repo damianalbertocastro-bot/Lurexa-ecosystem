@@ -14,9 +14,6 @@
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
   },
-  "dependencies": {
-    "@lurexa/types": "workspace:*"
-  },
   "devDependencies": {
     "@lurexa/eslint-config": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
