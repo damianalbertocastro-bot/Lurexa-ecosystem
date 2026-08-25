@@ -60,7 +60,9 @@ requireText(paths.learnerContext, content.learnerContext, "scoped.scope.purposes
 requireText(paths.learnerContext, content.learnerContext, "scoped.scope.products.includes(request.requestingProduct)");
 requireText(paths.learnerContext, content.learnerContext, "actorId === request.learnerId");
 requireText(paths.learnerContext, content.learnerContext, 'request.purpose !== "teacher_instructional_support"');
-requireText(paths.learnerContext, content.learnerContext, 'request.requestingProduct !== "teach"');
+requireText(paths.learnerContext, content.learnerContext, 'request.requestingProduct !== "learn"');
+requireText(paths.learnerContext, content.learnerContext, 'learn: ["learn_adaptive_practice", "teacher_instructional_support"]');
+requireText(paths.learnerContext, content.learnerContext, "teach: []");
 requireText(paths.learnerContext, content.learnerContext, "delegatedTeacherRoles");
 requireText(paths.learnerContext, content.learnerContext, 'learnerMembership?.role !== "student"');
 requireText(paths.learnerContext, content.learnerContext, "Delegated learner context is not authorized for this product and purpose.");
@@ -100,4 +102,4 @@ requireText(paths.learnProgress, content.learnProgress, "getScopedLearnerContext
 requireText(paths.learnProgress, content.learnProgress, "nextStep");
 requireText(paths.dashboard, content.dashboard, "Recommended next step");
 
-console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> purpose-scoped self/Teach delegated projections; legacy browser mutations fail closed.");
+console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> purpose-scoped learner and Learn-teacher projections; Lurexa Teach has no student-context entitlement; legacy browser mutations fail closed.");
