@@ -1,8 +1,13 @@
 import React from "react";
-import type { ProductBridgeV1 } from "@lurexa/types";
+
+export type ProductBridgeView = {
+  bridgeId: string;
+  source: string;
+  destination: string;
+};
 
 export interface ProductBridgeProps {
-  bridge: ProductBridgeV1;
+  bridge: ProductBridgeView;
   title?: string;
   description?: string;
   className?: string;
