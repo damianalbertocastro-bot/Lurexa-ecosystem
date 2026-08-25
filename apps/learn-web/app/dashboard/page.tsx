@@ -15,6 +15,7 @@ import { VisualStreakTracker } from "./components/VisualStreakTracker";
 import { MilestoneAchievementsCard } from "./components/MilestoneAchievementsCard";
 import { CoachPracticeCard } from "./components/CoachPracticeCard";
 import { SupportHelpModal } from "./components/SupportHelpModal";
+import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
 
 interface LearnerCourseSummary {
   course: Course;
@@ -86,7 +87,6 @@ export default function StudentDashboardPage() {
             setNextAction({ kind: "mind_recommendation", recommendation: dashboard.nextStep });
           }
 
-          // Check if onboarding tour has been completed
           try {
             const hasSeenTour = localStorage.getItem(TOUR_STORAGE_KEY);
             if (!hasSeenTour) {
@@ -134,7 +134,6 @@ export default function StudentDashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* Task 1: Dynamic Personalized Greeting Header */}
         <DashboardGreetingHeader
           user={currentUser}
           streakDays={gamification?.streakDays ?? 0}
@@ -159,11 +158,10 @@ export default function StudentDashboardPage() {
           </div>
         ) : null}
 
-        {/* Responsive Grid Layout (Main Content + Sidebar) */}
+        <SignatureExperiencePanel enabled={Boolean(currentUser)} />
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Main Column (lg:col-span-2) */}
           <main className="space-y-8 lg:col-span-2">
-            {/* Recommended Next Step Card */}
             {nextAction && recommendation && (
               <Card
                 className="border-0 bg-white shadow-lg shadow-indigo-100/70"
@@ -204,7 +202,6 @@ export default function StudentDashboardPage() {
               </Card>
             )}
 
-            {/* Enrolled Courses Section */}
             <section className="space-y-4" aria-labelledby="enrolled-courses-heading">
               <div className="flex items-center justify-between">
                 <div>
@@ -292,19 +289,15 @@ export default function StudentDashboardPage() {
               )}
             </section>
 
-            {/* Task 5 / Task 0: Dedicated Practice with Lurexa Coach Card */}
             <CoachPracticeCard />
           </main>
 
-          {/* Sidebar Column (lg:col-span-1) */}
           <aside className="space-y-8 lg:col-span-1" aria-label="Learning momentum and rewards">
-            {/* Task 3: Visual 7-Day Streak Tracker */}
             <VisualStreakTracker
               streakDays={gamification?.streakDays ?? 0}
               lastActivityAt={gamification?.lastActivityAt}
             />
 
-            {/* Task 4: Recent Milestone & Achievements Card */}
             <MilestoneAchievementsCard
               completedLessonsCount={totalCompletedLessons}
               streakDays={gamification?.streakDays ?? 0}
@@ -313,7 +306,6 @@ export default function StudentDashboardPage() {
               onStartLesson={handleStartFirstLesson}
             />
 
-            {/* Adaptive Placement Card */}
             <Card
               className="border-0 bg-white shadow-lg shadow-slate-200/60"
               title="Placement Diagnostic"
@@ -334,7 +326,6 @@ export default function StudentDashboardPage() {
               </div>
             </Card>
 
-            {/* Points & Learning Rewards Summary */}
             <Card
               className="border-0 bg-white shadow-lg shadow-slate-200/60"
               title="Points & Rewards"
@@ -374,13 +365,11 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* Task 2: First-Session Onboarding Tour Modal */}
       <DashboardTourModal
         isOpen={isTourOpen}
         onClose={() => setIsTourOpen(false)}
       />
 
-      {/* Task 5: Consolidate Coach Entry Points into Floating Support trigger */}
       <SupportHelpModal />
     </div>
   );
