@@ -44,10 +44,7 @@ export default function StudentsPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!user || !selected || !signatureEnabled) {
-      setPulse(null);
-      return;
-    }
+    if (!user || !selected || !signatureEnabled) return;
     let active = true;
     setLoadingPulse(true);
     setError(null);
@@ -61,6 +58,12 @@ export default function StudentsPage() {
       .finally(() => active && setLoadingPulse(false));
     return () => { active = false; };
   }, [user, selected]);
+
+  function selectLearner(learner: TeachRosterLearnerV1): void {
+    setPulse(null);
+    setError(null);
+    setSelected(learner);
+  }
 
   const learnerCount = useMemo(() => roster?.courses.reduce((total, course) => total + course.learners.length, 0) ?? 0, [roster]);
 
@@ -76,7 +79,7 @@ export default function StudentsPage() {
       <section aria-label="Authorized course rosters" className="rounded-[28px] border border-[#dfe6f8] bg-white p-5 sm:p-6">
         <div className="flex items-center justify-between gap-4"><div><p className="text-[10px] font-extrabold tracking-[.16em] text-[#6b2bd9]">COURSE ROSTERS</p><h2 className="mt-2 text-xl font-black">Choose a learner</h2></div><span className="rounded-full bg-[#f0ecff] px-3 py-1.5 text-xs font-extrabold text-[#6b2bd9]">Core authorized</span></div>
         <div className="mt-5 space-y-5">
-          {loadingRoster ? <p className="text-sm text-[#6677a5]" aria-live="polite">Loading authorized roster…</p> : roster?.courses.length ? roster.courses.map((course) => <div key={course.courseId}><p className="mb-2 text-xs font-extrabold uppercase tracking-[.12em] text-[#7180a8]">{course.courseTitle}</p><div className="space-y-2">{course.learners.length ? course.learners.map((learner) => <button key={`${course.courseId}:${learner.learnerId}`} type="button" onClick={() => setSelected(learner)} aria-pressed={selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId} className={`w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7] ${selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId ? "border-[#6b2bd9] bg-[#f0ecff]" : "border-[#e3e9f7] bg-[#fbfcff] hover:border-[#b9c5ea]"}`}><div className="flex items-center justify-between gap-4"><div><b className="text-[#132a72]">{learner.displayName}</b><p className="mt-1 text-xs text-[#7180a8]">{learner.completedLessons}/{learner.totalLessons} lessons completed</p></div><span className="text-sm font-black text-[#315fd7]">{learner.progressPercent}%</span></div></button>) : <p className="rounded-2xl bg-[#f7f9ff] p-4 text-sm text-[#6677a5]">No participating learners yet.</p>}</div></div>) : <p className="text-sm text-[#6677a5]">No authorized course participation is available yet.</p>}
+          {loadingRoster ? <p className="text-sm text-[#6677a5]" aria-live="polite">Loading authorized roster…</p> : roster?.courses.length ? roster.courses.map((course) => <div key={course.courseId}><p className="mb-2 text-xs font-extrabold uppercase tracking-[.12em] text-[#7180a8]">{course.courseTitle}</p><div className="space-y-2">{course.learners.length ? course.learners.map((learner) => <button key={`${course.courseId}:${learner.learnerId}`} type="button" onClick={() => selectLearner(learner)} aria-pressed={selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId} className={`w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7] ${selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId ? "border-[#6b2bd9] bg-[#f0ecff]" : "border-[#e3e9f7] bg-[#fbfcff] hover:border-[#b9c5ea]"}`}><div className="flex items-center justify-between gap-4"><div><b className="text-[#132a72]">{learner.displayName}</b><p className="mt-1 text-xs text-[#7180a8]">{learner.completedLessons}/{learner.totalLessons} lessons completed</p></div><span className="text-sm font-black text-[#315fd7]">{learner.progressPercent}%</span></div></button>) : <p className="rounded-2xl bg-[#f7f9ff] p-4 text-sm text-[#6677a5]">No participating learners yet.</p>}</div></div>) : <p className="text-sm text-[#6677a5]">No authorized course participation is available yet.</p>}
         </div>
       </section>
 
