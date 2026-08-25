@@ -31,9 +31,9 @@ const allowedDomains: LearnerDomain[] = [
 ];
 
 const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"], readonly LearnerContextPurpose[]> = {
-  learn: ["learn_adaptive_practice"],
+  learn: ["learn_adaptive_practice", "teacher_instructional_support"],
   coach: ["coach_session_adaptation"],
-  teach: ["teacher_instructional_support"],
+  teach: [],
   admin: [],
   insight: [],
   studio: [],
@@ -66,7 +66,7 @@ async function authorizeContextRead(input: { actorId: string; request: LearnerCo
     return;
   }
 
-  if (request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "teach") {
+  if (request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "learn") {
     throw new Error("Delegated learner context is not authorized for this product and purpose.");
   }
   if (!request.organizationId) {
@@ -117,8 +117,9 @@ function scopeInsights(
 
 /**
  * Trusted Core read boundary for learner context. Self-service remains the
- * default. The only v1 delegated read is Teach instructional support, which is
- * explicitly organization-scoped and role checked inside Core.
+ * default. The only v1 delegated read is Lurexa Learn teacher instructional
+ * support, explicitly organization-scoped and role checked inside Core.
+ * Lurexa Teach has no delegated student-context entitlement.
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
