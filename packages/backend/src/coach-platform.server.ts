@@ -1,6 +1,7 @@
 import type {
   CefrLevel,
   CoachSession,
+  CoachSessionEndResult,
   CoachSessionStartResult,
   LinguisticEvidencePayload,
   PhonemeEvaluation,
@@ -12,6 +13,7 @@ import { CoachA1Service } from "./coach-a1.service";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { LinguisticIntelligenceService } from "./linguistic-intelligence.service";
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
+import { createProductBridge } from "./product-bridge.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -43,7 +45,6 @@ function buildOpeningMessage(result: CoachSessionStartResult["learnerContext"]):
 function detectLinguisticObservation(learnerText: string) {
   const normalized = learnerText.trim().toLowerCase();
 
-  // DO-ENG-PRO-002: S-consonant cluster epenthesis (e.g., "estudent", "espeak", "eschool")
   if (/\b(e|es)(student|special|speak|school|start|spanish|study)\b/i.test(normalized)) {
     return {
       patternId: "DO-ENG-PRO-002",
@@ -56,7 +57,6 @@ function detectLinguisticObservation(learnerText: string) {
     };
   }
 
-  // DO-ENG-PRO-006: Past tense regular -ed weakening (e.g., "i finish yesterday", "i work yesterday")
   if (/\b(yesterday|last (week|month|year))\b/i.test(normalized) && /\b(work|play|finish|start|watch)\b/i.test(normalized) && !/\b(worked|played|finished|started|watched)\b/i.test(normalized)) {
     return {
       patternId: "DO-ENG-PRO-006",
@@ -69,7 +69,6 @@ function detectLinguisticObservation(learnerText: string) {
     };
   }
 
-  // General intelligible utterance
   return null;
 }
 
@@ -80,7 +79,6 @@ function generateCoachResponse(
   const normalized = learnerText.trim().toLowerCase();
   const linguisticObs = detectLinguisticObservation(learnerText);
 
-  // Phonological pattern evaluation
   const phonemeEvals: PhonemeEvaluation[] = normalized.split(/\s+/).map((word) => {
     const hasFinalReductionTarget = ["went", "friend", "student", "fast", "first", "last"].some((w) => word.includes(w));
     const hasThTarget = ["think", "this", "that", "the", "with"].some((w) => word.includes(w));
@@ -109,10 +107,10 @@ function generateCoachResponse(
   } else if (normalized.includes("music") || normalized.includes("dance") || normalized.includes("bachata") || normalized.includes("sport") || normalized.includes("movie") || normalized.includes("food")) {
     reply = "That is a great interest! Engaging with hobbies in English builds natural fluency. How often do you get to do that?";
   } else if (normalized.includes("repeat") || normalized.includes("sorry") || normalized.includes("understand") || normalized.includes("help")) {
-    reply = "Of course! Take your time. We can practice short, natural sentences step by step. What would you like to say?";
+    reply = "Take your time. We can practice short, natural sentences step by step. What would you like to say?";
   } else {
     reply = cefr === "A2"
-      ? "Thank you for sharing! That makes complete sense. Could you tell me a little more about that, or ask me a question?"
+      ? "Thank you for sharing. Could you tell me a little more about that, or ask me a question?"
       : "Great job expressing yourself clearly! Tell me one more detail about that.";
   }
 
@@ -124,6 +122,14 @@ function generateCoachResponse(
     intelligibilityScore: calibration.intelligibilityScore,
     detectedPatternId: linguisticObs?.patternId,
   };
+}
+
+async function loadOwnedSession(actor: AuthenticatedActor, sessionId: string): Promise<CoachSession> {
+  const snapshot = await getServerFirestore().collection("coach-sessions").doc(sessionId).get();
+  if (!snapshot.exists) throw new Error("Coach session not found.");
+  const session = snapshot.data() as CoachSession;
+  if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
+  return session;
 }
 
 export const CoachPlatformService = {
@@ -193,11 +199,8 @@ export const CoachPlatformService = {
     if (!message) throw new Error("A message is required to continue the Coach conversation.");
 
     const database = getServerFirestore();
-    const sessionDoc = await database.collection("coach-sessions").doc(input.sessionId).get();
-    if (!sessionDoc.exists) throw new Error("Coach session not found.");
-
-    const session = sessionDoc.data() as CoachSession;
-    if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
+    const session = await loadOwnedSession(actor, input.sessionId);
+    if (session.status !== "active") throw new Error("This Coach session has already been completed.");
 
     const now = new Date().toISOString();
     const { reply, coachingCue, intelligibilityScore, detectedPatternId } = generateCoachResponse(
@@ -227,7 +230,6 @@ export const CoachPlatformService = {
 
     await database.collection("coach-sessions").doc(session.id).set(updatedSession, { merge: true });
 
-    // Append structured learning evidence to Core with complete provenance
     try {
       const evidenceRepository = new FirestoreLearningEvidenceRepository();
       const intelligenceService = new LinguisticIntelligenceService();
@@ -259,7 +261,6 @@ export const CoachPlatformService = {
       const payload: LinguisticEvidencePayload = {
         patternId: detectedPatternId ?? "DO-ENG-GEN-001",
         domain: "pronunciation",
-        learnerForm: message,
         intendedMeaning: "Spoken communicative turn in Coach session",
         communicativeImpact: detectedPatternId ? "CI2" : "CI1",
         recurrence: "R1_REPEATED_SAME_SESSION",
@@ -290,7 +291,6 @@ export const CoachPlatformService = {
         },
       });
 
-      // Orchestrate Core/Mind intelligence refresh to update shared recommendations
       void refreshLearnerIntelligence({
         learnerId: actor.uid,
         organizationId: "lurexa-self-paced",
@@ -306,5 +306,67 @@ export const CoachPlatformService = {
       coachingCue,
       intelligibilityScore,
     };
+  },
+
+  async endSession(actor: AuthenticatedActor, input: { sessionId: string }): Promise<CoachSessionEndResult> {
+    const database = getServerFirestore();
+    const session = await loadOwnedSession(actor, input.sessionId);
+    if (session.status !== "active") throw new Error("This Coach session has already been completed.");
+
+    const completedAt = new Date().toISOString();
+    const completedSession: CoachSession = {
+      ...session,
+      status: "completed",
+      completedAt,
+      updatedAt: completedAt,
+    };
+
+    await database.collection("coach-sessions").doc(session.id).set(completedSession, { merge: true });
+
+    const evidenceRepository = new FirestoreLearningEvidenceRepository();
+    await evidenceRepository.append({
+      contractVersion: "1",
+      id: `coach_session_completed_${actor.uid}_${Date.now()}`,
+      learnerId: actor.uid,
+      organizationId: "lurexa-self-paced",
+      source: {
+        product: "coach",
+        activityId: session.id,
+      },
+      type: "activity_result",
+      observedAt: completedAt,
+      dataClassification: "internal",
+      payload: {
+        event: "coach.session_completed",
+        sessionId: session.id,
+        learnerTurnCount: session.transcript.filter((message) => message.sender === "learner").length,
+        courseId: session.focus.courseId ?? null,
+        lessonId: session.focus.lessonId ?? null,
+      },
+      provenance: {
+        method: "system_observed",
+        actorId: actor.uid,
+        confidence: 1,
+      },
+    });
+
+    await refreshLearnerIntelligence({
+      learnerId: actor.uid,
+      organizationId: "lurexa-self-paced",
+    });
+
+    const returnBridge = await createProductBridge({
+      actorId: actor.uid,
+      learnerId: actor.uid,
+      organizationId: "lurexa-self-paced",
+      source: "coach",
+      destination: "learn",
+      purpose: "return_to_learning",
+      destinationRef: "/dashboard",
+      contextRef: `coach-session:${session.id}`,
+      singleUse: true,
+    });
+
+    return { session: completedSession, returnBridge };
   },
 };
