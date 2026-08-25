@@ -1,4 +1,5 @@
 import { CoachPlatformService } from "@lurexa/backend/coach-platform.server";
+import { endCoachSession } from "@lurexa/backend/coach-session-completion.server";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 
 export const runtime = "nodejs";
@@ -34,7 +35,7 @@ export async function POST(request: Request): Promise<Response> {
 
     if (body.action === "endSession") {
       if (!body.sessionId) throw new Error("sessionId is required for ending a Coach session.");
-      return Response.json(await CoachPlatformService.endSession(actor, { sessionId: body.sessionId }));
+      return Response.json(await endCoachSession(actor, { sessionId: body.sessionId }));
     }
 
     return Response.json(await CoachPlatformService.startSession(actor));
