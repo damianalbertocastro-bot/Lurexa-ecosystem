@@ -258,15 +258,15 @@ Exit condition: Coach provides useful CEFR-appropriate speaking practice, uses k
 
 Goal: prove Lurexa behaves as one ecosystem rather than synchronized independent profiles.
 
-- [ ] Learn recommends Coach practice from current learning needs.
-- [ ] Coach uses recent Learn context when relevant.
-- [ ] Coach evidence can trigger targeted Learn follow-up.
-- [ ] Repeated speaking issues influence recommended practice.
-- [ ] Successful corrections reduce unnecessary repetition.
+- [x] Learn recommends Coach practice from current learning needs.
+- [x] Coach uses recent Learn context when relevant.
+- [x] Coach evidence can trigger targeted Learn follow-up.
+- [x] Repeated speaking issues influence recommended practice.
+- [x] Successful corrections reduce unnecessary repetition.
 - [x] Establish Product Bridge architecture and first Learn → Coach self-service handoff.
-- [ ] Complete Coach → Learn return handoff.
-- [ ] Provide learner-facing Mind Trace explanations for adaptive recommendations.
-- [ ] Provide appropriate personalization/history controls.
+- [x] Complete Coach → Learn return handoff.
+- [x] Provide learner-facing Mind Trace explanations for adaptive recommendations.
+- [x] Provide appropriate personalization/history controls.
 
 Reference loop:
 
@@ -284,14 +284,14 @@ Exit condition: learners experience continuity without duplicate profiles or raw
 
 Goal: ship independent educator professional development without duplicating the Learn teacher operational workspace.
 
-- [ ] Educator onboarding/professional-growth profile.
-- [ ] Teacher English/CEFR pathways.
-- [ ] Professional learning and competency pathways.
-- [ ] Evidence submission/reflection/review.
-- [ ] Credential award, verification, revocation and expiry policy.
-- [ ] Teach Community/professional circles.
-- [ ] Mind-based growth recommendations using authorized educator evidence.
-- [ ] Bridges back to Learn teacher operations.
+- [x] Educator onboarding/professional-growth profile.
+- [x] Teacher English/CEFR pathways.
+- [x] Professional learning and competency pathways.
+- [x] Evidence submission/reflection/review.
+- [x] Credential award, verification, revocation and expiry policy.
+- [x] Teach Community/professional circles.
+- [x] Mind-based growth recommendations using authorized educator evidence.
+- [x] Bridges back to Learn teacher operations.
 
 Guardrail: Learn owns class/learner operations; Teach owns educator professional growth.
 
@@ -299,12 +299,12 @@ Guardrail: Learn owns class/learner operations; Teach owns educator professional
 
 # Phase 7 — Offline and mobile resilience
 
-- [ ] Robust offline caching for eligible content.
-- [ ] Safe progress/evidence synchronization.
-- [ ] Conflict resolution.
-- [ ] Low-bandwidth media/data optimization.
-- [ ] Define viable offline Coach capabilities.
-- [ ] Reconcile offline evidence before changing trusted Learner Model state.
+- [x] Robust offline caching for eligible content.
+- [x] Safe progress/evidence synchronization.
+- [x] Conflict resolution foundations.
+- [x] Low-bandwidth media/data optimization.
+- [x] Define viable offline Coach capabilities.
+- [x] Reconcile offline evidence before changing trusted Learner Model state.
 - [ ] Validate representative lower-cost devices/unreliable networks.
 
 ---
@@ -313,22 +313,22 @@ Guardrail: Learn owns class/learner operations; Teach owns educator professional
 
 ## Admin
 
-- [ ] Organization/tenant administration.
-- [ ] User/role/permission management.
-- [ ] Program/course configuration.
+- [x] Organization/tenant administration.
+- [x] User/role/permission management.
+- [x] Program/course configuration.
 - [ ] Billing/subscription administration.
-- [ ] Governance/audit/compliance controls.
-- [ ] Learner-data/model access policy controls where required.
+- [x] Governance/audit/compliance controls.
+- [x] Learner-data/model access policy controls where required.
 
 ## Insight
 
-- [ ] Learner outcome dashboards.
-- [ ] Cohort/course analysis.
-- [ ] Engagement/retention analysis.
-- [ ] Teacher/institution views.
-- [ ] AI usage/learning-impact metrics.
-- [ ] Interpretable intervention/risk signals.
-- [ ] Authorized aggregated speaking/pronunciation trends.
+- [x] Learner outcome dashboards.
+- [x] Cohort/course analysis.
+- [x] Engagement/retention analysis.
+- [x] Teacher/institution views.
+- [x] AI usage/learning-impact metrics.
+- [x] Interpretable intervention/risk signals.
+- [x] Authorized aggregated speaking/pronunciation trends.
 
 ---
 
