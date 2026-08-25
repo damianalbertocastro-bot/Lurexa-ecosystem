@@ -14,9 +14,11 @@ const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const resumeService = read("packages/backend/src/coach-session-state.server.ts");
 const telemetryService = read("packages/backend/src/signature-telemetry.server.ts");
+const teachSignatureService = read("packages/backend/src/teach-signature-experience.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const coachPage = read("apps/learn-web/app/coach/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
+const teachSignatureRoute = read("apps/teach-web/app/api/teach/signature/route.ts");
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
 const memoryThread = read("packages/backend/src/memory-thread.server.ts");
 const signaturePanel = read("apps/learn-web/app/dashboard/components/SignatureExperiencePanel.tsx");
@@ -46,8 +48,18 @@ check(coachRoute.includes('body.action === "endSession"'), "Learn web exposes th
 check(coachRoute.includes("endCoachSession"), "Coach completion route delegates to the isolated signature capability");
 check(completionService.includes('purpose: "return_to_learning"'), "Coach completion creates a purpose-scoped return bridge");
 check(completionService.includes('event: "coach.session_completed"'), "Coach completion contributes explicit Core evidence");
-check(!completionService.includes("transcript:"), "Coach completion evidence does not persist the conversation transcript");
+
+const completionPayloadStart = completionService.indexOf('event: "coach.session_completed"');
+const completionPayloadEnd = completionService.indexOf("provenance:", completionPayloadStart);
+const completionPayload = completionService.slice(completionPayloadStart, completionPayloadEnd);
+check(completionPayloadStart >= 0 && completionPayloadEnd > completionPayloadStart, "Coach completion evidence payload is statically inspectable");
+check(!completionPayload.includes("transcript"), "Coach completion evidence does not persist the conversation transcript");
 check(completionService.includes('id: `coach_session_completed_${session.id}`'), "Coach completion evidence is idempotently keyed by session");
+check(completionService.includes('.where("source.activityId", "==", input.sessionId)'), "Coach completion finds only evidence tied to the completed session for redaction");
+check(completionService.includes('if (value.learnerId !== input.learnerId || value.source?.product !== "coach")'), "Coach evidence redaction verifies learner and product ownership");
+check(completionService.includes('const { learnerForm: _discardedLearnerForm, ...minimizedPayload } = payload'), "Coach completion removes raw learnerForm from persisted turn evidence");
+check(completionService.includes("transcript: []"), "completed Coach session storage drops the raw transcript");
+check(completionService.indexOf("redactCompletedCoachTurnEvidence") < completionService.lastIndexOf("createProductBridge"), "Coach redacts completed utterance data before issuing the return bridge");
 check(completionService.indexOf("createProductBridge") < completionService.indexOf('status: "completed"'), "Coach is finalized only after the return bridge is created");
 check(coachPage.includes("handleFinishSession"), "Coach exposes an explicit learner-visible completion action");
 check(coachPage.includes('action: "endSession"'), "Coach UI closes the server session before leaving");
@@ -63,6 +75,16 @@ check(coachRoute.includes('body.action === "resumeSession"'), "Coach API exposes
 check(coachPage.includes("window.sessionStorage.setItem(COACH_SESSION_STORAGE_KEY, payload.session.id)"), "Coach stores only its opaque active session ID for refresh recovery");
 check(coachPage.includes('action: "resumeSession"'), "Coach client revalidates a stored session through the server after refresh");
 check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY)"), "Coach clears stale/completed client session references");
+
+check(teachSignatureService.includes("getTeachLearnerPulseProjection"), "Teach has a first governed Signature Experience consumer boundary");
+check(teachSignatureService.includes("Teach instructional support requires an explicit organization boundary."), "Teach instructional support fails closed without explicit tenant scope");
+check(teachSignatureService.includes('TEACHER_ROLES = new Set(["owner", "admin", "teacher"])'), "Teach instructional support restricts actors to governed educator roles");
+check(teachSignatureService.includes("await requireOrganizationMember(input.learnerId, input.organizationId)"), "Teach verifies learner membership in the same organization");
+check(teachSignatureService.includes("projection.organizationId !== input.organizationId"), "Teach rejects projections that resolve to another organization");
+check(teachSignatureService.includes('consumer: "teach"'), "Teach projection uses the canonical Teach consumer identity");
+check(teachSignatureRoute.includes("CoursePlatformService.authenticate"), "Teach Signature API authenticates the caller server-side");
+check(teachSignatureRoute.includes("learnerId and organizationId are required"), "Teach Signature API requires explicit learner and tenant identifiers");
+check(!teachSignatureRoute.includes("payload"), "Teach Signature API does not expose raw learner evidence payload plumbing");
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
@@ -96,4 +118,4 @@ check(uiFiles.filter((content) => content.includes("<button")).every((content) =
 check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
 check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
 
-console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry verification passed.");
+console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry/privacy/Teach verification passed.");
