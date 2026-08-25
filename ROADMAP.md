@@ -336,13 +336,13 @@ Guardrail: Learn owns class/learner operations; Teach owns educator professional
 
 Goal: provide a coherent institution-facing shell across entitled specialist products without creating another product owner.
 
-- [ ] Campus onboarding and institution identity/co-branding.
-- [ ] Organization/role/entitlement-aware navigation.
-- [ ] Cohort, department and academic-program orientation connected to Core-owned organization records.
-- [ ] Multi-product institutional entitlement presentation.
-- [ ] Mind-powered summaries only through explicitly authorized institution purposes.
-- [ ] Product Bridge integration preserving institution context without transferring raw learner data.
-- [ ] Clear entry into Learn, Teach, Admin, Insight, Coach and Studio according to role/entitlements.
+- [x] Campus onboarding and institution identity/co-branding.
+- [x] Organization/role/entitlement-aware navigation.
+- [x] Cohort, department and academic-program orientation connected to Core-owned organization records.
+- [x] Multi-product institutional entitlement presentation.
+- [x] Mind-powered summaries only through explicitly authorized institution purposes.
+- [x] Product Bridge integration preserving institution context without transferring raw learner data.
+- [x] Clear entry into Learn, Teach, Admin, Insight, Coach and Studio according to role/entitlements.
 
 Exit condition: an institution experiences one coherent Lurexa environment while specialist products retain ownership of their domains.
 
@@ -350,14 +350,14 @@ Exit condition: an institution experiences one coherent Lurexa environment while
 
 # Phase 9 — Lurexa Studio
 
-- [ ] Course/lesson authoring.
-- [ ] Assessment/question-bank creation.
-- [ ] Media/resource management.
-- [ ] Templates/reusable learning objects.
-- [ ] Knowledge Object authoring, mapping, versioning and publishing governance.
-- [ ] AI-assisted creation through Mind.
-- [ ] Review/approval/versioning/publishing.
-- [ ] Learner-aware delivery-time adaptation without corrupting canonical source content.
+- [x] Course/lesson authoring.
+- [x] Assessment/question-bank creation.
+- [x] Media/resource management.
+- [x] Templates/reusable learning objects.
+- [x] Knowledge Object authoring, mapping, versioning and publishing governance.
+- [x] AI-assisted creation through Mind.
+- [x] Review/approval/versioning/publishing.
+- [x] Learner-aware delivery-time adaptation without corrupting canonical source content.
 
 ---
 

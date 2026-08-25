@@ -90,6 +90,16 @@ check(teacherInsightsPage.includes("active"), "Teacher insights page supports 'a
 const signatureVerifier = fs.readFileSync(path.join(repoRoot, "scripts/verify-signature-experience.mjs"), "utf8");
 check(signatureVerifier.includes("return_to_learning"), "Signature experience verifies return_to_learning product bridge");
 
+// 7. Verify Campus Institutional Context Shell
+const campusServer = fs.readFileSync(path.join(repoRoot, "packages/backend/src/campus-platform.server.ts"), "utf8");
+check(campusServer.includes("getInstitutionWorkspaceContext"), "Campus platform resolves institutional workspace context");
+check(campusServer.includes("createCampusProductBridge"), "Campus platform creates tenant-scoped product bridges");
+
+// 8. Verify Studio Knowledge Object Authoring Catalog
+const studioServer = fs.readFileSync(path.join(repoRoot, "packages/backend/src/studio-catalog.server.ts"), "utf8");
+check(studioServer.includes("createObject"), "Studio catalog service supports Knowledge Object creation");
+check(studioServer.includes("updateObject"), "Studio catalog service supports Knowledge Object versioned updates");
+
 console.log("\n========================================================");
 if (process.exitCode === 1) {
   console.log("  ✗ Full Ecosystem Verification FAILED.");
