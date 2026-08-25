@@ -13,6 +13,7 @@ const coachTypes = read("packages/types/src/coach.ts");
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const resumeService = read("packages/backend/src/coach-session-state.server.ts");
+const telemetryService = read("packages/backend/src/signature-telemetry.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const coachPage = read("apps/learn-web/app/coach/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
@@ -74,6 +75,18 @@ check(signatureRoute.includes("getScopedMemoryThreadProjection"), "Learn API rou
 check(memoryThread.includes("entry.organizationId === activeOrganizationId"), "Memory Thread scopes institutional evidence to the active organization");
 check(memoryThread.includes("entry.source.knowledgeObjectIds?.includes"), "Memory Thread performs exact Knowledge Object filtering");
 
+check(telemetryService.includes("Telemetry failure must never block a learning workflow"), "signature telemetry is explicitly best-effort");
+check(!telemetryService.includes("actorId"), "signature telemetry schema excludes actor identity");
+check(!telemetryService.includes("learnerId"), "signature telemetry schema excludes learner identity");
+check(!telemetryService.includes("organizationId"), "signature telemetry schema excludes tenant identity");
+check(!telemetryService.includes("evidenceId"), "signature telemetry schema excludes evidence identifiers");
+check(!telemetryService.includes("destinationRef"), "signature telemetry schema excludes destination/context references");
+check(bridgeService.includes('kind: "bridge_created"'), "Product Bridge creation emits operational telemetry");
+check(bridgeService.includes('kind: "bridge_resolved"'), "Product Bridge resolution emits operational telemetry");
+check(signatureRoute.includes('kind: "projection_success"'), "successful signature projections emit health telemetry");
+check(signatureRoute.includes('kind: "projection_failure"'), "failed signature projections emit coarse health telemetry");
+check(signatureRoute.includes("durationMs: Date.now() - startedAt"), "signature projection telemetry includes latency");
+
 check(signaturePanel.includes('NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on"'), "Signature Experience learner rollout is feature-flagged and default-off");
 check(signaturePanel.includes('aria-live="polite"'), "Signature Experience asynchronous status uses a polite live region");
 check(signaturePanel.includes("motion-reduce:animate-none"), "Signature Experience loading motion respects reduced-motion preferences");
@@ -83,4 +96,4 @@ check(uiFiles.filter((content) => content.includes("<button")).every((content) =
 check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
 check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
 
-console.log("Lurexa Signature Experience contract/security/accessibility/continuity verification passed.");
+console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry verification passed.");
