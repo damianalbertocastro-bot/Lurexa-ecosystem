@@ -14,6 +14,7 @@ const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const resumeService = read("packages/backend/src/coach-session-state.server.ts");
 const telemetryService = read("packages/backend/src/signature-telemetry.server.ts");
+const learnerContext = read("packages/backend/src/learner-context.server.ts");
 const teachSignatureService = read("packages/backend/src/teach-signature-experience.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const coachPage = read("apps/learn-web/app/coach/page.tsx");
@@ -78,8 +79,12 @@ check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE
 
 check(teachSignatureService.includes("getTeachLearnerPulseProjection"), "Teach has a first governed Signature Experience consumer boundary");
 check(teachSignatureService.includes("Teach instructional support requires an explicit organization boundary."), "Teach instructional support fails closed without explicit tenant scope");
-check(teachSignatureService.includes('TEACHER_ROLES = new Set(["owner", "admin", "teacher"])'), "Teach instructional support restricts actors to governed educator roles");
-check(teachSignatureService.includes("await requireOrganizationMember(input.learnerId, input.organizationId)"), "Teach verifies learner membership in the same organization");
+check(learnerContext.includes('const delegatedTeacherRoles = new Set(["owner", "admin", "teacher"])'), "Core restricts delegated Teach access to governed educator roles");
+check(learnerContext.includes('learnerMembership?.role !== "student"'), "Core verifies the supported learner is a student in the same organization");
+check(learnerContext.includes('request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "teach"'), "Core limits delegated context to the approved Teach purpose and product");
+check(learnerContext.includes("Delegated instructional support requires an explicit organization boundary."), "Core requires explicit tenant scope for delegated instructional support");
+check(teachSignatureService.includes("actorId: input.actorId"), "Teach passes the real educator actor through to Core");
+check(!teachSignatureService.includes("actorId: input.learnerId"), "Teach does not impersonate the learner when requesting delegated context");
 check(teachSignatureService.includes("projection.organizationId !== input.organizationId"), "Teach rejects projections that resolve to another organization");
 check(teachSignatureService.includes('consumer: "teach"'), "Teach projection uses the canonical Teach consumer identity");
 check(teachSignatureRoute.includes("CoursePlatformService.authenticate"), "Teach Signature API authenticates the caller server-side");
