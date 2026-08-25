@@ -1,13 +1,32 @@
 import React from "react";
-import type { AdaptiveLearningPathV1, AdaptivePathNodeV1 } from "@lurexa/types";
+
+export type AdaptivePathNodeView = {
+  id: string;
+  state: "completed" | "current" | "recommended" | "locked" | "optional";
+  title: string;
+  product: string;
+  knowledgeObjectIds: string[];
+  reason:
+    | "canonical_sequence"
+    | "reinforce_recurring_error"
+    | "practice_prerequisite"
+    | "coach_speaking_transfer"
+    | "review_after_instability"
+    | "optional_enrichment";
+  required: boolean;
+};
+
+export type AdaptiveLearningPathView = {
+  nodes: AdaptivePathNodeView[];
+};
 
 export interface AdaptiveLearningPathProps {
-  path: AdaptiveLearningPathV1;
+  path: AdaptiveLearningPathView;
   className?: string;
-  onSelectNode?: (node: AdaptivePathNodeV1) => void;
+  onSelectNode?: (node: AdaptivePathNodeView) => void;
 }
 
-const nodeStyle: Record<AdaptivePathNodeV1["state"], string> = {
+const nodeStyle: Record<AdaptivePathNodeView["state"], string> = {
   completed: "border-teal-200 bg-teal-50",
   current: "border-indigo-300 bg-indigo-50 shadow-[0_8px_24px_rgba(79,70,229,.12)]",
   recommended: "border-sky-200 bg-sky-50",
@@ -15,7 +34,7 @@ const nodeStyle: Record<AdaptivePathNodeV1["state"], string> = {
   optional: "border-violet-200 bg-violet-50",
 };
 
-const reasonLabel: Record<AdaptivePathNodeV1["reason"], string> = {
+const reasonLabel: Record<AdaptivePathNodeView["reason"], string> = {
   canonical_sequence: "Curriculum",
   reinforce_recurring_error: "Reinforcement",
   practice_prerequisite: "Prerequisite",
