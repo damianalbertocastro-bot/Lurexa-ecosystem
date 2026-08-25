@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
@@ -52,7 +53,7 @@ export default function SignatureOperationsPage() {
 
   return <main className="min-h-screen bg-[#f6f8ff] text-[#071d67]">
     <header className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8"><div className="flex flex-wrap items-center justify-between gap-4"><ProductMark product="admin" inverse /><a href="/" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-extrabold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Platform operations</a></div><p className="mt-10 text-[10px] font-extrabold tracking-[.2em] text-[#7ee9ed]">SIGNATURE OPERATIONS</p><h1 className="mt-3 text-4xl font-extrabold tracking-[-.055em] sm:text-5xl">Measure the experience layer<br />without tracking learners.</h1><p className="mt-4 max-w-2xl text-sm leading-6 text-indigo-100">Identity-free operational telemetry for projection health, latency, and Product Bridge continuity.</p></div>
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8"><div className="flex flex-wrap items-center justify-between gap-4"><ProductMark product="admin" inverse /><Link href="/" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-extrabold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Platform operations</Link></div><p className="mt-10 text-[10px] font-extrabold tracking-[.2em] text-[#7ee9ed]">SIGNATURE OPERATIONS</p><h1 className="mt-3 text-4xl font-extrabold tracking-[-.055em] sm:text-5xl">Measure the experience layer<br />without tracking learners.</h1><p className="mt-4 max-w-2xl text-sm leading-6 text-indigo-100">Identity-free operational telemetry for projection health, latency, and Product Bridge continuity.</p></div>
     </header>
 
     <div className="mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8">
