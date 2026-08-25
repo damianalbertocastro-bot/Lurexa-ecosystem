@@ -26,6 +26,7 @@ type SignatureState = {
 };
 
 const emptyState: SignatureState = { pulse: null, path: null, thread: null, trace: null };
+const rolloutEnabled = process.env.NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on";
 
 async function loadProjection<T>(projection: SignatureProjectionKind): Promise<T> {
   const response = await authenticatedFetch(`/api/signature?projection=${encodeURIComponent(projection)}`);
@@ -37,13 +38,14 @@ async function loadProjection<T>(projection: SignatureProjectionKind): Promise<T
 }
 
 export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelProps) {
+  const active = enabled && rolloutEnabled;
   const [state, setState] = useState<SignatureState>(emptyState);
-  const [loading, setLoading] = useState(enabled);
+  const [loading, setLoading] = useState(active);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!active) return;
 
     let cancelled = false;
 
@@ -78,9 +80,9 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
     });
 
     return () => { cancelled = true; };
-  }, [enabled, reloadKey]);
+  }, [active, reloadKey]);
 
-  if (!enabled) return null;
+  if (!active) return null;
 
   const retry = () => {
     setState(emptyState);
@@ -91,7 +93,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
   if (loading && !state.pulse) {
     return (
-      <section aria-label="Loading Lurexa learning intelligence" className="rounded-[28px] border border-indigo-100 bg-white p-6 shadow-sm">
+      <section aria-label="Loading Lurexa learning intelligence" aria-live="polite" className="rounded-[28px] border border-indigo-100 bg-white p-6 shadow-sm">
         <div className="h-3 w-28 animate-pulse rounded bg-indigo-100 motion-reduce:animate-none" />
         <div className="mt-3 h-7 w-64 max-w-full animate-pulse rounded bg-slate-100 motion-reduce:animate-none" />
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -103,7 +105,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
   if (error && !state.pulse && !state.path && !state.thread && !state.trace) {
     return (
-      <section role="status" className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
+      <section role="status" aria-live="polite" className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
         <p className="font-bold text-slate-900">Your evolving learning view is temporarily unavailable.</p>
         <p className="mt-1">{error}</p>
         <button type="button" onClick={retry} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</button>
@@ -131,7 +133,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
       {state.thread && <MemoryThread thread={state.thread} />}
 
-      {error && <p className="text-xs text-amber-700">{error} Available projections are still shown.</p>}
+      {error && <p role="status" aria-live="polite" className="text-xs text-amber-700">{error} Available projections are still shown.</p>}
     </section>
   );
 }
