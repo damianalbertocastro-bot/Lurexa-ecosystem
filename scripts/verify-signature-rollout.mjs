@@ -66,6 +66,8 @@ check(operations.includes("percentile95"), "Signature Operations calculates p95 
 check(operations.includes("PROJECTION_P95_WARNING_MS = 1_200"), "Signature Operations has an explicit initial p95 latency warning budget");
 check(operationsRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Signature Operations API is private/no-store");
 check(operationsPage.includes("Identity-free operational telemetry"), "operations UI states the identity-free telemetry boundary");
+check(operationsPage.includes("P95 warning budget") && operationsPage.includes("p95DurationMs"), "operations UI surfaces p95 latency against the explicit warning budget");
+check(operationsPage.includes("overBudget") && operationsPage.includes("watch"), "operations UI marks over-budget latency as a non-alarmist watch state");
 check(!telemetry.includes("learnerId") && !telemetry.includes("organizationId") && !telemetry.includes("actorId"), "telemetry schema remains free of learner, tenant, and actor identities");
 
 // Initial source-size/performance budgets. These are not runtime Web Vitals; they
