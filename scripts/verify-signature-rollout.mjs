@@ -43,34 +43,46 @@ check(catalog.includes("listMappedLinguisticPatternIds"), "Knowledge Object cata
 check(learnerContext.includes('learn: ["learn_adaptive_practice", "teacher_instructional_support"]'), "Core assigns delegated student instructional support to Lurexa Learn");
 check(learnerContext.includes("teach: []"), "Core grants Lurexa Teach no delegated student-context purpose");
 check(learnerContext.includes('request.requestingProduct !== "learn"'), "Core delegated authorization requires Learn as the requesting product");
-check(learnerContext.includes('actorMembership.role === "teacher"') && learnerContext.includes("getEducatorAuthorizedCourseIds"), "Core requires qualification-backed teaching authorization for ordinary teacher delegation");
+check(learnerContext.includes("!request.organizationId || !request.courseId"), "Core requires explicit organization and course boundaries for delegated instructional support");
+check(learnerContext.includes("getEducatorCourseAccessDecision") && learnerContext.includes("qualification-linked authorization for this exact course"), "Core requires qualification-backed authorization for the exact delegated course");
 check(learnerContext.includes('learnerMembership?.role !== "student"'), "Core requires the supported learner to be a student member");
-check(learnerContext.includes('database.collection("courses").where("orgId", "==", request.organizationId)'), "explicit organization requests pin curriculum progress to that organization");
+check(learnerContext.includes('progress = allProgress.filter((record) => record.courseId === request.courseId)'), "delegated curriculum context can pin to the exact Learn course");
+check(learnerContext.includes("const delegatedTeacher") && learnerContext.includes("insights = delegatedTeacher") && learnerContext.includes("? []"), "Core withholds broader derived insights from delegated teachers until course provenance exists");
 check(signatureCore.includes('input.request.consumer === "learn" && input.actorId !== input.request.learnerId'), "Signature Core distinguishes delegated Learn teacher reads from learner self-service");
 check(!signatureCore.includes('teach: { product: "teach", purpose: "teacher_instructional_support" }'), "Signature Core no longer exposes Teach as a student instructional consumer");
 check(learnTeacherSignature.includes('consumer: "learn"'), "Learn teacher instructional Pulse uses canonical Learn consumer identity");
+check(learnTeacherSignature.includes("getEducatorCourseAccessDecision") && learnTeacherSignature.includes("courseId: string"), "Learn teacher projection authorizes the exact selected course before projection");
 check(learnTeacherSignature.includes("actorId: input.actorId"), "Learn teacher adapter forwards the real educator actor into Core");
 
 // Educator identity, entitlement, qualification and authorization model.
 check(educatorTypes.includes("EducatorEntitlementV1") && educatorTypes.includes("EducatorQualificationScopeV1") && educatorTypes.includes("TeachingAuthorizationV1"), "educator access contracts separate entitlement, qualification, and teaching authorization");
+check(educatorTypes.includes("EducatorDevelopmentRecommendationV1"), "educator access contract carries governed professional-development targets for denied scopes");
 check(educatorAccess.includes('collection("user-entitlements")') && educatorAccess.includes('collection("educator-qualifications")') && educatorAccess.includes('collection("teaching-authorizations")'), "Core stores educator entitlement, qualification, and authorization as separate trusted records");
 check(educatorAccess.includes("authorization.levels.every((level) => qualification.levels.includes(level))"), "teaching authorization cannot silently exceed qualification level scope");
 check(educatorAccess.includes("authorization.courseIds.includes(course.id)"), "Learn teacher course access requires explicit course authorization");
+check(!educatorAccess.includes("governanceRole"), "owner/admin governance role cannot bypass professional teaching qualification");
 check(educatorAccess.includes('teach: verifiedEducator || explicitTeach') && educatorAccess.includes('coachFull: verifiedEducator || explicitCoach'), "verified educators automatically receive Teach and full Coach benefits under one identity");
+check(educatorAccess.includes('product: "teach"') && educatorAccess.includes('reason: "extend_level_scope"'), "higher-scope denial produces a governed Teach development target");
 check(educatorDelegationTest.includes("teacher membership alone does not authorize") && educatorDelegationTest.includes("higher-level course stays locked"), "Firestore integration test covers role-only denial and higher-level scope denial");
+check(educatorDelegationTest.includes("organization ownership does not substitute"), "Firestore integration test proves owner status cannot substitute for teaching qualification");
+check(educatorDelegationTest.includes("Teach learner can use Teach") && educatorDelegationTest.includes("practicing-educator privileges"), "Firestore integration test separates Teach learner entitlement from practicing educator access");
 check(educatorDelegationTest.includes("automatically receives Teach and full Coach benefits"), "Firestore integration test covers automatic educator benefits");
+check(educatorDelegationTest.includes("governed Teach growth target") && educatorDelegationTest.includes("Coach support"), "Firestore integration test covers higher-level professional-growth routing");
 check(educatorDelegationTest.includes('requestingProduct: "teach"') && educatorDelegationTest.includes("cannot request student instructional context"), "Teach entitlement remains distinct from Learn student-operation authority");
 check(teachLogin.includes("same account") && teachLogin.includes("no second Teach registration"), "Teach sign-in communicates shared Lurexa identity for existing Learn educators");
 
 // Roster-backed Learn Teacher Workspace.
 check(learnTeacherRoster.includes("CoursePlatformService.getTeacherCourses(actor)"), "Learn teacher roster starts from organization courses visible to the educator relationship");
-check(learnTeacherRoster.includes("getEducatorCourseAccessDecision") && learnTeacherRoster.includes("decision.allowed"), "Learn teacher roster filters ordinary teachers through qualification-backed course authorization");
+check(learnTeacherRoster.includes("getEducatorCourseAccessDecision") && learnTeacherRoster.includes("decision.allowed"), "Learn teacher roster filters every course through qualification-backed authorization");
+check(learnTeacherRoster.includes("Organization role alone does not create instructional access"), "Learn roster states that membership affiliation cannot substitute for qualification");
 check(learnTeacherRoster.includes('snapshot.data()?.role === "student"'), "Learn teacher roster verifies student membership before surfacing a learner");
 check(!learnTeacherRoster.includes("email"), "Learn teacher roster response does not add learner email to instructional support");
 check(learnRosterRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Learn teacher roster API is explicitly private/no-store");
 check(learnSignatureRoute.includes('consumer: "learn"'), "Learn teacher Signature telemetry uses Learn product identity");
+check(learnSignatureRoute.includes('url.searchParams.get("courseId")') && learnSignatureRoute.includes("learnerId, organizationId, and courseId"), "Learn teacher Signature API requires exact course scope");
 check(learnSignatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Learn teacher Signature API is explicitly private/no-store");
 check(learnStudents.includes('authenticatedJson<LearnTeacherInstructionalRosterV1>(currentUser, "/api/teacher/roster")'), "Learn Students UI selects learners only from the authorized roster API");
+check(learnStudents.includes("courseId: selected.courseId"), "Learn Students UI sends the selected authorized course with instructional-support requests");
 check(learnStudents.includes("NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1"), "Learn teacher learner-model projection rollout is independently feature-flagged");
 check(learnStudents.includes("aria-pressed") && learnStudents.includes("focus-visible:ring"), "Learn teacher roster selection preserves accessible state and visible keyboard focus");
 check(rolloutTypes.includes("LearnTeacherInstructionalRosterV1") && !rolloutTypes.includes("TeachInstructionalRosterV1"), "rollout contracts name Learn as the operational teacher-workspace owner");
@@ -114,7 +126,7 @@ const byteBudgets = new Map([
   ["packages/backend/src/learn-teacher-roster.server.ts", 14_000],
   ["packages/backend/src/insight-signature-experience.server.ts", 12_000],
   ["packages/backend/src/signature-operations.server.ts", 12_000],
-  ["packages/backend/src/educator-access.server.ts", 16_000],
+  ["packages/backend/src/educator-access.server.ts", 18_000],
 ]);
 for (const [file, budget] of byteBudgets) {
   check(size(file) <= budget, `${file} stays within its ${budget}-byte source budget`);
