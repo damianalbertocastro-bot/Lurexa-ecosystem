@@ -6,6 +6,7 @@ import {
 } from "@lurexa/backend/signature-experience.server";
 import { getGovernedAdaptiveLearningPathProjection } from "@lurexa/backend/adaptive-learning-path.server";
 import { getScopedMemoryThreadProjection } from "@lurexa/backend/memory-thread.server";
+import { recordSignatureTelemetry } from "@lurexa/backend/signature-telemetry.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,12 +18,23 @@ const supported = new Set<SignatureProjectionKind>([
   "mind_trace",
 ]);
 
+function failureClass(status: number): "authentication" | "authorization" | "validation" | "internal" {
+  if (status === 401) return "authentication";
+  if (status === 403) return "authorization";
+  if (status >= 500) return "internal";
+  return "validation";
+}
+
 export async function GET(request: Request): Promise<Response> {
+  const startedAt = Date.now();
+  let requestedProjection: SignatureProjectionKind | null = null;
+
   try {
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
     const url = new URL(request.url);
     const learnerId = url.searchParams.get("learnerId") ?? actor.uid;
     const projection = url.searchParams.get("projection") as SignatureProjectionKind | null;
+    requestedProjection = projection;
 
     if (!projection || !supported.has(projection)) {
       return Response.json({ error: "A supported signature projection is required." }, { status: 400 });
@@ -40,10 +52,21 @@ export async function GET(request: Request): Promise<Response> {
     };
 
     const input = { actorId: actor.uid, request: projectionRequest };
-    if (projection === "learner_pulse") return Response.json(await getLearnerPulseProjection(input));
-    if (projection === "adaptive_path") return Response.json(await getGovernedAdaptiveLearningPathProjection(input));
-    if (projection === "memory_thread") return Response.json(await getScopedMemoryThreadProjection(input));
-    return Response.json(await getMindTraceProjection(input));
+    const value = projection === "learner_pulse"
+      ? await getLearnerPulseProjection(input)
+      : projection === "adaptive_path"
+        ? await getGovernedAdaptiveLearningPathProjection(input)
+        : projection === "memory_thread"
+          ? await getScopedMemoryThreadProjection(input)
+          : await getMindTraceProjection(input);
+
+    await recordSignatureTelemetry({
+      kind: "projection_success",
+      consumer: "learn",
+      projection,
+      durationMs: Date.now() - startedAt,
+    });
+    return Response.json(value);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load signature experience.";
     const status = message === "Authentication is required."
@@ -51,6 +74,16 @@ export async function GET(request: Request): Promise<Response> {
       : message.includes("only request") || message.includes("not yet have an approved")
         ? 403
         : 400;
+
+    if (requestedProjection && supported.has(requestedProjection)) {
+      await recordSignatureTelemetry({
+        kind: "projection_failure",
+        consumer: "learn",
+        projection: requestedProjection,
+        durationMs: Date.now() - startedAt,
+        failureClass: failureClass(status),
+      });
+    }
     return Response.json({ error: message }, { status });
   }
 }
