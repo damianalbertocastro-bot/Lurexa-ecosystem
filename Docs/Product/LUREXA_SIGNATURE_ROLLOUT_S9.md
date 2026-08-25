@@ -64,10 +64,12 @@ There is no dedicated `apps/insight-web` deployment surface yet. S9 therefore es
 `InsightOrganizationSignatureOverviewV1` returns organization-level learning signals only:
 
 - number of governed courses;
-- participating learner count;
-- active participating learners in the last 14 days;
-- descriptive average course progress;
-- Knowledge Object evidence coverage.
+- participating **current student-member** count;
+- active current student members in the last 14 days;
+- descriptive average course progress for current student members;
+- Knowledge Object evidence coverage from current student members.
+
+Insight checks current student membership before counting either progress or semantic evidence, so stale activity from former or non-student members does not inflate the organization overview.
 
 Insight v1 deliberately returns no learner IDs, raw learning evidence, transcripts, or individual recommendations. Organization analytics is restricted to owner/admin membership.
 
@@ -178,6 +180,7 @@ The rollout verifier protects:
 - roster-only learner selection and no free-form learner ID input;
 - private/no-store roster and operations APIs;
 - aggregate-first Insight contract privacy;
+- current-student membership filtering for Insight progress and semantic coverage;
 - identity-free telemetry;
 - p95 operational latency reporting;
 - source-size budgets;
@@ -192,7 +195,7 @@ S9 is merge-ready when:
 3. no roster path permits free-form learner-ID lookup;
 4. explicit organization scope is honored inside Core;
 5. all 21 current corpus patterns resolve to governed Knowledge Objects;
-6. Insight remains aggregate-first and identity-free by contract;
+6. Insight remains aggregate-first, current-member scoped, and identity-free by contract;
 7. Signature Operations remains superadmin-only and telemetry remains identity-free;
 8. roadmap/PR documentation distinguishes implemented runtime gates from future screenshot/Web-Vitals infrastructure.
 
