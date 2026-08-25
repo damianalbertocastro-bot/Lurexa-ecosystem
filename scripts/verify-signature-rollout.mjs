@@ -11,7 +11,10 @@ const check = (condition, message) => {
 };
 
 const corpus = JSON.parse(read("Docs/Curriculum/Linguistic-Intelligence/data/dominican-error-corpus.v0.1.json"));
-const catalog = read("packages/backend/src/knowledge-object-catalog.server.ts");
+const curriculumCatalog = read("packages/backend/src/knowledge-object-catalog.server.ts");
+const linguisticCatalog = read("packages/backend/src/linguistic-knowledge-object-catalog.server.ts");
+const governedCatalog = read("packages/backend/src/governed-knowledge-object-catalog.server.ts");
+const adaptivePath = read("packages/backend/src/adaptive-learning-path.server.ts");
 const learnerContext = read("packages/backend/src/learner-context.server.ts");
 const educatorAccess = read("packages/backend/src/educator-access.server.ts");
 const educatorTypes = read("packages/types/src/educator-access.ts");
@@ -32,12 +35,15 @@ const operationsRoute = read("apps/admin-portal/app/api/admin/signature-operatio
 const operationsPage = read("apps/admin-portal/app/signature-operations/page.tsx");
 const telemetry = read("packages/backend/src/signature-telemetry.server.ts");
 
-// Semantic coverage.
+// Semantic coverage and ownership.
 check(Array.isArray(corpus) && corpus.length === 21, "current Dominican-English corpus contains the expected 21 governed patterns");
 for (const entry of corpus) {
-  check(typeof entry.patternId === "string" && catalog.includes(`\"${entry.patternId}\"`), `Knowledge Object mapping covers ${entry.patternId}`);
+  check(typeof entry.patternId === "string" && linguisticCatalog.includes(`\"${entry.patternId}\"`), `linguistic Knowledge Object mapping covers ${entry.patternId}`);
 }
-check(catalog.includes("listMappedLinguisticPatternIds"), "Knowledge Object catalog exposes governed corpus mapping inventory");
+check(linguisticCatalog.includes("listMappedLinguisticPatternIds"), "linguistic catalog exposes governed corpus mapping inventory");
+check(curriculumCatalog.includes("eng.skill.introductions.personal-identity") && curriculumCatalog.includes("eng.pronunciation.consonant-linking"), "current curriculum-linked Knowledge Objects from main remain in the curriculum catalog");
+check(governedCatalog.includes("listCurriculumKnowledgeObjects") && governedCatalog.includes("listLinguisticKnowledgeObjects"), "governed semantic adapter combines curriculum and linguistic catalogs without duplicating ownership");
+check(adaptivePath.includes("getGovernedKnowledgeObjectById"), "Adaptive Path validates semantic references against the unified governed catalog");
 
 // Authoritative Learn / Teach product boundary.
 check(learnerContext.includes('learn: ["learn_adaptive_practice", "teacher_instructional_support"]'), "Core assigns delegated student instructional support to Lurexa Learn");
@@ -52,6 +58,7 @@ check(signatureCore.includes('input.request.consumer === "learn" && input.actorI
 check(!signatureCore.includes('teach: { product: "teach", purpose: "teacher_instructional_support" }'), "Signature Core no longer exposes Teach as a student instructional consumer");
 check(learnTeacherSignature.includes('consumer: "learn"'), "Learn teacher instructional Pulse uses canonical Learn consumer identity");
 check(learnTeacherSignature.includes("getEducatorCourseAccessDecision") && learnTeacherSignature.includes("courseId: string"), "Learn teacher projection authorizes the exact selected course before projection");
+check(learnTeacherSignature.includes("authorizationCourseId: input.courseId"), "trusted Signature server chain carries the exact authorized course into Core");
 check(learnTeacherSignature.includes("actorId: input.actorId"), "Learn teacher adapter forwards the real educator actor into Core");
 
 // Educator identity, entitlement, qualification and authorization model.
@@ -139,4 +146,4 @@ for (const [name, source] of [["Learn Teacher Students", learnStudents], ["Signa
   check(source.includes("focus-visible"), `${name} retains visible keyboard focus treatment`);
 }
 
-console.log("Lurexa Signature Rollout S9 verification passed with authoritative Learn/Teach and educator qualification boundaries.");
+console.log("Lurexa Signature Rollout S9 verification passed with authoritative Learn/Teach, educator qualification, and split semantic-catalog boundaries.");
