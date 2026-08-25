@@ -4,6 +4,15 @@ import { getTeachLearnerPulseProjection } from "@lurexa/backend/teach-signature-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function privateJson(value: unknown, status = 200): Response {
+  return Response.json(value, {
+    status,
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0",
+    },
+  });
+}
+
 export async function GET(request: Request): Promise<Response> {
   try {
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
@@ -12,13 +21,13 @@ export async function GET(request: Request): Promise<Response> {
     const organizationId = url.searchParams.get("organizationId")?.trim();
 
     if (!learnerId || !organizationId) {
-      return Response.json(
+      return privateJson(
         { error: "learnerId and organizationId are required for Teach instructional support." },
-        { status: 400 },
+        400,
       );
     }
 
-    return Response.json(await getTeachLearnerPulseProjection({
+    return privateJson(await getTeachLearnerPulseProjection({
       actorId: actor.uid,
       learnerId,
       organizationId,
@@ -33,6 +42,6 @@ export async function GET(request: Request): Promise<Response> {
         || message.includes("No current learner context")
         ? 403
         : 400;
-    return Response.json({ error: message }, { status });
+    return privateJson({ error: message }, status);
   }
 }
