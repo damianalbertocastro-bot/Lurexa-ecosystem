@@ -10,6 +10,7 @@ import type {
   LearningEvidence,
   StudentProgress,
 } from "@lurexa/types";
+import { getEducatorAuthorizedCourseIds } from "./educator-access.server";
 import { getServerFirestore } from "./firebase-admin.server";
 import {
   FirestoreLearnerInsightRepository,
@@ -38,8 +39,6 @@ const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"
   insight: [],
   studio: [],
 };
-
-const delegatedTeacherRoles = new Set(["owner", "admin", "teacher"]);
 
 function assertProductPurpose(request: LearnerContextRequest): void {
   if (!allowedPurposesByProduct[request.requestingProduct].includes(request.purpose)) {
@@ -77,11 +76,21 @@ async function authorizeContextRead(input: { actorId: string; request: LearnerCo
     readMembership(actorId, request.organizationId),
     readMembership(request.learnerId, request.organizationId),
   ]);
-  if (!actorMembership?.role || !delegatedTeacherRoles.has(actorMembership.role)) {
-    throw new Error("A teacher, organization admin, or owner membership is required for delegated instructional support.");
+  if (!actorMembership?.role || !["owner", "admin", "teacher"].includes(actorMembership.role)) {
+    throw new Error("An educator, organization admin, or owner membership is required for delegated instructional support.");
   }
   if (learnerMembership?.role !== "student") {
     throw new Error("The supported learner must be a student member of the requested organization.");
+  }
+
+  if (actorMembership.role === "teacher") {
+    const authorizedCourseIds = await getEducatorAuthorizedCourseIds({
+      userId: actorId,
+      organizationId: request.organizationId,
+    });
+    if (authorizedCourseIds.length === 0) {
+      throw new Error("Teacher instructional support requires an active educator qualification linked to a teaching authorization in this organization.");
+    }
   }
 }
 
@@ -118,7 +127,9 @@ function scopeInsights(
 /**
  * Trusted Core read boundary for learner context. Self-service remains the
  * default. The only v1 delegated read is Lurexa Learn teacher instructional
- * support, explicitly organization-scoped and role checked inside Core.
+ * support, explicitly organization-scoped and authorization checked inside
+ * Core. A teacher membership by itself is not sufficient: ordinary teachers
+ * need an active educator qualification linked to an explicit teaching grant.
  * Lurexa Teach has no delegated student-context entitlement.
  */
 export async function getScopedLearnerContext(input: {
@@ -263,6 +274,9 @@ export async function getScopedLearnerContext(input: {
       request.organizationId
         ? "Organization-scoped intelligence is pinned to the explicitly authorized organization boundary."
         : "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
+      request.purpose === "teacher_instructional_support"
+        ? "Teacher instructional support is organization-scoped in v1; course-level intelligence isolation requires course-scoped evidence/insight contracts."
+        : "Self-service context follows the requesting learner's authorized product purpose.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
       "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
       "Recent activity is evidence of participation, not a mastery determination.",
