@@ -2,7 +2,7 @@
 title: Lurexa Ecosystem Agent Context
 purpose: Concise, authoritative context for AI agents and knowledge libraries
 source_of_truth: Docs/00-Lurexa-Bible.md
-last_updated: 2026-08-19
+last_updated: 2026-08-24
 ---
 
 # Lurexa Ecosystem
@@ -35,12 +35,13 @@ Core and Mind are shared ecosystem layers, not end-user products. Mind does not 
 
 | Product | Purpose |
 | --- | --- |
-| **Lurexa Learn** | Learner-facing structured learning: courses, lessons, activities, assessment, progress, and adaptive learning experiences. |
+| **Lurexa Learn** | Learner-facing structured learning: courses, lessons, activities, assessment, progress, adaptive learning experiences, and operational teacher workspace for class management. |
 | **Lurexa Coach** | AI-powered English speaking, pronunciation, fluency, and confidence practice. Its first deep specialization is Dominican Spanish speakers learning English; it optimizes for intelligibility, not accent erasure. |
-| **Lurexa Teach** | Educator workspace for learner and class management, assignments, scheduling, progress review, interventions, and AI-assisted instructional support. |
+| **Lurexa Teach** | Educator professional development, teacher CEFR/English proficiency growth, professional credentials, and educator community. |
 | **Lurexa Admin** | Institutional operations: organizations, users, roles, programs, subscriptions, governance, audit, and policy configuration. |
 | **Lurexa Insight** | Governed analytics and reporting for learner, cohort, engagement, outcome, and learning-intelligence views. |
 | **Lurexa Studio** | Creation, review, publishing, versioning, and AI-assisted authoring of courses, lessons, assessments, media, and reusable learning objects. |
+| **Lurexa Campus** | Institutional learning and academic deployments: connecting higher-education and organizational cohorts, academic programs, and faculty into the shared ecosystem. |
 
 ## Product Philosophy
 

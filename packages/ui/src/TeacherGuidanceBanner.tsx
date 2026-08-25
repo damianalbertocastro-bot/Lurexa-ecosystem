@@ -63,16 +63,16 @@ export const TeacherGuidanceBanner: React.FC<TeacherGuidanceBannerProps> = ({
   return (
     <section
       aria-label="Teacher Guidance and Feedback"
-      className={`rounded-2xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/40 p-6 shadow-sm ${className}`}
+      className={`rounded-2xl border border-[var(--color-border-default)] bg-gradient-to-br from-white to-[var(--color-background-secondary)] p-6 shadow-sm ${className}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-50 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border-default)] pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-brand-primary)] font-semibold text-white">
             🎓
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">Teacher Guidance & Feedback</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="text-base font-bold text-[var(--color-text-primary)]">Teacher Guidance & Feedback</h3>
+            <p className="text-xs text-[var(--color-text-muted)]">
               Reviewed on {new Date(guidance.reviewedAt).toLocaleDateString()}
             </p>
           </div>
@@ -85,23 +85,23 @@ export const TeacherGuidanceBanner: React.FC<TeacherGuidanceBannerProps> = ({
       </div>
 
       {guidance.generalNotes && (
-        <div className="mt-4 text-sm leading-relaxed text-slate-700">
-          <p className="font-medium text-slate-900 mb-1">Teacher Notes:</p>
-          <p className="italic bg-white/80 rounded-xl p-3 border border-indigo-50">{guidance.generalNotes}</p>
+        <div className="mt-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+          <p className="font-medium text-[var(--color-text-primary)] mb-1">Teacher Notes:</p>
+          <p className="italic bg-white/80 rounded-xl p-3 border border-[var(--color-border-default)]">{guidance.generalNotes}</p>
         </div>
       )}
 
       {guidance.feedbackItems && guidance.feedbackItems.length > 0 && (
         <div className="mt-4 space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Targeted Observations</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Targeted Observations</h4>
           <ul className="space-y-2">
             {guidance.feedbackItems.map((item) => (
               <li
                 key={item.id}
                 className={`flex items-start gap-2.5 rounded-xl border p-3 text-xs leading-relaxed ${
                   item.strength
-                    ? "border-emerald-100 bg-emerald-50/60 text-emerald-950"
-                    : "border-amber-100 bg-amber-50/60 text-amber-950"
+                    ? "border-emerald-200/60 bg-emerald-50/60 text-emerald-950"
+                    : "border-amber-200/60 bg-amber-50/60 text-amber-950"
                 }`}
               >
                 <span className="mt-0.5 text-sm">{item.strength ? "✨" : "🎯"}</span>
@@ -121,22 +121,22 @@ export const TeacherGuidanceBanner: React.FC<TeacherGuidanceBannerProps> = ({
       )}
 
       {guidance.returnLoopActions && guidance.returnLoopActions.length > 0 && (
-        <div className="mt-5 border-t border-indigo-50 pt-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-900">Recommended Return Loop Tasks</h4>
+        <div className="mt-5 border-t border-[var(--color-border-default)] pt-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)]">Recommended Return Loop Tasks</h4>
           <div className="mt-2.5 space-y-2">
             {guidance.returnLoopActions.map((action) => (
               <div
                 key={action.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-indigo-200/70 bg-white p-3.5 shadow-sm"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--color-border-default)] bg-white p-3.5 shadow-sm"
               >
                 <div>
-                  <h5 className="text-sm font-bold text-slate-900">{action.title}</h5>
-                  <p className="text-xs text-slate-600">{action.instruction}</p>
+                  <h5 className="text-sm font-bold text-[var(--color-text-primary)]">{action.title}</h5>
+                  <p className="text-xs text-[var(--color-text-secondary)]">{action.instruction}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onActionClick?.(action)}
-                  className="shrink-0 inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.98]"
+                  className="shrink-0 inline-flex items-center justify-center rounded-xl bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-secondary)] active:scale-[0.98]"
                 >
                   Start Practice →
                 </button>

@@ -1,12 +1,12 @@
 ---
 title: Lurexa Bible
 subtitle: Authoritative Guide to the Lurexa Ecosystem
-version: 1.3.0
+version: 1.4.0
 status: Approved
 owner: Lurexa Learning Technologies
 author: Damian + AI collaborators
 created: 2026-07-23
-last_updated: 2026-08-20
+last_updated: 2026-08-24
 ---
 
 # Lurexa Bible
@@ -54,7 +54,8 @@ Lurexa Learning Technologies
     ├── Lurexa Teach
     ├── Lurexa Admin
     ├── Lurexa Insight
-    └── Lurexa Studio
+    ├── Lurexa Studio
+    └── Lurexa Campus
 ```
 
 Core and Mind are not ordinary end-user products. They are reusable ecosystem layers that support the product family.
@@ -247,6 +248,14 @@ Analytics, intelligence and reporting product. It surfaces learner, cohort, enga
 ### Lurexa Studio
 
 Content and learning-experience creation product for courses, lessons, assessments, media, reusable learning objects, authoring, publishing/versioning and AI-assisted creation through Mind.
+
+### Lurexa Campus
+
+Institutional learning and academic deployment product.
+
+Campus connects higher-education and organizational cohorts, academic programs, faculty workspaces, and institutional learning deployments into the shared Lurexa ecosystem.
+
+Campus personality: connected, institutional, and intelligent.
 
 ## 11. Product philosophy
 

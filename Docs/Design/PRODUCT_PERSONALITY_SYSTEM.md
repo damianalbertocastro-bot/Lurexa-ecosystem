@@ -36,6 +36,7 @@ Every Lurexa experience must preserve:
 | Lurexa Admin | Current product | Authoritative and controlled | Operations, permissions, auditability, institutional health |
 | Lurexa Insight | Current product | Analytical and interpretive | Trends, comparison, evidence, explanation, decision support |
 | Lurexa Studio | Current product | Creative and constructive | Authoring, composition, preview, iteration, reusable assets |
+| Lurexa Campus | Current product | Connected, institutional and intelligent | Academic cohorts, institutional deployments, faculty workspaces, connected learning |
 | Lurexa Docs | Ecosystem surface | Structured and knowledge-oriented | Reading, search, provenance, hierarchy, cross-reference |
 | Lurexa Community | Future product concept | Social, welcoming and participatory | Conversation, discovery, contribution, belonging, trusted community |
 
@@ -140,6 +141,20 @@ Design behavior:
 - stronger affordances for drag, compose, duplicate, arrange, and iterate.
 
 Avoid making Studio look like Admin with editing controls added.
+
+## Lurexa Campus
+
+Campus should feel connected, institutional, and intelligent.
+
+Design behavior:
+- structured academic and institutional layouts;
+- deep navy foundation with authoritative blue and cyan highlights;
+- balanced operational and academic density;
+- purposeful motion suited for institutional learning environments;
+- clear hierarchy for academic cohorts, departments, faculty workspaces, and program administration;
+- dedicated Campus product mark (classical pediment and 3 columns) representing institutional strength.
+
+Avoid disconnected portal styling, overly informal consumer gamification, or confusing institutional workspaces with individual self-paced study.
 
 ## Lurexa Docs
 

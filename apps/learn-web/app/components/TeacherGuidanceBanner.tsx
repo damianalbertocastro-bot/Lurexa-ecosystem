@@ -76,12 +76,12 @@ export function TeacherGuidanceBanner() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-extrabold uppercase tracking-[.16em] text-emerald-700">Teacher guidance</p>
-          <h2 className="mt-2 text-lg font-bold text-slate-950">Your teacher sent a next step.</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700">{response.teacherNote}</p>
+          <h2 className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">Your teacher sent a next step.</h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{response.teacherNote}</p>
           <div className="mt-3 rounded-2xl bg-emerald-50 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Recommended action</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{response.recommendedAction}</p>
-            <p className="mt-2 text-xs text-slate-600">Priority: {response.priority}</p>
+            <p className="mt-1 text-sm font-semibold text-[var(--color-text-primary)]">{response.recommendedAction}</p>
+            <p className="mt-2 text-xs text-[var(--color-text-muted)]">Priority: {response.priority}</p>
           </div>
           {error ? <p className="mt-3 text-sm font-medium text-rose-700" role="alert">{error}</p> : null}
         </div>
@@ -91,7 +91,7 @@ export function TeacherGuidanceBanner() {
               Open recommended lesson
             </button>
           ) : null}
-          <button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+          <button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-[var(--color-border-default)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-background-secondary)] disabled:opacity-50">
             {closing ? "Saving…" : "Mark as reviewed"}
           </button>
         </div>

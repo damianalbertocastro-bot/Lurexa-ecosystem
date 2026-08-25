@@ -28,7 +28,8 @@ Lurexa Learning Technologies
     ├── Lurexa Teach
     ├── Lurexa Admin
     ├── Lurexa Insight
-    └── Lurexa Studio
+    ├── Lurexa Studio
+    └── Lurexa Campus
 ```
 
 Core and Mind are shared ecosystem layers, not ordinary end-user products.
@@ -60,7 +61,7 @@ These statements describe verified repository structure, not completion of produ
 
 - [x] Establish Lurexa Learning Technologies as parent/master business identity.
 - [x] Establish Lurexa Core and Lurexa Mind as shared ecosystem layers.
-- [x] Establish Learn, Coach, Teach, Admin, Insight and Studio as product family.
+- [x] Establish Learn, Coach, Teach, Admin, Insight, Studio and Campus as product family.
 - [x] Establish one persistent cross-product Learner Model.
 - [x] Separate Core trust/persistence from Mind interpretation/intelligence.
 - [x] Define Coach as a speaking/pronunciation product, not the intelligence layer.
@@ -289,6 +290,18 @@ Exit condition: core learning remains useful during intermittent connectivity an
 - [ ] Authorized aggregated speaking/pronunciation trends.
 
 Exit condition: institutions can operate the platform and understand outcomes without direct database access or opaque AI scores.
+
+---
+
+# Phase 8b — Lurexa Campus
+
+Goal: support institutional cohorts, academic programs, faculty workspaces and campus-wide deployments across the shared Lurexa ecosystem.
+
+- [ ] Campus onboarding and institutional workspace structure.
+- [ ] Cohort, department and academic program management connected to Core.
+- [ ] Multi-product institutional licenses and administrative governance.
+- [ ] Mind-powered cohort learning insights and faculty support.
+- [ ] Connect educator professional development (Teach) and student learning delivery (Learn) under institutional adoption.
 
 ---
 
