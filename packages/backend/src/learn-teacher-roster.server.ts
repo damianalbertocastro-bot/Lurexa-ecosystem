@@ -18,16 +18,6 @@ async function isStudentMember(learnerId: string, organizationId: string): Promi
   return snapshot.exists && snapshot.data()?.role === "student";
 }
 
-async function educatorMembershipRole(userId: string, organizationId: string): Promise<string | null> {
-  const snapshot = await getServerFirestore()
-    .collection("user-memberships")
-    .doc(userId)
-    .collection("organizations")
-    .doc(organizationId)
-    .get();
-  return snapshot.exists && typeof snapshot.data()?.role === "string" ? snapshot.data()!.role as string : null;
-}
-
 async function displayNameFor(learnerId: string): Promise<string> {
   const database = getServerFirestore();
   const [userSnapshot, profileSnapshot] = await Promise.all([
@@ -44,11 +34,9 @@ async function displayNameFor(learnerId: string): Promise<string> {
 }
 
 /**
- * Lurexa Learn teacher-workspace roster. Ordinary teacher memberships are not
- * sufficient by themselves: courses must be covered by an active educator
- * qualification linked to an explicit teaching authorization. Organization
- * owners/admins retain governance visibility without being represented as
- * professionally qualified educators.
+ * Lurexa Learn teacher-workspace roster. Organization membership is affiliation,
+ * not qualification. Every surfaced course must be covered by an active
+ * educator qualification linked to an explicit institution teaching grant.
  */
 export async function getLearnTeacherInstructionalRoster(
   actor: AuthenticatedActor,
@@ -56,11 +44,9 @@ export async function getLearnTeacherInstructionalRoster(
   const database = getServerFirestore();
   const membershipCourses = await CoursePlatformService.getTeacherCourses(actor);
   const teacherCourses = (await Promise.all(membershipCourses.map(async (summary) => {
-    const role = await educatorMembershipRole(actor.uid, summary.course.orgId);
     const decision = await getEducatorCourseAccessDecision({
       userId: actor.uid,
       course: summary.course,
-      governanceRole: role === "owner" || role === "admin" ? role : null,
     });
     return decision.allowed ? summary : null;
   }))).filter((summary): summary is (typeof membershipCourses)[number] => summary !== null);
@@ -107,9 +93,8 @@ export async function getLearnTeacherInstructionalRoster(
     generatedAt: new Date().toISOString(),
     courses,
     limitations: [
-      "This Lurexa Learn v1 roster includes learners with recorded participation in courses the educator is authorized to teach.",
-      "A teacher organization role alone does not create instructional access; ordinary teachers require active qualification plus course-scoped teaching authorization.",
-      "Organization owners/admins retain governance visibility independently from educator qualification status.",
+      "This Lurexa Learn v1 roster includes learners with recorded participation in courses the educator is qualified and explicitly authorized to teach.",
+      "Organization role alone does not create instructional access; owner/admin/teacher affiliation cannot substitute for educator qualification or a teaching grant.",
       "Learners who are enrolled but have never generated course progress are not represented until Core provides a dedicated enrollment index.",
       "Roster responses contain display identity and participation metadata only; learner-model evidence remains behind purpose-scoped Core projections.",
     ],
