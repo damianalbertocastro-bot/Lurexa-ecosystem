@@ -3,11 +3,19 @@ import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.serv
 
 const MIN_WINDOW_MINUTES = 5;
 const MAX_WINDOW_MINUTES = 7 * 24 * 60;
+const PROJECTION_P95_WARNING_MS = 1_200;
 
 async function requireSuperAdmin(authorization: string | null): Promise<void> {
   if (!authorization?.startsWith("Bearer ")) throw new Error("Authentication is required.");
   const token = await getServerFirebaseAuth().verifyIdToken(authorization.slice(7));
   if (token.role !== "super_admin") throw new Error("Superadmin access is required.");
+}
+
+function percentile95(values: number[]): number | null {
+  if (!values.length) return null;
+  const sorted = values.slice().sort((first, second) => first - second);
+  const index = Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1);
+  return Math.round(sorted[index]!);
 }
 
 export async function getSignatureOperationalRollup(input: {
@@ -30,8 +38,7 @@ export async function getSignatureOperationalRollup(input: {
     projection: SignatureOperationalRollupV1["projections"][number]["projection"];
     successCount: number;
     failureCount: number;
-    durationTotal: number;
-    durationCount: number;
+    durations: number[];
   }>();
 
   for (const document of snapshots.docs) {
@@ -52,14 +59,12 @@ export async function getSignatureOperationalRollup(input: {
       projection: value.projection as SignatureOperationalRollupV1["projections"][number]["projection"],
       successCount: 0,
       failureCount: 0,
-      durationTotal: 0,
-      durationCount: 0,
+      durations: [],
     };
     if (value.kind === "projection_success") current.successCount += 1;
     else current.failureCount += 1;
     if (typeof value.durationMs === "number" && Number.isFinite(value.durationMs) && value.durationMs >= 0) {
-      current.durationTotal += value.durationMs;
-      current.durationCount += 1;
+      current.durations.push(value.durationMs);
     }
     projectionMap.set(key, current);
   }
@@ -75,12 +80,19 @@ export async function getSignatureOperationalRollup(input: {
         projection: entry.projection,
         successCount: entry.successCount,
         failureCount: entry.failureCount,
-        averageDurationMs: entry.durationCount ? Math.round(entry.durationTotal / entry.durationCount) : null,
+        averageDurationMs: entry.durations.length
+          ? Math.round(entry.durations.reduce((sum, value) => sum + value, 0) / entry.durations.length)
+          : null,
+        p95DurationMs: percentile95(entry.durations),
       }))
       .sort((first, second) => `${first.consumer}:${first.projection}`.localeCompare(`${second.consumer}:${second.projection}`)),
+    performanceBudget: {
+      projectionP95WarningMs: PROJECTION_P95_WARNING_MS,
+    },
     limitations: [
       "Operational telemetry is intentionally identity-free and cannot be segmented by learner or organization.",
       "Counts reflect emitted Signature Experience telemetry only; missing instrumentation is not inferred.",
+      "The p95 warning budget is an operational experience target, not a learner-outcome metric.",
       "This v1 rollup scans a bounded telemetry window and should move to maintained aggregates at higher volume.",
     ],
   };
