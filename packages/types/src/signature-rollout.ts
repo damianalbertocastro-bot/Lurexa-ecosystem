@@ -1,5 +1,3 @@
-import type { LearnerPulseProjectionV1 } from "./signature-experience";
-
 export const SIGNATURE_ROLLOUT_CONTRACT_VERSION = "1" as const;
 
 export interface TeachRosterLearnerV1 {
@@ -26,11 +24,6 @@ export interface TeachInstructionalRosterV1 {
   generatedAt: string;
   courses: TeachRosterCourseV1[];
   limitations: string[];
-}
-
-export interface InsightLearnerPulseProjectionV1 extends LearnerPulseProjectionV1 {
-  consumer: "insight";
-  organizationId: string;
 }
 
 export interface InsightOrganizationSignatureOverviewV1 {
@@ -62,6 +55,10 @@ export interface SignatureOperationalRollupV1 {
     successCount: number;
     failureCount: number;
     averageDurationMs: number | null;
+    p95DurationMs: number | null;
   }>;
+  performanceBudget: {
+    projectionP95WarningMs: number;
+  };
   limitations: string[];
 }
