@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
-import { getEcosystemUrl } from "@lurexa/config/domains";
+import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 
-const ecosystemUrl = getEcosystemUrl("root");
 const proof = [
   ["Built around you", "One evolving path connects goals, practice, and the next useful step."],
   ["Made for real life", "Speak, understand, and use English in the situations that matter."],
@@ -16,7 +15,7 @@ export default function HomePage() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-5 sm:px-8">
           <LurexaLearnLogo inverse />
           <div className="flex items-center gap-1 sm:gap-3">
-            <a href={ecosystemUrl} className="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm">Lurexa ecosystem</a>
+            <EcosystemDropdown currentApp="learn" inverse />
             <Link href="/login" className="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm">Sign in</Link>
             <Link href="/onboarding" className="rounded-full bg-sky-400 px-3.5 py-2 text-xs font-bold text-slate-950 transition hover:bg-sky-300 sm:px-4 sm:text-sm">Start free</Link>
           </div>
