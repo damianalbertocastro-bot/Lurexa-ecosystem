@@ -616,6 +616,8 @@ export const LearnTutorService = {
       status: number | null;
       error?: string;
       reply?: string | null;
+      probes?: Record<string, { status: number; text: string }>;
+      availableModels?: string[];
     };
   }> {
     const key = resolveGeminiApiKey();
@@ -627,9 +629,28 @@ export const LearnTutorService = {
       };
     }
 
-    const modelsToProbe = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
-    let lastError = "";
-    let lastStatus = 0;
+    let availableModels: string[] = [];
+    try {
+      const listRes = await fetch(`${GEMINI_API_ENDPOINT}?key=${encodeURIComponent(key)}`, {
+        headers: { "x-goog-api-key": key },
+      });
+      if (listRes.ok) {
+        const listData = (await listRes.json()) as { models?: Array<{ name?: string }> };
+        availableModels = (listData.models || []).map((m) => m.name?.replace(/^models\//, "") || "").filter(Boolean);
+      }
+    } catch (_) {}
+
+    const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim();
+    const modelsToProbe = Array.from(new Set([
+      ...(configuredModel ? [configuredModel] : []),
+      ...availableModels,
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-pro",
+    ])).slice(0, 10);
+
+    const probes: Record<string, { status: number; text: string }> = {};
 
     for (const model of modelsToProbe) {
       try {
@@ -643,20 +664,20 @@ export const LearnTutorService = {
           }),
         });
 
-        lastStatus = response.status;
+        const text = await response.text();
+        probes[model] = { status: response.status, text: text.slice(0, 300) };
+
         if (response.ok) {
-          const data = await response.json();
+          const data = JSON.parse(text);
           const reply = readGeminiOutputText(data);
           return {
             configured: true,
             keyPreview: `${key.slice(0, 6)}...${key.slice(-4)}`,
-            liveTest: { success: true, model, status: response.status, reply },
+            liveTest: { success: true, model, status: response.status, reply, availableModels, probes },
           };
-        } else {
-          lastError = await response.text().catch(() => "");
         }
       } catch (err) {
-        lastError = err instanceof Error ? err.message : "Network error";
+        probes[model] = { status: 0, text: err instanceof Error ? err.message : "Network error" };
       }
     }
 
@@ -666,8 +687,10 @@ export const LearnTutorService = {
       liveTest: {
         success: false,
         model: modelsToProbe.join(", "),
-        status: lastStatus,
-        error: lastError,
+        status: Object.values(probes)[0]?.status ?? null,
+        error: Object.values(probes)[0]?.text ?? "All models failed",
+        availableModels,
+        probes,
       },
     };
   },
