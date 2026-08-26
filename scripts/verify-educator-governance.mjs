@@ -20,6 +20,7 @@ check(!service.includes('governanceRoles = new Set(["owner", "admin", "teacher"]
 check(service.includes('qualification.status !== "qualified"') && service.includes("activeUntil(qualification.validUntil)"), "authorization requires a currently qualified scope");
 check(service.includes("courses.some((course) => course.orgId !== input.organizationId)"), "authorization cannot cross organization course boundaries");
 check(service.includes("qualificationSupportsCourse") && service.includes("Teaching authorization cannot exceed the educator qualification scope."), "authorization cannot exceed subject or level qualification scope");
+check(service.includes('if (input.status === "active")') && service.includes("validateAuthorizationScope") && service.includes("Expired teaching authorization cannot be reactivated."), "reactivation revalidates qualification, course scope, organization, and grant validity");
 check(service.includes('collection("educator-governance-audit")'), "grant and status mutations append a trusted governance audit record");
 check(!service.includes(".delete()"), "educator governance does not erase authorization history");
 check(route.includes('"Cache-Control": "private, no-store, max-age=0"'), "educator governance API is private and no-store");
@@ -27,6 +28,7 @@ check(route.includes("grantTeachingAuthorization") && route.includes("updateTeac
 check(page.includes("Trusted scope — read only in Admin") && page.includes("Cannot be edited here"), "Admin UX makes qualification records explicitly read-only");
 check(page.includes("Grant teaching authorization") && page.includes("Suspend"), "Admin UX can grant and suspend teaching authorization");
 check(page.includes("Membership establishes institutional affiliation") && page.includes("Qualification establishes what an educator is prepared to teach"), "Admin UX explains the affiliation/qualification/authorization distinction");
+check(!page.includes("setState within an effect"), "Admin educator selection avoids effect-driven state resets");
 check(access.includes("getEducatorCourseAccessDecision"), "Learn Teacher Workspace authorization continues through the existing Core access decision");
 
 console.log("Educator governance verification passed: Admin can govern exact-course authorization without manufacturing qualification or collapsing institutional roles.");
