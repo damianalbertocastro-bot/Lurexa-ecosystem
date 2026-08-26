@@ -106,7 +106,7 @@ check(catalog.includes('status: "active"'), "Knowledge Object catalog contains a
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
 check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern has a canonical Knowledge Object mapping");
 check(catalog.includes('"DO-ENG-PRO-006"'), "regular-past pronunciation pattern has canonical Knowledge Object mappings");
-check(adaptiveAdapter.includes("getKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed catalog");
+check(adaptiveAdapter.includes("getGovernedKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed combined catalog");
 check(adaptiveAdapter.includes("Competency identifiers are not treated as Knowledge Object identifiers"), "competency and Knowledge Object namespaces remain distinct");
 check(signatureRoute.includes("getGovernedAdaptiveLearningPathProjection"), "Learn API routes Adaptive Path through the semantic governance adapter");
 check(signatureRoute.includes("getScopedMemoryThreadProjection"), "Learn API routes Memory Thread through the tenant-safe projection");
