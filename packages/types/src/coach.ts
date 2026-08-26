@@ -20,6 +20,7 @@ export interface CoachTranscriptMessage {
 export interface CoachSession {
   id: string;
   learnerId: string;
+  mode?: "learner" | "educator_professional";
   status: "active" | "completed";
   focus: CoachSessionFocus;
   transcript: CoachTranscriptMessage[];

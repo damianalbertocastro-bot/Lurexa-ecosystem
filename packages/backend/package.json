@@ -13,7 +13,8 @@
     "check-types": "tsc --noEmit",
     "test:learn-rules": "node scripts/test-learn-progress-rules.mjs",
     "test:learn-mvp-journey": "tsx scripts/test-learn-mvp-journey.ts",
-    "test:signature-delegation": "tsx scripts/test-signature-delegation.ts"
+    "test:signature-delegation": "tsx scripts/test-signature-delegation.ts",
+    "test:educator-growth-integration": "tsx scripts/test-educator-growth-integration.ts"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "6.0.0",

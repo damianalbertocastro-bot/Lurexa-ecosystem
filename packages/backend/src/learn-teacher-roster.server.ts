@@ -6,6 +6,7 @@ import type {
 import type { AuthenticatedActor } from "./course-platform.server";
 import { CoursePlatformService } from "./course-platform.server";
 import { getEducatorCourseAccessDecision } from "./educator-access.server";
+import { CourseEnrollmentIndexService } from "./core/course-enrollment-index.server";
 import { getServerFirestore } from "./firebase-admin.server";
 
 async function isStudentMember(learnerId: string, organizationId: string): Promise<boolean> {
@@ -34,9 +35,11 @@ async function displayNameFor(learnerId: string): Promise<string> {
 }
 
 /**
- * Lurexa Learn teacher-workspace roster. Organization membership is affiliation,
- * not qualification. Every surfaced course must be covered by an active
- * educator qualification linked to an explicit institution teaching grant.
+ * Lurexa Learn Teacher Workspace roster.
+ * Core enrollment is authoritative; progress is only an activity overlay.
+ * Existing trusted participation is migrated once into the enrollment index
+ * so current deployments retain learners without keeping progress as the
+ * long-term enrollment source of truth.
  */
 export async function getLearnTeacherInstructionalRoster(
   actor: AuthenticatedActor,
@@ -44,15 +47,16 @@ export async function getLearnTeacherInstructionalRoster(
   const database = getServerFirestore();
   const membershipCourses = await CoursePlatformService.getTeacherCourses(actor);
   const teacherCourses = (await Promise.all(membershipCourses.map(async (summary) => {
-    const decision = await getEducatorCourseAccessDecision({
-      userId: actor.uid,
-      course: summary.course,
-    });
+    const decision = await getEducatorCourseAccessDecision({ userId: actor.uid, course: summary.course });
     return decision.allowed ? summary : null;
   }))).filter((summary): summary is (typeof membershipCourses)[number] => summary !== null);
 
   const courses = await Promise.all(teacherCourses.map(async ({ course, lessons }) => {
-    const progressSnapshot = await database.collection("progress").where("courseId", "==", course.id).get();
+    await CourseEnrollmentIndexService.migrateTrustedParticipation(course);
+    const [enrollments, progressSnapshot] = await Promise.all([
+      CourseEnrollmentIndexService.listCourseEnrollments(course.id),
+      database.collection("progress").where("courseId", "==", course.id).get(),
+    ]);
     const progress = progressSnapshot.docs.map((document) => document.data() as StudentProgress);
     const byLearner = new Map<string, StudentProgress[]>();
     for (const record of progress) {
@@ -61,8 +65,11 @@ export async function getLearnTeacherInstructionalRoster(
       byLearner.set(record.studentId, records);
     }
 
-    const learners = (await Promise.all([...byLearner.entries()].map(async ([learnerId, records]): Promise<LearnTeacherRosterLearnerV1 | null> => {
+    const activeEnrollments = enrollments.filter((enrollment) => enrollment.status === "active" || enrollment.status === "completed");
+    const learners = (await Promise.all(activeEnrollments.map(async (enrollment): Promise<LearnTeacherRosterLearnerV1 | null> => {
+      const learnerId = enrollment.learnerId;
       if (!await isStudentMember(learnerId, course.orgId)) return null;
+      const records = byLearner.get(learnerId) ?? [];
       const completedLessons = new Set(records.filter((record) => record.completed).map((record) => record.lessonId)).size;
       const latest = records.slice().sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt))[0];
       const totalLessons = lessons.length;
@@ -80,12 +87,7 @@ export async function getLearnTeacherInstructionalRoster(
     }))).filter((learner): learner is LearnTeacherRosterLearnerV1 => learner !== null)
       .sort((first, second) => first.displayName.localeCompare(second.displayName));
 
-    return {
-      courseId: course.id,
-      courseTitle: course.title,
-      organizationId: course.orgId,
-      learners,
-    };
+    return { courseId: course.id, courseTitle: course.title, organizationId: course.orgId, learners };
   }));
 
   return {
@@ -93,9 +95,9 @@ export async function getLearnTeacherInstructionalRoster(
     generatedAt: new Date().toISOString(),
     courses,
     limitations: [
-      "This Lurexa Learn v1 roster includes learners with recorded participation in courses the educator is qualified and explicitly authorized to teach.",
-      "Organization role alone does not create instructional access; owner/admin/teacher affiliation cannot substitute for educator qualification or a teaching grant.",
-      "Learners who are enrolled but have never generated course progress are not represented until Core provides a dedicated enrollment index.",
+      "Core course enrollment is authoritative; learner progress is used only to calculate participation and progress overlays.",
+      "Trusted historical participation is migrated into the Core enrollment index for backward compatibility.",
+      "Organization role alone does not create instructional access; qualification and exact-course teaching authorization remain mandatory.",
       "Roster responses contain display identity and participation metadata only; learner-model evidence remains behind purpose-scoped Core projections.",
     ],
   };

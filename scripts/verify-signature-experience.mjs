@@ -38,9 +38,10 @@ const uiFiles = [
 ].map(read);
 
 check(contracts.includes('export const SIGNATURE_EXPERIENCE_CONTRACT_VERSION = "1"'), "signature contracts remain explicitly versioned at v1");
-check(contracts.includes('"return_to_learning"'), "Product Bridge contract includes the Coach → Learn return purpose");
+check(contracts.includes('"return_to_learning"') && contracts.includes('"professional_growth"'), "Product Bridge contract includes learner-return and educator professional-growth purposes");
 check(bridgeService.includes('"learn:coach:targeted_practice"'), "Learn → Coach targeted-practice handoff is allowlisted");
 check(bridgeService.includes('"coach:learn:return_to_learning"'), "Coach → Learn return handoff is allowlisted");
+check(bridgeService.includes('"coach:teach:professional_growth"'), "Coach → Teach educator professional-growth handoff is allowlisted");
 check(bridgeService.includes("singleUse: input.singleUse ?? true"), "Product Bridge defaults to single-use");
 check(bridgeService.includes("Product Bridge has expired."), "expired Product Bridges fail closed");
 check(bridgeService.includes("Product Bridge has already been used."), "replayed single-use Product Bridges fail closed");
@@ -49,15 +50,16 @@ check(coachTypes.includes("CoachSessionEndResult"), "Coach completion has an exp
 check(completionService.includes("export async function endCoachSession"), "Coach completion is isolated behind a server capability");
 check(coachRoute.includes('body.action === "endSession"'), "Learn web exposes the authenticated Coach completion action");
 check(coachRoute.includes("endCoachSession"), "Coach completion route delegates to the isolated signature capability");
-check(completionService.includes('purpose: "return_to_learning"'), "Coach completion creates a purpose-scoped return bridge");
-check(completionService.includes('event: "coach.session_completed"'), "Coach completion contributes explicit Core evidence");
+check(completionService.includes('purpose: educatorMode ? "professional_growth" : "return_to_learning"'), "Coach completion creates purpose-scoped educator and learner return bridges");
+check(completionService.includes('destination: educatorMode ? "teach" : "learn"'), "Coach completion keeps educator and learner destinations distinct");
+check(completionService.includes('event: "coach.session_completed"'), "learner-mode Coach completion contributes explicit Core evidence");
 
 const completionPayloadStart = completionService.indexOf('event: "coach.session_completed"');
 const completionPayloadEnd = completionService.indexOf("provenance:", completionPayloadStart);
 const completionPayload = completionService.slice(completionPayloadStart, completionPayloadEnd);
-check(completionPayloadStart >= 0 && completionPayloadEnd > completionPayloadStart, "Coach completion evidence payload is statically inspectable");
-check(!/(?:^|[,{]\s*)transcript\s*:/.test(completionPayload), "Coach completion evidence does not persist the conversation transcript");
-check(completionService.includes('id: `coach_session_completed_${session.id}`'), "Coach completion evidence is idempotently keyed by session");
+check(completionPayloadStart >= 0 && completionPayloadEnd > completionPayloadStart, "Coach learner completion evidence payload is statically inspectable");
+check(!/(?:^|[,{]\s*)transcript\s*:/.test(completionPayload), "Coach learner completion evidence does not persist the conversation transcript");
+check(completionService.includes('id: `coach_session_completed_${session.id}`'), "Coach learner completion evidence is idempotently keyed by session");
 check(completionService.includes('.where("source.activityId", "==", input.sessionId)'), "Coach completion finds only evidence tied to the completed session for redaction");
 check(completionService.includes('if (value.learnerId !== input.learnerId || value.source?.product !== "coach")'), "Coach evidence redaction verifies learner and product ownership");
 check(completionService.includes('const { learnerForm: _discardedLearnerForm, ...minimizedPayload } = payload'), "Coach completion removes raw learnerForm from persisted turn evidence");
@@ -67,8 +69,8 @@ check(completionService.indexOf("createProductBridge") < completionService.index
 check(coachPage.includes("handleFinishSession"), "Coach exposes an explicit learner-visible completion action");
 check(coachPage.includes('action: "endSession"'), "Coach UI closes the server session before leaving");
 check(coachPage.includes('/api/product-bridge?action=resolve'), "Coach UI resolves the return bridge before navigation");
-check(coachPage.includes('destination: "learn"'), "Coach return bridge is validated for the Learn destination");
-check(coachPage.includes("Finish session & return to Learn"), "Coach labels the semantic completion transition clearly");
+check(coachPage.includes('destination: "learn"'), "learner Coach return bridge is validated for the Learn destination");
+check(coachPage.includes("Finish session & return to Learn"), "learner Coach labels the semantic completion transition clearly");
 
 check(resumeService.includes("resumeCoachSession"), "Coach refresh recovery is isolated behind an authorized server capability");
 check(resumeService.includes("session.learnerId !== actor.uid"), "Coach resume verifies session ownership");

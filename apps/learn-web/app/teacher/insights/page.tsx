@@ -1,190 +1,128 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@lurexa/ui/Badge";
+import type { CourseInstructionalIntelligenceV1, LearnTeacherInstructionalRosterV1 } from "@lurexa/types";
+import { AuthService } from "@lurexa/backend";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
-import type { TeacherInsightsSummary, TeacherLearnerStatus } from "@lurexa/backend/teacher-insights.server";
-import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { Badge } from "@lurexa/ui/Badge";
 import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
 
-function readError(payload: unknown, fallback: string): string {
-  if (typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
-    const error = (payload as { error?: unknown }).error;
-    if (typeof error === "string") return error;
-  }
-  return fallback;
-}
+type AuthUser = NonNullable<Parameters<Parameters<typeof AuthService.onUserChanged>[0]>[0]>;
+type EnrollmentLearner = { learnerId: string; displayName: string; enrolled: boolean; enrollmentStatus: "active" | "withdrawn" | "completed" | null };
+type EnrollmentManagement = { contractVersion: "1"; organizationId: string; courseId: string; courseTitle: string; learners: EnrollmentLearner[] };
 
-function statusBadge(status: TeacherLearnerStatus): { label: string; variant: "success" | "warning" | "default" } {
-  if (status === "active") return { label: "Active", variant: "success" };
-  if (status === "needs_attention") return { label: "Needs review", variant: "warning" };
-  return { label: "Inactive", variant: "default" };
+const teachUrl = process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? "/";
+
+async function authenticatedJson<T>(user: AuthUser, url: string, init?: RequestInit): Promise<T> {
+  const token = await user.getIdToken();
+  const response = await fetch(url, { ...init, headers: { ...(init?.headers ?? {}), authorization: `Bearer ${token}` }, cache: "no-store" });
+  const body = await response.json() as T & { error?: string };
+  if (!response.ok) throw new Error(body.error ?? "Unable to load teacher workspace data.");
+  return body;
 }
 
 export default function TeacherInsightsPage() {
   const router = useRouter();
-  const [summary, setSummary] = useState<TeacherInsightsSummary | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [roster, setRoster] = useState<LearnTeacherInstructionalRosterV1 | null>(null);
+  const [courseId, setCourseId] = useState("");
+  const [intelligence, setIntelligence] = useState<CourseInstructionalIntelligenceV1 | null>(null);
+  const [enrollment, setEnrollment] = useState<EnrollmentManagement | null>(null);
   const [loading, setLoading] = useState(true);
+  const [savingLearnerId, setSavingLearnerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | TeacherLearnerStatus>("all");
 
-  const loadInsights = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authenticatedFetch("/api/learning/teacher-insights");
-      const body: unknown = await response.json();
-      if (!response.ok) throw new Error(readError(body, "Unable to load trusted class insights."));
-      setSummary(body as TeacherInsightsSummary);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to load trusted class insights.");
-    } finally {
-      setLoading(false);
-    }
+  const selectedCourse = useMemo(() => roster?.courses.find((course) => course.courseId === courseId) ?? null, [roster, courseId]);
+
+  const loadCourse = useCallback(async (activeUser: AuthUser, organizationId: string, selectedCourseId: string) => {
+    const params = new URLSearchParams({ organizationId, courseId: selectedCourseId });
+    const [nextIntelligence, nextEnrollment] = await Promise.all([
+      authenticatedJson<CourseInstructionalIntelligenceV1>(activeUser, `/api/teacher/course-intelligence?${params.toString()}`),
+      authenticatedJson<EnrollmentManagement>(activeUser, `/api/teacher/enrollment?${params.toString()}`),
+    ]);
+    setIntelligence(nextIntelligence);
+    setEnrollment(nextEnrollment);
   }, []);
 
-  useEffect(() => {
-    const requestId = window.requestAnimationFrame(() => { void loadInsights(); });
-    return () => window.cancelAnimationFrame(requestId);
-  }, [loadInsights]);
+  useEffect(() => AuthService.onUserChanged((activeUser) => {
+    if (!activeUser) { router.replace("/login"); return; }
+    setUser(activeUser);
+    setLoading(true);
+    setError(null);
+    void authenticatedJson<LearnTeacherInstructionalRosterV1>(activeUser, "/api/teacher/roster")
+      .then(async (nextRoster) => {
+        setRoster(nextRoster);
+        const first = nextRoster.courses[0] ?? null;
+        setCourseId(first?.courseId ?? "");
+        if (first) await loadCourse(activeUser, first.organizationId, first.courseId);
+      })
+      .catch((caught) => setError(caught instanceof Error ? caught.message : "Unable to load authorized teacher intelligence."))
+      .finally(() => setLoading(false));
+  }), [loadCourse, router]);
 
-  const filteredLearners = summary?.learners.filter((learner) =>
-    statusFilter === "all" ? true : learner.status === statusFilter
-  ) ?? [];
+  async function changeCourse(nextCourseId: string) {
+    setCourseId(nextCourseId);
+    setIntelligence(null);
+    setEnrollment(null);
+    if (!user || !roster) return;
+    const course = roster.courses.find((item) => item.courseId === nextCourseId);
+    if (!course) return;
+    setLoading(true);
+    setError(null);
+    try { await loadCourse(user, course.organizationId, course.courseId); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to load this course."); }
+    finally { setLoading(false); }
+  }
 
-  return (
-    <main className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4">
-            <LurexaLearnLogo />
-            <div>
-              <p className="text-xs font-bold tracking-[.16em] text-indigo-700">LUREXA LEARN · EDUCATOR WORKSPACE</p>
-              <h1 className="mt-1 text-3xl font-bold tracking-tight text-[var(--learn-ink)]">Class progress & insights</h1>
-              <p className="mt-1 text-sm text-slate-500">Review trusted learning records and formative evidence before deciding how to support a learner.</p>
-            </div>
-          </div>
-          <Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Back to workspace</Button>
-        </header>
+  async function updateEnrollment(learner: EnrollmentLearner) {
+    if (!user || !selectedCourse) return;
+    setSavingLearnerId(learner.learnerId);
+    setError(null);
+    try {
+      await authenticatedJson(user, "/api/teacher/enrollment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organizationId: selectedCourse.organizationId, courseId: selectedCourse.courseId, learnerId: learner.learnerId, action: learner.enrolled ? "withdraw" : "enroll" }),
+      });
+      await loadCourse(user, selectedCourse.organizationId, selectedCourse.courseId);
+      const nextRoster = await authenticatedJson<LearnTeacherInstructionalRosterV1>(user, "/api/teacher/roster");
+      setRoster(nextRoster);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to update enrollment."); }
+    finally { setSavingLearnerId(null); }
+  }
 
-        {loading ? <p className="py-8 text-sm text-slate-500" role="status">Loading authorized course evidence…</p> : null}
-        {error ? (
-          <Card title="Insights are unavailable">
-            <p className="text-sm text-slate-600" role="alert">{error}</p>
-            <Button className="mt-4" variant="primary" onClick={() => void loadInsights()}>Try again</Button>
-          </Card>
-        ) : null}
+  return <main className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6">
+    <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex items-start gap-4"><LurexaLearnLogo /><div><p className="text-xs font-black tracking-[.16em] text-indigo-700">LUREXA LEARN · TEACHER WORKSPACE</p><h1 className="mt-1 text-3xl font-black tracking-tight text-[var(--learn-ink)] sm:text-4xl">Course intelligence & enrollment</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Operate student learning from exact-course authorization. Core owns enrollment; Mind-derived signals stay aggregate until you deliberately open an individual learner view.</p></div></div>
+      <div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => router.push("/teacher/students")}>Individual learners</Button><a href={`${teachUrl.replace(/\/$/, "")}/growth-plan`} className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-extrabold text-violet-800">Develop yourself in Teach ↗</a><Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Workspace</Button></div>
+    </header>
 
-        {!loading && !error && summary ? <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card title="Learners with progress"><span className="text-3xl font-bold text-indigo-700">{summary.totalLearners}</span></Card>
-            <Card title="Average completion"><span className="text-3xl font-bold text-violet-700">{summary.averageCompletionPercent ?? "—"}{summary.averageCompletionPercent === null ? "" : "%"}</span></Card>
-            <Card title="First-attempt average"><span className="text-3xl font-bold text-emerald-700">{summary.averageFirstAttemptScore ?? "—"}{summary.averageFirstAttemptScore === null ? "" : "%"}</span></Card>
-            <Card title="Needs review"><span className="text-3xl font-bold text-amber-700">{summary.needsAttentionCount}</span><p className="mt-1 text-xs text-slate-500">{summary.inactiveLearners} inactive</p></Card>
-          </div>
+    {roster?.courses.length ? <Card title="Authorized course" subtitle="Only courses covered by your current qualification and institutional teaching authorization appear here."><select aria-label="Authorized course" value={courseId} onChange={(event) => void changeCourse(event.target.value)} className="min-h-12 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">{roster.courses.map((course) => <option key={course.courseId} value={course.courseId}>{course.courseTitle}</option>)}</select></Card> : null}
 
-          <Card title="How to use this view" subtitle="Operational signals, not automated judgments">
-            <p className="text-sm leading-6 text-slate-600">{summary.dataNotice}</p>
-          </Card>
+    {loading ? <div role="status" className="rounded-3xl border border-slate-200 bg-white p-7 text-sm font-bold text-slate-500">Loading exact-course intelligence…</div> : null}
+    {error ? <div role="alert" className="rounded-3xl border border-rose-200 bg-rose-50 p-7 text-sm font-bold text-rose-800">{error}</div> : null}
 
-          <Card
-            title="Learner progress"
-            subtitle="Only learners with progress in your authorized courses appear here."
-            action={
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("all")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
-                    statusFilter === "all" ? "bg-indigo-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  All ({summary.learners.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("needs_attention")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
-                    statusFilter === "needs_attention" ? "bg-amber-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  Needs Review ({summary.needsAttentionCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("active")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
-                    statusFilter === "active" ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  Active ({summary.activeLearners})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("inactive")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
-                    statusFilter === "inactive" ? "bg-slate-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  Inactive ({summary.inactiveLearners})
-                </button>
-              </div>
-            }
-          >
-            {filteredLearners.length === 0 ? (
-              <div className="py-6 text-sm text-slate-600">No learners match the current filter.</div>
-            ) : (
-              <div className="overflow-x-auto pt-2">
-                <table className="w-full min-w-[720px] text-left text-sm text-slate-600">
-                  <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-600">
-                    <tr>
-                      <th className="px-4 py-3">Learner</th>
-                      <th className="px-4 py-3">Completion</th>
-                      <th className="px-4 py-3">First attempt</th>
-                      <th className="px-4 py-3">Last activity</th>
-                      <th className="px-4 py-3">Review signal</th>
-                      <th className="px-4 py-3"><span className="sr-only">Open learner support</span></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredLearners.map((learner) => {
-                      const badge = statusBadge(learner.status);
-                      return (
-                        <tr key={learner.learnerId} className="hover:bg-slate-50/70">
-                          <td className="px-4 py-4">
-                            <p className="font-semibold text-slate-900">{learner.learnerLabel}</p>
-                            <p className="mt-1 text-xs text-slate-500">{learner.courseCount} course{learner.courseCount === 1 ? "" : "s"} with recorded progress</p>
-                          </td>
-                          <td className="px-4 py-4 font-medium text-slate-800">
-                            {learner.completionPercent}% <span className="text-xs font-normal text-slate-500">({learner.completedLessons} lessons)</span>
-                          </td>
-                          <td className="px-4 py-4">
-                            {learner.averageFirstAttemptScore === null ? "Not enough scored evidence" : `${learner.averageFirstAttemptScore}%`}
-                          </td>
-                          <td className="px-4 py-4 text-xs">
-                            {learner.lastActiveAt ? new Date(learner.lastActiveAt).toLocaleDateString() : "No activity"}
-                          </td>
-                          <td className="px-4 py-4">
-                            <Badge variant={badge.variant}>{badge.label}</Badge>
-                            <p className="mt-2 max-w-xs text-xs leading-5 text-slate-500">{learner.statusReason}</p>
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <Button variant="secondary" size="sm" onClick={() => router.push(`/teacher/insights/${encodeURIComponent(learner.learnerId)}`)}>
-                              Review support
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-        </> : null}
-      </div>
-    </main>
-  );
+    {intelligence ? <>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <Card title="Enrolled"><b className="text-3xl text-indigo-700">{intelligence.enrollment.total}</b></Card>
+        <Card title="Participating"><b className="text-3xl text-blue-700">{intelligence.enrollment.participating}</b></Card>
+        <Card title="Not started"><b className="text-3xl text-amber-700">{intelligence.enrollment.notStarted}</b></Card>
+        <Card title="Active · 14 days"><b className="text-3xl text-emerald-700">{intelligence.enrollment.active14d}</b></Card>
+        <Card title="Average completion"><b className="text-3xl text-violet-700">{intelligence.progress.averagePercent === null ? "—" : `${intelligence.progress.averagePercent}%`}</b></Card>
+      </section>
+
+      <Card title="Instructional focus" subtitle="Aggregate governed Knowledge Object signals—not automated learner judgments.">
+        <div className="grid gap-3 md:grid-cols-2">{intelligence.focusSignals.length ? intelligence.focusSignals.map((signal) => <div key={signal.knowledgeObjectId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm capitalize text-slate-800">{signal.label}</b><Badge variant={signal.signal === "watch" ? "warning" : "default"}>{signal.signal}</Badge></div><p className="mt-2 text-xs text-slate-500">Governed evidence references from {signal.learnerCount} enrolled learner{signal.learnerCount === 1 ? "" : "s"}.</p></div>) : <p className="text-sm text-slate-500">No governed Knowledge Object signals are available for this course yet.</p>}</div>
+        <p className="mt-5 rounded-2xl bg-indigo-50 p-4 text-sm leading-6 text-indigo-900"><b>Suggested instructional action:</b> {intelligence.recommendation}</p>
+      </Card>
+
+      <aside className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 text-xs leading-6 text-indigo-900"><b>Privacy boundary:</b> {intelligence.privacyBoundary}</aside>
+    </> : null}
+
+    {enrollment ? <Card title="Course enrollment" subtitle="Students can be enrolled before they ever generate progress. Withdrawing preserves the enrollment record and history.">
+      <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-y border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Course state</th><th className="px-4 py-3 text-right">Action</th></tr></thead><tbody className="divide-y divide-slate-100">{enrollment.learners.map((learner) => <tr key={learner.learnerId}><th className="px-4 py-4 font-bold text-slate-800">{learner.displayName}</th><td className="px-4 py-4"><Badge variant={learner.enrolled ? "success" : learner.enrollmentStatus === "withdrawn" ? "warning" : "default"}>{learner.enrolled ? "Enrolled" : learner.enrollmentStatus === "withdrawn" ? "Withdrawn" : "Not enrolled"}</Badge></td><td className="px-4 py-4 text-right"><Button size="sm" variant={learner.enrolled ? "secondary" : "primary"} disabled={savingLearnerId === learner.learnerId} onClick={() => void updateEnrollment(learner)}>{savingLearnerId === learner.learnerId ? "Saving…" : learner.enrolled ? "Withdraw" : "Enroll"}</Button></td></tr>)}</tbody></table></div>
+    </Card> : null}
+  </div></main>;
 }
