@@ -18,6 +18,7 @@ const allowedHandoffs = new Set([
   "learn:coach:targeted_practice",
   "learn:coach:curriculum_reinforcement",
   "coach:learn:return_to_learning",
+  "coach:teach:professional_growth",
 ]);
 
 type PersistedBridge = ProductBridgeV1 & {
