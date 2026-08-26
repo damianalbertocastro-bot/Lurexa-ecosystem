@@ -74,6 +74,14 @@ export const RequiredLearningCapabilityService = {
       },
     });
 
+    await CoursePlatformService.recordCapabilityCompletion(
+      input.actor,
+      input.courseId,
+      input.lessonId,
+      capability.id,
+      "model_listening",
+    );
+
     try {
       await refreshLearnerIntelligence({ learnerId: input.actor.uid, organizationId });
     } catch (error) {

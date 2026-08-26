@@ -361,7 +361,7 @@ export const CoursePlatformService = {
         const activity = block.data.activity;
         const capability = readLearningCapability(block.data);
         return (typeof activity === "object" && activity !== null && (activity as { required?: unknown }).required === true)
-          || capability?.required === true
+          || (capability?.required === true && capability.kind !== "model_listening")
           ? [block.id]
           : [];
       });
