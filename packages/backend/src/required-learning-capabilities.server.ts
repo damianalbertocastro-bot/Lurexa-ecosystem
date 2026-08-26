@@ -45,7 +45,8 @@ export const RequiredLearningCapabilityService = {
     if (typeof organizationId !== "string" || !organizationId) throw new Error("Course organization is unavailable.");
 
     const observedAt = new Date().toISOString();
-    const evidenceId = `learn_listening_${input.actor.uid}_${input.lessonId}_${capability.id}`.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const evidenceId = `learn_listening_${input.actor.uid}_${input.lessonId}_${capability.id}_${uniqueSuffix}`.replace(/[^a-zA-Z0-9._-]/g, "_");
     const repository = new FirestoreLearningEvidenceRepository();
     await repository.append({
       contractVersion: "1",

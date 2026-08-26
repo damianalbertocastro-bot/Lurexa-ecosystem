@@ -398,7 +398,7 @@ async function recordRoleplayEvidence(input: {
 }): Promise<void> {
   const repository = new FirestoreLearningEvidenceRepository();
   const now = new Date().toISOString();
-  const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}`
+  const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}_${Date.now()}`
   .replace(/[^a-zA-Z0-9._-]/g, "_");
 
   await repository.append({
