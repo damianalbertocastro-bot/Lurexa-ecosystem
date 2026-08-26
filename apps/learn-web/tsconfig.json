@@ -24,6 +24,12 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "@lurexa/config": [
+        "../../packages/config/src/index.ts"
+      ],
+      "@lurexa/config/*": [
+        "../../packages/config/src/*"
+      ],
       "@lurexa/types": [
         "../../packages/types/src/index.ts"
       ],

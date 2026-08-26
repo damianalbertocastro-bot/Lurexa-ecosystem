@@ -5,7 +5,6 @@ import { RelatedExperiences, type RelatedExperience } from "@lurexa/ui/RelatedEx
 import { getEcosystemUrl } from "@lurexa/config/domains";
 
 const ecosystemUrl = getEcosystemUrl("root");
-const learnUrl = getEcosystemUrl("learn");
 const teacherWorkspaceUrl = process.env.NEXT_PUBLIC_LUREXA_TEACHER_URL ?? getEcosystemUrl("learn", "/teacher/dashboard");
 const docsUrl = getEcosystemUrl("docs");
 const coachUrl = process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? getEcosystemUrl("learn", "/coach");

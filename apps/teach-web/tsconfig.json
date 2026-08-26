@@ -22,9 +22,25 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@lurexa/config": [
+        "../../packages/config/src/index.ts"
+      ],
+      "@lurexa/config/*": [
+        "../../packages/config/src/*"
+      ],
+      "@lurexa/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@lurexa/backend": [
+        "../../packages/backend/src/index.ts"
+      ],
+      "@lurexa/ui/*": [
+        "../../packages/ui/src/*"
       ]
     }
   },
