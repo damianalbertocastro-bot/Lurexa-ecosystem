@@ -638,7 +638,9 @@ export const LearnTutorService = {
         const listData = (await listRes.json()) as { models?: Array<{ name?: string }> };
         availableModels = (listData.models || []).map((m) => m.name?.replace(/^models\//, "") || "").filter(Boolean);
       }
-    } catch (_) {}
+    } catch {
+      availableModels = [];
+    }
 
     const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim();
     const modelsToProbe = Array.from(new Set([

@@ -54,7 +54,7 @@ function lessonContentBlocks(): ContentBlock[] {
           instructions: "Listen first for meaning. Then notice how the greeting, name question, and polite response sound as connected chunks.",
           competencyIds: ["EN.A1.LISTEN.PREDICTABLE_EXCHANGES", "EN.A1.CONV.PERSONAL_INTRODUCTION"],
           estimatedMinutes: 2,
-          required: true,
+          required: false,
           modelText: "Carlos: Hello, I'm Carlos. What's your name? Elena: I'm Elena. Nice to meet you. Carlos: Nice to meet you too, Elena!",
           locale: "en-US",
           playbackGoal: "noticing",
@@ -250,7 +250,7 @@ function structuredA1Lesson(spec: A1LessonBlueprint): Lesson {
     estimatedMinutes: 21,
     contentBlocks: [
       { id: `${prefix}-mission`, type: "text", order: 1, data: { text: `Mission: ${spec.mission}\n\n${spec.dialogue}\n\nWork for meaning first. Then use the short English chunks in your own response.` } },
-      { id: `${prefix}-listen`, type: "interactive", order: 2, data: { capability: { schemaVersion: "1", id: `${prefix}-model-listening`, kind: "model_listening", stage: "CONTEXTUAL_INPUT", title: "Listen for meaning", instructions: "Listen once without reading for every word. Listen again to notice the useful chunks.", competencyIds: spec.competencies, estimatedMinutes: 2, required: true, modelText: spec.dialogue, locale: "en-US", playbackGoal: "meaning" } } },
+      { id: `${prefix}-listen`, type: "interactive", order: 2, data: { capability: { schemaVersion: "1", id: `${prefix}-model-listening`, kind: "model_listening", stage: "CONTEXTUAL_INPUT", title: "Listen for meaning", instructions: "Listen once without reading for every word. Listen again to notice the useful chunks.", competencyIds: spec.competencies, estimatedMinutes: 2, required: false, modelText: spec.dialogue, locale: "en-US", playbackGoal: "meaning" } } },
       { id: `${prefix}-listen-check`, type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "COMPREHENSION", title: "Check what you heard", instructions: "Choose the answer from the short exchange.", prompt: spec.listeningPrompt, options: spec.listeningOptions, correctAnswers: [spec.listeningAnswer], explanation: `The exchange gives the answer: ${spec.listeningAnswer}`, competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
       { id: `${prefix}-build`, type: "interactive", order: 4, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build the useful chunk", instructions: "Select the words in the natural order.", prompt: "Build the sentence for this situation.", options: spec.builder, correctAnswers: spec.builder, explanation: "Use this short chunk as a whole, then change the personal detail for yourself.", competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
       { id: `${prefix}-speak`, type: "interactive", order: 5, data: { capability: { schemaVersion: "1", id: `${prefix}-recorded-speaking`, kind: "recorded_speaking", stage: "PHONETICS_FOCUS", title: "Say it clearly", instructions: "Record one short, meaningful response. Focus on understandable words, stress, and phrase endings—not accent erasure.", competencyIds: [...spec.competencies, "EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES"], estimatedMinutes: 3, required: true, prompt: spec.spokenPrompt, locale: "en-US", minimumSeconds, maximumSeconds, evidencePurpose: "performance" } } },

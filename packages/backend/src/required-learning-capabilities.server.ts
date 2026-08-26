@@ -11,6 +11,8 @@ function readRequiredCapabilities(lesson: Awaited<ReturnType<typeof CoursePlatfo
     const capability = block.data.capability;
     if (typeof capability !== "object" || capability === null || Array.isArray(capability)) return [];
     const typed = capability as LearningCapability;
+    // Model listening is practice/exposure - do not block lesson completion if not listened
+    if (typed.kind === "model_listening") return [];
     return typed.required ? [typed] : [];
   });
 }
