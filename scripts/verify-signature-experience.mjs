@@ -80,12 +80,13 @@ check(coachPage.includes('action: "resumeSession"'), "Coach client revalidates a
 check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY)"), "Coach clears stale/completed client session references");
 
 check(learnTeacherSignatureService.includes("getLearnTeacherLearnerPulseProjection"), "Learn Teacher Workspace has the governed delegated Learner Pulse boundary");
-check(learnTeacherSignatureService.includes("Learn teacher instructional support requires an explicit organization boundary."), "Learn teacher instructional support fails closed without explicit tenant scope");
-check(learnerContext.includes('const delegatedTeacherRoles = new Set(["owner", "admin", "teacher"])'), "Core restricts delegated Learn teacher access to governed educator roles");
+check(learnTeacherSignatureService.includes("Learn teacher instructional support requires explicit organization and course boundaries."), "Learn teacher instructional support fails closed without explicit tenant and course scope");
+check(learnerContext.includes('!["owner", "admin", "teacher"].includes(actorMembership.role)'), "Core restricts delegated Learn teacher access to governed educator affiliations before qualification checks");
 check(learnerContext.includes('learnerMembership?.role !== "student"'), "Core verifies the supported learner is a student in the same organization");
 check(learnerContext.includes('request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "learn"'), "Core limits delegated context to Learn teacher instructional support");
 check(learnerContext.includes("teach: []"), "Core grants Lurexa Teach no delegated student-context purpose");
-check(learnerContext.includes("Delegated instructional support requires an explicit organization boundary."), "Core requires explicit tenant scope for delegated instructional support");
+check(learnerContext.includes("Delegated instructional support requires explicit organization and course boundaries."), "Core requires explicit tenant and exact-course scope for delegated instructional support");
+check(learnerContext.includes("getEducatorCourseAccessDecision"), "Core requires qualification-backed exact-course authorization for delegated instructional support");
 check(learnTeacherSignatureService.includes("actorId: input.actorId"), "Learn teacher workspace passes the real educator actor through to Core");
 check(!learnTeacherSignatureService.includes("actorId: input.learnerId"), "Learn teacher workspace does not impersonate the learner");
 check(learnTeacherSignatureService.includes("projection.organizationId !== input.organizationId"), "Learn teacher workspace rejects projections that resolve to another organization");
@@ -93,7 +94,7 @@ check(learnTeacherSignatureService.includes('consumer: "learn"'), "teacher instr
 check(signatureService.includes('input.request.consumer === "learn" && input.actorId !== input.request.learnerId'), "Signature service distinguishes Learn educator delegation from learner self-service");
 check(!signatureService.includes('teach: { product: "teach", purpose: "teacher_instructional_support" }'), "Signature service does not expose Teach as a student-support consumer");
 check(learnTeacherSignatureRoute.includes("CoursePlatformService.authenticate"), "Learn teacher Signature API authenticates the caller server-side");
-check(learnTeacherSignatureRoute.includes("learnerId and organizationId are required"), "Learn teacher Signature API requires explicit learner and tenant identifiers");
+check(learnTeacherSignatureRoute.includes("learnerId, organizationId, and courseId are required"), "Learn teacher Signature API requires explicit learner, tenant, and course identifiers");
 check(!learnTeacherSignatureRoute.includes("payload"), "Learn teacher Signature API does not expose raw learner evidence payload plumbing");
 check(learnTeacherSignatureRoute.includes('kind: "projection_success"'), "Learn teacher Signature API emits successful projection health telemetry");
 check(learnTeacherSignatureRoute.includes('kind: "projection_failure"'), "Learn teacher Signature API emits failed projection health telemetry");
