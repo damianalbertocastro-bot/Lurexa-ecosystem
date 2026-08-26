@@ -68,7 +68,8 @@ export interface EducatorQualificationCandidateInputV1 {
 export interface EducatorQualificationTransitionInputV1 {
   userId: string;
   qualificationId: string;
-  toStatus: Exclude<EducatorQualificationStatus, "candidate">;
+  /** Core validates the requested destination against the current state. */
+  toStatus: EducatorQualificationStatus;
   reason: string;
   evidenceRefs?: string[];
   validUntil?: string | null;
