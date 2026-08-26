@@ -12,7 +12,7 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
 
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "gemini-3.7-flash";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
@@ -170,7 +170,7 @@ async function callGemini(input: {
   }
 
   const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || DEFAULT_MODEL;
-  const candidateModels = Array.from(new Set([configuredModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]));
+  const candidateModels = Array.from(new Set([configuredModel, "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]));
 
   const phase = scenarioPhase(input.capability, input.turnIndex);
   const system = [
@@ -260,7 +260,7 @@ async function callGeminiOpener(input: {
   }
 
   const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || DEFAULT_MODEL;
-  const candidateModels = Array.from(new Set([configuredModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]));
+  const candidateModels = Array.from(new Set([configuredModel, "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]));
 
   const system = [
     "You are Lurexa Learn's curriculum-constrained English conversational partner beginning a bounded communicative roleplay.",
@@ -627,7 +627,7 @@ export const LearnTutorService = {
       };
     }
 
-    const modelsToProbe = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+    const modelsToProbe = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
     let lastError = "";
     let lastStatus = 0;
 
