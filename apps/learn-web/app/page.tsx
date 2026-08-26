@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
-const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+const ecosystemUrl = getEcosystemUrl("root");
 const proof = [
   ["Built around you", "One evolving path connects goals, practice, and the next useful step."],
   ["Made for real life", "Speak, understand, and use English in the situations that matter."],

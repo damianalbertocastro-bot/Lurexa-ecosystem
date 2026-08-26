@@ -7,10 +7,12 @@ import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AuthService } from "@lurexa/backend";
+import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 import type { AdminOrgOverview, PlatformAdminSnapshot } from "@lurexa/types";
 import { authenticatedFetch } from "../lib/authenticated-fetch";
 
-const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+const ecosystemUrl = getEcosystemUrl("root");
 
 function readError(payload: unknown, fallback: string): string {
   if (typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
@@ -105,10 +107,11 @@ export default function AdminDashboardPage() {
       <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
-            <a href={ecosystemUrl} className="rounded-xl"><ProductMark product="admin" inverse /></a>
+            <a href={ecosystemUrl} rel="noreferrer" className="rounded-xl"><ProductMark product="admin" inverse /></a>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="info">Superadmin</Badge>
-              <a href={ecosystemUrl} className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white motion-reduce:transition-none">
+              <EcosystemDropdown currentApp="admin" inverse />
+              <a href={ecosystemUrl} rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white motion-reduce:transition-none">
                 Ecosystem <span aria-hidden="true">↗</span>
               </a>
               <button type="button" onClick={() => void signOut()} className="min-h-11 rounded-xl border border-white/25 bg-white/10 px-3.5 py-2 text-sm font-extrabold text-white transition hover:bg-white hover:text-[#071d67] motion-reduce:transition-none">

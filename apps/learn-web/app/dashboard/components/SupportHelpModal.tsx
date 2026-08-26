@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "@lurexa/ui/Modal";
 import { Button } from "@lurexa/ui/Button";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
 interface FAQItem {
   question: string;
@@ -34,7 +35,7 @@ const FAQS: FAQItem[] = [
 
 export const SupportHelpModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const docsUrl = process.env.NEXT_PUBLIC_LUREXA_DOCS_URL ?? "https://docs.lurexa.com";
+  const docsUrl = getEcosystemUrl("docs");
 
   // Keyboard shortcut: '?' to toggle help modal
   useEffect(() => {

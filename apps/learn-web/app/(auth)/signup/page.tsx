@@ -7,8 +7,9 @@ import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
-const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+const ecosystemUrl = getEcosystemUrl("root");
 
 export default function SignupPage() {
   const router = useRouter();

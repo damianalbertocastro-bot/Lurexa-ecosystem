@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
 interface CampusDepartment {
   id: string;
@@ -198,7 +199,7 @@ export default function CampusWorkspacePage() {
               </div>
               <div className="mt-6 border-t border-[#edf1fb] pt-4">
                 <a
-                  href="http://localhost:3002"
+                  href={getEcosystemUrl("teach")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#071d67] py-3 text-sm font-extrabold text-white transition hover:bg-[#162f85]"
@@ -308,7 +309,7 @@ export default function CampusWorkspacePage() {
               </div>
               <div className="mt-6 border-t border-[#edf1fb] pt-4">
                 <a
-                  href="http://localhost:3003"
+                  href={getEcosystemUrl("admin")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#071d67] py-3 text-sm font-extrabold text-white transition hover:bg-[#162f85]"

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { RelatedExperiences, type RelatedExperience } from "@lurexa/ui/RelatedExperiences";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
-const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+const ecosystemUrl = getEcosystemUrl("root");
+const docsUrl = getEcosystemUrl("docs");
+const learnUrl = getEcosystemUrl("learn");
+const teachUrl = getEcosystemUrl("teach");
 const insightUrl = process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? ecosystemUrl;
-const docsUrl = process.env.NEXT_PUBLIC_LUREXA_DOCS_URL ?? ecosystemUrl;
-const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? ecosystemUrl;
-const teachUrl = process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? ecosystemUrl;
 const campusUrl = process.env.NEXT_PUBLIC_LUREXA_CAMPUS_URL ?? ecosystemUrl;
 
 export function AdminRelatedExperiences() {

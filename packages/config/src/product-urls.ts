@@ -17,8 +17,8 @@ export type LurexaPublicUrlMap = Record<LurexaPublicExperienceId, string>;
 type PublicEnv = Partial<Record<(typeof lurexaPublicUrlEnv)[LurexaPublicExperienceId], string | undefined>>;
 
 const canonicalFallbacks = {
-  ecosystem: "https://lurexa.com",
-  learn: "https://learn.lurexa.com",
+  ecosystem: "https://lurexa.org",
+  learn: "https://learn.lurexa.org",
 } as const;
 
 function cleanUrl(value: string | undefined): string | undefined {
@@ -41,12 +41,12 @@ export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPub
     learn,
     teacher: cleanUrl(env[lurexaPublicUrlEnv.teacher]) ?? learn,
     coach: cleanUrl(env[lurexaPublicUrlEnv.coach]) ?? `${learn}/coach`,
-    teach: cleanUrl(env[lurexaPublicUrlEnv.teach]) ?? ecosystem,
-    admin: cleanUrl(env[lurexaPublicUrlEnv.admin]) ?? ecosystem,
+    teach: cleanUrl(env[lurexaPublicUrlEnv.teach]) ?? "https://teach.lurexa.org",
+    admin: cleanUrl(env[lurexaPublicUrlEnv.admin]) ?? "https://admin.lurexa.org",
     insight: cleanUrl(env[lurexaPublicUrlEnv.insight]) ?? ecosystem,
     studio: cleanUrl(env[lurexaPublicUrlEnv.studio]) ?? ecosystem,
     campus: cleanUrl(env[lurexaPublicUrlEnv.campus]) ?? ecosystem,
-    docs: cleanUrl(env[lurexaPublicUrlEnv.docs]) ?? ecosystem,
+    docs: cleanUrl(env[lurexaPublicUrlEnv.docs]) ?? "https://docs.lurexa.org",
   };
 }
 

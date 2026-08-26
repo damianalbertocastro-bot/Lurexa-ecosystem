@@ -4,6 +4,7 @@ import {
   lurexaProducts,
   type LurexaProductId,
 } from "@lurexa/config/product-registry";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 import styles from "./page.module.css";
 
 type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
@@ -14,14 +15,17 @@ type ProductPresentation = {
   status: string;
 };
 
-const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "https://learn.lurexa.com";
+const learnUrl = getEcosystemUrl("learn");
+const teachUrl = getEcosystemUrl("teach");
+const adminUrl = getEcosystemUrl("admin");
+const coachUrl = process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? getEcosystemUrl("learn", "/coach");
 const productOrder = ["learn", "coach", "teach", "admin", "insight", "studio", "campus"] satisfies LurexaProductId[];
 
 const productPresentation: Record<LurexaProductId, ProductPresentation> = {
   learn: { eyebrow: "Personal learning", href: learnUrl, status: "Explore Learn" },
-  coach: { eyebrow: "Speaking intelligence", href: process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? "#shared-intelligence", status: "In development" },
-  teach: { eyebrow: "Professional growth", href: process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? "#shared-intelligence", status: "In development" },
-  admin: { eyebrow: "Institutional trust", href: process.env.NEXT_PUBLIC_LUREXA_ADMIN_URL ?? "#shared-intelligence", status: "In development" },
+  coach: { eyebrow: "Speaking intelligence", href: coachUrl, status: "In development" },
+  teach: { eyebrow: "Professional growth", href: teachUrl, status: "Explore Teach" },
+  admin: { eyebrow: "Institutional trust", href: adminUrl, status: "Explore Admin" },
   insight: { eyebrow: "Learning evidence", href: process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? "#shared-intelligence", status: "In development" },
   studio: { eyebrow: "Learning creation", href: process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? "#shared-intelligence", status: "In development" },
   campus: { eyebrow: "Institutional deployment", href: process.env.NEXT_PUBLIC_LUREXA_CAMPUS_URL ?? "#shared-intelligence", status: "In development" },

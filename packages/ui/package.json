@@ -5,6 +5,8 @@
   "exports": {
     "./Button": "./src/button.tsx",
     "./Card": "./src/card.tsx",
+    "./Navbar": "./src/Navbar.tsx",
+    "./EcosystemDropdown": "./src/EcosystemDropdown.tsx",
     "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
     "./*": "./src/*.tsx"
@@ -13,6 +15,9 @@
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lurexa/config": "workspace:*"
   },
   "devDependencies": {
     "@lurexa/eslint-config": "workspace:*",

@@ -8,12 +8,13 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
 type AuthUser = NonNullable<Parameters<Parameters<typeof AuthService.onUserChanged>[0]>[0]>;
 type EnrollmentLearner = { learnerId: string; displayName: string; enrolled: boolean; enrollmentStatus: "active" | "withdrawn" | "completed" | null };
 type EnrollmentManagement = { contractVersion: "1"; organizationId: string; courseId: string; courseTitle: string; learners: EnrollmentLearner[] };
 
-const teachUrl = process.env.NEXT_PUBLIC_LUREXA_TEACH_URL ?? "/";
+const teachGrowthPlanUrl = getEcosystemUrl("teach", "/growth-plan");
 
 async function authenticatedJson<T>(user: AuthUser, url: string, init?: RequestInit): Promise<T> {
   const token = await user.getIdToken();
@@ -96,7 +97,7 @@ export default function TeacherInsightsPage() {
   return <main className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6">
     <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
       <div className="flex items-start gap-4"><LurexaLearnLogo /><div><p className="text-xs font-black tracking-[.16em] text-indigo-700">LUREXA LEARN · TEACHER WORKSPACE</p><h1 className="mt-1 text-3xl font-black tracking-tight text-[var(--learn-ink)] sm:text-4xl">Course intelligence & enrollment</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Operate student learning from exact-course authorization. Core owns enrollment; Mind-derived signals stay aggregate until you deliberately open an individual learner view.</p></div></div>
-      <div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => router.push("/teacher/students")}>Individual learners</Button><a href={`${teachUrl.replace(/\/$/, "")}/growth-plan`} className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-extrabold text-violet-800">Develop yourself in Teach ↗</a><Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Workspace</Button></div>
+      <div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => router.push("/teacher/students")}>Individual learners</Button><a href={teachGrowthPlanUrl} rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-extrabold text-violet-800">Develop yourself in Teach ↗</a><Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Workspace</Button></div>
     </header>
 
     {roster?.courses.length ? <Card title="Authorized course" subtitle="Only courses covered by your current qualification and institutional teaching authorization appear here."><select aria-label="Authorized course" value={courseId} onChange={(event) => void changeCourse(event.target.value)} className="min-h-12 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">{roster.courses.map((course) => <option key={course.courseId} value={course.courseId}>{course.courseTitle}</option>)}</select></Card> : null}
