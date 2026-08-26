@@ -19,6 +19,7 @@ const roster = read("packages/backend/src/learn-teacher-roster.server.ts");
 const intelligence = read("packages/backend/src/learn-teacher-course-intelligence.server.ts");
 const learnPage = read("apps/learn-web/app/teacher/insights/page.tsx");
 const coachGate = read("packages/backend/src/educator-coach.server.ts");
+const coachRuntime = read("packages/backend/src/coach-platform.server.ts");
 const coachCompletion = read("packages/backend/src/coach-session-completion.server.ts");
 const coachApi = read("apps/learn-web/app/api/coach/route.ts");
 
@@ -35,6 +36,7 @@ check(intelligence.includes("getEducatorCourseAccessDecision") && intelligence.i
 check(learnPage.includes("Course intelligence & enrollment") && learnPage.includes("Develop yourself in Teach"), "Learn Teacher Workspace exposes richer course operations and explicit professional-growth handoff");
 check(coachGate.includes("getEducatorBenefitEntitlements") && coachGate.includes("benefits.coachFull"), "educator Coach mode requires the governed Coach benefit");
 check(coachApi.includes('mode?: "learner" | "educator_professional"') && exists("apps/learn-web/app/coach/educator/page.tsx"), "Coach has an explicit educator-professional entry path");
+check(coachRuntime.includes('if (session.mode !== "educator_professional")') && coachRuntime.includes("refreshLearnerIntelligence"), "educator Coach turns are excluded from the ordinary learner evidence and intelligence pipeline");
 check(coachCompletion.includes('collection("educator-professional-evidence")') && coachCompletion.includes('studentContextIncluded: false'), "educator Coach completion writes minimized professional evidence with no student context");
 check(coachCompletion.includes('destination: educatorMode ? "teach" : "learn"') && coachCompletion.includes('purpose: educatorMode ? "professional_growth" : "return_to_learning"'), "Coach preserves distinct Teach and Learn return loops");
 
