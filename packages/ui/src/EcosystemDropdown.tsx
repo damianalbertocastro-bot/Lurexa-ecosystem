@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, type HTMLAttributes } from "react";
+import { useState, useRef, useEffect, type HTMLAttributes, type MouseEvent } from "react";
 import { getEcosystemUrl, type EcosystemAppKey } from "@lurexa/config/domains";
 import { MasterMark } from "./MasterMark";
 import { ProductMark } from "./ProductMark";
@@ -60,6 +60,10 @@ function AppMark({ appKey }: { appKey: EcosystemAppKey }) {
   return <MasterMark compact size="sm" />;
 }
 
+function shouldUseNativeNavigation(event: MouseEvent<HTMLAnchorElement>): boolean {
+  return event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+}
+
 export function EcosystemDropdown({
   currentApp,
   align = "right",
@@ -71,7 +75,7 @@ export function EcosystemDropdown({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: globalThis.MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -91,6 +95,13 @@ export function EcosystemDropdown({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
+
+  function navigate(event: MouseEvent<HTMLAnchorElement>, url: string, isCurrent = false) {
+    setIsOpen(false);
+    if (isCurrent || shouldUseNativeNavigation(event)) return;
+    event.preventDefault();
+    window.location.assign(url);
+  }
 
   const buttonStyle = inverse
     ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white"
@@ -153,6 +164,8 @@ export function EcosystemDropdown({
                   href={url}
                   role="menuitem"
                   rel="noreferrer"
+                  aria-current={isCurrent ? "page" : undefined}
+                  onClick={(event) => navigate(event, url, isCurrent)}
                   className={`group flex items-start gap-3 rounded-xl p-2.5 transition motion-reduce:transition-none ${
                     isCurrent
                       ? "bg-[#eef2ff] text-[#315fd7]"
@@ -190,6 +203,7 @@ export function EcosystemDropdown({
             <a
               href={getEcosystemUrl("root")}
               rel="noreferrer"
+              onClick={(event) => navigate(event, getEcosystemUrl("root"), currentApp === "root")}
               className="inline-flex w-full items-center justify-center rounded-lg py-1.5 text-[11px] font-extrabold text-[#315fd7] transition hover:bg-[#eef2ff]"
             >
               Explore Lurexa Platform &amp; Architecture →
