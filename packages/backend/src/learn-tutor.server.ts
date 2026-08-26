@@ -643,11 +643,12 @@ export const LearnTutorService = {
     const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim();
     const modelsToProbe = Array.from(new Set([
       ...(configuredModel ? [configuredModel] : []),
+      "gemini-3.7-flash",
+      "gemini-3.6-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-3.1-flash-lite",
       ...availableModels,
-      "gemini-2.5-flash",
-      "gemini-2.0-flash",
-      "gemini-1.5-flash",
-      "gemini-pro",
     ])).slice(0, 10);
 
     const probes: Record<string, { status: number; text: string }> = {};
