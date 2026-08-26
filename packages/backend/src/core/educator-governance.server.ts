@@ -50,6 +50,12 @@ async function readCourses(organizationId: string): Promise<Course[]> {
   return snapshot.docs.map(asCourse);
 }
 
+async function readCourse(courseId: string): Promise<Course> {
+  const snapshot = await getServerFirestore().collection("courses").doc(courseId).get();
+  if (!snapshot.exists) throw new Error("Course not found.");
+  return { id: snapshot.id, ...snapshot.data() } as Course;
+}
+
 async function readEntitlements(userId: string): Promise<EducatorEntitlementV1[]> {
   const snapshot = await getServerFirestore().collection("user-entitlements").doc(userId).collection("products").get();
   return snapshot.docs.map((doc) => doc.data() as EducatorEntitlementV1);
@@ -58,6 +64,17 @@ async function readEntitlements(userId: string): Promise<EducatorEntitlementV1[]
 async function readQualifications(userId: string): Promise<EducatorQualificationScopeV1[]> {
   const snapshot = await getServerFirestore().collection("educator-qualifications").doc(userId).collection("scopes").get();
   return snapshot.docs.map((doc) => doc.data() as EducatorQualificationScopeV1);
+}
+
+async function readQualification(userId: string, qualificationId: string): Promise<EducatorQualificationScopeV1> {
+  const snapshot = await getServerFirestore()
+    .collection("educator-qualifications")
+    .doc(userId)
+    .collection("scopes")
+    .doc(qualificationId)
+    .get();
+  if (!snapshot.exists) throw new Error("Qualification not found.");
+  return snapshot.data() as EducatorQualificationScopeV1;
 }
 
 async function readAuthorizations(userId: string, organizationId: string): Promise<TeachingAuthorizationV1[]> {
@@ -115,6 +132,30 @@ function qualificationSupportsCourse(qualification: EducatorQualificationScopeV1
   return qualification.subject === course.subject && (!course.level || qualification.levels.includes(course.level));
 }
 
+function requireActiveQualification(qualification: EducatorQualificationScopeV1): void {
+  if (qualification.status !== "qualified" || !activeUntil(qualification.validUntil)) {
+    throw new Error("Only an active qualified scope can support teaching authorization.");
+  }
+}
+
+async function validateAuthorizationScope(input: {
+  userId: string;
+  organizationId: string;
+  qualificationId: string;
+  courseIds: string[];
+}): Promise<{ qualification: EducatorQualificationScopeV1; courses: Course[] }> {
+  const qualification = await readQualification(input.userId, input.qualificationId);
+  requireActiveQualification(qualification);
+  const courses = await Promise.all(input.courseIds.map(readCourse));
+  if (courses.some((course) => course.orgId !== input.organizationId)) {
+    throw new Error("Every authorized course must belong to the selected organization.");
+  }
+  if (courses.some((course) => !qualificationSupportsCourse(qualification, course))) {
+    throw new Error("Teaching authorization cannot exceed the educator qualification scope.");
+  }
+  return { qualification, courses };
+}
+
 export const EducatorGovernanceService = {
   async getSnapshot(authorization: string | null, organizationId: string): Promise<EducatorGovernanceSnapshotV1> {
     if (!organizationId.trim()) throw new Error("Organization id is required.");
@@ -153,23 +194,12 @@ export const EducatorGovernanceService = {
     const actorId = await requireGovernanceActor(authorizationHeader, input.organizationId);
     await readOrganization(input.organizationId);
 
-    const qualificationSnapshot = await getServerFirestore()
-      .collection("educator-qualifications")
-      .doc(input.userId)
-      .collection("scopes")
-      .doc(input.qualificationId)
-      .get();
-    if (!qualificationSnapshot.exists) throw new Error("Qualification not found.");
-    const qualification = qualificationSnapshot.data() as EducatorQualificationScopeV1;
-    if (qualification.status !== "qualified" || !activeUntil(qualification.validUntil)) throw new Error("Only an active qualified scope can support teaching authorization.");
-
-    const courseSnapshots = await Promise.all(input.courseIds.map((courseId) => getServerFirestore().collection("courses").doc(courseId).get()));
-    const courses = courseSnapshots.map((snapshot) => {
-      if (!snapshot.exists) throw new Error("Course not found.");
-      return { id: snapshot.id, ...snapshot.data() } as Course;
+    const { qualification, courses } = await validateAuthorizationScope({
+      userId: input.userId,
+      organizationId: input.organizationId,
+      qualificationId: input.qualificationId,
+      courseIds: [...new Set(input.courseIds)],
     });
-    if (courses.some((course) => course.orgId !== input.organizationId)) throw new Error("Every authorized course must belong to the selected organization.");
-    if (courses.some((course) => !qualificationSupportsCourse(qualification, course))) throw new Error("Teaching authorization cannot exceed the educator qualification scope.");
 
     const levels = [...new Set(courses.map((course) => course.level).filter((level): level is EducatorLevel => Boolean(level)))];
     const reference = getServerFirestore().collection("teaching-authorizations").doc(input.userId).collection("grants").doc();
@@ -212,6 +242,16 @@ export const EducatorGovernanceService = {
     if (!snapshot.exists) throw new Error("Teaching authorization not found.");
     const current = snapshot.data() as TeachingAuthorizationV1;
     if (current.organizationId !== input.organizationId || current.userId !== input.userId) throw new Error("Teaching authorization is outside the selected organization.");
+
+    if (input.status === "active") {
+      if (!activeUntil(current.validUntil)) throw new Error("Expired teaching authorization cannot be reactivated.");
+      await validateAuthorizationScope({
+        userId: current.userId,
+        organizationId: current.organizationId,
+        qualificationId: current.qualificationId,
+        courseIds: current.courseIds,
+      });
+    }
 
     const next: TeachingAuthorizationV1 = { ...current, status: input.status };
     await reference.update({ status: input.status, updatedAt: new Date().toISOString() });
