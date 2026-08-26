@@ -186,6 +186,8 @@ export interface LearnerContextRequest {
   learnerId: string;
   requestingProduct: LurexaProduct;
   organizationId?: string;
+  /** Required for delegated teacher_instructional_support so Core can authorize the exact teaching scope. */
+  courseId?: string;
   purpose: LearnerContextPurpose;
   domains: LearnerDomain[];
 }

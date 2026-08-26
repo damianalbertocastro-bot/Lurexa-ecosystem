@@ -49,6 +49,9 @@ jobs:
       - name: Verify Curriculum Portfolio
         run: pnpm verify:curriculum-portfolio
 
+      - name: Verify Full Curriculum Runner
+        run: pnpm verify:curriculum-runner
+
       - name: Verify Design Tokens
         run: pnpm verify:tokens
 
@@ -78,6 +81,12 @@ jobs:
 
       - name: Verify Signature Experience Contracts
         run: pnpm verify:signature-experience
+
+      - name: Verify Signature Rollout S9
+        run: node scripts/verify-signature-rollout.mjs
+
+      - name: Verify Educator Qualification Delegation
+        run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app "pnpm --filter @lurexa/backend test:signature-delegation"
 
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules

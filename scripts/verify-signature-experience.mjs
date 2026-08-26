@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+const exists = (file) => fs.existsSync(path.join(root, file));
 const check = (condition, message) => {
   if (!condition) throw new Error(`Signature Experience verification failed: ${message}`);
   console.log(`✓ ${message}`);
@@ -14,11 +15,13 @@ const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 const completionService = read("packages/backend/src/coach-session-completion.server.ts");
 const resumeService = read("packages/backend/src/coach-session-state.server.ts");
 const telemetryService = read("packages/backend/src/signature-telemetry.server.ts");
-const teachSignatureService = read("packages/backend/src/teach-signature-experience.server.ts");
+const learnerContext = read("packages/backend/src/learner-context.server.ts");
+const signatureService = read("packages/backend/src/signature-experience.server.ts");
+const learnTeacherSignatureService = read("packages/backend/src/learn-teacher-signature-experience.server.ts");
 const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
 const coachPage = read("apps/learn-web/app/coach/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
-const teachSignatureRoute = read("apps/teach-web/app/api/teach/signature/route.ts");
+const learnTeacherSignatureRoute = read("apps/learn-web/app/api/teacher/signature/route.ts");
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
 const memoryThread = read("packages/backend/src/memory-thread.server.ts");
 const signaturePanel = read("apps/learn-web/app/dashboard/components/SignatureExperiencePanel.tsx");
@@ -76,24 +79,34 @@ check(coachPage.includes("window.sessionStorage.setItem(COACH_SESSION_STORAGE_KE
 check(coachPage.includes('action: "resumeSession"'), "Coach client revalidates a stored session through the server after refresh");
 check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY)"), "Coach clears stale/completed client session references");
 
-check(teachSignatureService.includes("getTeachLearnerPulseProjection"), "Teach has a first governed Signature Experience consumer boundary");
-check(teachSignatureService.includes("Teach instructional support requires an explicit organization boundary."), "Teach instructional support fails closed without explicit tenant scope");
-check(teachSignatureService.includes('TEACHER_ROLES = new Set(["owner", "admin", "teacher"])'), "Teach instructional support restricts actors to governed educator roles");
-check(teachSignatureService.includes("await requireOrganizationMember(input.learnerId, input.organizationId)"), "Teach verifies learner membership in the same organization");
-check(teachSignatureService.includes("projection.organizationId !== input.organizationId"), "Teach rejects projections that resolve to another organization");
-check(teachSignatureService.includes('consumer: "teach"'), "Teach projection uses the canonical Teach consumer identity");
-check(teachSignatureRoute.includes("CoursePlatformService.authenticate"), "Teach Signature API authenticates the caller server-side");
-check(teachSignatureRoute.includes("learnerId and organizationId are required"), "Teach Signature API requires explicit learner and tenant identifiers");
-check(!teachSignatureRoute.includes("payload"), "Teach Signature API does not expose raw learner evidence payload plumbing");
-check(teachSignatureRoute.includes('kind: "projection_success"'), "Teach Signature API emits successful projection health telemetry");
-check(teachSignatureRoute.includes('kind: "projection_failure"'), "Teach Signature API emits failed projection health telemetry");
-check(teachSignatureRoute.includes('consumer: "teach"'), "Teach telemetry uses the canonical Teach consumer identity");
+check(learnTeacherSignatureService.includes("getLearnTeacherLearnerPulseProjection"), "Learn Teacher Workspace has the governed delegated Learner Pulse boundary");
+check(learnTeacherSignatureService.includes("Learn teacher instructional support requires explicit organization and course boundaries."), "Learn teacher instructional support fails closed without explicit tenant and course scope");
+check(learnerContext.includes('!["owner", "admin", "teacher"].includes(actorMembership.role)'), "Core restricts delegated Learn teacher access to governed educator affiliations before qualification checks");
+check(learnerContext.includes('learnerMembership?.role !== "student"'), "Core verifies the supported learner is a student in the same organization");
+check(learnerContext.includes('request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "learn"'), "Core limits delegated context to Learn teacher instructional support");
+check(learnerContext.includes("teach: []"), "Core grants Lurexa Teach no delegated student-context purpose");
+check(learnerContext.includes("Delegated instructional support requires explicit organization and course boundaries."), "Core requires explicit tenant and exact-course scope for delegated instructional support");
+check(learnerContext.includes("getEducatorCourseAccessDecision"), "Core requires qualification-backed exact-course authorization for delegated instructional support");
+check(learnTeacherSignatureService.includes("actorId: input.actorId"), "Learn teacher workspace passes the real educator actor through to Core");
+check(!learnTeacherSignatureService.includes("actorId: input.learnerId"), "Learn teacher workspace does not impersonate the learner");
+check(learnTeacherSignatureService.includes("projection.organizationId !== input.organizationId"), "Learn teacher workspace rejects projections that resolve to another organization");
+check(learnTeacherSignatureService.includes('consumer: "learn"'), "teacher instructional projection uses canonical Learn consumer identity");
+check(signatureService.includes('input.request.consumer === "learn" && input.actorId !== input.request.learnerId'), "Signature service distinguishes Learn educator delegation from learner self-service");
+check(!signatureService.includes('teach: { product: "teach", purpose: "teacher_instructional_support" }'), "Signature service does not expose Teach as a student-support consumer");
+check(learnTeacherSignatureRoute.includes("CoursePlatformService.authenticate"), "Learn teacher Signature API authenticates the caller server-side");
+check(learnTeacherSignatureRoute.includes("learnerId, organizationId, and courseId are required"), "Learn teacher Signature API requires explicit learner, tenant, and course identifiers");
+check(!learnTeacherSignatureRoute.includes("payload"), "Learn teacher Signature API does not expose raw learner evidence payload plumbing");
+check(learnTeacherSignatureRoute.includes('kind: "projection_success"'), "Learn teacher Signature API emits successful projection health telemetry");
+check(learnTeacherSignatureRoute.includes('kind: "projection_failure"'), "Learn teacher Signature API emits failed projection health telemetry");
+check(learnTeacherSignatureRoute.includes('consumer: "learn"'), "teacher-workspace telemetry uses canonical Learn consumer identity");
+check(!exists("apps/teach-web/app/api/teach/signature/route.ts"), "Teach has no delegated student Signature endpoint");
+check(!exists("packages/backend/src/teach-signature-experience.server.ts"), "Teach has no student projection backend capability");
 
 check(catalog.includes('status: "active"'), "Knowledge Object catalog contains active governed objects");
 check(catalog.includes("version:"), "Knowledge Objects carry explicit semantic versions");
 check(catalog.includes('"DO-ENG-PRO-002"'), "Dominican /s/-cluster pattern has a canonical Knowledge Object mapping");
 check(catalog.includes('"DO-ENG-PRO-006"'), "regular-past pronunciation pattern has canonical Knowledge Object mappings");
-check(adaptiveAdapter.includes("getKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed catalog");
+check(adaptiveAdapter.includes("getGovernedKnowledgeObjectById"), "Adaptive Path validates Knowledge Object IDs against the governed combined catalog");
 check(adaptiveAdapter.includes("Competency identifiers are not treated as Knowledge Object identifiers"), "competency and Knowledge Object namespaces remain distinct");
 check(signatureRoute.includes("getGovernedAdaptiveLearningPathProjection"), "Learn API routes Adaptive Path through the semantic governance adapter");
 check(signatureRoute.includes("getScopedMemoryThreadProjection"), "Learn API routes Memory Thread through the tenant-safe projection");
@@ -112,7 +125,7 @@ check(signatureRoute.includes('kind: "projection_success"'), "successful signatu
 check(signatureRoute.includes('kind: "projection_failure"'), "failed signature projections emit coarse health telemetry");
 check(signatureRoute.includes("durationMs: Date.now() - startedAt"), "signature projection telemetry includes latency");
 check(signatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Learn signature projections explicitly disable shared/intermediary caching");
-check(teachSignatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Teach instructional-support projections explicitly disable shared/intermediary caching");
+check(learnTeacherSignatureRoute.includes('"Cache-Control": "private, no-store, max-age=0"'), "Learn teacher instructional-support projections explicitly disable shared/intermediary caching");
 
 check(signaturePanel.includes('NEXT_PUBLIC_SIGNATURE_EXPERIENCE_V1 === "on"'), "Signature Experience learner rollout is feature-flagged and default-off");
 check(signaturePanel.includes('aria-live="polite"'), "Signature Experience asynchronous status uses a polite live region");
@@ -123,4 +136,4 @@ check(uiFiles.filter((content) => content.includes("<button")).every((content) =
 check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
 check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
 
-console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry/privacy/Teach verification passed.");
+console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry/privacy/Learn-teacher boundary verification passed.");

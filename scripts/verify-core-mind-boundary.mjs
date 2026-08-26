@@ -19,6 +19,7 @@ const paths = {
   modelService: "packages/backend/src/learner-model.service.ts",
   evidenceRepository: "packages/backend/src/learner-firestore.server.ts",
   learnerContext: "packages/backend/src/learner-context.server.ts",
+  educatorAccess: "packages/backend/src/educator-access.server.ts",
   coachContext: "packages/backend/src/coach-session-context.server.ts",
   teacherCore: "packages/backend/src/core/teacher-return-loop.server.ts",
   teacherFacade: "packages/backend/src/teacher-return-loop.service.ts",
@@ -58,8 +59,30 @@ requireText(paths.learnerContext, content.learnerContext, "allowedPurposesByProd
 requireText(paths.learnerContext, content.learnerContext, "assertProductPurpose(request)");
 requireText(paths.learnerContext, content.learnerContext, "scoped.scope.purposes.includes(request.purpose)");
 requireText(paths.learnerContext, content.learnerContext, "scoped.scope.products.includes(request.requestingProduct)");
-requireText(paths.learnerContext, content.learnerContext, 'input.actorId !== request.learnerId');
-requireText(paths.learnerContext, content.learnerContext, "never exposes raw evidence payloads");
+requireText(paths.learnerContext, content.learnerContext, "actorId === request.learnerId");
+requireText(paths.learnerContext, content.learnerContext, 'request.purpose !== "teacher_instructional_support"');
+requireText(paths.learnerContext, content.learnerContext, 'request.requestingProduct !== "learn"');
+requireText(paths.learnerContext, content.learnerContext, 'learn: ["learn_adaptive_practice", "teacher_instructional_support"]');
+requireText(paths.learnerContext, content.learnerContext, "teach: []");
+requireText(paths.learnerContext, content.learnerContext, '!["owner", "admin", "teacher"].includes(actorMembership.role)');
+requireText(paths.learnerContext, content.learnerContext, "!request.organizationId || !request.courseId");
+requireText(paths.learnerContext, content.learnerContext, "getEducatorCourseAccessDecision");
+requireText(paths.learnerContext, content.learnerContext, "qualification-linked authorization for this exact course");
+requireText(paths.learnerContext, content.learnerContext, 'learnerMembership?.role !== "student"');
+requireText(paths.learnerContext, content.learnerContext, "Delegated learner context is not authorized for this product and purpose.");
+requireText(paths.learnerContext, content.learnerContext, "Context is purpose-scoped and excludes raw learner responses.");
+requireText(paths.learnerContext, content.learnerContext, "broader organization-level derived insights are withheld");
+
+requireText(paths.educatorAccess, content.educatorAccess, 'collection("user-entitlements")');
+requireText(paths.educatorAccess, content.educatorAccess, 'collection("educator-qualifications")');
+requireText(paths.educatorAccess, content.educatorAccess, 'collection("teaching-authorizations")');
+requireText(paths.educatorAccess, content.educatorAccess, "qualificationSupportsAuthorization");
+requireText(paths.educatorAccess, content.educatorAccess, "getEducatorCourseAccessDecision");
+requireText(paths.educatorAccess, content.educatorAccess, "authorization.courseIds.includes(course.id)");
+forbidText(paths.educatorAccess, content.educatorAccess, "governanceRole");
+requireText(paths.educatorAccess, content.educatorAccess, 'teach: verifiedEducator || explicitTeach');
+requireText(paths.educatorAccess, content.educatorAccess, 'coachFull: verifiedEducator || explicitCoach');
+requireText(paths.educatorAccess, content.educatorAccess, 'developmentRecommendation(course, "extend_level_scope")');
 
 requireText(paths.coachContext, content.coachContext, "getScopedLearnerContext");
 requireText(paths.coachContext, content.coachContext, 'requestingProduct: "coach"');
@@ -95,4 +118,4 @@ requireText(paths.learnProgress, content.learnProgress, "getScopedLearnerContext
 requireText(paths.learnProgress, content.learnProgress, "nextStep");
 requireText(paths.dashboard, content.dashboard, "Recommended next step");
 
-console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> scoped Learn/Coach projection; legacy browser mutations fail closed.");
+console.log("Core/Mind boundary verification passed: Learn evidence -> Core -> storage-free Mind -> Core approval -> purpose-scoped learner and entitlement + qualification + exact-course authorization-backed Learn-teacher projections; Lurexa Teach has no student-context entitlement; governance role cannot substitute for teaching qualification; legacy browser mutations fail closed.");

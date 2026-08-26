@@ -7,6 +7,7 @@ export interface Course {
   title: string;
   description: string;
   subject: "english" | "math" | "science" | "other";
+  level?: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   status: CourseStatus;
   isTemplate: boolean;
   moduleIds: string[];
@@ -33,7 +34,7 @@ export type ContentBlockType =
 export interface ContentBlock {
   id: string;
   type: ContentBlockType;
-  data: Record<string, unknown>; // TipTap JSON, video URL, etc.
+  data: Record<string, unknown>;
   order: number;
 }
 

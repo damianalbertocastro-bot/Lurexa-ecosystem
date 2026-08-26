@@ -1,4 +1,5 @@
 import type {
+  Course,
   LearnerContext,
   LearnerContextPurpose,
   LearnerContextRequest,
@@ -10,6 +11,7 @@ import type {
   LearningEvidence,
   StudentProgress,
 } from "@lurexa/types";
+import { getEducatorCourseAccessDecision } from "./educator-access.server";
 import { getServerFirestore } from "./firebase-admin.server";
 import {
   FirestoreLearnerInsightRepository,
@@ -31,9 +33,9 @@ const allowedDomains: LearnerDomain[] = [
 ];
 
 const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"], readonly LearnerContextPurpose[]> = {
-  learn: ["learn_adaptive_practice"],
+  learn: ["learn_adaptive_practice", "teacher_instructional_support"],
   coach: ["coach_session_adaptation"],
-  teach: ["teacher_instructional_support"],
+  teach: [],
   admin: [],
   insight: [],
   studio: [],
@@ -42,6 +44,59 @@ const allowedPurposesByProduct: Record<LearnerContextRequest["requestingProduct"
 function assertProductPurpose(request: LearnerContextRequest): void {
   if (!allowedPurposesByProduct[request.requestingProduct].includes(request.purpose)) {
     throw new Error("The requesting product is not authorized for this learner-context purpose.");
+  }
+}
+
+async function readMembership(userId: string, organizationId: string): Promise<{ role?: string } | null> {
+  const snapshot = await getServerFirestore()
+    .collection("user-memberships")
+    .doc(userId)
+    .collection("organizations")
+    .doc(organizationId)
+    .get();
+  return snapshot.exists ? snapshot.data() as { role?: string } : null;
+}
+
+async function readCourse(courseId: string): Promise<Course> {
+  const snapshot = await getServerFirestore().collection("courses").doc(courseId).get();
+  if (!snapshot.exists) throw new Error("The requested Learn course does not exist.");
+  return { id: snapshot.id, ...snapshot.data() } as Course;
+}
+
+async function authorizeContextRead(input: { actorId: string; request: LearnerContextRequest }): Promise<void> {
+  const { actorId, request } = input;
+  if (actorId === request.learnerId) {
+    if (request.organizationId && !await readMembership(request.learnerId, request.organizationId)) {
+      throw new Error("The learner is not a member of the requested organization.");
+    }
+    return;
+  }
+
+  if (request.purpose !== "teacher_instructional_support" || request.requestingProduct !== "learn") {
+    throw new Error("Delegated learner context is not authorized for this product and purpose.");
+  }
+  if (!request.organizationId || !request.courseId) {
+    throw new Error("Delegated instructional support requires explicit organization and course boundaries.");
+  }
+
+  const [actorMembership, learnerMembership, course] = await Promise.all([
+    readMembership(actorId, request.organizationId),
+    readMembership(request.learnerId, request.organizationId),
+    readCourse(request.courseId),
+  ]);
+  if (!actorMembership?.role || !["owner", "admin", "teacher"].includes(actorMembership.role)) {
+    throw new Error("An educator organization membership is required for delegated instructional support.");
+  }
+  if (learnerMembership?.role !== "student") {
+    throw new Error("The supported learner must be a student member of the requested organization.");
+  }
+  if (course.orgId !== request.organizationId) {
+    throw new Error("The requested course does not belong to the authorized organization.");
+  }
+
+  const decision = await getEducatorCourseAccessDecision({ userId: actorId, course });
+  if (!decision.allowed) {
+    throw new Error(`Teacher instructional support requires qualification-linked authorization for this exact course (${decision.reason}).`);
   }
 }
 
@@ -55,8 +110,16 @@ function pushUnique(target: string[], values: string[]): void {
   for (const value of values) if (!target.includes(value)) target.push(value);
 }
 
-function scopeEvidence(evidence: LearningEvidence[], organizationId: string | null): LearningEvidence[] {
-  return evidence.filter((entry) => organizationId ? entry.organizationId === organizationId : !entry.organizationId);
+function scopeEvidence(
+  evidence: LearningEvidence[],
+  organizationId: string | null,
+  courseId?: string,
+): LearningEvidence[] {
+  return evidence.filter((entry) => {
+    if (organizationId ? entry.organizationId !== organizationId : entry.organizationId) return false;
+    if (courseId && entry.source.courseId !== courseId) return false;
+    return true;
+  });
 }
 
 function scopeInsights(
@@ -66,8 +129,6 @@ function scopeInsights(
 ): LearnerInsight[] {
   return insights.filter((entry) => {
     if (organizationId ? entry.organizationId !== organizationId : entry.organizationId) return false;
-    // Legacy insights predate the v1 scope envelope. New observations are
-    // returned only when the Core-approved purpose and product both match.
     const scoped = entry as LearnerInsight & { scope?: { purposes?: unknown; products?: unknown } };
     if (!scoped.scope) return true;
     return Array.isArray(scoped.scope.purposes)
@@ -78,21 +139,20 @@ function scopeInsights(
 }
 
 /**
- * Trusted Core read boundary for learner context. It intentionally returns a
- * small purpose-scoped projection and never exposes raw evidence payloads.
- * Organization-scoped evidence follows the learner's most recently accessed
- * Learn course so institution-specific signals are never mixed implicitly.
+ * Trusted Core read boundary for learner context. Self-service remains the
+ * default. The only v1 delegated read is Lurexa Learn teacher instructional
+ * support, explicitly organization- and course-scoped. A membership role is
+ * affiliation, not sufficient authority: every delegated educator requires an
+ * active qualification linked to a teaching authorization for the exact course.
+ * Lurexa Teach has no delegated student-context entitlement.
  */
 export async function getScopedLearnerContext(input: {
   actorId: string;
   request: LearnerContextRequest;
 }): Promise<ScopedLearnerContext> {
   const { request } = input;
-  if (input.actorId !== request.learnerId) {
-    throw new Error("You may only request your own learner context.");
-  }
-
   assertProductPurpose(request);
+  await authorizeContextRead(input);
 
   const domains = request.domains.filter((domain) => allowedDomains.includes(domain));
   const domainSet = new Set(domains);
@@ -107,18 +167,34 @@ export async function getScopedLearnerContext(input: {
     database.collection("learner-profiles").doc(request.learnerId).get(),
   ]);
 
-  const progress = progressSnapshot.docs
+  const allProgress = progressSnapshot.docs
     .map((snapshot) => snapshot.data() as StudentProgress)
     .sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt));
+
+  let activeOrganizationId: string | null = request.organizationId ?? null;
+  let progress = allProgress;
+  if (request.courseId) {
+    progress = allProgress.filter((record) => record.courseId === request.courseId);
+  } else if (request.organizationId) {
+    const organizationCourses = await database.collection("courses").where("orgId", "==", request.organizationId).get();
+    const courseIds = new Set(organizationCourses.docs.map((document) => document.id));
+    progress = allProgress.filter((record) => courseIds.has(record.courseId));
+  } else {
+    const latestProgress = allProgress[0];
+    const latestCourseSnapshot = latestProgress
+      ? await database.collection("courses").doc(latestProgress.courseId).get()
+      : null;
+    activeOrganizationId = latestCourseSnapshot?.exists && typeof latestCourseSnapshot.data()?.orgId === "string"
+      ? latestCourseSnapshot.data()!.orgId as string
+      : null;
+  }
+
   const latestProgress = progress[0];
-  const latestCourseSnapshot = latestProgress
-    ? await database.collection("courses").doc(latestProgress.courseId).get()
-    : null;
-  const activeOrganizationId = latestCourseSnapshot?.exists && typeof latestCourseSnapshot.data()?.orgId === "string"
-    ? latestCourseSnapshot.data()!.orgId as string
-    : null;
-  const evidence = scopeEvidence(allEvidence, activeOrganizationId);
-  const insights = scopeInsights(allInsights, activeOrganizationId, request);
+  const delegatedTeacher = request.purpose === "teacher_instructional_support" && input.actorId !== request.learnerId;
+  const evidence = scopeEvidence(allEvidence, activeOrganizationId, delegatedTeacher ? request.courseId : undefined);
+  const insights = delegatedTeacher
+    ? []
+    : scopeInsights(allInsights, activeOrganizationId, request);
   const filteredInsights = insights.filter((insight) => domainSet.has(insight.domain));
 
   const profile = profileSnapshot.exists ? profileSnapshot.data() as { goals?: unknown } : null;
@@ -134,7 +210,7 @@ export async function getScopedLearnerContext(input: {
     generatedAt: new Date().toISOString(),
   };
 
-  if (domainSet.has("goal") && goals.length > 0) context.goals = goals;
+  if (domainSet.has("goal") && goals.length > 0 && !delegatedTeacher) context.goals = goals;
 
   if (domainSet.has("curriculum") && latestProgress) {
     context.curriculum = {
@@ -214,7 +290,12 @@ export async function getScopedLearnerContext(input: {
     },
     limitations: [
       "Context is purpose-scoped and excludes raw learner responses.",
-      "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
+      request.organizationId
+        ? "Organization-scoped intelligence is pinned to the explicitly authorized organization boundary."
+        : "Organization-scoped intelligence follows the learner's most recently accessed Learn course and is not mixed across institutions implicitly.",
+      delegatedTeacher
+        ? "Delegated instructional support is pinned to the explicitly authorized course; broader organization-level derived insights are withheld until derived-insight provenance supports course scope."
+        : "Self-service context follows the requesting learner's authorized product purpose.",
       "Proficiency is returned only when an active, evidence-backed CEFR insight exists.",
       "Recommendations are revisable next-step guidance, not mastery or proficiency determinations.",
       "Recent activity is evidence of participation, not a mastery determination.",

@@ -1,6 +1,6 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
+import { getLearnTeacherLearnerPulseProjection } from "@lurexa/backend/learn-teacher-signature-experience.server";
 import { recordSignatureTelemetry } from "@lurexa/backend/signature-telemetry.server";
-import { getTeachLearnerPulseProjection } from "@lurexa/backend/teach-signature-experience.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,9 +8,7 @@ export const dynamic = "force-dynamic";
 function privateJson(value: unknown, status = 200): Response {
   return Response.json(value, {
     status,
-    headers: {
-      "Cache-Control": "private, no-store, max-age=0",
-    },
+    headers: { "Cache-Control": "private, no-store, max-age=0" },
   });
 }
 
@@ -28,46 +26,46 @@ export async function GET(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const learnerId = url.searchParams.get("learnerId")?.trim();
     const organizationId = url.searchParams.get("organizationId")?.trim();
-
-    if (!learnerId || !organizationId) {
+    const courseId = url.searchParams.get("courseId")?.trim();
+    if (!learnerId || !organizationId || !courseId) {
       await recordSignatureTelemetry({
         kind: "projection_failure",
-        consumer: "teach",
+        consumer: "learn",
         projection: "learner_pulse",
         durationMs: Date.now() - startedAt,
         failureClass: "validation",
       });
-      return privateJson(
-        { error: "learnerId and organizationId are required for Teach instructional support." },
-        400,
-      );
+      return privateJson({ error: "learnerId, organizationId, and courseId are required for Learn teacher instructional support." }, 400);
     }
 
-    const projection = await getTeachLearnerPulseProjection({
+    const projection = await getLearnTeacherLearnerPulseProjection({
       actorId: actor.uid,
       learnerId,
       organizationId,
+      courseId,
     });
     await recordSignatureTelemetry({
       kind: "projection_success",
-      consumer: "teach",
+      consumer: "learn",
       projection: "learner_pulse",
       durationMs: Date.now() - startedAt,
     });
     return privateJson(projection);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to load Teach instructional support.";
+    const message = error instanceof Error ? error.message : "Unable to load Learn teacher instructional support.";
     const status = message === "Authentication is required."
       ? 401
       : message.includes("membership")
         || message.includes("not a member")
+        || message.includes("not authorized")
         || message.includes("supporting another learner")
         || message.includes("No current learner context")
+        || message.includes("does not belong")
         ? 403
         : 400;
     await recordSignatureTelemetry({
       kind: "projection_failure",
-      consumer: "teach",
+      consumer: "learn",
       projection: "learner_pulse",
       durationMs: Date.now() - startedAt,
       failureClass: failureClass(status),
