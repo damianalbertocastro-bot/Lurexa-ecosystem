@@ -29,7 +29,7 @@ Result: **aligned**.
 
 Result: **aligned at shell and auth-identity level**.
 
-## Learn teacher workspace — `apps/teacher-portal`
+## Learn teacher workspace — `apps/learn-web/app/teacher`
 
 - Identity remains **Lurexa Learn | Teacher Dashboard**.
 - This is intentionally not branded Lurexa Teach.

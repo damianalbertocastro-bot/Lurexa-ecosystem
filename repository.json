@@ -6,7 +6,7 @@
     { "name": "web", "path": "apps/web", "role": "ecosystem-landing" },
     { "name": "docs", "path": "apps/docs", "role": "documentation" },
     { "name": "learn-web", "path": "apps/learn-web", "role": "learner-product" },
-    { "name": "teacher-portal", "path": "apps/teacher-portal", "role": "teacher-product" },
+    { "name": "teach-web", "path": "apps/teach-web", "role": "teacher-development-product" },
     { "name": "admin-portal", "path": "apps/admin-portal", "role": "admin-product" },
     { "name": "mobile", "path": "apps/mobile", "role": "mobile-product" }
   ],

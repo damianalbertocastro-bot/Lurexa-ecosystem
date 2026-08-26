@@ -65,7 +65,7 @@ A teacher or teacher-to-be may use Lurexa products with one Lurexa account. Auth
 
 ## Routing guidance
 
-- `apps/teacher-portal`: teacher operational workspace for Lurexa Learn.
+- `apps/learn-web/app/teacher`: teacher operational workspace for Lurexa Learn.
 - `apps/teach-web`: independent Lurexa Teach product.
 
 Future code, copy, routes, navigation and AI-generated changes must preserve this distinction.

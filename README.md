@@ -34,8 +34,8 @@ This repository is a TypeScript monorepo using pnpm and Turborepo to share UI, d
 ```text
 apps/
   learn-web/        Lurexa Learn learner-facing Next.js application
+  teach-web/        Lurexa Teach professional-development Next.js application
   admin-portal/     Lurexa Admin administrative Next.js portal
-  teacher-portal/   Lurexa Teach teacher Next.js portal
   web/              Additional Next.js web application
   docs/             Documentation Next.js application
   mobile/           Expo/React Native application
@@ -64,7 +64,7 @@ The flagship learner-facing product and first production experience.
 
 ### Lurexa Teach
 
-The educator workspace for learner management, instructional workflows, scheduling, feedback, and teacher-facing intelligence.
+The professional-development experience for practicing educators and teachers-to-be. Lurexa Learn owns classroom operations, including its teacher workspace at `apps/learn-web/app/teacher`.
 
 ### Lurexa Admin
 
@@ -122,7 +122,7 @@ See `Docs/00-Lurexa-Bible.md` and `Docs/Architecture/Capability Architecture.md`
 
 ## Deployment and automation
 
-The root Vercel configuration builds `learn-web` and uses `apps/learn-web/.next` as its output directory. GitHub Actions validate linting, type checking, and builds for pushes and pull requests.
+The canonical Vercel topology is [`deployment/products.json`](deployment/products.json): `lurexa-learn-web` is rooted at `apps/learn-web`, and `lurexa-teach-web` is rooted at `apps/teach-web`. Git-triggered Vercel deployments are disabled; releases are explicit and follow [`Docs/Engineering/Vercel Release Runbook.md`](Docs/Engineering/Vercel%20Release%20Runbook.md). GitHub Actions validate linting, type checking, and builds for pushes and pull requests.
 
 The repository package manager is pnpm 10.3.0, but the current workflow files install pnpm 9. Align those versions before treating CI as a reliable release gate.
 

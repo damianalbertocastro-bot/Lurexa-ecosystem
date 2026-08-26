@@ -23,7 +23,7 @@ The roadmap, product portfolio, repository mapping, and UI now use the current b
 - **Lurexa Learn** owns learner experiences, classes, assignments, progress/support workflows, and the teacher operational workspace.
 - **Lurexa Teach** owns educator professional growth, professional learning, evidence/reflection, credentials, and educator community.
 
-`apps/teacher-portal` remains a Lurexa Learn surface. `apps/teach-web` remains the independent Teach product.
+`apps/learn-web/app/teacher` is the Lurexa Learn teacher workspace. `apps/teach-web` remains the independent Teach product.
 
 ### RESOLVED — duplicated ecosystem product identity
 

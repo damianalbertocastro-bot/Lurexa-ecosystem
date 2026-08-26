@@ -240,6 +240,6 @@ This rule is authoritative for repository work. Read `Docs/Product/LUREXA_LEARN_
 - peer collaboration;
 - professional evidence and educator credentials.
 
-Never brand the Lurexa Learn teacher dashboard as Lurexa Teach. `apps/teacher-portal` is a role-specific operational workspace inside Lurexa Learn. `apps/teach-web` is the independent Lurexa Teach product.
+Never brand the Lurexa Learn teacher dashboard as Lurexa Teach. `apps/learn-web/app/teacher` is the role-specific operational workspace inside Lurexa Learn. `apps/teach-web` is the independent Lurexa Teach product.
 
 A teacher may use both with one Lurexa identity. Core owns trusted identity/persistence and Mind interprets authorized evidence. Do not solve the product boundary by creating duplicate teacher identities or duplicated authoritative profiles.
