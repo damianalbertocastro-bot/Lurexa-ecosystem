@@ -7,7 +7,8 @@ import { TeachShell } from "../components/TeachShell";
 import { TeachPrivate } from "../components/TeachPrivate";
 import { useTeachAuth } from "../components/TeachAuthProvider";
 
-const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? "http://localhost:3000";
+const ecosystemUrl = process.env.NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL ?? "https://lurexa.com";
+const learnUrl = process.env.NEXT_PUBLIC_LUREXA_LEARN_URL ?? ecosystemUrl;
 
 export default function GrowthPlanPage() {
   const { user } = useTeachAuth();
