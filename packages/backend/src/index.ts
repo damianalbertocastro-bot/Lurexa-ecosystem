@@ -29,6 +29,8 @@ export * from "./teach-t1.service";
 export * from "./curriculum/a2";
 export * from "./capstone-a2.service";
 export * from "./curriculum/b1";
+export * from "./curriculum/b2";
+export * from "./curriculum/c1";
 
 
 // Server-only capabilities intentionally do not belong in this browser-safe

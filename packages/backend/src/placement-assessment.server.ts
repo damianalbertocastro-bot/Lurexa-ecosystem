@@ -350,15 +350,15 @@ export class PlacementAssessmentService {
 
     if (overallScorePercent >= 88 && answeredItems.some((i) => i.cefr === "C1")) {
       estimatedLevel = "C1";
-      recommendedCourseId = "english-b2-advanced-communication";
-      recommendedLessonId = "b2-professional-discourse";
-      recommendedStartingPoint = "English B2/C1 Advanced Communication";
-      rationale = "High command across discourse, nuance, and structural control. Recommended placement in advanced modules.";
+      recommendedCourseId = "english-c1-advanced-fluency";
+      recommendedLessonId = "c1-m1-lesson-1";
+      recommendedStartingPoint = "English C1 Advanced & Academic Fluency — Module 1";
+      rationale = "High command across discourse, nuance, and structural control. Recommended placement in doctoral-level advanced modules.";
     } else if (overallScorePercent >= 80 && answeredItems.some((i) => i.cefr === "B1" || i.cefr === "B2")) {
       estimatedLevel = "B2";
-      recommendedCourseId = "english-b2-everyday-fluency";
-      recommendedLessonId = "b2-fluent-conversation";
-      recommendedStartingPoint = "English B2 Fluency & Professional Communication";
+      recommendedCourseId = "english-b2-fluency-communication";
+      recommendedLessonId = "b2-m1-lesson-1";
+      recommendedStartingPoint = "English B2 Fluency & Professional Communication — Module 1";
       rationale = "Strong mastery of complex syntax and connected speech. Recommended placement in upper-intermediate fluency practice.";
     } else if (overallScorePercent >= 65 && answeredItems.some((i) => i.cefr === "B1")) {
       estimatedLevel = "B1";
