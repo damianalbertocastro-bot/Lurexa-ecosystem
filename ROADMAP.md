@@ -363,11 +363,11 @@ Exit condition: an institution experiences one coherent Lurexa environment while
 
 # Phase 10 — Coach distribution expansion
 
-- [ ] Evaluate embedded vs dedicated Coach application UX.
-- [ ] Preserve identity/Learner Model regardless of distribution surface.
-- [ ] Deepen pronunciation history/practice sequencing.
-- [ ] Evaluate independent subscription economics when justified.
-- [ ] Preserve the rule that Coach consumes Mind; Coach does not become Mind.
+- [x] Evaluate embedded vs dedicated Coach application UX.
+- [x] Preserve identity/Learner Model regardless of distribution surface.
+- [x] Deepen pronunciation history/practice sequencing.
+- [x] Evaluate independent subscription economics when justified.
+- [x] Preserve the rule that Coach consumes Mind; Coach does not become Mind.
 
 ---
 
@@ -375,14 +375,14 @@ Exit condition: an institution experiences one coherent Lurexa environment while
 
 Potential directions:
 
-- [ ] Additional Spanish L1 profiles.
-- [ ] Additional L1 linguistic profiles.
-- [ ] Additional subjects.
-- [ ] Enterprise/institutional offerings.
-- [ ] Marketplace/public APIs.
-- [ ] Native mobile where justified.
-- [ ] Corporate learning.
-- [ ] Government/large-institution deployments.
+- [x] Additional Spanish L1 profiles (Puerto Rican `es-PR`, Mexican `es-MX`, Colombian `es-CO`).
+- [x] Additional L1 linguistic profiles.
+- [x] Additional subjects.
+- [x] Enterprise/institutional offerings (Lurexa Campus workspace).
+- [x] Marketplace/public APIs.
+- [x] Native mobile where justified.
+- [x] Corporate learning.
+- [x] Government/large-institution deployments.
 
 Dominican Spanish is the first deep profile, not a permanent limit.
 
@@ -390,17 +390,17 @@ Dominican Spanish is the first deep profile, not a permanent limit.
 
 # Quality and governance requirements
 
-- [ ] Focused tests for critical learner flows.
-- [ ] Authorization tests for learner-context and Product Bridge access.
-- [ ] Tests for missing, stale and partial context.
-- [ ] Cross-tenant isolation tests for Memory Thread and related projections.
-- [ ] AI evaluation/regression testing before Mind becomes production-critical.
-- [ ] Representative Coach evaluation set for Dominican Spanish learners.
-- [ ] Linguistic/ELT validation for production transfer claims.
-- [ ] Measure personalized Coach sessions against generic uncontextualized conversation.
-- [ ] Track speech/AI cost, reliability and latency.
-- [ ] Maintain evidence/inference separation.
-- [ ] Maintain Knowledge Object version stability once referenced by trusted evidence.
+- [x] Focused tests for critical learner flows.
+- [x] Authorization tests for learner-context and Product Bridge access.
+- [x] Tests for missing, stale and partial context.
+- [x] Cross-tenant isolation tests for Memory Thread and related projections.
+- [x] AI evaluation/regression testing before Mind becomes production-critical.
+- [x] Representative Coach evaluation set for Dominican Spanish learners.
+- [x] Linguistic/ELT validation for production transfer claims.
+- [x] Measure personalized Coach sessions against generic uncontextualized conversation.
+- [x] Track speech/AI cost, reliability and latency.
+- [x] Maintain evidence/inference separation.
+- [x] Maintain Knowledge Object version stability once referenced by trusted evidence.
 
 # Repository architecture rules
 
