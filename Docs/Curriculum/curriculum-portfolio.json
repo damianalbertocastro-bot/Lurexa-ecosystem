@@ -122,9 +122,9 @@
       "macroMap": true,
       "competencyMatrix": true,
       "moduleBlueprints": true,
-      "productionBlueprints": false,
+      "productionBlueprints": "compact-map",
       "integratedCapstone": "designed",
-      "runtimeIntegrated": false,
+      "runtimeIntegrated": true,
       "representativePilot": "not-started",
       "curriculumComplete": false,
       "documents": [

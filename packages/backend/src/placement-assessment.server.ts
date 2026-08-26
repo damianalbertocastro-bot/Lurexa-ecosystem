@@ -348,7 +348,13 @@ export class PlacementAssessmentService {
     let recommendedStartingPoint = "English A1 Foundations — Lesson 1 (Meet & Greet)";
     let rationale = "Recommended entry at A1 Foundations to build communicative confidence and clean pronunciation habits.";
 
-    if (overallScorePercent >= 88 && answeredItems.some((i) => i.cefr === "C1")) {
+    if (overallScorePercent >= 94 && answeredItems.some((i) => i.cefr === "C1")) {
+      estimatedLevel = "C2";
+      recommendedCourseId = "english-c2-mastery";
+      recommendedLessonId = "c2-m1-lesson-1";
+      recommendedStartingPoint = "English C2 Native-Like Mastery — Module 1";
+      rationale = "Exceptional mastery of pragmatic nuance, diplomatic ambiguity, and classical rhetoric. Recommended entry at sovereign C2 level.";
+    } else if (overallScorePercent >= 88 && answeredItems.some((i) => i.cefr === "C1")) {
       estimatedLevel = "C1";
       recommendedCourseId = "english-c1-advanced-fluency";
       recommendedLessonId = "c1-m1-lesson-1";

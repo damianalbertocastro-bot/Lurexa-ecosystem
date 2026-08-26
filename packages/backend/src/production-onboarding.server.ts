@@ -25,13 +25,17 @@ import {
   C1_PRODUCTION_COURSE_ID,
   ensureC1ProductionCurriculumInFirestore,
 } from "./c1-production-curriculum.server";
+import {
+  C2_PRODUCTION_COURSE_ID,
+  ensureC2ProductionCurriculumInFirestore,
+} from "./c2-production-curriculum.server";
 import { assertA1ProductionCurriculum } from "./a1-production-validation.server";
 
 export type { PlacementAnswer, SelfPacedGoal };
 
 /**
  * Preserves the existing tested onboarding/placement behavior, then upgrades
- * an A1, A2, B1, B2, or C1 starter enrollment to the full trusted production curriculum.
+ * an A1, A2, B1, B2, C1, or C2 starter enrollment to the full trusted production curriculum.
  * The provisioner is idempotent and never rewrites learner progress/evidence.
  */
 export async function onboardProductionLearner(input: {
@@ -52,6 +56,8 @@ export async function onboardProductionLearner(input: {
     await ensureB2ProductionCurriculumInFirestore();
   } else if (result.courseId === C1_PRODUCTION_COURSE_ID) {
     await ensureC1ProductionCurriculumInFirestore();
+  } else if (result.courseId === C2_PRODUCTION_COURSE_ID) {
+    await ensureC2ProductionCurriculumInFirestore();
   }
   return result;
 }

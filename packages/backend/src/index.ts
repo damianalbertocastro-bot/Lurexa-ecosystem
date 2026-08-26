@@ -31,6 +31,7 @@ export * from "./capstone-a2.service";
 export * from "./curriculum/b1";
 export * from "./curriculum/b2";
 export * from "./curriculum/c1";
+export * from "./curriculum/c2";
 
 
 // Server-only capabilities intentionally do not belong in this browser-safe

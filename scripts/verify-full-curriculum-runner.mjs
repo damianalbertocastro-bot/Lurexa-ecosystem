@@ -29,30 +29,34 @@ console.log("\n========================================================");
 console.log("  LUREXA LEARN & TEACH FULL ECOSYSTEM VERIFICATION SUITE ");
 console.log("========================================================\n");
 
-// 1. Verify A1, A2, B1, B2, and C1 Curriculum Data Definitions
+// 1. Verify A1, A2, B1, B2, C1, and C2 Curriculum Data Definitions
 const a1ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/a1/modules.ts");
 const a2ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/a2/modules.ts");
 const b1ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/b1/modules.ts");
 const b2ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/b2/modules.ts");
 const c1ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/c1/modules.ts");
+const c2ModuleFile = path.join(repoRoot, "packages/backend/src/curriculum/c2/modules.ts");
 
 check(fs.existsSync(a1ModuleFile), "A1 curriculum module source exists");
 check(fs.existsSync(a2ModuleFile), "A2 curriculum module source exists");
 check(fs.existsSync(b1ModuleFile), "B1 curriculum module source exists");
 check(fs.existsSync(b2ModuleFile), "B2 curriculum module source exists");
 check(fs.existsSync(c1ModuleFile), "C1 curriculum module source exists");
+check(fs.existsSync(c2ModuleFile), "C2 curriculum module source exists");
 
 const a1Content = fs.readFileSync(a1ModuleFile, "utf8");
 const a2Content = fs.readFileSync(a2ModuleFile, "utf8");
 const b1Content = fs.readFileSync(b1ModuleFile, "utf8");
 const b2Content = fs.readFileSync(b2ModuleFile, "utf8");
 const c1Content = fs.readFileSync(c1ModuleFile, "utf8");
+const c2Content = fs.readFileSync(c2ModuleFile, "utf8");
 
 check(a1Content.includes("A1_MODULES_2_TO_8"), "A1 defines complete modules array (A1_MODULES_2_TO_8)");
 check(a2Content.includes("A2_MODULES_1_TO_8"), "A2 defines complete 8-module array");
 check(b1Content.includes("B1_MODULES_1_TO_8"), "B1 defines complete 8-module array");
 check(b2Content.includes("B2_MODULES_1_TO_8"), "B2 defines complete 8-module array");
 check(c1Content.includes("C1_MODULES_1_TO_8"), "C1 defines complete 8-module array");
+check(c2Content.includes("C2_MODULES_1_TO_8"), "C2 defines complete 8-module array");
 
 // 2. Verify Production Curriculum Bundle Services
 const a1Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/a1-production-curriculum.server.ts"), "utf8");
@@ -60,27 +64,34 @@ const a2Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/a2-pr
 const b1Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/b1-production-curriculum.server.ts"), "utf8");
 const b2Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/b2-production-curriculum.server.ts"), "utf8");
 const c1Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/c1-production-curriculum.server.ts"), "utf8");
+const c2Server = fs.readFileSync(path.join(repoRoot, "packages/backend/src/c2-production-curriculum.server.ts"), "utf8");
 
 check(a1Server.includes("buildA1ProductionCurriculum"), "A1 bundle builder is implemented");
 check(a2Server.includes("buildA2ProductionCurriculum"), "A2 bundle builder is implemented");
 check(b1Server.includes("buildB1ProductionCurriculum"), "B1 bundle builder is implemented");
 check(b2Server.includes("buildB2ProductionCurriculum"), "B2 bundle builder is implemented");
 check(c1Server.includes("buildC1ProductionCurriculum"), "C1 bundle builder is implemented");
+check(c2Server.includes("buildC2ProductionCurriculum"), "C2 bundle builder is implemented");
 
 check(b1Server.includes("english-b1-independent-speaker"), "B1 declares authoritative course ID 'english-b1-independent-speaker'");
 check(b2Server.includes("english-b2-fluency-communication"), "B2 declares authoritative course ID 'english-b2-fluency-communication'");
 check(c1Server.includes("english-c1-advanced-fluency"), "C1 declares authoritative course ID 'english-c1-advanced-fluency'");
+check(c2Server.includes("english-c2-mastery"), "C2 declares authoritative course ID 'english-c2-mastery'");
 
-// 3. Verify Placement and Onboarding Provisioning Pipeline
+// 3. Verify Placement, Onboarding & Multi-Level Capstone Services
 const placementServer = fs.readFileSync(path.join(repoRoot, "packages/backend/src/placement-assessment.server.ts"), "utf8");
 const onboardingServer = fs.readFileSync(path.join(repoRoot, "packages/backend/src/production-onboarding.server.ts"), "utf8");
+const capstoneServer = fs.readFileSync(path.join(repoRoot, "packages/backend/src/capstone-multi-level.server.ts"), "utf8");
 
 check(placementServer.includes("english-b1-independent-speaker"), "Placement engine targets english-b1-independent-speaker for B1 scores");
 check(placementServer.includes("english-b2-fluency-communication"), "Placement engine targets english-b2-fluency-communication for B2 scores");
 check(placementServer.includes("english-c1-advanced-fluency"), "Placement engine targets english-c1-advanced-fluency for C1 scores");
+check(placementServer.includes("english-c2-mastery"), "Placement engine targets english-c2-mastery for C2 scores");
 check(onboardingServer.includes("ensureB1ProductionCurriculumInFirestore"), "Onboarding pipeline provisions B1 curriculum in Firestore");
 check(onboardingServer.includes("ensureB2ProductionCurriculumInFirestore"), "Onboarding pipeline provisions B2 curriculum in Firestore");
 check(onboardingServer.includes("ensureC1ProductionCurriculumInFirestore"), "Onboarding pipeline provisions C1 curriculum in Firestore");
+check(onboardingServer.includes("ensureC2ProductionCurriculumInFirestore"), "Onboarding pipeline provisions C2 curriculum in Firestore");
+check(capstoneServer.includes("MultiLevelCapstoneService"), "Multi-level capstone service evaluates summative oral defenses");
 
 // 4. Verify Teach Catalog & T1-T5 Micro-Credentials
 const teachCatalog = fs.readFileSync(path.join(repoRoot, "packages/backend/src/teach-catalog.ts"), "utf8");
