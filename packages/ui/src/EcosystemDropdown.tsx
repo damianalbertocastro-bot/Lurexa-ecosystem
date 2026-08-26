@@ -20,12 +20,6 @@ const APPS_CONFIG: Array<{
   description: string;
 }> = [
   {
-    key: "root",
-    name: "Lurexa",
-    shortName: "Ecosystem Home",
-    description: "Intelligent learning ecosystem & core platform overview",
-  },
-  {
     key: "learn",
     name: "Lurexa Learn",
     shortName: "Learn",
@@ -197,17 +191,6 @@ export function EcosystemDropdown({
                 </a>
               );
             })}
-          </div>
-
-          <div className="mt-1 border-t border-[#eef2fc] p-1.5 text-center">
-            <a
-              href={getEcosystemUrl("root")}
-              rel="noreferrer"
-              onClick={(event) => navigate(event, getEcosystemUrl("root"), currentApp === "root")}
-              className="inline-flex w-full items-center justify-center rounded-lg py-1.5 text-[11px] font-extrabold text-[#315fd7] transition hover:bg-[#eef2ff]"
-            >
-              Explore Lurexa Platform &amp; Architecture →
-            </a>
           </div>
         </div>
       )}
