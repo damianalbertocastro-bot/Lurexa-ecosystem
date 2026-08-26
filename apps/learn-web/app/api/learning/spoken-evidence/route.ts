@@ -6,6 +6,14 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request): Promise<Response> {
   try {
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("multipart/form-data")) {
+      return Response.json(
+        { error: "Invalid Content-Type. Expected multipart/form-data." },
+        { status: 400 }
+      );
+    }
+
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
     const formData = await request.formData();
     const audio = formData.get("audio");
@@ -21,19 +29,30 @@ export async function POST(request: Request): Promise<Response> {
       || typeof activityId !== "string"
       || typeof durationMsValue !== "string"
     ) {
-      throw new Error("Spoken evidence upload is incomplete.");
+      return Response.json(
+        { error: "No valid audio file or required parameters provided in request." },
+        { status: 400 }
+      );
     }
 
     const durationMs = Number(durationMsValue);
-    return Response.json(await SpokenEvidenceService.persist({
+    const evidence = await SpokenEvidenceService.persist({
       actor,
       courseId,
       lessonId,
       activityId,
       audio,
       durationMs,
-    }));
+    });
+
+    return Response.json({
+      success: true,
+      message: "Spoken evidence recorded successfully.",
+      evidence,
+      lessonId,
+    });
   } catch (error) {
+    console.error("Error processing spoken evidence:", error);
     const message = error instanceof Error ? error.message : "Unable to save spoken evidence.";
     const status = message === "Authentication is required." ? 401 : message.toLowerCase().includes("not found") ? 404 : 400;
     return Response.json({ error: message }, { status });

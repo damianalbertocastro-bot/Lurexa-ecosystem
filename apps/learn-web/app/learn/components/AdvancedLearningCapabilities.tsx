@@ -325,28 +325,38 @@ export function RecordedSpeakingActivity({
     setStatus("uploading");
     setMessage(null);
     try {
+      // 1. Pack the recorded audio Blob into standard FormData
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "spoken-attempt.webm");
+      formData.append("courseId", courseId);
+      formData.append("lessonId", lessonId);
+      formData.append("activityId", capability.id);
+      formData.append("durationMs", String(finalDurationMs));
+      formData.append("targetPhrase", capability.prompt);
+      formData.append("stage", "CREATE_APPLY");
+
+      // 2. Send to the API endpoint without setting Content-Type manually
+      // The browser / fetch will automatically set multipart/form-data with boundary
       const response = await authenticatedFetch("/api/learning/spoken-evidence", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          courseId,
-          lessonId,
-          activityId: capability.id,
-          contentType: audioBlob.type || "audio/webm",
-          durationMs: finalDurationMs,
-          byteLength: audioBlob.size,
-        }),
+        body: formData,
       });
 
-      const payload = (await response.json()) as { evidence?: SpokenEvidenceRecord; error?: string };
-      if (!response.ok || !payload.evidence) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || `Upload failed with status ${response.status}`);
+      }
+
+      const payload = (await response.json()) as { evidence?: SpokenEvidenceRecord; success?: boolean; error?: string };
+      if (!payload.evidence && !payload.success) {
         throw new Error(payload.error ?? "Spoken evidence could not be preserved.");
       }
 
       setStatus("saved");
       setMessage("Your spoken evidence was recorded and saved directly to your Learner Model!");
       onCompleted?.(capability.id);
-    } catch (caught) {
+    } catch (caught: unknown) {
+      console.error("Failed to save spoken evidence:", caught);
       setStatus("error");
       setMessage(caught instanceof Error ? caught.message : "Spoken evidence could not be preserved.");
     }
