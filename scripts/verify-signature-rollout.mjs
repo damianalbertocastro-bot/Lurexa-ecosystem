@@ -69,7 +69,7 @@ check(educatorAccess.includes("authorization.levels.every((level) => qualificati
 check(educatorAccess.includes("authorization.courseIds.includes(course.id)"), "Learn teacher course access requires explicit course authorization");
 check(!educatorAccess.includes("governanceRole"), "owner/admin governance role cannot bypass professional teaching qualification");
 check(educatorAccess.includes('teach: verifiedEducator || explicitTeach') && educatorAccess.includes('coachFull: verifiedEducator || explicitCoach'), "verified educators automatically receive Teach and full Coach benefits under one identity");
-check(educatorAccess.includes('product: "teach"') && educatorAccess.includes('reason: "extend_level_scope"'), "higher-scope denial produces a governed Teach development target");
+check(educatorAccess.includes('product: "teach"') && educatorAccess.includes('developmentRecommendation: developmentRecommendation(course, "extend_level_scope")'), "higher-scope denial produces a governed Teach development target");
 check(educatorDelegationTest.includes("teacher membership alone does not authorize") && educatorDelegationTest.includes("higher-level course stays locked"), "Firestore integration test covers role-only denial and higher-level scope denial");
 check(educatorDelegationTest.includes("organization ownership does not substitute"), "Firestore integration test proves owner status cannot substitute for teaching qualification");
 check(educatorDelegationTest.includes("Teach learner can use Teach") && educatorDelegationTest.includes("practicing-educator privileges"), "Firestore integration test separates Teach learner entitlement from practicing educator access");
