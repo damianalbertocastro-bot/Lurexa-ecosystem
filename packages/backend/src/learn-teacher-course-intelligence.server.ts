@@ -1,4 +1,4 @@
-import type { Course, CourseInstructionalIntelligenceV1, LearningEvidence, StudentProgress } from "@lurexa/types";
+import type { Course, CourseInstructionalIntelligenceV1, LearningEvidence, Module, StudentProgress } from "@lurexa/types";
 import { getEducatorCourseAccessDecision } from "./educator-access.server";
 import { CourseEnrollmentIndexService } from "./core/course-enrollment-index.server";
 import { getServerFirestore } from "./firebase-admin.server";
@@ -6,6 +6,16 @@ import { getServerFirestore } from "./firebase-admin.server";
 function knowledgeObjectIds(value: LearningEvidence): string[] {
   const source = value.source as { courseId?: string; knowledgeObjectIds?: string[] };
   return Array.isArray(source.knowledgeObjectIds) ? source.knowledgeObjectIds.filter(Boolean) : [];
+}
+
+async function courseLessonCount(course: Course): Promise<number> {
+  const database = getServerFirestore();
+  const modules = await Promise.all(course.moduleIds.map((moduleId) => database.collection("modules").doc(moduleId).get()));
+  return modules.reduce((total, snapshot) => {
+    if (!snapshot.exists) return total;
+    const module = { id: snapshot.id, ...snapshot.data() } as Module;
+    return module.courseId === course.id ? total + module.lessonIds.length : total;
+  }, 0);
 }
 
 export async function getLearnTeacherCourseIntelligence(input: {
@@ -22,10 +32,11 @@ export async function getLearnTeacherCourseIntelligence(input: {
   if (!access.allowed) throw new Error("Exact-course teaching authorization is required for instructional intelligence.");
 
   await CourseEnrollmentIndexService.migrateTrustedParticipation(course);
-  const [enrollments, progressSnapshot, evidenceSnapshot] = await Promise.all([
+  const [enrollments, progressSnapshot, evidenceSnapshot, totalLessons] = await Promise.all([
     CourseEnrollmentIndexService.listCourseEnrollments(course.id),
     database.collection("progress").where("courseId", "==", course.id).get(),
     database.collection("learning-evidence").where("organizationId", "==", course.orgId).get(),
+    courseLessonCount(course),
   ]);
   const activeEnrollments = enrollments.filter((item) => item.status === "active" || item.status === "completed");
   const enrolledIds = new Set(activeEnrollments.map((item) => item.learnerId));
@@ -41,8 +52,8 @@ export async function getLearnTeacherCourseIntelligence(input: {
   const active14d = participating.filter((learnerId) => (byLearner.get(learnerId) ?? []).some((item) => Date.parse(item.lastAccessedAt) >= activeCutoff)).length;
   const progressValues = participating.map((learnerId) => {
     const records = byLearner.get(learnerId) ?? [];
-    const values = records.map((item) => Number(item.progress ?? (item.completed ? 100 : 0))).filter(Number.isFinite);
-    return values.length ? Math.max(...values) : 0;
+    const completed = new Set(records.filter((item) => item.completed).map((item) => item.lessonId)).size;
+    return totalLessons === 0 ? 0 : Math.round((completed / totalLessons) * 100);
   });
   const completedLearners = progressValues.filter((value) => value >= 100).length;
 
