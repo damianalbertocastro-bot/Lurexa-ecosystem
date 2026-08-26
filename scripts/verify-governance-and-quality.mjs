@@ -69,6 +69,28 @@ check(
   "Campus Product Bridges strictly enforce multi-tenant organizationId scoping"
 );
 
+// 5. Verify Speech Provider Adapters behind Mind Boundary
+const speechAdaptersFile = path.join(repoRoot, "packages/backend/src/speech-provider-adapters.server.ts");
+check(fs.existsSync(speechAdaptersFile), "Speech provider adapter service exists");
+const speechAdaptersContent = fs.readFileSync(speechAdaptersFile, "utf8");
+check(speechAdaptersContent.includes("recognizeSpeech"), "Speech adapter supports STT with phoneme alignment");
+check(speechAdaptersContent.includes("synthesizeSpeech"), "Speech adapter supports calibrated pedagogical TTS synthesis");
+
+// 6. Verify Campus Pilot Provisioner Suite
+const pilotSeederFile = path.join(repoRoot, "scripts/seed-institutional-campus-pilot.mjs");
+check(fs.existsSync(pilotSeederFile), "Institutional campus pilot seeder exists");
+const pilotSeederContent = fs.readFileSync(pilotSeederFile, "utf8");
+check(pilotSeederContent.includes("inst_uasd"), "Pilot seeder provisions UASD institution");
+check(pilotSeederContent.includes("inst_pucmm"), "Pilot seeder provisions PUCMM institution");
+check(pilotSeederContent.includes("inst_intec"), "Pilot seeder provisions INTEC institution");
+
+// 7. Verify Offline-First PWA Lesson Sync Engine
+const offlineSyncFile = path.join(repoRoot, "packages/backend/src/offline-sync-engine.ts");
+check(fs.existsSync(offlineSyncFile), "Offline sync engine exists");
+const offlineSyncContent = fs.readFileSync(offlineSyncFile, "utf8");
+check(offlineSyncContent.includes("packageLessonForOffline"), "Offline engine serializes lessons with checksums");
+check(offlineSyncContent.includes("reconcileOfflineBatch"), "Offline engine reconciles outbox evidence queues");
+
 console.log("\n========================================================");
 if (process.exitCode === 1) {
   console.log("  ✗ Governance & Multi-L1 Verification FAILED.");

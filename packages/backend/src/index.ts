@@ -32,6 +32,7 @@ export * from "./curriculum/b1";
 export * from "./curriculum/b2";
 export * from "./curriculum/c1";
 export * from "./curriculum/c2";
+export * from "./offline-sync-engine";
 
 
 // Server-only capabilities intentionally do not belong in this browser-safe
