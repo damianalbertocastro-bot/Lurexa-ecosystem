@@ -93,3 +93,44 @@ export interface EducatorBenefitEntitlementsV1 {
   coachFull: boolean;
   source: "educator_benefit" | "explicit_entitlement" | "none";
 }
+
+export interface EducatorGovernanceCourseV1 {
+  id: string;
+  title: string;
+  subject: EducatorSubject;
+  level?: EducatorLevel | null;
+}
+
+export interface EducatorGovernancePersonV1 {
+  userId: string;
+  displayName: string | null;
+  email: string | null;
+  membershipRole: "owner" | "admin" | "teacher";
+  entitlements: EducatorEntitlementV1[];
+  qualifications: EducatorQualificationScopeV1[];
+  authorizations: TeachingAuthorizationV1[];
+}
+
+export interface EducatorGovernanceSnapshotV1 {
+  contractVersion: "1";
+  organizationId: string;
+  organizationName: string;
+  courses: EducatorGovernanceCourseV1[];
+  educators: EducatorGovernancePersonV1[];
+  limitations: string[];
+}
+
+export interface TeachingAuthorizationGrantInputV1 {
+  organizationId: string;
+  userId: string;
+  qualificationId: string;
+  courseIds: string[];
+  validUntil?: string | null;
+}
+
+export interface TeachingAuthorizationStatusUpdateV1 {
+  organizationId: string;
+  userId: string;
+  authorizationId: string;
+  status: "active" | "suspended";
+}
