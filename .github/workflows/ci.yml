@@ -88,6 +88,9 @@ jobs:
       - name: Verify Educator Governance Boundary
         run: node scripts/verify-educator-governance.mjs
 
+      - name: Verify Educator Growth Integration
+        run: node scripts/verify-educator-growth-integration.mjs
+
       - name: Verify Educator Qualification Delegation
         run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app "pnpm --filter @lurexa/backend test:signature-delegation"
 
