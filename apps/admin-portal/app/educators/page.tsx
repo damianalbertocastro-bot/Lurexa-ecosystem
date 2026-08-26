@@ -27,6 +27,10 @@ function qualificationLabel(qualification: EducatorQualificationScopeV1): string
   return `${qualification.subject} · ${qualification.levels.join("–") || "unscoped"}`;
 }
 
+function firstQualifiedId(person: EducatorGovernancePersonV1 | null): string {
+  return person?.qualifications.find((qualification) => qualification.status === "qualified")?.id ?? "";
+}
+
 export default function EducatorGovernancePage() {
   const router = useRouter();
   const [organizationId, setOrganizationId] = useState("");
@@ -40,6 +44,13 @@ export default function EducatorGovernancePage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const selectEducator = useCallback((person: EducatorGovernancePersonV1 | null) => {
+    setSelectedUserId(person?.userId ?? null);
+    setQualificationId(firstQualifiedId(person));
+    setCourseIds([]);
+    setValidUntil("");
+  }, []);
+
   const load = useCallback(async (orgId: string) => {
     if (!orgId.trim()) return;
     setLoading(true);
@@ -50,11 +61,18 @@ export default function EducatorGovernancePage() {
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body));
       const next = body as EducatorGovernanceSnapshotV1;
+      const first = next.educators[0] ?? null;
       setSnapshot(next);
-      setSelectedUserId((current) => current && next.educators.some((person) => person.userId === current) ? current : next.educators[0]?.userId ?? null);
+      setSelectedUserId(first?.userId ?? null);
+      setQualificationId(firstQualifiedId(first));
+      setCourseIds([]);
+      setValidUntil("");
     } catch (caught) {
       setSnapshot(null);
       setSelectedUserId(null);
+      setQualificationId("");
+      setCourseIds([]);
+      setValidUntil("");
       setError(caught instanceof Error ? caught.message : "Unable to load educator governance.");
     } finally {
       setLoading(false);
@@ -72,13 +90,6 @@ export default function EducatorGovernancePage() {
     if (!snapshot || !selectedQualification) return [];
     return snapshot.courses.filter((course) => course.subject === selectedQualification.subject && (!course.level || selectedQualification.levels.includes(course.level)));
   }, [snapshot, selectedQualification]);
-
-  useEffect(() => {
-    const first = activeQualifications[0]?.id ?? "";
-    setQualificationId(first);
-    setCourseIds([]);
-    setValidUntil("");
-  }, [selectedUserId, activeQualifications.length]);
 
   async function handleOrganization(event: FormEvent) {
     event.preventDefault();
@@ -128,7 +139,7 @@ export default function EducatorGovernancePage() {
       });
       const body: unknown = await response.json();
       if (!response.ok) throw new Error(readError(body));
-      setNotice(status === "suspended" ? "Teaching authorization suspended." : "Teaching authorization reactivated.");
+      setNotice(status === "suspended" ? "Teaching authorization suspended." : "Teaching authorization reactivated after qualification revalidation.");
       await load(snapshot.organizationId);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to update teaching authorization.");
@@ -160,7 +171,7 @@ export default function EducatorGovernancePage() {
         <section className="rounded-3xl border border-[#dfe6f8] bg-white p-6 lg:p-8"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#315fd7]">ORGANIZATION</p><h2 className="mt-2 text-3xl font-black tracking-[-.04em]">{snapshot.organizationName}</h2><p className="mt-2 text-xs font-bold text-[#7180a8]">{snapshot.organizationId}</p></div><div className="rounded-2xl bg-[#edf2ff] px-4 py-3 text-right"><b className="block text-2xl">{snapshot.educators.length}</b><span className="text-xs font-bold text-[#6677a5]">educator-affiliated members</span></div></div></section>
 
         <div className="grid gap-6 lg:grid-cols-[.78fr_1.22fr]">
-          <section className="rounded-3xl border border-[#dfe6f8] bg-white p-5 lg:p-6" aria-label="Educators"><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#315fd7]">EDUCATORS</p><div className="mt-4 space-y-2">{snapshot.educators.length ? snapshot.educators.map((person) => <button key={person.userId} type="button" onClick={() => setSelectedUserId(person.userId)} aria-pressed={selectedUserId === person.userId} className={`w-full rounded-2xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7] ${selectedUserId === person.userId ? "border-[#315fd7] bg-[#edf2ff]" : "border-[#e1e7f6] bg-white"}`}><b className="block text-sm">{identityLabel(person)}</b><span className="mt-1 block text-xs font-bold capitalize text-[#7180a8]">{person.membershipRole} affiliation · {person.qualifications.length} qualification record{person.qualifications.length === 1 ? "" : "s"}</span></button>) : <p className="rounded-2xl bg-[#f7f9ff] p-4 text-sm text-[#6677a5]">No owner, admin, or teacher membership records were found for this organization.</p>}</div></section>
+          <section className="rounded-3xl border border-[#dfe6f8] bg-white p-5 lg:p-6" aria-label="Educators"><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#315fd7]">EDUCATORS</p><div className="mt-4 space-y-2">{snapshot.educators.length ? snapshot.educators.map((person) => <button key={person.userId} type="button" onClick={() => selectEducator(person)} aria-pressed={selectedUserId === person.userId} className={`w-full rounded-2xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7] ${selectedUserId === person.userId ? "border-[#315fd7] bg-[#edf2ff]" : "border-[#e1e7f6] bg-white"}`}><b className="block text-sm">{identityLabel(person)}</b><span className="mt-1 block text-xs font-bold capitalize text-[#7180a8]">{person.membershipRole} affiliation · {person.qualifications.length} qualification record{person.qualifications.length === 1 ? "" : "s"}</span></button>) : <p className="rounded-2xl bg-[#f7f9ff] p-4 text-sm text-[#6677a5]">No owner, admin, or teacher membership records were found for this organization.</p>}</div></section>
 
           {selected ? <section className="space-y-5"><article className="rounded-3xl border border-[#dfe6f8] bg-white p-6 lg:p-7"><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#315fd7]">ACCESS MODEL</p><h2 className="mt-2 text-2xl font-black">{identityLabel(selected)}</h2><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-[#f7f9ff] p-4"><span className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#7180a8]">Affiliation</span><b className="mt-2 block capitalize">{selected.membershipRole}</b></div><div className="rounded-2xl bg-[#f7f9ff] p-4"><span className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#7180a8]">Qualifications</span><b className="mt-2 block">{selected.qualifications.filter((item) => item.status === "qualified").length} active</b></div><div className="rounded-2xl bg-[#f7f9ff] p-4"><span className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#7180a8]">Teaching grants</span><b className="mt-2 block">{selected.authorizations.filter((item) => item.status === "active").length} active</b></div></div></article>
 
