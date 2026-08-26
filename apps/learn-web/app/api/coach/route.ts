@@ -2,12 +2,14 @@ import { CoachPlatformService } from "@lurexa/backend/coach-platform.server";
 import { endCoachSession } from "@lurexa/backend/coach-session-completion.server";
 import { resumeCoachSession } from "@lurexa/backend/coach-session-state.server";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
+import { startEducatorCoachSession } from "@lurexa/backend/educator-coach.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CoachActionBody = {
   action?: "sendTurn" | "endSession" | "resumeSession" | "startSession";
+  mode?: "learner" | "educator_professional";
   sessionId?: string;
   message?: string;
   audioDurationMs?: number;
@@ -44,18 +46,21 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json(await resumeCoachSession(actor, { sessionId: body.sessionId }));
     }
 
+    if (body.mode === "educator_professional") {
+      return Response.json(await startEducatorCoachSession(actor));
+    }
     return Response.json(await CoachPlatformService.startSession(actor));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to process Coach request.";
     const status = message === "Authentication is required."
       ? 401
-      : message.includes("do not have access")
+      : message.includes("do not have access") || message.includes("benefit is required")
         ? 403
         : message.includes("already been completed")
           ? 409
           : message.includes("not found")
             ? 404
             : 400;
-    return Response.json({ error: message }, { status });
+    return Response.json({ error: message }, { status, headers: { "Cache-Control": "private, no-store, max-age=0" } });
   }
 }
