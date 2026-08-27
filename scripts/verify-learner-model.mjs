@@ -40,7 +40,7 @@ const [
   coachPlatform,
   learnDashboard,
   firestoreRules,
-  coachPage,
+  coachPractice,
   coachRoute,
 ] = await Promise.all([
   source("packages/types/src/index.ts"),
@@ -62,8 +62,8 @@ const [
   source("packages/backend/src/coach-platform.server.ts"),
   source("apps/learn-web/app/dashboard/page.tsx"),
   source("firestore.rules"),
-  source("apps/learn-web/app/coach/page.tsx"),
-  source("apps/learn-web/app/api/coach/route.ts"),
+  source("apps/coach-web/app/practice/page.tsx"),
+  source("apps/coach-web/app/api/coach/route.ts"),
 ]);
 
 requireText("packages/types/src/index.ts", typeIndex, 'export * from "./learner"');
@@ -120,12 +120,12 @@ requireText("firestore.rules", firestoreRules, "match /learn-tutor-sessions/{ses
 requireText("firestore.rules", firestoreRules, "match /spoken-evidence/{evidenceId}");
 requireText("firestore.rules", firestoreRules, "match /teacher-interventions/{interventionId}");
 requireText("firestore.rules", firestoreRules, "allow write: if false;");
-requireText("apps/learn-web/app/api/coach/route.ts", coachRoute, "CoachPlatformService.startSession(actor)");
-requireText("apps/learn-web/app/coach/page.tsx", coachPage, 'authenticatedFetch("/api/coach"');
+requireText("apps/coach-web/app/api/coach/route.ts", coachRoute, "CoachPlatformService.startSession(actor)");
+requireText("apps/coach-web/app/practice/page.tsx", coachPractice, 'authenticatedFetch("/api/coach"');
 
-forbidText("apps/learn-web/app/coach/page.tsx", coachPage, "student_demo");
-forbidText("apps/learn-web/app/coach/page.tsx", coachPage, "Accent Reduction");
-forbidText("apps/learn-web/app/coach/page.tsx", coachPage, "aiPronunciationScore");
-forbidText("apps/learn-web/app/coach/page.tsx", coachPage, "Voice API Connected");
+forbidText("apps/coach-web/app/practice/page.tsx", coachPractice, "student_demo");
+forbidText("apps/coach-web/app/practice/page.tsx", coachPractice, "Accent Reduction");
+forbidText("apps/coach-web/app/practice/page.tsx", coachPractice, "aiPronunciationScore");
+forbidText("apps/coach-web/app/practice/page.tsx", coachPractice, "Voice API Connected");
 
 console.log(`Learner Model architecture verification passed (${checks.length} checks).`);
