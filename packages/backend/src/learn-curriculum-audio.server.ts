@@ -160,19 +160,21 @@ export const LearnCurriculumAudioService = {
 
     for (const lesson of bundle.lessons) {
       for (const block of lesson.contentBlocks) {
-        const blockData = block.data as any;
-        if (block.type === "interactive" && blockData?.capability?.kind === "model_listening") {
-          const cap = blockData.capability;
-          const text = cap.modelText || "";
+        const blockData = block.data as Record<string, unknown> | undefined;
+        const capability = blockData?.capability as
+          | { kind?: string; id?: string; modelText?: string; locale?: string }
+          | undefined;
+        if (block.type === "interactive" && capability?.kind === "model_listening") {
+          const text = capability.modelText || "";
           manifest.push({
             lessonId: lesson.id,
             moduleId: lesson.moduleId,
-            capabilityId: cap.id,
+            capabilityId: capability.id || `${lesson.id}-listening`,
             modelText: text,
             characterCount: text.length,
             estimatedDurationSeconds: Math.max(3, Math.ceil(text.length / 14)),
             voice: DEFAULT_VOICE,
-            locale: cap.locale || DEFAULT_LANGUAGE_CODE,
+            locale: capability.locale || DEFAULT_LANGUAGE_CODE,
           });
         }
       }
