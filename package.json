@@ -3,9 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "packageManager": "pnpm@10.3.0",
-  "engines": {
-    "node": "24.x"
-  },
+  "engines": { "node": "24.x" },
   "scripts": {
     "build": "pnpm -r --if-present build",
     "dev": "pnpm --filter learn-web dev",
@@ -20,6 +18,7 @@
     "verify:product-registry": "node scripts/verify-product-registry-consumers.mjs",
     "verify:prototype-containment": "node scripts/verify-prototype-containment.mjs",
     "verify:documentation-truth": "node scripts/verify-documentation-truth.mjs",
+    "verify:platform-package-boundaries": "node scripts/verify-platform-package-boundaries.mjs",
     "verify:curriculum-portfolio": "node scripts/verify-curriculum-portfolio.mjs",
     "verify:tokens": "pnpm --filter @lurexa/tokens lint && pnpm --filter @lurexa/tokens check-types",
     "verify:core-mind-boundary": "node scripts/verify-core-mind-boundary.mjs",
@@ -32,7 +31,7 @@
     "verify:governance": "node scripts/verify-governance-and-quality.mjs",
     "simulate:lifecycle": "node scripts/simulate-complete-learner-lifecycle.mjs",
     "simulate:a1-pilot": "node scripts/simulate-a1-pilot-cohort.mjs",
-    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "phase0:lint": "pnpm --filter learn-web... lint",
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",
@@ -49,20 +48,11 @@
     "env:learn:preview": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target preview",
     "env:learn:production": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target production"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "protobufjs",
-      "sharp",
-      "unrs-resolver"
-    ]
-  },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild", "protobufjs", "sharp", "unrs-resolver"] },
   "devDependencies": {
     "firebase-tools": "^15.27.0",
     "tsx": "4.23.11",
     "typescript": "^5.9.2"
   },
-  "dependencies": {
-    "firebase": "^10.12.0"
-  }
+  "dependencies": { "firebase": "^10.12.0" }
 }

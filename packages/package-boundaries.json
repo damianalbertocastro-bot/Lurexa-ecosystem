@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lurexa/auth": {
+      "path": "packages/auth",
+      "class": "Deprecated",
+      "role": "Legacy session/context scaffold. Canonical product authentication is implemented through current app/Core boundaries; do not add new runtime consumers."
+    },
+    "@lurexa/backend": {
+      "path": "packages/backend",
+      "class": "Production",
+      "role": "Shared implementation package. Root barrel is browser-safe; privileged capabilities must be imported through explicit server-only subpaths."
+    },
+    "@lurexa/config": {
+      "path": "packages/config",
+      "class": "Contract",
+      "role": "Shared product/domain/configuration contracts that must remain runtime-neutral."
+    },
+    "@lurexa/database": {
+      "path": "packages/database",
+      "class": "Deprecated",
+      "role": "Legacy generic database abstraction/scaffold. Core persistence is implemented by governed backend repositories; do not add new runtime consumers."
+    },
+    "@lurexa/eslint-config": {
+      "path": "packages/eslint-config",
+      "class": "Test",
+      "role": "Repository quality/tooling configuration."
+    },
+    "@lurexa/sdk": {
+      "path": "packages/sdk",
+      "class": "Contract",
+      "role": "Typed cross-product/client contract helpers. It must not own authoritative persistence or privileged mutations."
+    },
+    "@lurexa/tokens": {
+      "path": "packages/tokens",
+      "class": "Contract",
+      "role": "Canonical design-token contract shared across product personalities."
+    },
+    "@lurexa/types": {
+      "path": "packages/types",
+      "class": "Contract",
+      "role": "Canonical shared TypeScript contracts and domain types."
+    },
+    "@lurexa/typescript-config": {
+      "path": "packages/typescript-config",
+      "class": "Test",
+      "role": "Repository TypeScript/tooling configuration."
+    },
+    "@lurexa/ui": {
+      "path": "packages/ui",
+      "class": "Production",
+      "role": "Shared browser-safe UI grammar and primitives."
+    },
+    "@lurexa/utils": {
+      "path": "packages/utils",
+      "class": "Production",
+      "role": "Small runtime-neutral shared utilities."
+    }
+  }
+}
