@@ -1,105 +1,46 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@lurexa/ui/Button";
-import { Card } from "@lurexa/ui/Card";
-import { Badge } from "@lurexa/ui/Badge";
-import { Input } from "@lurexa/ui/Input";
-import { MarketplaceService } from "@lurexa/backend";
-import { MarketplaceListing } from "@lurexa/types";
+import Link from "next/link";
 
 export default function MarketplacePage() {
-  const router = useRouter();
-  const [listings, setListings] = useState<MarketplaceListing[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [purchasingId, setPurchasingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadCatalog() {
-      try {
-        const data = await MarketplaceService.getMarketplaceListings();
-        setListings(data);
-      } catch (err) {
-        console.error("Failed to load catalog", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadCatalog();
-  }, []);
-
-  const handlePurchase = async (listing: MarketplaceListing) => {
-    setPurchasingId(listing.id);
-    try {
-      const receipt = await MarketplaceService.purchaseCourse("org_buyer_demo", listing);
-      alert(`Success! Course unlocked. Receipt ID: ${receipt.purchaseId}. Author earned $${receipt.authorEarnings}`);
-    } catch {
-      alert("Purchase failed.");
-    } finally {
-      setPurchasingId(null);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
-          <div>
-            <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Discover learning worth sharing.</h1>
-            <p className="mt-2 text-[#4d5e8c]">Thoughtful courses created by educators and ready for institutional use.</p>
-          </div>
-          <Button variant="primary" onClick={() => router.push("/teacher/marketplace/publish")}>
-            + Publish Your Course
-          </Button>
+    <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-10 sm:px-8">
+      <section className="mx-auto max-w-4xl rounded-[32px] border border-[#dfe7fb] bg-white p-8 shadow-[0_18px_50px_rgba(32,52,128,.08)] sm:p-12">
+        <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
+          Product concept · transactions disabled
+        </span>
+        <h1 className="mt-5 text-4xl font-black tracking-[-.055em] text-[#071d67] sm:text-5xl">
+          Lurexa Marketplace is not yet a production commerce surface.
+        </h1>
+        <p className="mt-5 max-w-3xl text-base leading-8 text-[#536792]">
+          The marketplace concept is retained for product design and future institutional licensing work, but Lurexa does not currently process course purchases, create licenses, issue receipts, report author earnings, or expose a production catalog from this surface.
+        </p>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <article className="rounded-2xl border border-[#e3e9f8] bg-[#f8faff] p-5">
+            <h2 className="font-black text-[#071d67]">Required before activation</h2>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#6074a5]">
+              <li>• Server-owned payment intent and verified settlement.</li>
+              <li>• Core-owned license and entitlement records.</li>
+              <li>• Publisher identity, provenance, tax and payout governance.</li>
+              <li>• Refund, dispute, audit and institutional purchasing policy.</li>
+            </ul>
+          </article>
+          <article className="rounded-2xl border border-[#e3e9f8] bg-[#f8faff] p-5">
+            <h2 className="font-black text-[#071d67]">Current status</h2>
+            <p className="mt-3 text-sm leading-6 text-[#6074a5]">
+              Prototype/reference only. No button on this page can charge money, publish a listing, create a purchase record, or grant access.
+            </p>
+          </article>
         </div>
 
-        {/* Filter / Search Bar */}
-        <div className="flex gap-4 bg-white p-4 rounded-[22px] border border-[#dfe7fb] shadow-[0_12px_30px_rgba(32,52,128,.07)]">
-          <Input
-            placeholder="Search courses by subject, level, or keyword..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1"
-          />
-          <Button variant="secondary">Filter Options</Button>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/dashboard" className="rounded-xl bg-[#071d67] px-5 py-3 text-sm font-black text-white">
+            Return to Learn
+          </Link>
+          <Link href="/teacher/dashboard" className="rounded-xl border border-[#cfd9f0] px-5 py-3 text-sm font-black text-[#071d67]">
+            Teacher Workspace
+          </Link>
         </div>
-
-        {/* Listings Grid */}
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {loading ? (
-            <p className="text-[#4d5e8c]">Loading catalog...</p>
-          ) : (
-            listings.map((item) => (
-              <Card
-                key={item.id}
-                title={item.id === "list_1" ? "High School Algebra II & Logic" : "English B2 Conversational Mastery"}
-                subtitle={`Created by Educator #${item.authorId.slice(-6)}`}
-                action={<Badge variant="info">★ {item.rating}</Badge>}
-                className="flex flex-col justify-between"
-              >
-                <div className="space-y-4 pt-3">
-                  <div className="flex items-center justify-between border-t border-[#edf1fb] pt-3">
-                    <span className="text-xs text-slate-500">{item.salesCount} School Licenses Sold</span>
-                    <span className="text-2xl font-extrabold text-[#071d67]">${item.price}</span>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    className="w-full"
-                    onClick={() => handlePurchase(item)}
-                    isLoading={purchasingId === item.id}
-                  >
-                    License Course (${item.price})
-                  </Button>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
