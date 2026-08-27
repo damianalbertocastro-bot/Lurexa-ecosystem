@@ -1,19 +1,19 @@
 # Lurexa Learn Web
 
-The learner-facing Lurexa Learn application. It is the first production surface for the shared Lurexa Core and Lurexa Mind architecture.
+Lurexa Learn is the structured learner-delivery product and the owner of the operational Teacher Workspace at `app/teacher`. It consumes shared Lurexa Core and Lurexa Mind capabilities without creating a separate learner truth.
 
-## Current MVP path
+## Current verified MVP path
 
 A self-paced learner can:
 
 1. create an account without an institution code;
 2. choose an English-learning goal and either explicitly begin as a true beginner or complete a short start check;
-3. receive a transparent, low-confidence A1 or early-A2 starter recommendation—not a CEFR certification;
-4. enter the recommended **English A1 Foundations** or **English A2 Everyday Conversations** course;
+3. receive a transparent starter recommendation rather than a CEFR certification claim;
+4. enter the recommended governed English course;
 5. complete data-driven lesson activities through the canonical `LessonRuntime`;
-6. use model listening, recorded speaking and curriculum-constrained AI roleplay when those capabilities are authored into the lesson;
+6. use model listening, recorded speaking and curriculum-constrained roleplay when those capabilities are authored into the lesson;
 7. have trusted learning evidence saved through server-side Core boundaries;
-8. receive prioritized next actions in this order: due retrieval → teacher recommendation → Lurexa Mind recommendation → normal curriculum continuation.
+8. receive prioritized next actions from retrieval, teacher guidance, Mind recommendations and curriculum continuation.
 
 Teacher/class-code enrollment remains available for institution-led learning.
 
@@ -22,56 +22,63 @@ Teacher/class-code enrollment remains available for institution-led learning.
 From the repository root:
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm --filter learn-web dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3001`.
+
+The canonical port contract lives in `packages/config/src/domains.ts`.
+
+## Learn and Coach boundary
+
+Lurexa Coach is now a standalone first-class product in `apps/coach-web` (`http://localhost:3005` locally; canonical production domain `coach.lurexa.org`). Learn may recommend or launch Coach through a governed Product Bridge. Learn compatibility routes such as `/coach` must redirect to the standalone product and must not regain canonical Coach UI/runtime ownership.
+
+Learn's embedded AI learning/tutor capabilities are curriculum-support capabilities and are distinct from Coach's speaking/pronunciation/fluency product ownership. Prototype tutor UI must not present canned responses as live Mind-backed tutoring.
 
 ## Required local and deployed environment
 
-Copy the relevant non-secret development values from `packages/.env.example` into `.env.local`, and keep secrets only in local secret files or the deployment platform's encrypted environment-variable store.
+Copy supported non-secret development values from `packages/.env.example` into the relevant ignored local environment file. Keep secrets only in local secret stores or the deployment platform's encrypted environment-variable store.
 
-The application needs:
+The application may require:
 
-- `NEXT_PUBLIC_FIREBASE_*` values for Firebase browser authentication;
+- `NEXT_PUBLIC_FIREBASE_*` for Firebase browser authentication;
 - `FIREBASE_SERVICE_ACCOUNT_JSON` for trusted server-side Core operations;
-- `FIREBASE_PROJECT_ID` when using the Firebase Emulator without a service account;
-- `GEMINI_API_KEY` for server-owned Learn roleplay responses;
-- Google Cloud Text-to-Speech enabled in the Firebase project's Google Cloud project for curriculum and pronunciation-model audio;
+- `FIREBASE_PROJECT_ID` when using Firebase emulators without a service account;
+- `GEMINI_API_KEY` for approved server-owned Learn roleplay/tutor capabilities;
+- Google Cloud Text-to-Speech for governed curriculum/model audio;
 - `FIREBASE_STORAGE_BUCKET` for trusted spoken-evidence storage;
-- optional `LUREXA_LEARN_TUTOR_MODEL` to override the approved Gemini tutor model;
-- optional `LUREXA_LEARN_TTS_VOICE` to select the approved Google Cloud Text-to-Speech voice.
+- optional approved model/voice overrides documented by the server capability.
 
-`GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and any other secret must remain server-only. Never expose them through `NEXT_PUBLIC_` variables or commit them to the repository.
-
-For Google Cloud Text-to-Speech, enable the **Cloud Text-to-Speech API** in the same Google Cloud project used by Firebase. Grant the existing Firebase service account stored in `FIREBASE_SERVICE_ACCOUNT_JSON` the least-privilege **Cloud Text-to-Speech User** role (`roles/texttospeech.user`). Do not create or commit a second service-account file for audio.
-
-For Vercel, configure `GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_STORAGE_BUCKET` on the **lurexa-learn-web** project. Add them to **Preview** first, create a new Preview deployment, and complete the Learn runtime acceptance checks before adding the same values to Production. `LUREXA_LEARN_TUTOR_MODEL` and `LUREXA_LEARN_TTS_VOICE` are optional server-only configuration. Changes to any of these values require a new deployment before existing server functions see them.
+Server credentials must never use `NEXT_PUBLIC_` names or be committed to the repository.
 
 ### Runtime capability behavior
 
-- If `GEMINI_API_KEY` is absent, AI roleplay enters an explicitly labeled deterministic fallback rather than pretending to be production AI.
-- If Cloud Text-to-Speech is not enabled, its service-account role is missing, or the server credential is unavailable, curriculum and pronunciation-model audio return a configuration error rather than recording listening completion.
-- If `FIREBASE_STORAGE_BUCKET` is absent, spoken-evidence upload fails safely rather than storing an untrusted or incomplete record.
-- Recorded speaking is stored as evidence but is **not yet pronunciation-scored**.
+- If required AI provider configuration is absent, the capability must fail safely or use an explicitly labeled deterministic fallback; it must not impersonate production AI.
+- If Text-to-Speech configuration/authorization is unavailable, audio generation must return a configuration error rather than recording false completion.
+- If trusted storage configuration is unavailable, spoken-evidence upload must fail safely.
+- Recorded speaking evidence is not automatically a pronunciation/mastery score.
 
-## Routes
+## Important routes/surfaces
 
-- `/signup` — independent or class-code account creation
-- `/onboarding` — self-paced goal selection, optional start check and starter-course provisioning
-- `/dashboard` — prioritized learner learning paths and next actions
-- `/learn/english-a1-foundations/a1-introduce-yourself` — first structured A1 lesson
-- `/learn/english-a2-everyday-conversations/a2-make-a-plan` — early A2 conversation starter
-- `/learn/a1-preview` — focused A1 experience preview
+- `/signup` — account creation
+- `/onboarding` — learner goal/start-path onboarding
+- `/dashboard` — learner learning path and recommendations
+- `/teacher/*` — Learn Teacher Workspace for class/course/student operations
+- `/coach` — compatibility handoff to standalone Coach
+- `/marketplace` — contained future-concept status surface; no production commerce
+- `/campus` — representative Campus shell prototype; not a live institution
+- `/teacher/studio` — contained local Studio interaction prototype; not standalone Studio
 
 ## Architecture rules
 
-- `LessonRuntime` is the single reusable learner lesson renderer.
+- `LessonRuntime` is the reusable learner lesson renderer.
 - Product UI does not write trusted learner records directly.
-- Server route handlers authenticate requests and use Firebase Admin for Core-owned persistence.
-- Raw learning evidence, learner profiles and derived observations are server-only.
-- Lurexa Mind consumes authorized evidence through purpose-scoped Core context rather than bypassing Core.
-- Retrieval and teacher-return guidance use the same `LearnerRecommendationAction` contract as Mind recommendations.
-- Completion, activity attempts, quiz attempts, roleplay turns and spoken recordings are evidence—not standalone mastery claims.
-- Due retrieval requires fresh activity or assessment evidence before it can be closed.
+- Server route handlers authenticate requests and use trusted Core/server capabilities for authoritative persistence.
+- Raw learning evidence, learner profiles and derived observations remain server-governed.
+- Mind consumes authorized evidence/context rather than bypassing Core.
+- Retrieval and teacher-return guidance use governed recommendation contracts.
+- Completion, attempts, roleplay turns and recordings are evidence—not automatic mastery claims.
+- Teacher Workspace belongs to Learn; Teach is educator professional development.
+- Learn Teacher Insights are operational instructional insights, not the standalone Lurexa Insight product.
+- Prototypes must comply with `Docs/Architecture/LUREXA_PROTOTYPE_CONTAINMENT.md`.
