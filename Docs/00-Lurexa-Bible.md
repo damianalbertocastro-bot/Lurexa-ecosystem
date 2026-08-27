@@ -1,17 +1,17 @@
 ---
 title: Lurexa Bible
 subtitle: Authoritative Guide to the Lurexa Ecosystem
-version: 1.7.0
+version: 1.8.0
 status: Approved
 owner: Lurexa Learning Technologies
 author: Damian + AI collaborators
 created: 2026-07-23
-last_updated: 2026-08-25
+last_updated: 2026-08-27
 ---
 
 # Lurexa Bible
 
-This document is the primary strategic source of truth for Lurexa. Detailed architecture documents may provide deeper implementation guidance, but they must not contradict the responsibility model defined here.
+This document is the primary strategic source of truth for Lurexa. Detailed architecture documents may provide deeper implementation guidance, but they must not contradict the responsibility model defined here. Implementation, deployment and production maturity are tracked separately; the existence of a product in this Bible is not by itself a claim that its standalone application is deployed or production-ready.
 
 ## 1. Company identity
 
@@ -67,11 +67,11 @@ Lurexa Learning Technologies
 This classification is normative.
 
 - **Core and Mind are shared ecosystem layers**, not ordinary end-user products.
-- **Learn, Coach, Teach, Admin, Insight and Studio are the product family.**
+- **Learn, Coach, Teach, Admin, Insight and Studio are the six sibling products.**
 - **Campus is an institutional experience/shell**, not a sibling product owner and not an authorization or persistence layer.
 - **Signature Experience primitives are shared cross-product interaction capabilities**, not products or independent data owners.
 
-Technical implementations may continue to use `InstitutionWorkspaceContext` and similar internal terminology where precise.
+A product may be architecturally approved before its standalone implementation or deployment exists. `ROADMAP.md` is authoritative for current maturity state.
 
 ## 6. Lurexa Campus
 
@@ -98,6 +98,8 @@ Campus must not become:
 - a product owner merely because it appears in navigation or design tokens.
 
 **Lurexa Admin is the administrative control plane available within appropriate Campus contexts. Core remains authoritative for organization identity, membership, permissions, tenancy and trusted persistence.**
+
+The current repository Campus UI is a representative prototype only. It must not be interpreted as proof of a live institutional tenant, SSO integration, entitlement state or institutional analytics deployment.
 
 ## 7. Lurexa Core
 
@@ -167,8 +169,9 @@ Teach may prepare that learner toward qualification through English development,
 
 English proficiency or mastery of a CEFR level is necessary evidence for some teaching scopes but is not, by itself, proof of teaching qualification.
 
-Learn Teacher Workspace access requires both:
+Learn Teacher Workspace access requires:
 
+- Learn Teacher entitlement;
 - an eligible educator qualification scope; and
 - explicit platform/institution/program/course teaching authorization.
 
@@ -198,8 +201,6 @@ Signature layer = shared interaction/read-model expression
 Products = workflows and learner/educator experiences
 ```
 
-See `Docs/Architecture/LUREXA_SIGNATURE_EXPERIENCE_ARCHITECTURE.md`, `Docs/Design/LUREXA_SIGNATURE_INTERACTION_SYSTEM.md` and `Docs/Product/LUREXA_SIGNATURE_EXPERIENCE_ROADMAP.md`.
-
 ## 12. Cross-product learning loop
 
 Lurexa should behave as one learning relationship.
@@ -213,7 +214,7 @@ Mind interpretation
   ↓ approved/minimized context
 Learner Pulse / Path / Mind Trace
   ↓ purpose-scoped Product Bridge
-Coach adaptation
+Standalone Coach adaptation
   ↓ speaking/pronunciation evidence
 Core trusted record
   ↓
@@ -222,9 +223,9 @@ Mind interpretation
 Memory Thread + updated Pulse/Path
 ```
 
-A learner moving from Learn to Coach should not need to restate reliable authorized information already known by Lurexa. Campus may preserve institution context during transitions but does not own the learner model or evidence loop.
+A learner moving from Learn to standalone Coach should not need to restate reliable authorized information already known by Lurexa. Learn may launch Coach but does not own its canonical UI/runtime. Campus may preserve institution context during transitions but does not own the learner model or evidence loop.
 
-The same continuity rule applies to educators: Learn teaching-practice evidence may contribute, through governed professional-evidence boundaries, to Teach professional growth; Teach may bridge educators into Coach for language development without creating a separate identity.
+The same continuity rule applies to educators: Learn teaching-practice evidence may contribute, through governed professional-evidence boundaries, to Teach professional growth; Teach may bridge educators into standalone Coach for language development without creating a separate identity.
 
 ## 13. Product family
 
@@ -238,11 +239,11 @@ A teacher acting inside Learn is an **educator operating student learning**, not
 
 The teacher workspace inside Learn is not Lurexa Teach.
 
-Long-term access to the Learn Teacher Workspace must be qualification- and authorization-aware rather than relying only on a global teacher membership role.
-
 ### Lurexa Coach
 
-Lurexa Coach is the AI-powered English speaking and pronunciation product. Its first deep linguistic specialization is **Dominican Spanish speakers learning English**.
+Lurexa Coach is the standalone AI-powered English speaking, pronunciation and fluency product. Its canonical web application lives independently from Learn, while Learn and Teach integrate with it through governed cross-product handoffs.
+
+Its first deep linguistic specialization is **Dominican Spanish speakers learning English**.
 
 Coach prioritizes intelligibility, naturalness, fluency, pronunciation refinement, spoken confidence, recurring-pattern identification, targeted corrective practice and Dominican-Spanish-to-English transfer. The objective is **not accent erasure**.
 
@@ -256,142 +257,33 @@ Lurexa Teach is the independent educator professional-development product. **In 
 
 Teach owns professional learning, educator English/CEFR development, educator competency pathways, teaching-practice growth, training/certification, educator community/professional circles, professional evidence/reflection, credentials, professional goals and Mind-supported growth recommendations.
 
-Teach is a complete educator-learning experience. Its curriculum should integrate English knowledge/proficiency, language-teaching methodologies, lesson planning, activity and learning-experience creation, assessment literacy, instructional practice/reflection, digital/AI teaching competence, professional portfolio and credentials.
-
-Existing Learn educators do not create another account for Teach. Teach uses the same Core identity and should be available automatically or through a lightweight activation/opt-in entitlement.
-
-Teach does **not** own classroom rosters, student invitations, student progress dashboards, grading, submissions, student-level instructional interventions, or direct browsing of student Learner Pulse/Memory Thread. Those operational responsibilities belong to the Lurexa Learn Teacher Workspace.
-
-A Teach learner may build toward an educator qualification scope, but Teach completion or English mastery alone must not directly unlock Learn Teacher Workspace. Core must record sufficient qualification and a separate teaching authorization.
-
-Authorized teaching-practice evidence may later flow from Learn through Core/Mind into Teach as minimized professional-development evidence. Student weaknesses must never be copied into the teacher's own professional learner model.
-
-> **Learn is where teachers operate student learning. Teach is where teachers develop themselves professionally.**
-
-Repository mapping is authoritative:
-
-- `apps/learn-web/app/teacher` = **Lurexa Learn Teacher Workspace** (student/class/course operations).
-- `apps/teach-web` = **Lurexa Teach** (teacher professional learning and growth).
+Teach does not own Learn student rosters, course operations, grading or delegated student context.
 
 ### Lurexa Admin
 
-Administrative control plane for platform and organization-scoped operations including organizations, users, roles, access, programs, billing/subscriptions, governance, audit and policy configuration. Core enforces trust and permissions.
-
-Admin has Platform Admin and Institution Admin scopes. It must not become a monolithic LMS or overall Campus shell.
+Lurexa Admin is the institutional governance and administration product. Core remains authoritative for trusted authorization/persistence. Qualification review and teaching authorization are separate governed workflows. Billing concepts do not imply production payment settlement.
 
 ### Lurexa Insight
 
-Analytics, intelligence and reporting product. It surfaces learner, cohort, engagement, outcome and learning-intelligence views using governed records and interpretable intelligence.
+Lurexa Insight is the analytics/intelligence product. It remains distinct from Learn Teacher instructional insights. Standalone implementation/deployment maturity is tracked in `ROADMAP.md`.
 
 ### Lurexa Studio
 
-Content and learning-experience creation product for courses, lessons, assessments, media, reusable learning objects, authoring, publishing/versioning and AI-assisted creation through Mind.
+Lurexa Studio is the governed authoring/content-creation product. Core owns authoritative content/Knowledge Object state and Mind may assist authoring. The current Learn-hosted Studio UI is only a contained interaction prototype; standalone implementation maturity is tracked in `ROADMAP.md`.
 
-## 14. Product philosophy
+## 14. Product maturity truth
 
-Every product or major feature must improve at least one of these outcomes: learning, teaching, operating an educational program, creating learning experiences, or understanding learning evidence/outcomes.
+Architectural approval and implementation maturity are different dimensions. Current maturity uses:
 
-Shared capabilities should not be promoted into products merely because they have visible UI. Products should not duplicate shared platform or intelligence responsibilities merely to ship faster.
+`CONCEPT → ARCHITECTURE → PROTOTYPE → CONTRACT_IMPLEMENTED → MVP_IMPLEMENTED → VERIFIED → DEPLOYED → PRODUCTION_READY`
 
-## 15. Learning philosophy
+No document should use a feature checkbox, route name, successful build or deployment manifest entry as automatic proof of production readiness.
 
-Lurexa may combine evidence-informed approaches including CEFR, Communicative Language Teaching, Task-Based Learning, retrieval practice, spaced repetition, formative assessment, mastery-oriented progression and adaptive practice where evidence supports it.
-
-AI should reinforce sound pedagogy rather than replace it.
-
-## 16. AI philosophy
-
-AI should explain, guide, personalize, adapt, recommend, coach and help educators interpret learning evidence.
-
-AI must not silently become the source of truth, fabricate authoritative learner state, expose unnecessary personal data or make high-impact decisions without governance. Model providers are implementation dependencies behind Lurexa Mind, not product architecture.
-
-## 17. Engineering principles
-
-- TypeScript-first where appropriate.
-- Capability-oriented architecture.
-- Shared contracts before duplicated logic.
-- Products depend on supported capabilities; Core does not depend on product applications.
-- Mind does not bypass Core trust boundaries.
-- Product UIs do not write arbitrary inferred learner state directly.
-- Product UIs do not call AI providers directly for production learner intelligence.
-- Evidence and inference remain distinguishable.
-- Authorization and data minimization precede AI access.
-- Unknown/insufficient evidence is an acceptable state; UI must not manufacture precision.
-- Canonical curriculum and adaptive overlays remain distinguishable.
-- Product entitlement, educator qualification and teaching authorization remain distinct contracts.
-- Documentation precedes major architecture changes.
-- Customer-facing naming changes do not automatically require internal package churn.
-
-## 18. Current technology direction
-
-Current repository direction includes Turborepo + pnpm, Next.js + React + TypeScript, Tailwind/shared UI/design tokens, Firebase/Auth/Firestore/Storage-oriented platform infrastructure, GitHub Actions, Vercel/Firebase deployment responsibilities as appropriate, governed AI/speech providers, and PWA/offline-first capabilities where valuable.
-
-Technology choices may evolve. Responsibility boundaries should remain stable unless explicitly changed.
-
-## 19. Repository architecture
-
-Current high-level structure includes applications, shared packages, `Docs/`, `.ai/` and `bootstrap/`.
-
-Existing packages such as `@lurexa/auth`, `@lurexa/backend`, `@lurexa/database`, `@lurexa/sdk`, `@lurexa/types`, `@lurexa/ui`, `@lurexa/tokens`, `@lurexa/config` and `@lurexa/utils` should be mapped to Core/Mind/product responsibilities before renaming or splitting them.
-
-Architecture branding alone is not a reason to restructure code.
-
-## 20. Business direction
-
-Commercial opportunities may include individual learner subscriptions, premium Coach experiences, teacher subscriptions, Campus institutional packaging for schools/universities/corporate learning, institutional analytics, government/large-institution deployments and future marketplace/API offerings.
-
-Educator packaging may include automatic Teach access and full Coach access as an educator benefit, while teaching authorization remains institution/platform governed rather than commercially implied.
-
-Campus packaging should support flexible product entitlements rather than force one fixed institutional bundle.
-
-## 21. Accessibility, trust and resilience
-
-Lurexa targets accessible experiences, strong privacy and authorization, responsible AI, low-bandwidth resilience and meaningful offline capability where practical. WCAG 2.2 AA is the intended accessibility baseline for user-facing products where applicable.
-
-Campus co-branding must not weaken accessibility, security indicators, semantic states or recognizable Lurexa product identity.
-
-## 22. Source-of-truth hierarchy
-
-For architecture decisions, use this order unless a newer explicit decision replaces it:
-
-1. explicit current decision from the product owner;
-2. this Lurexa Bible;
-3. `Docs/Architecture/*` and accepted engineering architecture documents;
-4. `ROADMAP.md` implementation sequencing;
-5. `AGENTS.md` and `.ai/*` AI-development instructions;
-6. older historical documents.
-
-When an older document conflicts with this model, mark the older assumption as superseded rather than mixing architectures.
-
-## 23. Superseded assumptions
-
-The following are obsolete unless explicitly reintroduced:
-
-- thesis prototype as the commercial production architecture;
-- Lurexa as only an LMS with extra portals;
-- one independent learner profile per product;
-- separate product accounts for the same Lurexa identity;
-- product entitlement as equivalent to teaching authorization;
-- English level mastery alone as automatic authorization to teach that level;
-- a global `teacher = true` flag as the complete educator qualification model;
-- Mind as authoritative persistence/authorization owner;
-- Coach as merely a generic chatbot;
-- accent erasure as a Coach objective;
-- Dominican Spanish as Coach's permanent technical limit;
-- Lurexa Teach as the class/learner-management teacher dashboard;
-- student rosters, grading, submissions or student-level instructional support inside Lurexa Teach;
-- Institution Workspace as the preferred customer-facing institution name;
-- **Lurexa Campus as a sibling product in the product family**;
-- Campus as owner of specialist products;
-- Signature Experience primitives as products or independent learner-state stores;
-- direct product-to-model-provider coupling for production learner intelligence.
-
-## 24. End-state principle
+## 15. End-state principle
 
 > **Lurexa Learning Technologies builds the ecosystem.**  
-> **Lurexa Core owns trust, identity, entitlements, qualification and authorization.**  
-> **Lurexa Mind interprets learning and professional-growth evidence.**  
+> **Lurexa Core owns trust.**  
+> **Lurexa Mind interprets learning.**  
 > **Products deliver experiences and generate evidence.**  
-> **Lurexa Campus connects the institutional experience.**  
-> **The Signature Experience System makes continuity visible.**  
+> **Campus connects the institutional experience.**  
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
