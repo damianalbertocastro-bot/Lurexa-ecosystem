@@ -9,6 +9,9 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const exists = (file) => fs.existsSync(path.join(root, file));
 const pass = (message) => checks.push(message);
 const fail = (message) => failures.push(message);
+const declaresEnv = (content, name) => content
+  .split(/\r?\n/)
+  .some((line) => new RegExp(`^\\s*${name.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}\\s*=`).test(line));
 
 const forbiddenPublicAliases = [
   "NEXT_PUBLIC_ROOT_URL",
@@ -62,7 +65,7 @@ if (!domains.includes("lurexaPublicUrlEnv") || !productUrls.includes("lurexaPubl
 for (const alias of [...forbiddenPublicAliases, ...forbiddenCredentialAliases]) {
   if (turbo.includes(alias)) fail(`turbo.json still allows legacy/duplicate environment alias ${alias}`);
   if (domains.includes(alias)) fail(`domains.ts still accepts legacy URL alias ${alias}`);
-  if (example.includes(alias)) fail(`packages/.env.example still documents legacy/duplicate alias ${alias}`);
+  if (declaresEnv(example, alias)) fail(`packages/.env.example still declares legacy/duplicate alias ${alias}`);
 }
 if (!failures.some((item) => item.includes("alias"))) pass("legacy URL and credential aliases are excluded from canonical config");
 
@@ -75,7 +78,7 @@ for (const legacy of ["API_URL", "APP_URL"]) {
 if (!failures.some((item) => item.includes("dead generic"))) pass("dead generic API_URL/APP_URL config is removed");
 
 for (const commerceVar of ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"]) {
-  if (example.includes(commerceVar)) fail(`prototype-contained commerce variable ${commerceVar} is still advertised in shared env example`);
+  if (declaresEnv(example, commerceVar)) fail(`prototype-contained commerce variable ${commerceVar} is still advertised in shared env example`);
 }
 if (!failures.some((item) => item.includes("commerce variable"))) pass("shared env example does not advertise inactive commerce credentials");
 
