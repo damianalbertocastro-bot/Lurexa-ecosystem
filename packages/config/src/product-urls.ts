@@ -1,5 +1,4 @@
 import {
-  inactivePublicProductUrlEnv,
   lurexaPublicUrlEnv,
   type LurexaEnvironment,
   type LurexaPublicUrlMap,
@@ -42,5 +41,3 @@ export function resolveLurexaPublicUrls(env: LurexaEnvironment = process.env): L
     docs: cleanUrl(env[lurexaPublicUrlEnv.docs]) ?? "https://docs.lurexa.org",
   };
 }
-
-void inactivePublicProductUrlEnv;
