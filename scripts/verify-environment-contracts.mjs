@@ -20,6 +20,7 @@ const declaresEnv = (content, name) => content
 const forbiddenPublicAliases = [
   "NEXT_PUBLIC_ROOT_URL",
   "NEXT_PUBLIC_LEARN_URL",
+  "NEXT_PUBLIC_COACH_URL",
   "NEXT_PUBLIC_TEACH_URL",
   "NEXT_PUBLIC_ADMIN_URL",
   "NEXT_PUBLIC_DOCS_URL",
@@ -37,6 +38,42 @@ const forbiddenCredentialAliases = [
   "GOOGLE API KEY",
   "Google_API_Key",
 ];
+
+const forbiddenAliases = [...forbiddenPublicAliases, ...forbiddenCredentialAliases];
+const runtimeExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
+const ignoredRuntimeDirectories = new Set([
+  "node_modules",
+  ".next",
+  "dist",
+  "build",
+  "coverage",
+  ".turbo",
+  "scripts",
+  "fixtures",
+  "__fixtures__",
+]);
+
+function collectRuntimeSourceFiles(relativeDirectory) {
+  const absoluteDirectory = path.join(root, relativeDirectory);
+  if (!fs.existsSync(absoluteDirectory)) return [];
+
+  const files = [];
+  const visit = (absolutePath) => {
+    for (const entry of fs.readdirSync(absolutePath, { withFileTypes: true })) {
+      if (entry.isDirectory() && ignoredRuntimeDirectories.has(entry.name)) continue;
+      const child = path.join(absolutePath, entry.name);
+      if (entry.isDirectory()) {
+        visit(child);
+        continue;
+      }
+      if (!entry.isFile() || !runtimeExtensions.has(path.extname(entry.name))) continue;
+      files.push(path.relative(root, child).replaceAll(path.sep, "/"));
+    }
+  };
+
+  visit(absoluteDirectory);
+  return files;
+}
 
 const environmentContract = read("packages/config/src/environment.ts");
 const domains = read("packages/config/src/domains.ts");
@@ -66,12 +103,26 @@ if (!domains.includes("lurexaPublicUrlEnv") || !productUrls.includes("lurexaPubl
   pass("product URL helpers consume one canonical URL namespace");
 }
 
-for (const alias of [...forbiddenPublicAliases, ...forbiddenCredentialAliases]) {
+for (const alias of forbiddenAliases) {
   if (turbo.includes(alias)) fail(`turbo.json still allows legacy/duplicate environment alias ${alias}`);
   if (domains.includes(alias)) fail(`domains.ts still accepts legacy URL alias ${alias}`);
   if (declaresEnv(example, alias)) fail(`packages/.env.example still declares legacy/duplicate alias ${alias}`);
 }
 if (!failures.some((item) => item.includes("alias"))) pass("legacy URL and credential aliases are excluded from canonical config");
+
+const runtimeSourceFiles = [
+  ...collectRuntimeSourceFiles("apps"),
+  ...collectRuntimeSourceFiles("packages"),
+];
+for (const file of runtimeSourceFiles) {
+  const content = read(file);
+  for (const alias of forbiddenAliases) {
+    if (content.includes(alias)) fail(`runtime source ${file} still references forbidden environment alias ${alias}`);
+  }
+}
+if (!failures.some((item) => item.includes("runtime source"))) {
+  pass("runtime source cannot consume legacy URL or credential aliases");
+}
 
 if (exists("API.env")) fail("stale tracked API.env must remain removed");
 else pass("stale tracked API.env is absent");
