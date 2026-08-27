@@ -1,10 +1,20 @@
 # Lurexa Roadmap
 
-Status reflects the working commercial roadmap through 2026-08-25. It is not a release promise.
+Updated: 2026-08-27
 
-## Strategic source of truth
+Lurexa is the commercial multi-product EdTech ecosystem built by **Lurexa Learning Technologies**. The earlier thesis prototype is a validation/reference artifact and does not define production architecture.
 
-Lurexa is the commercial multi-product EdTech ecosystem built by **Lurexa Learning Technologies**. The earlier thesis prototype is a validation/reference artifact and does not define the production architecture.
+This roadmap distinguishes **implementation tasks** from **product maturity**. A checked task means that scoped repository work exists; it does **not** mean the containing product is deployed or production-ready.
+
+## Maturity model
+
+All phase-level status claims use the operational maturity vocabulary defined in `Docs/Engineering/REPOSITORY_MATURITY_STATUS.md`:
+
+**Concept → Architecture → Prototype → Contract implemented → MVP implemented → Verified → Deployed → Production ready**
+
+Promotion requires evidence for the new state. A page, mock, checked task, or manifest entry is never sufficient by itself.
+
+---
 
 ## Ecosystem architecture
 
@@ -13,13 +23,9 @@ Lurexa Learning Technologies
 │
 ├── Shared ecosystem layers
 │   ├── Lurexa Core
-│   │   └── trust, identity, authorization, persistence,
-│   │       authoritative records and shared platform services
 │   └── Lurexa Mind
-│       └── learning intelligence, interpretation,
-│           personalization, adaptation and AI capabilities
 │
-├── Product family
+├── Six sibling products
 │   ├── Lurexa Learn
 │   ├── Lurexa Coach
 │   ├── Lurexa Teach
@@ -27,7 +33,7 @@ Lurexa Learning Technologies
 │   ├── Lurexa Insight
 │   └── Lurexa Studio
 │
-├── Institutional experience
+├── Institutional shell
 │   └── Lurexa Campus
 │
 └── Shared signature experience layer
@@ -39,380 +45,275 @@ Lurexa Learning Technologies
     └── Knowledge Object
 ```
 
-Core and Mind are shared ecosystem layers, not products. Campus is an institutional experience/shell, not a sibling product owner. Signature primitives are cross-product capabilities and read/interaction patterns, not products or independent learner stores.
-
-## Governing learner principle
+Core owns trusted records, identity, authorization, persistence, provenance and shared platform services. Mind interprets explicitly authorized evidence but does not grant permissions or own canonical persistence. Campus is structurally different from the six sibling products.
 
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
 
-Products generate experiences and evidence. Core owns trust, identity, authorization, persistence and authoritative records. Mind interprets authorized evidence. The Learner Model must not be duplicated per product.
+---
 
-## Current verified baseline
+# Immediate reconciliation program
 
-- [x] pnpm/Turborepo multi-app workspace.
-- [x] Firebase/Firestore-oriented infrastructure.
-- [x] Shared packages for auth, backend, config, database, SDK, tokens, types, TypeScript config, UI and utilities.
-- [x] GitHub Actions/CI infrastructure.
-- [x] `bootstrap/` repository tooling.
-- [x] Core/Mind/product architecture documented.
-- [x] One persistent cross-product Learner Model established architecturally.
-- [x] v1 Learning Evidence, Learner Context, Mind Interpretation and Derived Observation boundaries implemented at baseline level.
-- [x] Product personality system established.
-- [x] Signature Experience architecture, interaction specification and dedicated S0–S8 roadmap established.
+This program takes precedence over new product expansion until the repository, deployment topology and maturity claims agree.
 
-These statements describe repository foundations, not production completion.
+## R1 — Security & Governance
+
+**Maturity: Verified**
+
+Completed scope:
+
+- [x] Remove tracked temporary-value artifacts and reject their return through CI.
+- [x] Add CODEOWNERS repository ownership.
+- [x] Pin pnpm to 10.3.0 and keep CI aligned.
+- [x] Add repository-hygiene verification to `Verify Foundation & Build`.
+- [x] Establish active `main` ruleset requiring pull requests and `Verify Foundation & Build`.
+- [x] Require branches to be current before merge.
+- [x] Require review-thread resolution.
+- [x] Block `main` deletion and non-fast-forward/force updates.
+- [x] Keep bypass actor list empty.
+
+Operational note: if a removed historical temp artifact ever contained a live credential, credential rotation/history remediation remains an external security action; file deletion alone cannot revoke a secret.
+
+## R2 — Ecosystem Reconciliation
+
+**Maturity: Verified**
+
+- [x] Establish exactly six sibling products: Learn, Coach, Teach, Admin, Insight and Studio.
+- [x] Classify Campus as institutional shell/orchestration experience.
+- [x] Keep Core and Mind as shared layers rather than products.
+- [x] Keep Learn Teacher Workspace inside Learn.
+- [x] Keep Community as a future product concept.
+- [x] Align product-registry and CI invariants to this taxonomy.
+
+## R3 — Coach first-class product
+
+**Maturity: Verified MVP implementation**
+
+- [x] Create canonical standalone `apps/coach-web` workspace.
+- [x] Make Coach the owner of speaking/pronunciation/fluency UI.
+- [x] Keep Learn `/coach` routes as compatibility launch redirects only.
+- [x] Route Teach educator professional-language practice directly to Coach.
+- [x] Preserve learner → Learn and educator → Teach return loops.
+- [x] Preserve learner/professional evidence separation.
+- [x] Add independent Coach lint/type/build validation and product-boundary verification.
+
+Deployment truth: the repository implementation is verified; independent external Vercel project/domain health is a later Deployment Reconciliation concern and must not be inferred from this phase.
+
+## R4 — Prototype Containment
+
+**Maturity: Verified containment**
+
+- [x] Make Marketplace non-transactional and explicitly future/conceptual.
+- [x] Remove fake purchase, receipt, sales and author-earnings claims from user-facing flows.
+- [x] Make billing a non-transactional planning preview.
+- [x] Remove canned Learn AI Tutor responses that presented themselves as live AI.
+- [x] Redirect legacy generic chat to canonical Coach instead of owning another conversation product.
+- [x] Make Campus a representative shell prototype without live institution/SSO/accreditation/entitlement/analytics claims.
+- [x] Make Learn-hosted Studio explicitly local/non-persistent and represent A1–C2 honestly.
+- [x] Add executable prototype-containment CI verification.
+
+## R5 — Roadmap & Documentation Truth
+
+**Maturity: In progress**
+
+- [x] Define repository maturity vocabulary.
+- [x] Add operational maturity matrix.
+- [x] Reconcile root README with six products + Campus shell.
+- [x] Document Coach as standalone rather than Learn-embedded.
+- [x] Align Node/pnpm requirements with actual repository policy.
+- [x] Remove ghost Storybook/runtime claims from the root workspace overview.
+- [x] Correct Learn local port documentation.
+- [x] Replace phase-level completion inflation with explicit maturity status.
+- [ ] Keep volatile deployment facts machine-derived where practical during Deployment Reconciliation.
+
+## R6 — Platform / Package Reconciliation
+
+**Maturity: Pending**
+
+Goals:
+
+- classify every shared package as Production, Contract, Test or Deprecated;
+- eliminate ambiguous/stale Phase-0 abstractions only after import-graph verification;
+- separate browser-safe client services from privileged server-only capabilities more clearly;
+- prevent authoritative commerce/billing/platform mutations from leaking into client-safe barrels;
+- reconcile `@lurexa/auth`, `@lurexa/database`, `@lurexa/sdk` and `@lurexa/backend` responsibilities;
+- normalize framework/dependency policy where runtime constraints allow;
+- introduce canonical typed environment contracts and reduce duplicate environment names;
+- remove temporary lint compatibility exceptions when underlying dead bindings are removed.
+
+Exit evidence: package ownership and import boundaries are explicit, dead abstractions are removed/deprecated safely, and all repository gates remain green.
+
+## R7 — Deployment Reconciliation
+
+**Maturity: Pending**
+
+Goals:
+
+- reconcile `deployment/products.json` with live Vercel projects/domains/environments;
+- use lifecycle states that distinguish declared/provisioned/preview-ready/production-live/retired;
+- stop modeling Learn Teacher Workspace as a second independent deployment;
+- provision/verify standalone Coach project and canonical domain;
+- reconcile Admin project/domain aliases and remove wrong Learn-family aliases;
+- verify Teach preview/production behavior;
+- decide and document the authoritative Git-triggered vs explicit-release model;
+- add automated repository ↔ deployment-topology drift detection where tool/API support permits.
+
+Exit evidence: repository manifest and external hosting agree, with runtime acceptance evidence for every surface called deployed.
+
+## R8 — Product Expansion Foundations
+
+**Maturity: Pending**
+
+Do not claim standalone product completion simply because a prototype route exists.
+
+### Insight
+
+Target maturity: **Contract implemented / standalone foundation**
+
+- define institutional/cohort analytics product boundary separate from Learn Teacher Insights;
+- define purpose-scoped aggregation contracts and privacy thresholds;
+- introduce `apps/insight-web` only when the standalone product contract is ready;
+- keep learner-level instructional actions owned by Learn.
+
+### Studio
+
+Target maturity: **Contract implemented / standalone foundation**
+
+- define authoritative Knowledge Object authoring/versioning/publishing workflow;
+- define provenance, review, approval and publication states;
+- introduce `apps/studio-web` only when it can use governed Core records rather than local UI state;
+- keep Learn Teacher Workspace prototype clearly non-authoritative until then.
+
+### Campus
+
+Target maturity: **Contract implemented / standalone shell foundation**
+
+- define authenticated Core-owned organization resolution;
+- define institutional role/entitlement projection and Product Bridge context;
+- introduce `apps/campus-web` when the shell can use trusted tenant state;
+- preserve Campus as orchestration shell, not seventh product owner.
+
+Marketplace remains deferred until server-owned payment, entitlement, publisher/payout, refund/dispute and audit architecture exists.
 
 ---
 
-# Horizontal Program S — Lurexa Signature Experience System
+# Horizontal Program S — Signature Experience
 
-This program cuts across the product roadmap. Detailed execution lives in `Docs/Product/LUREXA_SIGNATURE_EXPERIENCE_ROADMAP.md`.
+**Current maturity: Verified baseline across implemented scopes**
 
-## S0 — Architecture reconciliation
+Detailed work lives in `Docs/Product/LUREXA_SIGNATURE_EXPERIENCE_ROADMAP.md`.
 
-- [x] Classify Learn/Coach/Teach/Admin/Insight/Studio as product family.
-- [x] Classify Campus as institutional experience/shell.
-- [x] Classify the six signature primitives as a shared experience layer.
-- [x] Reconcile the Lurexa Bible and Product Personality System.
-- [x] Reconcile the main AI-agent ecosystem context.
-- [x] Reconcile any remaining stale Campus wording found in secondary docs during audit.
+Implemented baseline includes:
 
-## S1 — Contract foundations
+- [x] v1 signature contracts and shared UI primitives.
+- [x] Learner Pulse projection.
+- [x] Memory Thread projection.
+- [x] Adaptive Learning Path.
+- [x] Mind Trace.
+- [x] expiring/single-use Product Bridge.
+- [x] Knowledge Object contracts/catalog foundations.
+- [x] Learn ↔ Coach continuity and educator Coach → Teach professional-growth loop.
+- [x] tenant/course-scoped Learn Teacher projections.
 
-- [x] Add v1 shared signature contracts to `@lurexa/types`.
-- [x] Reuse canonical `LurexaProduct` rather than maintaining a second product union.
-- [x] Add typed signature projection purposes.
-- [x] Add SDK service boundary.
-- [x] Establish Core projection services for Pulse, Path, Mind Trace and Memory Thread.
-- [x] Add canonical knowledge-object references to Learning Evidence source metadata.
-- [x] Add contract validators and compatibility tests for signature records.
+Still requiring empirical/product validation before broad production claims:
 
-## S2 — Prototype and usability validation
-
-- [x] Add deterministic developer gallery for all six patterns.
-- [x] Define loading/empty/partial/error behavior for the learner dashboard integration.
-- [ ] Complete visual/accessibility review across mobile, keyboard, reduced motion and high zoom.
-- [ ] Conduct learner comprehension validation for Pulse/Path/Mind Trace.
-
-## S3 — Learner Pulse vertical slice
-
-- [x] Add Core Pulse projection.
-- [x] Preserve `unknown` instead of manufacturing proficiency states.
-- [x] Add shared Pulse UI.
-- [x] Integrate Pulse into Learn dashboard.
-- [x] Add longitudinal momentum only after an approved comparison contract exists.
-- [x] Add evidence-linked automated tests.
-
-## S4 — Memory Thread vertical slice
-
-- [x] Add Memory Thread contract/UI.
-- [x] Add tenant-safe self-service projection path.
-- [x] Prevent raw evidence payload exposure.
-- [x] Enable exact Knowledge Object filtering when evidence is explicitly mapped.
-- [x] Expand event narrative from metadata-only summaries to approved derived narrative summaries.
-
-## S5 — Adaptive Learning Path
-
-- [x] Add Path contract/UI and Core projection.
-- [x] Keep canonical requirements distinguishable from adaptive overlays.
-- [x] Prohibit autonomous required-content skipping in v1.
-- [x] Integrate Path into Learn dashboard.
-- [x] Map recommendations to Knowledge Objects consistently.
-- [x] Add curriculum-governance tests.
-
-## S6 — Mind Trace + Product Bridge
-
-- [x] Add Mind Trace contract/UI/projection.
-- [x] Enforce approved-summary-only explanation policy.
-- [x] Add expiring Core-owned Product Bridge capability.
-- [x] Implement self-service Learn → Coach handoff.
-- [x] Validate bridge on Coach arrival while re-authorizing Coach context independently.
-- [x] Add Coach → Learn return bridge after session completion.
-- [x] Add bridge telemetry and abuse/expiry tests.
-
-## S7 — Knowledge Objects
-
-- [x] Add Knowledge Object contract/UI.
-- [x] Add initial deterministic English semantic catalog.
-- [x] Allow evidence to reference canonical Knowledge Object IDs.
-- [x] Map production A1/A2 curriculum competencies to canonical objects incrementally.
-- [x] Establish Studio authoring/versioning ownership before large-scale catalog expansion.
-
-## S8 — Cross-product hardening
-
-- [x] Learn + Coach closed-loop end-to-end tests and runtime integration.
-- [x] Teach-compatible growth patterns where educator contracts support them.
-- [x] Insight projections/aggregation design.
-- [x] Campus orientation/handoff integration without data ownership.
-- [x] Studio Knowledge Object management.
-- [x] Admin governance surfaces only where operationally useful.
-- [x] Performance, caching, telemetry, accessibility and privacy hardening.
+- [ ] complete visual/accessibility review across representative mobile, keyboard, reduced-motion and high-zoom conditions;
+- [ ] learner comprehension validation for Pulse/Path/Mind Trace;
+- [ ] production telemetry/latency/cost acceptance thresholds per deployed product.
 
 ---
 
-# Phase 1 — Stabilize engineering and establish Core foundations
+# Product maturity roadmap
 
-Goal: create a reliable production platform on which every product can depend.
+## Lurexa Learn
 
-- [x] Verify clean `pnpm install`, lint, type-check, test and build workflows continuously.
-- [x] Keep CI aligned with package-manager/tooling versions.
-- [x] Complete authentication flows.
-- [x] Complete RBAC/authorization foundations.
-- [x] Establish organizations/tenancy boundaries.
-- [x] Define canonical user/learner identity rules.
-- [x] Complete trusted learning-record/evidence persistence boundaries.
-- [x] Maintain stable shared domain contracts.
-- [x] Expose supported interfaces through `@lurexa/sdk` or equivalent boundaries.
-- [x] Keep Core authorization rules explicit for Mind/context access.
-- [x] Establish migration, seed and environment guidance.
+**Current maturity: Verified MVP implementation**
 
-Exit condition: products depend on stable identity, authorization, contracts and trusted records without duplicating platform logic.
+Implemented scope includes onboarding, A1–C2 curriculum planning/runtime foundations, lesson navigation, trusted evidence flows, learner dashboard, Teacher Workspace, placement/start-check foundations, adaptive recommendations and Signature Experience integration.
 
----
+Next promotion work focuses on deployment/runtime acceptance, real user testing, accessibility/device validation, production observability and operational readiness rather than adding decorative features.
 
-# Phase 2 — Lurexa Learn production MVP
+## Lurexa Coach
 
-Goal: ship the first production learner experience on Core and generate reliable learning evidence.
+**Current maturity: Verified MVP implementation**
 
-- [x] Complete learner onboarding.
-- [x] Complete course/module/lesson navigation.
-- [x] Complete enrollment/progress persistence.
-- [x] Deliver core interactive activities.
-- [x] Establish assessment/feedback workflows.
-- [x] Capture structured evidence through Core boundaries.
-- [x] Validate responsive, accessible and low-bandwidth behavior.
-- [x] Establish learner-facing analytics.
-- [x] Integrate approved Signature Experience primitives incrementally rather than as decorative mockups.
+Implemented scope includes standalone product surface, authorized learner context, learner and educator-professional modes, Dominican-Spanish linguistic transfer foundations, minimized evidence completion, and governed return bridges.
 
-Initial evidence domains may include CEFR/placement, curriculum position, recently studied topics, vocabulary/grammar targets, activity/assessment outcomes, reliable recurring-error evidence, goals and learner-selected preferences.
+Next promotion work focuses on independent deployment, production speech/audio experience validation, longitudinal history projections, quality evaluation and cost/latency acceptance.
 
-Exit condition: a learner can register, enroll, learn, complete activities and retain trustworthy progress/evidence in production.
+## Lurexa Teach
 
----
+**Current maturity: Verified MVP implementation**
 
-# Phase 3 — Learner Model + Mind foundation
+Implemented scope includes professional-growth profile/pathways, educator evidence, qualification/benefit integration, credentials and Coach professional-practice bridge.
 
-Goal: reusable learning intelligence over Core-governed evidence rather than product-specific AI memory.
+Next promotion work focuses on production deployment acceptance and deeper curriculum/professional-program validation.
 
-- [x] Establish v1 Learning Evidence baseline.
-- [x] Establish v1 Learner Context baseline.
-- [x] Establish Mind Interpretation baseline.
-- [x] Establish approved Derived Observation persistence baseline.
-- [x] Establish provider abstraction and pedagogical prompt/policy layers.
-- [x] Deepen evidence provenance/reliability/versioning.
-- [x] Incrementally implement proficiency, curriculum context, goals/preferences, vocabulary/grammar and recurring-error model domains.
-- [x] Establish personalization/recommendation primitives.
-- [x] Implement safety, privacy, validation and observability boundaries.
-- [x] Define AI evaluation metrics for usefulness, reliability, latency and cost.
+## Lurexa Admin
 
-Exit condition: multiple experiences can consume authorized shared learner intelligence without separate memories or provider coupling.
+**Current maturity: Verified MVP subset**
 
----
+Verified scope includes educator qualification lifecycle/reviewer workflow and exact teaching authorization governance.
 
-# Phase 4 — Lurexa Coach MVP
+Not implied complete: billing settlement, every organization operation, all compliance tooling, or production deployment.
 
-Goal: validate the differentiated English speaking/pronunciation product using the shared Learner Model.
+## Lurexa Insight
 
-## Session adaptation
+**Current maturity: Architecture / contract foundations**
 
-- [x] Read authorized learner context before session start.
-- [x] Adapt to CEFR level and relevant curriculum.
-- [x] Use known goals/recurring issues without asking the learner to start over.
-- [x] Adjust speed, question length and correction load.
+Learn Teacher Insights are an instructional Learn feature. Standalone institutional analytics, cohort intelligence, privacy thresholds and leadership surfaces remain product-expansion work.
 
-## Speaking experience
+## Lurexa Studio
 
-- [x] Free conversation mode.
-- [x] Guided role-play.
-- [x] Pronunciation-focused practice.
-- [x] Curriculum-linked practice from Learn.
-- [x] Level- and goal-aware feedback.
+**Current maturity: Architecture / prototype foundations**
 
-## Pronunciation and fluency intelligence
+Knowledge Object/catalog services exist. Standalone governed authoring, review, versioning and publishing remain product-expansion work.
 
-- [x] Define structured speaking/pronunciation evidence.
-- [x] Track recurring patterns, not isolated errors only.
-- [x] Prioritize intelligibility, naturalness and fluency.
-- [x] Support stress, rhythm, intonation and connected speech where reliable.
-- [x] Avoid accent-erasure framing/scoring.
+## Lurexa Campus
 
-## Dominican Spanish specialization
+**Current maturity: Architecture / representative prototype**
 
-- [x] Maintain initial Dominican-Spanish-to-English transfer taxonomy.
-- [x] Validate high-value transfer patterns with ELT/linguistic expertise.
-- [x] Build targeted corrective practice where pedagogically useful.
-- [x] Keep linguistic-profile architecture extensible.
+Campus is the institutional shell. Real tenant identity, SSO, entitlement navigation, institutional analytics and standalone runtime remain product-expansion work.
 
-## Evidence loop
+## Learn mobile
 
-- [x] Submit Coach evidence through Core-governed contracts.
-- [x] Allow Mind to interpret Coach evidence.
-- [x] Persist approved derived observations through Core.
-- [x] Expose relevant updated context to authorized products.
+**Current maturity: Implementation subset**
 
-Exit condition: Coach provides useful CEFR-appropriate speaking practice, uses known context and contributes evidence back to the ecosystem.
+The Expo surface exists but does not yet have web-equivalent release gates or representative-device validation. Mobile production claims remain pending a dedicated quality/release program.
 
 ---
 
-# Phase 5 — Closed-loop Learn ↔ Coach adaptation
+# Future capability directions
 
-Goal: prove Lurexa behaves as one ecosystem rather than synchronized independent profiles.
+These are directions, not completed roadmap phases:
 
-- [x] Learn recommends Coach practice from current learning needs.
-- [x] Coach uses recent Learn context when relevant.
-- [x] Coach evidence can trigger targeted Learn follow-up.
-- [x] Repeated speaking issues influence recommended practice.
-- [x] Successful corrections reduce unnecessary repetition.
-- [x] Establish Product Bridge architecture and first Learn → Coach self-service handoff.
-- [x] Complete Coach → Learn return handoff.
-- [x] Provide learner-facing Mind Trace explanations for adaptive recommendations.
-- [x] Provide appropriate personalization/history controls.
+- additional L1 linguistic profiles beyond Dominican Spanish;
+- broader Spanish regional transfer profiles;
+- additional subjects;
+- Marketplace and institutional content licensing;
+- public/partner APIs;
+- corporate learning;
+- government/large-institution deployment patterns;
+- future Lurexa Community product if justified;
+- native/mobile expansion where product evidence supports it.
 
-Reference loop:
-
-```text
-Learn → evidence → Core → Mind → Pulse/Path/Trace
-  ↓ Product Bridge
-Coach → evidence → Core → Mind → Memory Thread/updated Pulse → Learn
-```
-
-Exit condition: learners experience continuity without duplicate profiles or raw context transfer.
-
----
-
-# Phase 6 — Lurexa Teach
-
-Goal: ship independent educator professional development without duplicating the Learn teacher operational workspace.
-
-- [x] Educator onboarding/professional-growth profile.
-- [x] Teacher English/CEFR pathways.
-- [x] Professional learning and competency pathways.
-- [x] Evidence submission/reflection/review.
-- [x] Credential award, verification, revocation and expiry policy.
-- [x] Teach Community/professional circles.
-- [x] Mind-based growth recommendations using authorized educator evidence.
-- [x] Bridges back to Learn teacher operations.
-
-Guardrail: Learn owns class/learner operations; Teach owns educator professional growth.
-
----
-
-# Phase 7 — Offline and mobile resilience
-
-- [x] Robust offline caching for eligible content.
-- [x] Safe progress/evidence synchronization.
-- [x] Conflict resolution foundations.
-- [x] Low-bandwidth media/data optimization.
-- [x] Define viable offline Coach capabilities.
-- [x] Reconcile offline evidence before changing trusted Learner Model state.
-- [ ] Validate representative lower-cost devices/unreliable networks.
-
----
-
-# Phase 8 — Lurexa Admin + Lurexa Insight
-
-## Admin
-
-- [x] Organization/tenant administration.
-- [x] User/role/permission management.
-- [x] Program/course configuration.
-- [x] Billing/subscription administration.
-- [x] Governance/audit/compliance controls.
-- [x] Learner-data/model access policy controls where required.
-
-## Insight
-
-- [x] Learner outcome dashboards.
-- [x] Cohort/course analysis.
-- [x] Engagement/retention analysis.
-- [x] Teacher/institution views.
-- [x] AI usage/learning-impact metrics.
-- [x] Interpretable intervention/risk signals.
-- [x] Authorized aggregated speaking/pronunciation trends.
-
----
-
-# Phase 8b — Lurexa Campus institutional experience
-
-Goal: provide a coherent institution-facing shell across entitled specialist products without creating another product owner.
-
-- [x] Campus onboarding and institution identity/co-branding.
-- [x] Organization/role/entitlement-aware navigation.
-- [x] Cohort, department and academic-program orientation connected to Core-owned organization records.
-- [x] Multi-product institutional entitlement presentation.
-- [x] Mind-powered summaries only through explicitly authorized institution purposes.
-- [x] Product Bridge integration preserving institution context without transferring raw learner data.
-- [x] Clear entry into Learn, Teach, Admin, Insight, Coach and Studio according to role/entitlements.
-
-Exit condition: an institution experiences one coherent Lurexa environment while specialist products retain ownership of their domains.
-
----
-
-# Phase 9 — Lurexa Studio
-
-- [x] Course/lesson authoring.
-- [x] Assessment/question-bank creation.
-- [x] Media/resource management.
-- [x] Templates/reusable learning objects.
-- [x] Knowledge Object authoring, mapping, versioning and publishing governance.
-- [x] AI-assisted creation through Mind.
-- [x] Review/approval/versioning/publishing.
-- [x] Learner-aware delivery-time adaptation without corrupting canonical source content.
-
----
-
-# Phase 10 — Coach distribution expansion
-
-- [x] Evaluate embedded vs dedicated Coach application UX.
-- [x] Preserve identity/Learner Model regardless of distribution surface.
-- [x] Deepen pronunciation history/practice sequencing.
-- [x] Evaluate independent subscription economics when justified.
-- [x] Preserve the rule that Coach consumes Mind; Coach does not become Mind.
-
----
-
-# Phase 11 — Linguistic and ecosystem expansion
-
-Potential directions:
-
-- [x] Additional Spanish L1 profiles (Puerto Rican `es-PR`, Mexican `es-MX`, Colombian `es-CO`).
-- [x] Additional L1 linguistic profiles.
-- [x] Additional subjects.
-- [x] Enterprise/institutional offerings (Lurexa Campus workspace).
-- [x] Marketplace/public APIs.
-- [x] Native mobile where justified.
-- [x] Corporate learning.
-- [x] Government/large-institution deployments.
-
-Dominican Spanish is the first deep profile, not a permanent limit.
+Dominican Spanish remains the first deep linguistic specialization, not a technical limitation.
 
 ---
 
 # Quality and governance requirements
 
-- [x] Focused tests for critical learner flows.
-- [x] Authorization tests for learner-context and Product Bridge access.
-- [x] Tests for missing, stale and partial context.
-- [x] Cross-tenant isolation tests for Memory Thread and related projections.
-- [x] AI evaluation/regression testing before Mind becomes production-critical.
-- [x] Representative Coach evaluation set for Dominican Spanish learners.
-- [x] Linguistic/ELT validation for production transfer claims.
-- [x] Measure personalized Coach sessions against generic uncontextualized conversation.
-- [x] Track speech/AI cost, reliability and latency.
-- [x] Maintain evidence/inference separation.
-- [x] Maintain Knowledge Object version stability once referenced by trusted evidence.
+These requirements apply continuously and do not become permanently “done”:
 
-# Repository architecture rules
-
-- Keep architecture documentation current as ownership changes.
-- Do not rename packages solely to match branding.
-- Prevent products from bypassing Core trust boundaries.
-- Prevent product UIs from calling AI providers directly for persistent learner intelligence.
-- Prevent multiple apps from creating competing learner truth.
-- Treat Campus as an experience/shell, not a product-owner capability boundary.
-- Treat Signature Experience primitives as shared interaction/read-model capabilities, not databases.
-- Keep canonical curriculum distinguishable from adaptive overlays.
-- Treat conceptual architecture changes separately from implementation status.
+- protect `main` through repository rulesets and required CI;
+- maintain evidence/inference separation;
+- maintain Core ownership of trusted records/authorization;
+- keep Mind storage-free unless an explicitly governed service boundary is introduced;
+- test cross-tenant/course authorization boundaries;
+- prevent prototype/demo state from being presented as production truth;
+- preserve Knowledge Object version/provenance stability once trusted evidence references it;
+- evaluate AI usefulness, reliability, latency and cost before production-critical promotion;
+- validate Dominican-Spanish linguistic claims with ELT/linguistic expertise;
+- maintain accessibility, privacy and observability as release gates rather than one-time tasks.
 
 # End-state principle
 
@@ -421,5 +322,4 @@ Dominican Spanish is the first deep profile, not a permanent limit.
 > **Lurexa Mind interprets learning.**  
 > **Products deliver experiences and generate evidence.**  
 > **Campus connects the institutional experience.**  
-> **The Signature Experience System makes continuity visible.**  
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
