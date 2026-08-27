@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   reconcile:
-    if: ${{ !contains(github.event.head_commit.message, 'chore(lock): reconcile Coach workspace') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
