@@ -87,7 +87,7 @@ if (!failures.some((item) => item.includes("Product Bridges") || item.includes("
 const practice = read("apps/coach-web/app/practice/page.tsx");
 if (!practice.includes("completion.returnBridge.destination")) fail("Coach completion UI must honor the governed return-bridge destination");
 if (!practice.includes('session?.mode === "educator_professional"')) fail("Coach practice UI must distinguish educator-professional completion semantics");
-if (!practice.includes("Professional evidence only") || !practice.includes("ordinary learner evidence pipeline")) fail("Coach practice must communicate learner/professional evidence separation");
+if (!practice.includes("Educator-professional sessions stay in professional evidence") || !practice.includes("ordinary learner evidence pipeline")) fail("Coach practice must communicate learner/professional evidence separation");
 if (!failures.some((item) => item.includes("completion UI") || item.includes("practice UI") || item.includes("evidence separation"))) pass("Coach preserves distinct learner→Learn and educator→Teach return loops");
 
 const history = read("apps/coach-web/app/history/page.tsx");
