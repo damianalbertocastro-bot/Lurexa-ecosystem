@@ -2,239 +2,182 @@
 
 Status: Authoritative conceptual architecture  
 Owner: Lurexa Learning Technologies  
-Last updated: 2026-08-17
-
-## Purpose
-
-This document defines allowed architectural dependency directions across Lurexa. It prevents product silos, duplicate learner truth, and accidental coupling between user experiences, persistence, and AI providers.
-
-This is a conceptual dependency model. Existing package names do not need to be changed until repository-level evidence justifies a refactor.
+Last reconciled: 2026-08-27
 
 ## Ecosystem dependency graph
 
 ```text
                     Lurexa Learning Technologies
                                │
-                 governance / standards / strategy
-                               │
           ┌────────────────────┴────────────────────┐
           │                                         │
       Lurexa Core                              Lurexa Mind
- trust + authoritative state              learning intelligence
+ trust + authoritative state              interpretation/intelligence
           │                                         │
-          └──────── authorized context/evidence ────┘
+          └──────── authorized evidence/context ────┘
                                │
                       supported interfaces
                                │
        ┌───────────┬───────────┼───────────┬───────────┬───────────┐
        │           │           │           │           │           │
      Learn       Coach       Teach       Admin       Insight      Studio
+                               │
+                 Campus orchestrates entitled products
+                 but owns no competing product truth
 ```
 
-Products depend on supported Core and Mind capabilities. Core and Mind do not depend on product applications for their fundamental domain ownership.
+Core and Mind do not depend on product applications for their fundamental ownership. Campus is an orchestration shell, not a seventh sibling product.
 
-## Learner Model dependency flow
+## Learner/professional model flow
 
 ```text
 Product experience
-      ↓
-learning evidence
-      ↓
-Core validation + authorization + trusted persistence
-      ↓
-authorized evidence/context
-      ↓
+      ↓ evidence
+Core validation + authorization + persistence
+      ↓ authorized evidence/context
 Mind interpretation
-      ↓
-approved derived intelligence
-      ↓
-Core-governed persistence/context boundary
-      ↓
-authorized product adaptation
+      ↓ candidate / recommendation / explanation
+Core approval/persistence where required
+      ↓ purpose-scoped context
+Authorized product adaptation
 ```
 
-The Learner Model emerges from this governed loop. It is not a separate product-owned profile store.
+Evidence, interpretation and authorized context are different things. The Learner Model is a governed cross-product representation, not a product-owned profile store.
+
+Educator professional evidence is purpose-separated from student learner evidence.
 
 ## Allowed dependency directions
 
-### Products → Core contracts
+### Product → Core
 
-Allowed for:
-- authentication/session use;
-- authorized domain operations;
-- learning-evidence submission;
-- learner-context retrieval;
-- enrollment/progress operations;
-- content access;
-- scheduling/commerce/notification operations;
-- offline synchronization.
+Allowed for authenticated/authorized domain operations, evidence submission, context retrieval, enrollment/progress, qualification/authorization workflows, content records, entitlements and Product Bridge operations.
 
-Products should depend on supported interfaces rather than implementation-specific persistence details.
+### Product → Mind
 
-### Products → Mind contracts
+Allowed only through governed intelligence boundaries for tutoring/coaching, personalization, recommendations, adaptive feedback, professional-development interpretation and similar capabilities.
 
-Allowed for:
-- tutoring/coaching requests;
-- personalization;
-- recommendations;
-- adaptive feedback;
-- pronunciation/speaking intelligence;
-- content adaptation;
-- teacher-assistance intelligence.
+Mind receives only the minimum authorized context required for the purpose.
 
-Mind calls should carry only the minimum authorized context needed for the task.
+### Mind → Core
 
-### Mind → Core contracts
-
-Allowed for:
-- retrieving authorized evidence/context;
-- resolving approved learner/context identifiers;
-- persisting approved derived observations through Core-governed boundaries;
-- accessing platform services required for intelligence workflows.
-
-Mind must not bypass Core authorization or write directly to uncontrolled product-specific state.
+Mind may consume Core-authorized evidence/context and return candidates/results for Core-approved persistence. Mind does not grant permissions, teaching authority, qualification or entitlement.
 
 ### Core → infrastructure
 
-Allowed for trusted technical dependencies such as:
-- Firebase/Auth/Firestore/Storage;
-- server runtimes;
-- payment/scheduling integrations;
-- messaging/notification infrastructure;
-- observability systems;
-- synchronization infrastructure.
+Core may depend on trusted infrastructure such as Firebase/Auth/Firestore/Storage, payment/scheduling providers, messaging, observability and server runtimes. Infrastructure choice does not change Core ownership.
 
-The exact technologies may evolve without changing Core's responsibility.
+### Mind → AI/speech providers
 
-### Mind → model/speech providers
+Provider access belongs behind governed server/provider abstractions. Product clients must not directly call providers for persistent learner/professional intelligence.
 
-Allowed through governed provider abstractions for:
-- LLMs;
-- speech recognition;
-- text-to-speech;
-- pronunciation/speech analysis;
-- evaluation/guardrail services.
-
-Product clients should not depend directly on these providers for production learning intelligence.
-
-## Disallowed dependency directions
+## Disallowed directions
 
 ```text
-Product UI ─X→ Firestore for arbitrary inferred learner-state writes
-Product UI ─X→ AI provider for persistent personalized intelligence
-Product A  ─X→ Product B private learner profile
-Mind       ─X→ independent auth/permission ownership
-Mind       ─X→ ungoverned authoritative learner persistence
-Core       ─X→ product-specific UI/business-flow dependency
-Insight    ─X→ becoming the source database
+Product UI ─X→ arbitrary trusted/inferred state mutation
+Product UI ─X→ provider for persistent personalized intelligence
+Product A  ─X→ Product B private profile/database
+Mind       ─X→ independent auth/permission/qualification authority
+Mind       ─X→ ungoverned authoritative persistence
+Core       ─X→ product UI dependency
 Coach      ─X→ becoming a second Mind
+Insight    ─X→ becoming the authoritative source database
+Campus     ─X→ becoming a competing learner/product truth
+Teach      ─X→ delegated student-learning context by default
+Browser    ─X→ authoritative payment/purchase completion
 ```
 
-## Repository mapping
-
-The current monorepo includes shared packages whose names predate the refined Core/Mind architecture. Preserve them until actual module responsibility is inspected.
-
-Conceptual mapping examples:
+## Current repository mapping
 
 ```text
-@lurexa/auth       → Core identity/access
-@lurexa/database   → Core persistence/data access
-@lurexa/sdk        → supported product/service contracts
-@lurexa/types      → shared domain contracts
-@lurexa/backend    → server capabilities; may contain Core/Mind modules depending on actual code
-@lurexa/ui         → shared presentation infrastructure
-@lurexa/tokens     → shared design-system infrastructure
-@lurexa/config     → shared technical configuration
-@lurexa/utils      → shared utilities subject to dependency discipline
+apps/web          → ecosystem surface
+apps/learn-web    → Learn + operational Teacher Workspace
+apps/coach-web    → standalone Coach
+apps/teach-web    → standalone Teach professional development
+apps/admin-portal → Admin
+apps/docs         → documentation surface
+apps/mobile       → Learn mobile surface
 ```
 
-These are mapping hypotheses, not implementation-status assertions. Inspect the package before moving or renaming code.
+There is currently no standalone Insight, Studio or Campus app. Their product/shell architecture must not be confused with Learn-hosted prototype/support routes.
+
+Shared packages currently map conceptually as follows, pending package reconciliation:
+
+```text
+@lurexa/types      → canonical shared contracts
+@lurexa/config     → shared runtime/product configuration
+@lurexa/ui         → shared presentation infrastructure
+@lurexa/tokens     → shared design grammar
+@lurexa/backend    → mixed browser-safe services + explicit server capabilities
+@lurexa/sdk        → shared SDK/contract surface
+@lurexa/auth       → auth abstraction under reconciliation
+@lurexa/database   → datastore abstraction under reconciliation
+@lurexa/utils      → shared utilities
+```
+
+These mappings do not prove every package is still the preferred production abstraction.
 
 ## Product dependencies
 
-### Lurexa Learn
+### Learn
 
 ```text
 Learn → Core
 Learn → Mind
+Learn → Coach only through governed Product Bridge/public product boundary
 ```
 
-Learn may generate learning evidence and consume personalization, but it does not independently own ecosystem learner truth.
+Learn owns learner delivery and Teacher Workspace. It may generate evidence and consume approved intelligence. It does not own Coach or a separate ecosystem learner model.
 
-### Lurexa Coach
+### Coach
 
 ```text
 Coach → Core
 Coach → Mind
 ```
 
-Coach consumes authorized learner context and Mind speaking/pronunciation intelligence; it contributes new evidence through Core-governed contracts.
+Coach owns speaking/pronunciation/fluency practice. Learner mode may contribute minimized learner evidence; educator-professional mode contributes purpose-separated professional evidence. Coach does not own placement, enrollment, teaching authority or canonical persistence.
 
-Dominican Spanish is the first deep L1 profile. L1-specific linguistic knowledge should be plugged into Mind/Coach capabilities through extensible contracts rather than embedded as an irreversible system assumption.
-
-### Lurexa Teach
+### Teach
 
 ```text
-Teach → Core
-Teach → Mind
+Teach → Core professional/qualification records
+Teach → Mind professional-growth intelligence
+Teach → Coach educator-professional practice through governed benefit/bridge
 ```
 
-Teach receives role-appropriate learner context and may contribute teacher observations/interventions through governed contracts.
+Teach is educator-as-learner professional development. It has **no delegated student-context entitlement**. Learn Teacher Workspace—not Teach—owns student/course operations.
 
-### Lurexa Admin
+### Admin
 
 ```text
-Admin → Core
-Admin → selected Mind capabilities where justified
+Admin → Core governance
+Admin → selected Mind interpretation only where purpose-authorized
 ```
 
-Admin manages institutional workflows and policy configuration. Core enforces trust.
+Admin configures/operates governance workflows; Core enforces trusted state. Qualification review and teaching authorization remain distinct.
 
-### Lurexa Insight
+### Insight
 
-```text
-Insight → Core
-Insight → Mind
-```
+Future standalone Insight may consume tenant-authorized Core aggregates and Mind-derived intelligence. It must not replace the source records or expose learner-level data outside purpose/role/tenant authorization.
 
-Insight consumes governed records and derived intelligence; it should not create an alternate analytics truth that products then treat as authoritative learner state.
+### Studio
 
-### Lurexa Studio
+Future standalone Studio may use Mind-assisted authoring, while Core owns canonical Knowledge Object/content records, provenance, permissions, versions and publication state.
 
-```text
-Studio → Core
-Studio → Mind
-```
+### Campus
 
-Studio owns content-authoring workflows. Mind may assist generation/adaptation while Core governs canonical content records and access.
+Campus may resolve Core-owned organization/entitlement state and create purpose-scoped Product Bridges to entitled products. It must not become an independent owner of learner records, analytics truth, product permissions or content.
 
-## Shared package dependency principles
+## Shared-package dependency principles
 
-1. Low-level shared packages must not import application code.
-2. Product-specific logic should not leak into broadly shared packages without a clear capability reason.
-3. Core contracts should avoid depending on a specific product's UI types.
-4. Mind contracts should avoid depending on a specific AI provider's SDK types at product boundaries.
-5. Cross-product learner context must use governed domain contracts, not database-document imports.
-6. Circular dependencies between product, Core and Mind domains are architecture defects.
+1. Shared packages do not import product applications.
+2. Product-specific behavior belongs in the owning product unless it is a proven reusable capability.
+3. Core contracts do not depend on product UI types.
+4. Mind contracts do not expose provider SDK types at product boundaries.
+5. Cross-product context uses governed contracts, not private database-document imports.
+6. Client and privileged server exports must remain distinguishable.
+7. Circular product/Core/Mind dependencies are architecture defects.
 
-## Implementation sequence
+## Verification
 
-Before changing repository structure:
-
-1. inventory actual imports and service responsibilities;
-2. map existing modules to Core, Mind, product, or shared-experience infrastructure;
-3. flag violations of the allowed dependency directions;
-4. define the first v1 Learner Context and Learning Evidence contracts;
-5. refactor only the boundaries needed for the next product milestone.
-
-## Commercial architecture rule
-
-The thesis prototype is a validation/reference artifact. Production dependency decisions must optimize for the commercial multi-product ecosystem, not reproduce thesis-specific coupling or constraints.
-
-## Related documents
-
-- `Docs/Architecture/Capability Architecture.md`
-- `Docs/Architecture/Capability Interaction Matrix.md`
-- `Docs/Architecture/Learner Model Architecture.md`
-- `ROADMAP.md`
-- `AGENTS.md`
+Current required CI verifies Core/Mind, learner-model, Coach product ownership, educator governance, Product Bridge, prototype containment and product-registry invariants. Platform/package reconciliation will strengthen import-boundary enforcement further.
