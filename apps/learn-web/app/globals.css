@@ -3,16 +3,16 @@
 @source "../../../packages/ui/src";
 
 :root {
-  --background: #f6f8ff;
-  --foreground: #071d67;
-  --learn-canvas: #f6f8ff;
-  --learn-ink: #071d67;
-  --learn-surface: #ffffff;
-  --learn-accent: #592bd6;
-  --learn-blue: #1d5add;
-  --learn-cyan: #12cdd4;
+  --background: var(--lx-canvas);
+  --foreground: var(--lx-ink);
+  --learn-canvas: var(--lx-canvas);
+  --learn-ink: var(--lx-ink);
+  --learn-surface: var(--lx-surface);
+  --learn-accent: var(--lx-primary);
+  --learn-blue: var(--lx-secondary);
+  --learn-cyan: var(--lx-accent);
   --learn-mint: #e4f8f2;
-  --focus-ring: #1d5add;
+  --focus-ring: var(--lx-focus-ring);
 }
 
 @theme inline {
@@ -47,6 +47,90 @@ body {
 
 ::selection { background: #dcd4ff; color: #071d67; }
 
+/* ------------------------------------------------------------------ */
+/*  Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes toastProgress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animation utilities                                                */
+/* ------------------------------------------------------------------ */
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.35s ease-out both;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.25s ease-in both;
+}
+
+.animate-toast-progress {
+  animation: toastProgress linear both;
+}
+
+/* Stagger children: apply to parent, each child gets delay */
+.stagger-children > * {
+  animation: fadeSlideUp 0.4s ease-out both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -56,3 +140,4 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+

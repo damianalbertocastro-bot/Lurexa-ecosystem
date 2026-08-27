@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Tabs } from "@lurexa/ui/Tabs";
 import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 interface StudioKnowledgeObject {
@@ -104,22 +105,19 @@ export default function LurexaStudioPage() {
       />
 
       {/* Tab navigation */}
-      <nav className="border-b border-[#dfe6f8] bg-white px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 py-3">
-          <button
-            onClick={() => setActiveTab("knowledge-objects")}
-            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "knowledge-objects" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
-          >Knowledge Objects</button>
-          <button
-            onClick={() => setActiveTab("lesson-builder")}
-            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "lesson-builder" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
-          >7-Stage Lesson Builder</button>
-          <button
-            onClick={() => setActiveTab("branching")}
-            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "branching" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
-          >Branching Scenarios</button>
+      <div className="border-b border-[#dfe6f8] bg-white px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center py-3">
+          <Tabs
+            tabs={[
+              { id: "knowledge-objects", label: "Knowledge Objects" },
+              { id: "lesson-builder", label: "7-Stage Lesson Builder" },
+              { id: "branching", label: "Branching Scenarios" },
+            ]}
+            activeTab={activeTab}
+            onChange={(id) => setActiveTab(id as "knowledge-objects" | "lesson-builder" | "branching")}
+          />
         </div>
-      </nav>
+      </div>
 
       {/* Main Studio Body */}
       <main className="mx-auto max-w-7xl px-6 py-10 sm:px-10">
@@ -139,7 +137,7 @@ export default function LurexaStudioPage() {
                   SEMANTIC TAXONOMY
                 </p>
                 <h2 className="text-3xl font-black tracking-tight">Governed Knowledge Objects</h2>
-                <p className="mt-1 text-sm text-[#6677a5]">
+                <p className="mt-1 text-sm text-[#4d5e8c]">
                   Author, map, and version semantic knowledge entities across the A1–C1 continuum.
                 </p>
               </div>
@@ -171,7 +169,7 @@ export default function LurexaStudioPage() {
             {/* Knowledge Objects Table */}
             <div className="overflow-hidden rounded-2xl border border-[#dfe6f8] bg-white shadow-sm">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-[#dfe6f8] bg-[#f7f9ff] text-xs font-extrabold uppercase tracking-wider text-[#6677a5]">
+                <thead className="border-b border-[#dfe6f8] bg-[#f7f9ff] text-xs font-extrabold uppercase tracking-wider text-[#4d5e8c]">
                   <tr>
                     <th className="px-6 py-4">Semantic ID</th>
                     <th className="px-6 py-4">Title & Description</th>
@@ -189,7 +187,7 @@ export default function LurexaStudioPage() {
                       </td>
                       <td className="px-6 py-4">
                         <p className="font-bold text-[#071d67]">{obj.title}</p>
-                        <p className="text-xs text-[#6677a5]">{obj.description}</p>
+                        <p className="text-xs text-[#4d5e8c]">{obj.description}</p>
                       </td>
                       <td className="px-6 py-4">
                         <span className="rounded-md bg-[#edf1fb] px-2.5 py-1 text-[11px] font-extrabold capitalize text-[#536ba5]">
@@ -201,7 +199,7 @@ export default function LurexaStudioPage() {
                           {obj.cefrLevels.join(", ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium text-[#6677a5]">
+                      <td className="px-6 py-4 text-xs font-medium text-[#4d5e8c]">
                         {obj.skillDimensions.join(", ")}
                       </td>
                       <td className="px-6 py-4 text-xs font-bold text-[#137867]">
@@ -223,7 +221,7 @@ export default function LurexaStudioPage() {
                 PEDAGOGICAL STANDARD
               </p>
               <h2 className="text-3xl font-black tracking-tight">7-Stage Lesson Designer</h2>
-              <p className="mt-1 text-sm text-[#6677a5]">
+              <p className="mt-1 text-sm text-[#4d5e8c]">
                 Design standardized, structured interactive learning objects adhering to Lurexa pedagogy.
               </p>
             </div>
@@ -245,7 +243,7 @@ export default function LurexaStudioPage() {
                     </span>
                     <h3 className="text-xs font-black uppercase text-[#071d67]">{item.stage}</h3>
                   </div>
-                  <p className="mt-3 text-xs leading-relaxed text-[#6677a5]">{item.desc}</p>
+                  <p className="mt-3 text-xs leading-relaxed text-[#4d5e8c]">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -271,7 +269,7 @@ export default function LurexaStudioPage() {
                 DYNAMIC SIMULATIONS
               </p>
               <h2 className="text-3xl font-black tracking-tight">Interactive Branching Scenarios</h2>
-              <p className="mt-1 text-sm text-[#6677a5]">
+              <p className="mt-1 text-sm text-[#4d5e8c]">
                 Create decision-tree dialogue simulations and clinical/workplace scenario nodes.
               </p>
             </div>
@@ -308,13 +306,13 @@ export default function LurexaStudioPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl">
             <h3 className="text-xl font-black">Create New Knowledge Object</h3>
-            <p className="mt-1 text-xs text-[#6677a5]">
+            <p className="mt-1 text-xs text-[#4d5e8c]">
               Register a persistent semantic identifier into Lurexa Studio.
             </p>
 
             <form onSubmit={handleCreateKnowledgeObject} className="mt-6 space-y-4">
               <div>
-                <label className="text-xs font-bold uppercase text-[#6677a5]">Semantic ID</label>
+                <label className="text-xs font-bold uppercase text-[#4d5e8c]">Semantic ID</label>
                 <input
                   type="text"
                   placeholder="e.g. eng.grammar.reported-speech.statements"
@@ -326,7 +324,7 @@ export default function LurexaStudioPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-[#6677a5]">Title</label>
+                <label className="text-xs font-bold uppercase text-[#4d5e8c]">Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Reported speech in formal statements"
@@ -338,7 +336,7 @@ export default function LurexaStudioPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-[#6677a5]">Description</label>
+                <label className="text-xs font-bold uppercase text-[#4d5e8c]">Description</label>
                 <textarea
                   rows={2}
                   placeholder="Precise linguistic/pedagogical definition..."
@@ -351,7 +349,7 @@ export default function LurexaStudioPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs font-bold uppercase text-[#6677a5]">Kind</label>
+                  <label className="text-xs font-bold uppercase text-[#4d5e8c]">Kind</label>
                   <select
                     value={newKind}
                     onChange={(e) => setNewKind(e.target.value as StudioKnowledgeObject["kind"])}
@@ -365,7 +363,7 @@ export default function LurexaStudioPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold uppercase text-[#6677a5]">CEFR</label>
+                  <label className="text-xs font-bold uppercase text-[#4d5e8c]">CEFR</label>
                   <select
                     value={newCefr}
                     onChange={(e) => setNewCefr(e.target.value)}
@@ -380,7 +378,7 @@ export default function LurexaStudioPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold uppercase text-[#6677a5]">Skill</label>
+                  <label className="text-xs font-bold uppercase text-[#4d5e8c]">Skill</label>
                   <select
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
@@ -400,7 +398,7 @@ export default function LurexaStudioPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="rounded-xl border border-[#dfe6f8] px-4 py-2.5 text-xs font-bold text-[#6677a5] hover:bg-[#f7f9ff]"
+                  className="rounded-xl border border-[#dfe6f8] px-4 py-2.5 text-xs font-bold text-[#4d5e8c] hover:bg-[#f7f9ff]"
                 >
                   Cancel
                 </button>

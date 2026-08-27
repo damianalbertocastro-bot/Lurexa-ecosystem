@@ -1,6 +1,9 @@
 import type { AdaptiveLearningPathV1, SignatureProjectionRequestV1 } from "@lurexa/types";
 import { getAdaptiveLearningPathProjection } from "./signature-experience.server";
-import { getGovernedKnowledgeObjectById } from "./governed-knowledge-object-catalog.server";
+import {
+  findGovernedKnowledgeObjectIdsForCompetencies,
+  getGovernedKnowledgeObjectById,
+} from "./governed-knowledge-object-catalog.server";
 
 /**
  * Governing adapter for Adaptive Path v1. Recommendation competency IDs and
@@ -16,10 +19,16 @@ export async function getGovernedAdaptiveLearningPathProjection(input: {
 
   return {
     ...projection,
-    nodes: projection.nodes.map((node) => ({
-      ...node,
-      knowledgeObjectIds: node.knowledgeObjectIds.filter((id) => getGovernedKnowledgeObjectById(id) !== null),
-    })),
+    nodes: projection.nodes.map((node) => {
+      const explicitGovernedIds = node.knowledgeObjectIds.filter((id) => getGovernedKnowledgeObjectById(id) !== null);
+      const mappedFromCompetencies = findGovernedKnowledgeObjectIdsForCompetencies(node.knowledgeObjectIds);
+      const combined = [...new Set([...explicitGovernedIds, ...mappedFromCompetencies])];
+
+      return {
+        ...node,
+        knowledgeObjectIds: combined,
+      };
+    }),
     evidenceBasis: {
       ...projection.evidenceBasis,
       limitations: [

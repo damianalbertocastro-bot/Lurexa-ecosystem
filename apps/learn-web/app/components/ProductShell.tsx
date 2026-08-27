@@ -6,20 +6,35 @@ import type { ReactNode } from "react";
 import { AuthService } from "@lurexa/backend";
 import { ProductMark, type LurexaProduct } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { useToast } from "@lurexa/ui/Toast";
 
 interface ProductShellProps { children: ReactNode; area: "Learner space" | "Educator space" | "Practice space" | "Creator space"; homeHref: string; product?: LurexaProduct; }
 
 export function ProductShell({ children, area, homeHref, product = "learn" }: ProductShellProps) {
   const router = useRouter();
-  async function signOut() { try { await AuthService.logout(); router.replace("/login"); } catch { window.alert("We could not sign you out. Please try again."); } }
+  const { toast } = useToast();
+  async function signOut() {
+    try {
+      await AuthService.logout();
+      router.replace("/login");
+    } catch {
+      toast({
+        variant: "error",
+        title: "Sign out failed",
+        description: "We could not sign you out. Please try again.",
+      });
+    }
+  }
 
   return <div className="min-h-screen bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
-    <header className="sticky top-0 z-30 border-b border-[#dfe7fb] bg-white/90 shadow-[0_8px_24px_rgba(32,52,128,.05)] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-[var(--lx-border)] bg-[var(--lx-surface)]/90 shadow-[0_8px_24px_rgba(32,52,128,.05)] backdrop-blur-xl">
       <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3"><Link href={homeHref} aria-label={`${product === "learn" ? "Lurexa Learn" : `Lurexa ${product[0].toUpperCase()}${product.slice(1)}`} home`} className="rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1d5add] focus:ring-offset-2"><ProductMark product={product}/></Link><span className="hidden h-6 w-px bg-[#dfe7fb] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[#6677a5] sm:block">{area}</span></div>
+        <div className="flex min-w-0 items-center gap-3"><Link href={homeHref} aria-label={`${product === "learn" ? "Lurexa Learn" : `Lurexa ${product[0].toUpperCase()}${product.slice(1)}`} home`} className="rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--lx-focus-ring)] focus:ring-offset-2"><ProductMark product={product}/></Link><span className="hidden h-6 w-px bg-[var(--lx-border)] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-muted)] sm:block">{area}</span></div>
         <nav aria-label="Account controls" className="flex items-center gap-2">
+          <ThemeToggle />
           <EcosystemDropdown currentApp="learn" />
-          <button type="button" onClick={signOut} className="rounded-xl border border-[#d7e0f6] bg-white px-3 py-2 text-xs font-extrabold text-[#334b87] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b6c8f4] hover:bg-[#f7f9ff] sm:px-3.5 sm:text-sm">Sign out</button>
+          <button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b6c8f4] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm">Sign out</button>
         </nav>
       </div>
     </header>{children}

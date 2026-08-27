@@ -267,7 +267,7 @@ function CourseBuilderContent() {
                       <div>
                         <span className="text-xs font-semibold uppercase tracking-wider text-[#592bd6]">Module {index + 1}</span>
                         <h2 className="font-semibold text-[#071d67]">{module.title}</h2>
-                        <p className="text-xs text-[#6677a5]">{lessonsByModule[module.id]?.length ?? 0} lesson(s)</p>
+                        <p className="text-xs text-[#4d5e8c]">{lessonsByModule[module.id]?.length ?? 0} lesson(s)</p>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => openLessonEditor(module)}>+ Add Lesson</Button>
                     </div>

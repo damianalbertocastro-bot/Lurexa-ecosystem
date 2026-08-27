@@ -75,7 +75,7 @@ export default function CampusWorkspacePage() {
 
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-xs font-bold text-[#6677a5]">Signed in as Academic Leader</p>
+              <p className="text-xs font-bold text-[#4d5e8c]">Signed in as Academic Leader</p>
               <p className="text-xs font-extrabold text-[#071d67]">Institutional Single Sign-On</p>
             </div>
             <div className="grid h-9 w-9 place-items-center rounded-full bg-[#eee9ff] text-sm font-black text-[#6b2bd9]">
@@ -147,7 +147,7 @@ export default function CampusWorkspacePage() {
               </p>
               <h3 className="text-2xl font-black tracking-tight">Available Entitlements</h3>
             </div>
-            <span className="text-xs font-bold text-[#6677a5]">
+            <span className="text-xs font-bold text-[#4d5e8c]">
               Seamless Single-Use Product Bridges
             </span>
           </div>
@@ -165,7 +165,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Learn</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   Student course runner, 8-module interactive curriculum tracks (A1 through C1),
                   formative checks, and teacher classroom workspace.
                 </p>
@@ -192,7 +192,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Teach</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   Faculty professional development, teacher CEFR advancement, T1–T5
                   micro-credentialing, peer review, and public credential verification.
                 </p>
@@ -221,7 +221,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Coach</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   AI speaking & pronunciation lab with Dominican Spanish linguistic transfer
                   intelligence, real-time intervention policies, and turn privacy redaction.
                 </p>
@@ -248,7 +248,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Insight</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   Academic cohort progression, diagnostic placement outcomes, retention trends, and
                   teacher intervention status filtering.
                 </p>
@@ -275,7 +275,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Studio</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   Instructional design suite for authoring Knowledge Objects, interactive lesson
                   stages, and custom assessment rubrics.
                 </p>
@@ -302,7 +302,7 @@ export default function CampusWorkspacePage() {
                   </span>
                 </div>
                 <h4 className="mt-5 text-xl font-black">Lurexa Admin</h4>
-                <p className="mt-2 text-sm leading-relaxed text-[#6677a5]">
+                <p className="mt-2 text-sm leading-relaxed text-[#4d5e8c]">
                   Campus tenant administration, user role assignments, license seat allocations, and
                   governance security compliance audit.
                 </p>
@@ -327,7 +327,7 @@ export default function CampusWorkspacePage() {
             <span className="text-xl font-black text-[#137867]">✓</span>
             <h3 className="text-xl font-black">One Institutional Identity. Zero Data Duplication.</h3>
           </div>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#6677a5]">
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#4d5e8c]">
             Lurexa Campus operates as an institutional experience shell. All learner records, educator
             credentials, and linguistic observations are owned by Lurexa Core and interpreted by
             Lurexa Mind through explicit, secure contracts.

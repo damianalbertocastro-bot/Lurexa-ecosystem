@@ -55,12 +55,9 @@ export function TeacherWorkspaceBanner({
   actions,
 }: TeacherWorkspaceBannerProps) {
   const [displayName, setDisplayName] = useState<string | null>(null);
-  const [greeting, setGreeting] = useState(getGreeting);
+  const [greeting] = useState(getGreeting);
 
   useEffect(() => {
-    // Re-derive the greeting client-side to avoid hydration mismatch.
-    setGreeting(getGreeting());
-
     const unsubscribe = AuthService.onUserChanged((user) => {
       setDisplayName(user?.displayName ?? null);
     });
@@ -81,7 +78,7 @@ export function TeacherWorkspaceBanner({
         {breadcrumbs && breadcrumbs.length > 0 && (
           <nav
             aria-label="Breadcrumbs"
-            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[#6677a5]"
+            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[#4d5e8c]"
           >
             {breadcrumbs.map((crumb, index) => (
               <span key={crumb.label} className="flex items-center gap-1">
@@ -118,7 +115,7 @@ export function TeacherWorkspaceBanner({
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6677a5]">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5e8c]">
                 {subtitle}
               </p>
             )}

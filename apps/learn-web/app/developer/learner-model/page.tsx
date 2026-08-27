@@ -187,11 +187,11 @@ export default function LearnerModelInspectorPage() {
                   className="flex items-center justify-between rounded-2xl border border-[#edf1fb] bg-[#fbfdff] p-4"
                 >
                   <div>
-                    <span className="font-mono text-xs font-bold text-[#6677a5]">
+                    <span className="font-mono text-xs font-bold text-[#4d5e8c]">
                       {target.ruleId}
                     </span>
                     <p className="text-sm font-black text-[#071d67]">{target.phoneme}</p>
-                    <p className="text-xs text-[#6677a5]">Accuracy: {target.accuracy}%</p>
+                    <p className="text-xs text-[#4d5e8c]">Accuracy: {target.accuracy}%</p>
                   </div>
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-black ${

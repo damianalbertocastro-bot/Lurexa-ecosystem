@@ -39,7 +39,7 @@ export default function CoursePublishPage() {
         <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
             <h1 className="text-3xl font-extrabold tracking-[-.06em] text-[#071d67]">Share your course with care.</h1>
-            <p className="mt-2 text-[#6677a5]">Set a clear price and publish a trustworthy institutional listing.</p>
+            <p className="mt-2 text-[#4d5e8c]">Set a clear price and publish a trustworthy institutional listing.</p>
           </div>
           <Badge variant="success">Stripe Connect Ready</Badge>
         </div>

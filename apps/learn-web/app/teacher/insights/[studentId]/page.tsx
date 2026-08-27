@@ -104,7 +104,7 @@ export default function StudentInterventionPage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[.16em] text-indigo-600">Trusted intervention workflow</p>
             <h1 className="mt-2 text-2xl font-bold text-[#071d67]">Student support</h1>
-            <p className="text-sm text-[#6677a5]">Review authorized learning evidence before deciding on support.</p>
+            <p className="text-sm text-[#4d5e8c]">Review authorized learning evidence before deciding on support.</p>
           </div>
           <Button variant="secondary" onClick={() => router.push("/teacher/insights")}>Back to insights</Button>
         </div>

@@ -27,6 +27,18 @@ export function listGovernedKnowledgeObjects(): KnowledgeObjectV1[] {
   return [...byId.values()];
 }
 
+export function findGovernedKnowledgeObjectIdsForCompetencies(competencyIds: string[]): string[] {
+  if (!competencyIds.length) return [];
+  const competencySet = new Set(competencyIds);
+  const matched = new Set<string>();
+  for (const obj of listGovernedKnowledgeObjects()) {
+    if (obj.curriculumRefs.some((ref) => competencySet.has(ref)) || competencySet.has(obj.id)) {
+      matched.add(obj.id);
+    }
+  }
+  return [...matched];
+}
+
 export {
   getKnowledgeObjectIdsForLinguisticPattern,
   listMappedLinguisticPatternIds,

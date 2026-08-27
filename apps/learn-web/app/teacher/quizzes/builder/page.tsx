@@ -132,7 +132,7 @@ export default function QuizBuilderPage() {
         {/* Quiz Questions List */}
         <Card title={`Questions Pool (${questions.length})`} subtitle="Questions in this assessment draft">
           {questions.length === 0 ? (
-            <p className="text-sm text-[#6677a5] py-4 text-center">No questions added yet.</p>
+            <p className="text-sm text-[#4d5e8c] py-4 text-center">No questions added yet.</p>
           ) : (
             <div className="space-y-3 pt-2">
               {questions.map((q, idx) => (

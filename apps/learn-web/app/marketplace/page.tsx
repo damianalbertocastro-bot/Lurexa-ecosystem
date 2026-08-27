@@ -49,7 +49,7 @@ export default function MarketplacePage() {
         <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
             <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Discover learning worth sharing.</h1>
-            <p className="mt-2 text-[#6677a5]">Thoughtful courses created by educators and ready for institutional use.</p>
+            <p className="mt-2 text-[#4d5e8c]">Thoughtful courses created by educators and ready for institutional use.</p>
           </div>
           <Button variant="primary" onClick={() => router.push("/teacher/marketplace/publish")}>
             + Publish Your Course
@@ -70,7 +70,7 @@ export default function MarketplacePage() {
         {/* Listings Grid */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <p className="text-[#6677a5]">Loading catalog...</p>
+            <p className="text-[#4d5e8c]">Loading catalog...</p>
           ) : (
             listings.map((item) => (
               <Card

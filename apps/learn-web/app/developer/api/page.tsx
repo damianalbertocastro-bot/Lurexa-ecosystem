@@ -28,7 +28,7 @@ export default function DeveloperAPIPage() {
         <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
             <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Build on Lurexa.</h1>
-            <p className="mt-2 text-[#6677a5]">Use authorised contracts to connect your SIS or LMS responsibly.</p>
+            <p className="mt-2 text-[#4d5e8c]">Use authorised contracts to connect your SIS or LMS responsibly.</p>
           </div>
           <Badge variant="success">v1.0 GraphQL / REST</Badge>
         </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
+import { TypingIndicator } from "./TypingIndicator";
 import type {
   CoachSession,
   CoachSessionEndResult,
@@ -18,15 +19,15 @@ const COACH_SESSION_STORAGE_KEY = "lurexa.coach.active-session";
 function MessageBubble({ sender, text }: { sender: "coach" | "learner"; text: string }) {
   const isCoach = sender === "coach";
   return (
-    <div className={`flex ${isCoach ? "justify-start" : "justify-end"}`}>
+    <div className={`animate-fade-slide-up flex ${isCoach ? "justify-start" : "justify-end"}`}>
       <article
         className={`max-w-[88%] rounded-[24px] px-5 py-4 text-sm leading-6 shadow-sm sm:max-w-[76%] ${
           isCoach
             ? "rounded-tl-md border border-violet-100 bg-white text-[#18306f]"
-            : "rounded-tr-md bg-gradient-to-br from-[#6b2bd9] to-[#315fd7] text-white shadow-[0_12px_30px_rgba(75,46,180,.18)]"
+            : "rounded-tr-md bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white shadow-[0_12px_30px_rgba(75,46,180,.18)]"
         }`}
       >
-        <p className={`mb-1.5 text-[10px] font-black uppercase tracking-[.16em] ${isCoach ? "text-[#6b2bd9]" : "text-cyan-100"}`}>
+        <p className={`mb-1.5 text-[10px] font-black uppercase tracking-[.16em] ${isCoach ? "text-[var(--lx-primary)]" : "text-cyan-100"}`}>
           {isCoach ? "Lurexa Coach" : "You"}
         </p>
         <p className="whitespace-pre-wrap">{text}</p>
@@ -387,9 +388,7 @@ export default function LurexaCoachPage() {
                 ))}
                 {sendingTurn ? (
                   <div className="flex justify-start">
-                    <div className="rounded-2xl bg-white border border-slate-200 px-4 py-3 text-xs italic text-slate-400 animate-pulse motion-reduce:animate-none">
-                      Coach is listening and preparing feedback…
-                    </div>
+                    <TypingIndicator label="Coach is analyzing your speech & preparing feedback…" />
                   </div>
                 ) : null}
                 <div ref={transcriptBottomRef} />

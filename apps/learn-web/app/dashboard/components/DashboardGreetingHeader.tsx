@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { Avatar } from "@lurexa/ui/Avatar";
 import type { AuthenticatedUser } from "@lurexa/backend";
 
 interface DashboardGreetingHeaderProps {
@@ -16,20 +17,6 @@ export function getTimeOfDayGreeting(date: Date = new Date()): string {
   if (hour < 12) return "Good morning";
   if (hour < 18) return "Good afternoon";
   return "Good evening";
-}
-
-export function getInitials(nameOrEmail?: string | null): string {
-  if (!nameOrEmail) return "L";
-  const cleaned = nameOrEmail.trim();
-  if (cleaned.includes("@")) {
-    const username = cleaned.split("@")[0] || "L";
-    return username.slice(0, 2).toUpperCase();
-  }
-  const parts = cleaned.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  }
-  return cleaned.slice(0, 2).toUpperCase();
 }
 
 export function getDisplayName(user: AuthenticatedUser | null): string {
@@ -54,38 +41,18 @@ export const DashboardGreetingHeader: React.FC<DashboardGreetingHeaderProps> = (
 
   const greeting = useMemo(() => getTimeOfDayGreeting(), []);
   const displayName = useMemo(() => getDisplayName(user), [user]);
-  const initials = useMemo(() => getInitials(user?.displayName || user?.email), [user]);
-  const avatarUrl = user?.photoURL;
 
   return (
-    <header className="rounded-3xl border border-[#dfe7fb] bg-white p-6 shadow-[0_12px_32px_rgba(32,52,128,.06)] sm:p-8">
+    <header className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-[var(--lx-card-shadow)] sm:p-8">
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         {/* Left: Avatar + Greeting & Subhead */}
         <div className="flex items-center gap-4 sm:gap-5">
-          <div className="relative flex-shrink-0">
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt={`${displayName}'s avatar`}
-                className="h-16 w-16 rounded-2xl border-2 border-indigo-100 object-cover shadow-md shadow-indigo-100/50"
-              />
-            ) : (
-              <div
-                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-lg font-black text-white shadow-md shadow-indigo-500/20"
-                aria-label={`Avatar initials: ${initials}`}
-              >
-                {initials}
-              </div>
-            )}
-            <span
-              className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-[10px] text-white shadow-sm"
-              title="Online"
-              aria-hidden="true"
-            >
-              ✓
-            </span>
-          </div>
+          <Avatar
+            src={user?.photoURL}
+            name={user?.displayName || user?.email}
+            size="xl"
+            online={true}
+          />
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">

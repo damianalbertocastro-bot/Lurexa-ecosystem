@@ -75,7 +75,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Classify the six signature primitives as a shared experience layer.
 - [x] Reconcile the Lurexa Bible and Product Personality System.
 - [x] Reconcile the main AI-agent ecosystem context.
-- [ ] Reconcile any remaining stale Campus wording found in secondary docs during audit.
+- [x] Reconcile any remaining stale Campus wording found in secondary docs during audit.
 
 ## S1 — Contract foundations
 
@@ -101,7 +101,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Add shared Pulse UI.
 - [x] Integrate Pulse into Learn dashboard.
 - [ ] Add longitudinal momentum only after an approved comparison contract exists.
-- [ ] Add evidence-linked automated tests.
+- [x] Add evidence-linked automated tests.
 
 ## S4 — Memory Thread vertical slice
 
@@ -117,7 +117,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Keep canonical requirements distinguishable from adaptive overlays.
 - [x] Prohibit autonomous required-content skipping in v1.
 - [x] Integrate Path into Learn dashboard.
-- [ ] Map recommendations to Knowledge Objects consistently.
+- [x] Map recommendations to Knowledge Objects consistently.
 - [x] Add curriculum-governance tests.
 
 ## S6 — Mind Trace + Product Bridge
@@ -136,17 +136,17 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Add initial deterministic English semantic catalog.
 - [x] Allow evidence to reference canonical Knowledge Object IDs.
 - [x] Map production A1/A2 curriculum competencies to canonical objects incrementally.
-- [ ] Establish Studio authoring/versioning ownership before large-scale catalog expansion.
+- [x] Establish Studio authoring/versioning ownership before large-scale catalog expansion.
 
 ## S8 — Cross-product hardening
 
 - [x] Learn + Coach closed-loop end-to-end tests and runtime integration.
 - [x] Teach-compatible growth patterns where educator contracts support them.
-- [ ] Insight projections/aggregation design.
-- [ ] Campus orientation/handoff integration without data ownership.
-- [ ] Studio Knowledge Object management.
-- [ ] Admin governance surfaces only where operationally useful.
-- [ ] Performance, caching, telemetry, accessibility and privacy hardening.
+- [x] Insight projections/aggregation design.
+- [x] Campus orientation/handoff integration without data ownership.
+- [x] Studio Knowledge Object management.
+- [x] Admin governance surfaces only where operationally useful.
+- [x] Performance, caching, telemetry, accessibility and privacy hardening.
 
 ---
 

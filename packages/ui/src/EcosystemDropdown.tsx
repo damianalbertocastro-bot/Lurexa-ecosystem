@@ -142,7 +142,7 @@ export function EcosystemDropdown({
             <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#315fd7]">
               Lurexa Ecosystem
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[#6677a5]">
+            <p className="mt-0.5 text-xs font-medium text-[#4d5e8c]">
               One learner model across all connected surfaces.
             </p>
           </div>
@@ -184,7 +184,7 @@ export function EcosystemDropdown({
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[11px] leading-4 text-[#6677a5]">
+                    <p className="mt-0.5 text-[11px] leading-4 text-[#4d5e8c]">
                       {app.description}
                     </p>
                   </div>

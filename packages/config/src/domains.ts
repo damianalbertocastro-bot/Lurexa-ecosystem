@@ -78,8 +78,11 @@ function getExplicitOverride(appKey: EcosystemAppKey, env: Record<string, string
 }
 
 export function isProductionEnv(env: Record<string, string | undefined> = process.env): boolean {
-  if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
+  const browserWindow = typeof globalThis !== "undefined"
+    ? (globalThis as unknown as { window?: { location?: { hostname?: string } } }).window
+    : undefined;
+  if (browserWindow?.location?.hostname) {
+    const hostname = browserWindow.location.hostname;
     if (hostname.endsWith("lurexa.org") || hostname.endsWith("vercel.app") || (!hostname.includes("localhost") && hostname !== "127.0.0.1")) {
       return true;
     }

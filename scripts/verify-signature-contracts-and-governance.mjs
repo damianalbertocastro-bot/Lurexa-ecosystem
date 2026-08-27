@@ -37,6 +37,7 @@ check(adaptiveService.includes("autonomousRequiredContentSkipping: false"), "Aut
 
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
 check(adaptiveAdapter.includes("getGovernedKnowledgeObjectById"), "Adaptive Path validates Knowledge Objects against governed catalog");
+check(adaptiveAdapter.includes("findGovernedKnowledgeObjectIdsForCompetencies"), "Adaptive Path maps competency recommendations to Knowledge Objects consistently");
 check(adaptiveAdapter.includes("Competency identifiers are not treated as Knowledge Object identifiers"), "Competency and Knowledge Object namespaces remain strictly isolated");
 
 // 3. Memory Thread & Narrative Governance
@@ -45,15 +46,29 @@ check(memoryThreadService.includes("deriveApprovedNarrativeSummary"), "Memory Th
 check(memoryThreadService.includes("Memory Thread never exposes raw evidence payloads"), "Memory Thread guarantees raw evidence payload protection");
 check(memoryThreadService.includes("entry.organizationId === activeOrganizationId"), "Memory Thread enforces organization-scoped evidence isolation");
 
-// 4. Learner Pulse & Momentum Governance
+// 4. Learner Pulse & Evidence-Linked Governance
 check(adaptiveService.includes('overallMomentum: "unknown"'), "Learner Pulse preserves 'unknown' momentum pending longitudinal comparison contract");
 check(adaptiveService.includes('momentum: "unknown"'), "Individual Pulse dimensions preserve 'unknown' momentum");
+check(adaptiveService.includes("evidenceBasis: {"), "Learner Pulse projects explicit evidenceBasis bindings");
+check(adaptiveService.includes("evidenceFreshness"), "Learner Pulse calculates evidence freshness from latest evidence timestamps");
 
 // 5. Product Bridge Continuity & Handoffs
 const bridgeService = read("packages/backend/src/product-bridge.server.ts");
 check(bridgeService.includes("singleUse: input.singleUse ?? true"), "Product Bridge enforces single-use by default");
 check(bridgeService.includes("Product Bridge has expired"), "Expired Product Bridges fail closed");
 check(bridgeService.includes("Product Bridge has already been used"), "Replayed Product Bridges fail closed");
+
+// 6. Studio Knowledge Object Versioning & Governance
+const studioService = read("packages/backend/src/studio-catalog.server.ts");
+check(studioService.includes("StudioCatalogService"), "Studio catalog governance service exists");
+check(studioService.includes("version: 1"), "Studio catalog initializes new Knowledge Objects at version 1");
+check(studioService.includes("version: existing.version + 1"), "Studio catalog increments semantic version upon update");
+
+// 7. Insight Aggregation & Teacher Projections
+const teacherInsightsService = read("packages/backend/src/teacher-insights.server.ts");
+check(teacherInsightsService.includes("TeacherInsightsService"), "Teacher Insights projection service exists");
+check(teacherInsightsService.includes("averageFirstAttemptScore"), "Insights preserves first-attempt accuracy separately from completion");
+check(teacherInsightsService.includes("Metrics come from progress and first-attempt evidence"), "Insights provides explicit non-judgmental evidence basis notice");
 
 if (!process.exitCode) {
   console.log("\n========================================================");

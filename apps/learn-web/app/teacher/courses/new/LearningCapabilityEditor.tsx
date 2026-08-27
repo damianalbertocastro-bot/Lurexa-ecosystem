@@ -249,7 +249,7 @@ export function LearningCapabilityEditor({ drafts, onChange }: Props) {
       {drafts.map((draft, index) => (
         <div key={draft.blockId} className="space-y-3 rounded-xl border border-[#dfe7fb] bg-white p-4">
           <div className="flex items-center justify-between gap-3">
-            <div><p className="text-sm font-semibold text-[#071d67]">Capability {index + 1}</p><p className="text-xs text-[#6677a5]">{draft.kind.replaceAll("_", " ")}</p></div>
+            <div><p className="text-sm font-semibold text-[#071d67]">Capability {index + 1}</p><p className="text-xs text-[#4d5e8c]">{draft.kind.replaceAll("_", " ")}</p></div>
             <Button type="button" size="sm" variant="destructive" onClick={() => onChange(drafts.filter((item) => item.blockId !== draft.blockId))}>Remove</Button>
           </div>
 

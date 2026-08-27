@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -11,7 +10,6 @@ import { PricingPlan } from "@lurexa/types";
 import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 export default function TeacherBillingPage() {
-  const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<PricingPlan>("free");
   const [limits, setLimits] = useState<PlanLimits>(PLAN_CONFIGS["free"]);
   const [loading, setLoading] = useState(false);
@@ -69,7 +67,7 @@ export default function TeacherBillingPage() {
               <span className="text-2xl font-bold text-[#592bd6]">
                 {limits.aiQueriesPerStudentMonth} Queries
               </span>
-              <p className="text-xs text-[#6677a5]">Resets on the 1st of every month</p>
+              <p className="text-xs text-[#4d5e8c]">Resets on the 1st of every month</p>
             </div>
           </Card>
 
@@ -89,7 +87,7 @@ export default function TeacherBillingPage() {
             <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-[#071d67]">Free Tier</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$0 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <p className="text-2xl font-extrabold text-[#071d67]">$0 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
                 <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 20 students</li>
                   <li>• 3 courses</li>
@@ -113,7 +111,7 @@ export default function TeacherBillingPage() {
               </div>
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-[#071d67]">Basic Plan</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$9 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <p className="text-2xl font-extrabold text-[#071d67]">$9 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
                 <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 100 students</li>
                   <li>• Unlimited courses</li>
@@ -135,7 +133,7 @@ export default function TeacherBillingPage() {
             <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-[#071d67]">Pro Plan</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$29 <span className="text-xs font-normal text-[#6677a5]">/mo</span></p>
+                <p className="text-2xl font-extrabold text-[#071d67]">$29 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
                 <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
                   <li>• Up to 500 students</li>
                   <li>• Unlimited courses</li>
