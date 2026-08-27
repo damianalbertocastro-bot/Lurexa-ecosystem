@@ -6,6 +6,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
+import { useConfetti } from "@lurexa/ui/useConfetti";
 
 interface Milestone {
   id: string;
@@ -33,6 +34,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
 }) => {
   const router = useRouter();
   const { playAchievement, playClick } = useSoundEffects();
+  const { triggerConfetti } = useConfetti();
 
   // Authentic system milestones mapped strictly from verified progress events
   const earnedMilestones = useMemo<Milestone[]>(() => {
@@ -102,7 +104,10 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
             {earnedMilestones.map((milestone) => (
               <div
                 key={milestone.id}
-                onClick={playAchievement}
+                onClick={() => {
+                  playAchievement();
+                  triggerConfetti();
+                }}
                 role="button"
                 tabIndex={0}
                 aria-label={`Milestone: ${milestone.title}`}
