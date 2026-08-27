@@ -29,13 +29,13 @@ const surfaces = [
   {
     name: "Lurexa Insight",
     role: "Future standalone institutional and cohort analytics. Learn Teacher Insights remain an instructional Learn feature.",
-    href: getEcosystemUrl("insight"),
+    href: getEcosystemUrl("root"),
     status: "Foundation pending",
   },
   {
     name: "Lurexa Studio",
     role: "Future standalone governed authoring for Knowledge Objects, lessons and assessments.",
-    href: getEcosystemUrl("studio"),
+    href: getEcosystemUrl("root"),
     status: "Foundation pending",
   },
 ];
@@ -77,7 +77,7 @@ export default function CampusWorkspacePage() {
                   </span>
                   <h3 className="mt-4 text-xl font-black">{surface.name}</h3>
                   <p className="mt-2 flex-1 text-sm leading-6 text-[#6074a5]">{surface.role}</p>
-                  <span className="mt-5 text-sm font-black text-[#315fd7]">View surface →</span>
+                  <span className="mt-5 text-sm font-black text-[#315fd7]">View ecosystem status →</span>
                 </>
               );
               return external ? (
