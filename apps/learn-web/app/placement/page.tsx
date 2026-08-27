@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
+import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
+import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
+import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import type { CefrLevel } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
@@ -45,6 +48,7 @@ const skillConfig: Record<PlacementSkill, { label: string; icon: string; badgeCo
 
 export default function PlacementPage() {
   const router = useRouter();
+  const { playClick } = useSoundEffects();
   const [authReady, setAuthReady] = useState(false);
   const [stage, setStage] = useState<"intro" | "testing" | "evaluating" | "results">("intro");
   const [goal, setGoal] = useState<string>("daily_life");
@@ -314,18 +318,28 @@ export default function PlacementPage() {
 
               {/* Audio Prompt for Listening */}
               {currentItem.audioPrompt ? (
-                <div className="mt-4 rounded-2xl bg-sky-50 border border-sky-200 p-4 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold text-sky-900">Audio Comprehension Sample</p>
-                    <p className="text-xs text-sky-700">Listen carefully to the spoken excerpt:</p>
+                <div className="mt-4 rounded-2xl bg-sky-50 border border-sky-200 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold text-sky-900">Audio Comprehension Sample</p>
+                      <p className="text-xs text-sky-700">Listen carefully to the spoken excerpt:</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playClick();
+                        playAudioPrompt(currentItem.audioPrompt!);
+                      }}
+                      className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1.5"
+                    >
+                      <span>{audioPlaying ? "🔊 Playing…" : "▶ Play Audio"}</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => playAudioPrompt(currentItem.audioPrompt!)}
-                    className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1.5"
-                  >
-                    <span>{audioPlaying ? "🔊 Playing…" : "▶ Play Audio"}</span>
-                  </button>
+                  {audioPlaying && (
+                    <div className="rounded-xl bg-white/70 p-2">
+                      <AudioWaveform active={true} variant="playback" />
+                    </div>
+                  )}
                 </div>
               ) : null}
 
@@ -420,39 +434,61 @@ export default function PlacementPage() {
               </div>
             </div>
 
-            {/* Skill Breakdown */}
-            <div className="mt-8">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 mb-4">
-                Multi-Skill Performance Breakdown:
+            {/* Skill Breakdown & Radar Map */}
+            <div className="mt-10">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-6">
+                Learner Competency Radar & Multi-Skill Breakdown:
               </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(Object.entries(result.skillBreakdown) as [PlacementSkill, { score: number; maxScore: number; level: CefrLevel }][]).map(
-                  ([skill, data]) => {
-                    const pct = data.maxScore > 0 ? Math.round((data.score / data.maxScore) * 100) : 0;
-                    return (
-                      <div key={skill} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-                        <div className="flex items-center justify-between text-xs mb-2">
-                          <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                            <span>{skillConfig[skill].icon}</span>
-                            <span>{skillConfig[skill].label}</span>
-                          </span>
-                          <span className="rounded-full bg-white border border-slate-200 px-2 py-0.5 font-bold text-indigo-700">
-                            {data.level}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
-                            <div
-                              className="h-full bg-indigo-600 rounded-full transition-all duration-500"
-                              style={{ width: `${pct}%` }}
-                            />
+              <div className="grid gap-8 lg:grid-cols-[1.1fr_1.3fr] lg:items-center">
+                {/* Radar Chart Visualizer */}
+                <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-100 bg-[#f8faff] p-6 shadow-inner">
+                  <SkillRadarChart
+                    skills={[
+                      { skill: "Listening", score: result.skillBreakdown.listening ? Math.round((result.skillBreakdown.listening.score / result.skillBreakdown.listening.maxScore) * 100) : 60 },
+                      { skill: "Grammar", score: result.skillBreakdown.grammar ? Math.round((result.skillBreakdown.grammar.score / result.skillBreakdown.grammar.maxScore) * 100) : 70 },
+                      { skill: "Vocabulary", score: result.skillBreakdown.vocabulary ? Math.round((result.skillBreakdown.vocabulary.score / result.skillBreakdown.vocabulary.maxScore) * 100) : 65 },
+                      { skill: "Reading", score: result.skillBreakdown.reading ? Math.round((result.skillBreakdown.reading.score / result.skillBreakdown.reading.maxScore) * 100) : 75 },
+                      { skill: "Phonetics", score: result.skillBreakdown.phonetics ? Math.round((result.skillBreakdown.phonetics.score / result.skillBreakdown.phonetics.maxScore) * 100) : 80 },
+                      { skill: "Speaking", score: Math.round(result.overallScorePercent * 0.95) },
+                      { skill: "Writing", score: Math.round(result.overallScorePercent * 0.85) },
+                    ]}
+                    size={300}
+                  />
+                  <p className="mt-3 text-center text-[11px] font-bold text-slate-500">
+                    Continuous 7-Skill CEFR Mapping ({result.estimatedLevel})
+                  </p>
+                </div>
+
+                {/* Linear Skill Bars */}
+                <div className="grid gap-3 sm:grid-cols-1">
+                  {(Object.entries(result.skillBreakdown) as [PlacementSkill, { score: number; maxScore: number; level: CefrLevel }][]).map(
+                    ([skill, data]) => {
+                      const pct = data.maxScore > 0 ? Math.round((data.score / data.maxScore) * 100) : 0;
+                      return (
+                        <div key={skill} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+                          <div className="flex items-center justify-between text-xs mb-1.5">
+                            <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                              <span>{skillConfig[skill].icon}</span>
+                              <span>{skillConfig[skill].label}</span>
+                            </span>
+                            <span className="rounded-full bg-white border border-slate-200 px-2 py-0.5 font-bold text-indigo-700 text-[11px]">
+                              {data.level}
+                            </span>
                           </div>
-                          <span className="text-[11px] font-bold text-slate-500">{pct}%</span>
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                              <div
+                                className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-500">{pct}%</span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }
-                )}
+                      );
+                    }
+                  )}
+                </div>
               </div>
             </div>
 

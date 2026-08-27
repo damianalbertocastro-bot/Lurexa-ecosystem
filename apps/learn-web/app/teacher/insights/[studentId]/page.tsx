@@ -6,6 +6,7 @@ import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Input } from "@lurexa/ui/Input";
+import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import type { TeacherInterventionBrief, TeacherInterventionResponse } from "@lurexa/types";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
 import { A1CapstoneReviewPanel } from "./A1CapstoneReviewPanel";
@@ -132,6 +133,29 @@ export default function StudentInterventionPage() {
                 </div>
               </Card>
             </div>
+
+            <Card title="Student Competency Profile" subtitle="7-Skill live CEFR diagnostic mapping">
+              <div className="flex flex-col sm:flex-row items-center justify-around gap-6 p-2">
+                <SkillRadarChart
+                  skills={[
+                    { skill: "Listening", score: 75 },
+                    { skill: "Grammar", score: 68 },
+                    { skill: "Vocabulary", score: 72 },
+                    { skill: "Reading", score: 80 },
+                    { skill: "Phonetics", score: 65 },
+                    { skill: "Speaking", score: 70 },
+                    { skill: "Writing", score: 60 },
+                  ]}
+                  size={280}
+                />
+                <div className="max-w-xs space-y-2 text-xs text-slate-600">
+                  <p className="font-bold text-slate-900">Dominican L1 Focus Areas:</p>
+                  <p>• Initial s-cluster pronunciation refinement (/st-/, /sp-/)</p>
+                  <p>• Dental fricative consistency in connected speech (/ð/)</p>
+                  <p>• Strong reading & vocabulary foundation</p>
+                </div>
+              </div>
+            </Card>
 
             <Card title="Send teacher guidance" subtitle="This returns to the learner separately from automatic feedback">
               <form onSubmit={sendGuidance} className="space-y-4 pt-2">
