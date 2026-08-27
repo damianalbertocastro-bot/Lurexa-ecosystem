@@ -52,6 +52,9 @@ jobs:
       - name: Verify Prototype Containment
         run: pnpm verify:prototype-containment
 
+      - name: Verify Documentation Truth
+        run: pnpm verify:documentation-truth
+
       - name: Verify Coach First-Class Product Boundary
         run: node scripts/verify-coach-product.mjs
 
