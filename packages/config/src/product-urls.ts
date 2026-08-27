@@ -14,11 +14,12 @@ export const lurexaPublicUrlEnv = {
 export type LurexaPublicExperienceId = keyof typeof lurexaPublicUrlEnv;
 export type LurexaPublicUrlMap = Record<LurexaPublicExperienceId, string>;
 
-type PublicEnv = Partial<Record<(typeof lurexaPublicUrlEnv)[LurexaPublicExperienceId], string | undefined>>;
+type PublicEnv = Record<string, string | undefined>;
 
 const canonicalFallbacks = {
   ecosystem: "https://lurexa.org",
   learn: "https://learn.lurexa.org",
+  coach: "https://coach.lurexa.org",
 } as const;
 
 function cleanUrl(value: string | undefined): string | undefined {
@@ -40,7 +41,7 @@ export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPub
     ecosystem,
     learn,
     teacher: cleanUrl(env[lurexaPublicUrlEnv.teacher]) ?? learn,
-    coach: cleanUrl(env[lurexaPublicUrlEnv.coach]) ?? `${learn}/coach`,
+    coach: cleanUrl(env[lurexaPublicUrlEnv.coach]) ?? canonicalFallbacks.coach,
     teach: cleanUrl(env[lurexaPublicUrlEnv.teach]) ?? "https://teach.lurexa.org",
     admin: cleanUrl(env[lurexaPublicUrlEnv.admin]) ?? "https://admin.lurexa.org",
     insight: cleanUrl(env[lurexaPublicUrlEnv.insight]) ?? ecosystem,

@@ -18,8 +18,8 @@ const telemetryService = read("packages/backend/src/signature-telemetry.server.t
 const learnerContext = read("packages/backend/src/learner-context.server.ts");
 const signatureService = read("packages/backend/src/signature-experience.server.ts");
 const learnTeacherSignatureService = read("packages/backend/src/learn-teacher-signature-experience.server.ts");
-const coachRoute = read("apps/learn-web/app/api/coach/route.ts");
-const coachPage = read("apps/learn-web/app/coach/page.tsx");
+const coachRoute = read("apps/coach-web/app/api/coach/route.ts");
+const coachPractice = read("apps/coach-web/app/practice/page.tsx");
 const signatureRoute = read("apps/learn-web/app/api/signature/route.ts");
 const learnTeacherSignatureRoute = read("apps/learn-web/app/api/teacher/signature/route.ts");
 const adaptiveAdapter = read("packages/backend/src/adaptive-learning-path.server.ts");
@@ -48,7 +48,7 @@ check(bridgeService.includes("Product Bridge has already been used."), "replayed
 check(!uiPackage.dependencies?.["@lurexa/types"], "shared UI remains independent from domain-contract ownership");
 check(coachTypes.includes("CoachSessionEndResult"), "Coach completion has an explicit typed result");
 check(completionService.includes("export async function endCoachSession"), "Coach completion is isolated behind a server capability");
-check(coachRoute.includes('body.action === "endSession"'), "Learn web exposes the authenticated Coach completion action");
+check(coachRoute.includes('body.action === "endSession"'), "Coach web exposes the authenticated Coach completion action");
 check(coachRoute.includes("endCoachSession"), "Coach completion route delegates to the isolated signature capability");
 check(completionService.includes('purpose: educatorMode ? "professional_growth" : "return_to_learning"'), "Coach completion creates purpose-scoped educator and learner return bridges");
 check(completionService.includes('destination: educatorMode ? "teach" : "learn"'), "Coach completion keeps educator and learner destinations distinct");
@@ -66,20 +66,20 @@ check(completionService.includes('const { learnerForm: _discardedLearnerForm, ..
 check(completionService.includes("transcript: []"), "completed Coach session storage drops the raw transcript");
 check(completionService.indexOf("redactCompletedCoachTurnEvidence") < completionService.lastIndexOf("createProductBridge"), "Coach redacts completed utterance data before issuing the return bridge");
 check(completionService.indexOf("createProductBridge") < completionService.indexOf('status: "completed"'), "Coach is finalized only after the return bridge is created");
-check(coachPage.includes("handleFinishSession"), "Coach exposes an explicit learner-visible completion action");
-check(coachPage.includes('action: "endSession"'), "Coach UI closes the server session before leaving");
-check(coachPage.includes('/api/product-bridge?action=resolve'), "Coach UI resolves the return bridge before navigation");
-check(coachPage.includes('destination: "learn"'), "learner Coach return bridge is validated for the Learn destination");
-check(coachPage.includes("Finish session & return to Learn"), "learner Coach labels the semantic completion transition clearly");
+check(coachPractice.includes("async function finish()"), "Coach exposes an explicit learner-visible completion action");
+check(coachPractice.includes('action: "endSession"'), "Coach UI closes the server session before leaving");
+check(coachPractice.includes('/api/product-bridge?action=resolve'), "Coach UI resolves the return bridge before navigation");
+check(coachPractice.includes("const destination = completion.returnBridge.destination"), "Coach validates the governed return-bridge destination rather than hard-coding a product");
+check(coachPractice.includes("Finish & return to Teach") && coachPractice.includes("Finish & return to Learn"), "Coach labels learner and educator semantic completion transitions clearly");
 
 check(resumeService.includes("resumeCoachSession"), "Coach refresh recovery is isolated behind an authorized server capability");
 check(resumeService.includes("session.learnerId !== actor.uid"), "Coach resume verifies session ownership");
 check(resumeService.includes('session.status !== "active"'), "Coach resume rejects completed sessions");
 check(resumeService.includes("getScopedLearnerContext"), "Coach resume re-authorizes learner context instead of trusting restored client data");
 check(coachRoute.includes('body.action === "resumeSession"'), "Coach API exposes authenticated active-session restoration");
-check(coachPage.includes("window.sessionStorage.setItem(COACH_SESSION_STORAGE_KEY, payload.session.id)"), "Coach stores only its opaque active session ID for refresh recovery");
-check(coachPage.includes('action: "resumeSession"'), "Coach client revalidates a stored session through the server after refresh");
-check(coachPage.includes("window.sessionStorage.removeItem(COACH_SESSION_STORAGE_KEY)"), "Coach clears stale/completed client session references");
+check(coachPractice.includes("window.sessionStorage.setItem(ACTIVE_SESSION_KEY, payload.session.id)"), "Coach stores only its opaque active session ID for refresh recovery");
+check(coachPractice.includes('action: "resumeSession"'), "Coach client revalidates a stored session through the server after refresh");
+check(coachPractice.includes("window.sessionStorage.removeItem(ACTIVE_SESSION_KEY)"), "Coach clears stale/completed client session references");
 
 check(learnTeacherSignatureService.includes("getLearnTeacherLearnerPulseProjection"), "Learn Teacher Workspace has the governed delegated Learner Pulse boundary");
 check(learnTeacherSignatureService.includes("Learn teacher instructional support requires explicit organization and course boundaries."), "Learn teacher instructional support fails closed without explicit tenant and course scope");
@@ -135,7 +135,7 @@ check(signaturePanel.includes("motion-reduce:animate-none"), "Signature Experien
 check(adaptiveUi.startsWith('"use client"'), "interactive Adaptive Path is declared as a Client Component");
 check(uiFiles.every((content) => content.includes("aria-")), "all six shared signature primitives expose accessibility semantics");
 check(uiFiles.filter((content) => content.includes("<button")).every((content) => content.includes("focus-visible")), "interactive shared signature primitives expose visible keyboard focus");
-check(coachPage.includes("motion-reduce:animate-none"), "Coach transition motion respects reduced-motion preferences");
-check(coachPage.includes("focus-visible:ring"), "Coach completion transition exposes visible keyboard focus");
+check(!coachPractice.includes("scroll-smooth"), "Coach practice does not force CSS smooth scrolling for reduced-motion users");
+check(coachPractice.includes('role="alert"'), "Coach practice exposes errors through an assistive-technology alert region");
 
 console.log("Lurexa Signature Experience contract/security/accessibility/continuity/telemetry/privacy/Learn-teacher boundary verification passed.");

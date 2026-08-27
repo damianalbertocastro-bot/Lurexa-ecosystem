@@ -38,6 +38,15 @@
       "status": "active"
     },
     {
+      "id": "coach-web",
+      "product": "Lurexa Coach",
+      "surface": "adaptive-speaking-web",
+      "workspace": "@lurexa/coach-web",
+      "rootDirectory": "apps/coach-web",
+      "vercelProject": "lurexa-coach-web",
+      "status": "provisioned"
+    },
+    {
       "id": "teach-web",
       "product": "Lurexa Teach",
       "surface": "professional-development-web",
@@ -75,11 +84,6 @@
     }
   ],
   "futureProducts": [
-    {
-      "product": "Lurexa Coach",
-      "expectedVercelProject": "lurexa-coach-web",
-      "createWhen": "apps/coach-web exists"
-    },
     {
       "product": "Lurexa Insight",
       "expectedVercelProject": "lurexa-insight-web",
