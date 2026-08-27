@@ -113,7 +113,7 @@ Deployment truth: the repository implementation is verified; independent externa
 
 ## R5 — Roadmap & Documentation Truth
 
-**Maturity: In progress**
+**Maturity: Verified**
 
 - [x] Define repository maturity vocabulary.
 - [x] Add operational maturity matrix.
@@ -123,7 +123,8 @@ Deployment truth: the repository implementation is verified; independent externa
 - [x] Remove ghost Storybook/runtime claims from the root workspace overview.
 - [x] Correct Learn local port documentation.
 - [x] Replace phase-level completion inflation with explicit maturity status.
-- [ ] Keep volatile deployment facts machine-derived where practical during Deployment Reconciliation.
+- [x] Defer volatile external deployment-health claims to Deployment Reconciliation rather than treating repository manifests as proof.
+- [x] Add executable documentation-truth verification to the required CI gate.
 
 ## R6 — Platform / Package Reconciliation
 
