@@ -1,20 +1,12 @@
-export const lurexaPublicUrlEnv = {
-  ecosystem: "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL",
-  learn: "NEXT_PUBLIC_LUREXA_LEARN_URL",
-  teacher: "NEXT_PUBLIC_LUREXA_TEACHER_URL",
-  coach: "NEXT_PUBLIC_LUREXA_COACH_URL",
-  teach: "NEXT_PUBLIC_LUREXA_TEACH_URL",
-  admin: "NEXT_PUBLIC_LUREXA_ADMIN_URL",
-  insight: "NEXT_PUBLIC_LUREXA_INSIGHT_URL",
-  studio: "NEXT_PUBLIC_LUREXA_STUDIO_URL",
-  campus: "NEXT_PUBLIC_LUREXA_CAMPUS_URL",
-  docs: "NEXT_PUBLIC_LUREXA_DOCS_URL",
-} as const;
+import {
+  inactivePublicProductUrlEnv,
+  lurexaPublicUrlEnv,
+  type LurexaEnvironment,
+  type LurexaPublicUrlMap,
+} from "./environment";
 
-export type LurexaPublicExperienceId = keyof typeof lurexaPublicUrlEnv;
-export type LurexaPublicUrlMap = Record<LurexaPublicExperienceId, string>;
-
-type PublicEnv = Record<string, string | undefined>;
+export { inactivePublicProductUrlEnv, lurexaPublicUrlEnv } from "./environment";
+export type { LurexaPublicExperienceId, LurexaPublicUrlMap } from "./environment";
 
 const canonicalFallbacks = {
   ecosystem: "https://lurexa.org",
@@ -33,7 +25,7 @@ function cleanUrl(value: string | undefined): string | undefined {
   }
 }
 
-export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPublicUrlMap {
+export function resolveLurexaPublicUrls(env: LurexaEnvironment = process.env): LurexaPublicUrlMap {
   const ecosystem = cleanUrl(env[lurexaPublicUrlEnv.ecosystem]) ?? canonicalFallbacks.ecosystem;
   const learn = cleanUrl(env[lurexaPublicUrlEnv.learn]) ?? canonicalFallbacks.learn;
 
@@ -51,6 +43,4 @@ export function resolveLurexaPublicUrls(env: PublicEnv = process.env): LurexaPub
   };
 }
 
-export const inactivePublicProductUrlEnv = {
-  community: "NEXT_PUBLIC_LUREXA_COMMUNITY_URL",
-} as const;
+void inactivePublicProductUrlEnv;
