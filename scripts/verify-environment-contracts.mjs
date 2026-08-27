@@ -11,7 +11,11 @@ const pass = (message) => checks.push(message);
 const fail = (message) => failures.push(message);
 const declaresEnv = (content, name) => content
   .split(/\r?\n/)
-  .some((line) => new RegExp(`^\\s*${name.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}\\s*=`).test(line));
+  .some((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) return false;
+    return trimmed.slice(0, trimmed.indexOf("=")).trim() === name;
+  });
 
 const forbiddenPublicAliases = [
   "NEXT_PUBLIC_ROOT_URL",
