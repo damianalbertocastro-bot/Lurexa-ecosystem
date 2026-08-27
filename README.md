@@ -1,139 +1,185 @@
 # Lurexa Ecosystem
 
-Lurexa is the product and technology ecosystem developed by **Lurexa Learning Technologies**.
+Lurexa is the commercial learning-technology ecosystem developed by **Lurexa Learning Technologies**.
 
-The company is building intelligent, accessible, and adaptive educational technology rather than a single LMS. The ecosystem is organized around two reusable platform technology layers — **Lurexa Core** and **Lurexa Mind** — that power a growing family of user-facing products.
+> **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+## Architecture at a glance
 
 ```text
 Lurexa Learning Technologies
 │
-├── Lurexa Core      Shared platform foundation
-├── Lurexa Mind      Learning intelligence and AI
+├── Shared ecosystem layers
+│   ├── Lurexa Core — trust, identity, authorization, persistence and authoritative records
+│   └── Lurexa Mind — interpretation, personalization, adaptation and AI/learning intelligence
 │
-└── Products
-    ├── Lurexa Learn
-    ├── Lurexa Teach
-    ├── Lurexa Admin
-    ├── Lurexa Insight
-    ├── Lurexa Coach
-    └── Lurexa Studio
+├── Six sibling products
+│   ├── Lurexa Learn
+│   ├── Lurexa Coach
+│   ├── Lurexa Teach
+│   ├── Lurexa Admin
+│   ├── Lurexa Insight
+│   └── Lurexa Studio
+│
+└── Institutional orchestration shell
+    └── Lurexa Campus
 ```
 
-**Lurexa Core** owns trusted platform foundations such as identity, organizations, learning records, permissions, commerce, scheduling, notifications, shared data contracts, offline synchronization, and platform analytics.
+Core and Mind are shared layers, not end-user products. Campus is structurally different from the six sibling products. Products compose Core and Mind capabilities instead of creating competing identity, learner-memory, authorization or persistence systems.
 
-**Lurexa Mind** owns reusable intelligence such as AI orchestration, learner modeling, personalization, recommendations, tutoring intelligence, assessment intelligence, content adaptation, and pedagogical agents.
-
-Products compose Core and Mind capabilities instead of duplicating foundational logic.
-
-> **Lurexa Learning Technologies builds the ecosystem. Core powers it. Mind makes it intelligent. Products deliver the experience.**
-
-## Workspace layout
-
-This repository is a TypeScript monorepo using pnpm and Turborepo to share UI, domain, data, authentication, configuration, and platform code between applications.
+## Current repository applications
 
 ```text
 apps/
-  learn-web/        Lurexa Learn learner-facing Next.js application
-  teach-web/        Lurexa Teach professional-development Next.js application
-  admin-portal/     Lurexa Admin administrative Next.js portal
-  web/              Additional Next.js web application
-  docs/             Documentation Next.js application
-  mobile/           Expo/React Native application
-  storybook/        Component-library development environment
+  web/              Lurexa ecosystem landing/application shell
+  learn-web/        Lurexa Learn learner experience + embedded Teacher Workspace
+  coach-web/        Lurexa Coach standalone speaking/pronunciation product
+  teach-web/        Lurexa Teach educator professional-development product
+  admin-portal/     Lurexa Admin governance/administration product
+  docs/             Lurexa documentation application
+  mobile/           Lurexa Learn mobile/Expo surface
+```
+
+There is currently no standalone Insight, Studio or Campus application. Their product/shell architecture exists, but their current representative or supporting surfaces must not be treated as production implementations. The Learn-hosted `/teacher/insights` route is an instructional Learn Teacher Workspace feature, not Lurexa Insight. The Learn-hosted Studio page is an explicitly contained local interaction prototype.
+
+## Shared packages
+
+```text
 packages/
-  auth/             Authentication primitives
-  backend/          Backend and Firebase-facing services
-  config/           Shared application configuration
-  database/         Database schema, configuration, and seed data
-  sdk/              Shared SDK surface
+  auth/             Authentication abstractions currently under platform reconciliation
+  backend/          Browser-safe services plus explicit server-only capabilities
+  config/           Shared product/domain/runtime configuration
+  database/         Database abstractions currently under platform reconciliation
+  sdk/              Shared SDK/contracts surface
   tokens/           Design tokens
-  types/            Shared TypeScript types
+  types/            Shared TypeScript/domain contracts
   ui/               Shared UI component library
   utils/            Shared utilities
 ```
 
-`bootstrap/`, `turbo/`, and `utilities/` provide Turborepo generators and setup support. The root contains one pnpm lockfile (`pnpm-lock.yaml`); do not add per-package or npm lockfiles.
+Package existence is not proof that every abstraction is still authoritative. `ROADMAP.md` tracks the planned platform/package reconciliation rather than preserving old scaffolds indefinitely.
 
-The Core/Mind naming is currently an architectural ownership model. Existing packages should not be renamed or collapsed into large `core` or `mind` packages merely for branding. Package boundaries should follow proven domain responsibilities.
-
-## Product direction
+## Product boundaries
 
 ### Lurexa Learn
 
-The flagship learner-facing product and first production experience.
-
-### Lurexa Teach
-
-The professional-development experience for practicing educators and teachers-to-be. Lurexa Learn owns classroom operations, including its teacher workspace at `apps/learn-web/app/teacher`.
-
-### Lurexa Admin
-
-The institutional and operational management experience.
-
-### Lurexa Insight
-
-The analytics and learning-intelligence product for learners, educators, and institutions.
+Structured learner delivery and the operational Teacher Workspace. Learn owns courses, lessons, enrollment/progress, assignments, instructional support and student-facing learning experiences.
 
 ### Lurexa Coach
 
-The personalized user-facing AI learning coach powered by Lurexa Mind. Coach should initially be embedded inside Lurexa Learn, then evolve into a cross-product or standalone experience only when independent user value justifies it.
+A **standalone first-class product** at `apps/coach-web`. Coach owns adaptive English speaking, pronunciation, fluency and educator-professional English practice. Learn and Teach may launch Coach through governed Product Bridges; they do not own its canonical UI/runtime.
+
+### Lurexa Teach
+
+Educator-as-learner professional development. Teach owns professional growth, pedagogy/methodology development, educator evidence, credentials and development recommendations. It does not own student rosters/class operations.
+
+### Lurexa Admin
+
+Institutional governance and administration. Current verified scope includes educator qualification review and teaching authorization foundations. Billing is not yet a production payment capability.
+
+### Lurexa Insight
+
+The future standalone institutional/cohort analytics product. It must remain distinct from Learn Teacher instructional insights until a dedicated product boundary/application exists.
 
 ### Lurexa Studio
 
-The educational content creation, authoring, and publishing environment.
+The future standalone governed authoring product. Core-owned Knowledge Object/catalog foundations exist, while the current Teacher Workspace Studio UI is only a contained local prototype.
+
+### Lurexa Campus
+
+An institutional orchestration shell, **not a seventh sibling product**. The current representative Campus page is not connected to a real tenant, SSO provider, entitlement set or institutional analytics environment.
+
+## Prototype containment
+
+Lurexa retains useful prototypes when they support design or architecture work, but they must not claim production behavior. Current containment policy explicitly prevents:
+
+- Marketplace pages from claiming purchases, receipts, licenses, publisher earnings or Stripe readiness;
+- billing from presenting fabricated checkout/subscription state;
+- UI placeholders from presenting canned responses as live AI;
+- Campus from impersonating a real institution/SSO/entitlement environment;
+- Studio local state from being described as Core persistence/publication;
+- Learn from maintaining a second Coach-like chat experience.
+
+See `Docs/Architecture/LUREXA_PROTOTYPE_CONTAINMENT.md`.
 
 ## Requirements
 
-- Node.js 20 or later
-- pnpm 10.3.0
+- **Node.js 24.x**
+- **pnpm 10.3.0**
 
-Install dependencies from the repository root:
+Install from the repository root:
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
+
+## Local application ports
+
+| Surface | Command / workspace | Default local URL |
+| --- | --- | --- |
+| Ecosystem | `web` | `http://localhost:3000` |
+| Learn | `learn-web` | `http://localhost:3001` |
+| Teach | `@lurexa/teach-web` | `http://localhost:3002` |
+| Admin | `admin-portal` | `http://localhost:3003` |
+| Docs | `docs` | `http://localhost:3004` |
+| Coach | `@lurexa/coach-web` | `http://localhost:3005` |
+
+The canonical port/domain contract lives in `packages/config/src/domains.ts`; do not duplicate new port maps in application code.
 
 ## Common commands
 
 ```bash
-pnpm dev                    # Start learn-web
-pnpm build                  # Build all workspace packages and apps
-pnpm lint                   # Run workspace linting
-pnpm check-types            # Run workspace TypeScript checks
-pnpm test                   # Run package test scripts
-pnpm firebase:emulators     # Start the backend Firebase emulators
-pnpm --filter learn-web dev # Start only the learner application
-pnpm --filter @lurexa/database seed
+pnpm dev                         # Start Learn by default
+pnpm build                       # Build workspace apps/packages with build scripts
+pnpm lint                        # Run workspace linting
+pnpm check-types                 # Run TypeScript checks
+pnpm test                        # Run package test scripts
+pnpm verify:local                # Broad local verification sequence
+pnpm firebase:emulators          # Start Firebase auth/firestore emulators
+pnpm --filter learn-web dev      # Learn only
+pnpm --filter @lurexa/coach-web dev
+pnpm --filter @lurexa/teach-web dev
 ```
+
+## Governance and merge policy
+
+`main` is protected by the active **Lurexa Main Protection** GitHub ruleset:
+
+- pull request required;
+- `Verify Foundation & Build` required and strict/up-to-date;
+- review conversations must be resolved;
+- force pushes/non-fast-forward updates blocked;
+- branch deletion blocked;
+- no bypass actors;
+- zero mandatory human approvals for the current AI-assisted solo-maintainer workflow.
+
+CODEOWNERS remains in the repository so approval requirements can be strengthened when the engineering team grows.
 
 ## Architecture rules
 
-- Products are experiences; reusable business logic belongs in capabilities and shared services.
-- Lurexa Core owns trusted platform foundations and authoritative operational state.
-- Lurexa Mind owns reusable intelligence, personalization, and adaptive-learning behavior.
-- Products may consume Core and Mind capabilities; platform capabilities must not depend on product applications.
-- Use TypeScript only; do not introduce `any` without an explicitly justified exception.
-- Use design tokens and shared UI components instead of hard-coded visual values.
-- Prefer Server Components unless client state is necessary.
-- Keep Firestore access behind backend services; UI components must not access Firestore directly.
-- Avoid direct product-to-model-provider coupling where Lurexa Mind can provide the abstraction.
+- Core owns trusted authorization/persistence; Mind interprets authorized evidence.
+- One persistent cross-product Learner Model; do not synchronize competing product profiles.
+- Product UI must not directly mutate trusted inferred learner state.
+- Keep server-only privileged capabilities behind explicit server imports/routes.
+- Teacher Workspace stays inside Learn.
+- Coach stays a standalone product.
+- Learn Teacher Insights must not be presented as standalone Insight.
+- Campus remains an institutional shell.
+- Prototypes must fail honest/closed for unimplemented trusted actions.
+- Use shared design tokens/components while preserving distinct product personalities.
 
-See `Docs/00-Lurexa-Bible.md` and `Docs/Architecture/Capability Architecture.md` for the source-of-truth company, product, and capability architecture.
+## Deployment truth
 
-## Deployment and automation
+`deployment/products.json` describes intended repository deployment topology. It is **not by itself proof that a Vercel project/domain is currently live**. Live project/domain/runtime state is reconciled separately during the deployment-reconciliation stage in `ROADMAP.md`.
 
-The canonical Vercel topology is [`deployment/products.json`](deployment/products.json): `lurexa-learn-web` is rooted at `apps/learn-web`, and `lurexa-teach-web` is rooted at `apps/teach-web`. Git-triggered Vercel deployments are disabled; releases are explicit and follow [`Docs/Engineering/Vercel Release Runbook.md`](Docs/Engineering/Vercel%20Release%20Runbook.md). GitHub Actions validate linting, type checking, and builds for pushes and pull requests.
+Do not infer `DEPLOYED` or `PRODUCTION_READY` from a successful build, a manifest status field, or the existence of a Vercel project alone.
 
-The repository package manager is pnpm 10.3.0, but the current workflow files install pnpm 9. Align those versions before treating CI as a reliable release gate.
+## Environment and secrets
 
-Two duplicate standalone Next.js templates and conflicting lockfiles were removed from the repository. Use the applications under `apps/` as the supported runtime entry points.
+Local values belong in ignored environment files; secrets belong in encrypted deployment/local secret stores. Firebase browser configuration uses `NEXT_PUBLIC_FIREBASE_*`; privileged Core routes require server-side credentials. Never expose service-account material through `NEXT_PUBLIC_` variables or commit credentials.
 
-## Environment
-
-Local configuration belongs in `.env.local` and is intentionally excluded from version control. Firebase browser configuration uses `NEXT_PUBLIC_FIREBASE_*`; trusted server-side Core routes require `FIREBASE_SERVICE_ACCOUNT_JSON` outside the Firestore Emulator. Never expose a service account through a `NEXT_PUBLIC_` variable or commit secrets. See `packages/.env.example` and `apps/learn-web/README.md` for the supported local setup.
+Repository hygiene CI rejects known temporary/live-environment artifact patterns.
 
 ## Project status
 
-Recent work has focused on `learn-web` deployment configuration, workspace dependency alignment, Playwright/type-check compatibility, database seed data, and formalizing the company/platform/product architecture.
-
-See [ROADMAP.md](ROADMAP.md) for the current execution plan.
+Use `ROADMAP.md` for the current maturity matrix and execution sequence. It distinguishes **CONCEPT → ARCHITECTURE → PROTOTYPE → CONTRACT_IMPLEMENTED → MVP_IMPLEMENTED → VERIFIED → DEPLOYED → PRODUCTION_READY** instead of treating a checkbox as proof of production completion.
