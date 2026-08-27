@@ -49,11 +49,12 @@ if (deployment.futureProducts.some((item) => item.product === "Lurexa Coach")) f
 if (!failures.some((item) => item.includes("deployment") || item.includes("Vercel") || item.includes("future deployment"))) pass("Coach is promoted into active deployment topology");
 
 const domains = read("packages/config/src/domains.ts");
+const environment = read("packages/config/src/environment.ts");
 if (!domains.includes('"root" | "learn" | "coach" | "teach"')) fail("ecosystem domain registry must expose Coach as a first-class key");
 if (!domains.includes('productionUrl: "https://coach.lurexa.org"')) fail("Coach canonical domain must be coach.lurexa.org");
 if (!domains.includes('developmentUrl: "http://localhost:3005"')) fail("Coach domain registry must reserve localhost:3005");
-if (!domains.includes('NEXT_PUBLIC_LUREXA_COACH_URL')) fail("Coach domain registry must support the canonical public URL override");
-if (!failures.some((item) => item.includes("domain"))) pass("Coach has a canonical cross-product domain contract");
+if (!environment.includes('coach: "NEXT_PUBLIC_LUREXA_COACH_URL"')) fail("canonical environment contract must expose the Coach public URL override");
+if (!failures.some((item) => item.includes("domain") || item.includes("environment contract"))) pass("Coach has a canonical cross-product domain contract");
 
 const productUrls = read("packages/config/src/product-urls.ts");
 if (!productUrls.includes('coach: "https://coach.lurexa.org"')) fail("product URL fallbacks must resolve Coach to its own domain");
