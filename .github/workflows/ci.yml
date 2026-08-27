@@ -49,6 +49,9 @@ jobs:
       - name: Verify Product Registry Consumers
         run: pnpm verify:product-registry
 
+      - name: Verify Coach First-Class Product Boundary
+        run: node scripts/verify-coach-product.mjs
+
       - name: Verify Curriculum Portfolio
         run: pnpm verify:curriculum-portfolio
 
