@@ -14,7 +14,7 @@ export const lurexaPublicUrlEnv = {
 export type LurexaPublicExperienceId = keyof typeof lurexaPublicUrlEnv;
 export type LurexaPublicUrlMap = Record<LurexaPublicExperienceId, string>;
 
-type PublicEnv = Partial<Record<(typeof lurexaPublicUrlEnv)[LurexaPublicExperienceId], string | undefined>>;
+type PublicEnv = Record<string, string | undefined>;
 
 const canonicalFallbacks = {
   ecosystem: "https://lurexa.org",
