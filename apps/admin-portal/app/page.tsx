@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@lurexa/ui/button";
 import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -136,6 +137,18 @@ export default function AdminDashboardPage() {
             </a>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="info">Superadmin</Badge>
+              <Link
+                href="/"
+                className="rounded-xl bg-white/20 px-3 py-1.5 text-xs font-black text-white"
+              >
+                Overview
+              </Link>
+              <Link
+                href="/billing"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
+              >
+                Billing &amp; Licenses
+              </Link>
               <ThemeToggle />
               <EcosystemDropdown currentApp="admin" inverse />
               <a

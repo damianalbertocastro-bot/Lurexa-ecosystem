@@ -31,12 +31,23 @@ export interface LocalLearnerModelDelta {
   synced: number; // 0 for false, 1 for true
 }
 
+export interface OfflineAudioCacheItem {
+  id: string; // key: `${courseId}_${lessonId}_${activityId}`
+  courseId: string;
+  lessonId: string;
+  activityId: string;
+  audioBlob: Blob;
+  mimeType: string;
+  cachedAt: number;
+}
+
 export class LurexaLocalDatabase extends Dexie {
   lessons!: Table<Lesson, string>;
   progress!: Table<StudentProgress, string>;
   syncQueue!: Table<SyncMutation, number>;
   evidenceQueue!: Table<OfflineEvidenceQueueItem, string>;
   learnerModelDeltas!: Table<LocalLearnerModelDelta, string>;
+  audioCache!: Table<OfflineAudioCacheItem, string>;
 
   constructor(options?: DexieOptions) {
     super("LurexaOfflineDB", options);
@@ -53,6 +64,15 @@ export class LurexaLocalDatabase extends Dexie {
       syncQueue: "++id, type, synced, createdAt",
       evidenceQueue: "id, learnerId, competencyId, status, createdAt",
       learnerModelDeltas: "id, learnerId, deltaKey, synced, updatedAt",
+    });
+
+    this.version(3).stores({
+      lessons: "id, moduleId, order",
+      progress: "id, studentId, lessonId, updatedAt",
+      syncQueue: "++id, type, synced, createdAt",
+      evidenceQueue: "id, learnerId, competencyId, status, createdAt",
+      learnerModelDeltas: "id, learnerId, deltaKey, synced, updatedAt",
+      audioCache: "id, courseId, lessonId, cachedAt",
     });
   }
 }

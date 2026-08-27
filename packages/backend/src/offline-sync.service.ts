@@ -174,4 +174,47 @@ export const OfflineSyncService = {
 
     return { syncedMutations, syncedEvidence, syncedDeltas };
   },
+
+  /**
+   * Cache audio blob locally in IndexedDB for offline model listening playback
+   */
+  async cacheAudioLocally(
+    courseId: string,
+    lessonId: string,
+    activityId: string,
+    audioBlob: Blob,
+    mimeType = "audio/mpeg",
+  ): Promise<void> {
+    const id = `${courseId}_${lessonId}_${activityId}`;
+    await localDb.audioCache.put({
+      id,
+      courseId,
+      lessonId,
+      activityId,
+      audioBlob,
+      mimeType,
+      cachedAt: Date.now(),
+    });
+  },
+
+  /**
+   * Retrieve cached audio blob for offline model listening playback
+   */
+  async getCachedAudio(
+    courseId: string,
+    lessonId: string,
+    activityId: string,
+  ): Promise<{ blob: Blob; mimeType: string } | null> {
+    const id = `${courseId}_${lessonId}_${activityId}`;
+    const cached = await localDb.audioCache.get(id);
+    if (!cached) return null;
+    return { blob: cached.audioBlob, mimeType: cached.mimeType };
+  },
+
+  /**
+   * Count total cached audio assets
+   */
+  async getCachedAudioCount(): Promise<number> {
+    return await localDb.audioCache.count();
+  },
 };

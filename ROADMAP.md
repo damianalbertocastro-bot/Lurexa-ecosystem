@@ -100,7 +100,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Preserve `unknown` instead of manufacturing proficiency states.
 - [x] Add shared Pulse UI.
 - [x] Integrate Pulse into Learn dashboard.
-- [ ] Add longitudinal momentum only after an approved comparison contract exists.
+- [x] Add longitudinal momentum only after an approved comparison contract exists.
 - [x] Add evidence-linked automated tests.
 
 ## S4 — Memory Thread vertical slice
@@ -316,7 +316,7 @@ Guardrail: Learn owns class/learner operations; Teach owns educator professional
 - [x] Organization/tenant administration.
 - [x] User/role/permission management.
 - [x] Program/course configuration.
-- [ ] Billing/subscription administration.
+- [x] Billing/subscription administration.
 - [x] Governance/audit/compliance controls.
 - [x] Learner-data/model access policy controls where required.
 
