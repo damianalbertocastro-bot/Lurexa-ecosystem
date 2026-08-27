@@ -20,6 +20,9 @@ const learnReadme = read("apps/learn-web/README.md");
 const products = read(".ai/context/products.md");
 const stack = read(".ai/context/stack.md");
 const developerAgent = read(".agents/agents/developer.md");
+const bible = read("Docs/00-Lurexa-Bible.md");
+const learnTeachBoundary = read("Docs/Architecture/LUREXA_LEARN_TEACH_PRODUCT_BOUNDARY.md");
+const urlContract = read("Docs/Design/CROSS_PRODUCT_URL_CONTRACT.md");
 
 for (const state of ["CONCEPT", "ARCHITECTURE", "PROTOTYPE", "CONTRACT_IMPLEMENTED", "MVP_IMPLEMENTED", "VERIFIED", "DEPLOYED", "PRODUCTION_READY"]) {
   requireText("ROADMAP.md", roadmap, state);
@@ -53,5 +56,16 @@ requireText(".ai/context/stack.md", stack, "pnpm: **10.3.0**");
 forbidText(".ai/context/stack.md", stack, "22 LTS");
 forbidText(".agents/agents/developer.md", developerAgent, "apps/teacher-portal` adhering");
 requireText(".agents/agents/developer.md", developerAgent, "apps/coach-web");
+
+requireText("Docs/00-Lurexa-Bible.md", bible, "six sibling products");
+requireText("Docs/00-Lurexa-Bible.md", bible, "standalone AI-powered English speaking, pronunciation and fluency product");
+requireText("Docs/00-Lurexa-Bible.md", bible, "PRODUCTION_READY");
+requireText("Docs/Architecture/LUREXA_LEARN_TEACH_PRODUCT_BOUNDARY.md", learnTeachBoundary, "exact teaching authorization");
+requireText("Docs/Architecture/LUREXA_LEARN_TEACH_PRODUCT_BOUNDARY.md", learnTeachBoundary, "apps/coach-web");
+forbidText("Docs/Architecture/LUREXA_LEARN_TEACH_PRODUCT_BOUNDARY.md", learnTeachBoundary, "The current membership role is an initial authorization mechanism");
+requireText("Docs/Design/CROSS_PRODUCT_URL_CONTRACT.md", urlContract, "https://coach.lurexa.org");
+requireText("Docs/Design/CROSS_PRODUCT_URL_CONTRACT.md", urlContract, "http://localhost:3005");
+forbidText("Docs/Design/CROSS_PRODUCT_URL_CONTRACT.md", urlContract, "<Learn URL>/coach");
+forbidText("Docs/Design/CROSS_PRODUCT_URL_CONTRACT.md", urlContract, "https://lurexa.com");
 
 console.log(`Documentation truth verification passed (${checks.length} checks).`);
