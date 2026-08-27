@@ -1,4 +1,4 @@
-export type EcosystemAppKey = "root" | "learn" | "teach" | "admin" | "docs";
+export type EcosystemAppKey = "root" | "learn" | "coach" | "teach" | "admin" | "docs";
 
 export interface EcosystemAppMeta {
   key: EcosystemAppKey;
@@ -28,6 +28,15 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     productionUrl: "https://learn.lurexa.org",
     developmentUrl: "http://localhost:3001",
     devPort: 3001,
+  },
+  coach: {
+    key: "coach",
+    name: "Lurexa Coach",
+    shortName: "Coach",
+    description: "Adaptive speaking, pronunciation, fluency, and professional English practice",
+    productionUrl: "https://coach.lurexa.org",
+    developmentUrl: "http://localhost:3005",
+    devPort: 3005,
   },
   teach: {
     key: "teach",
@@ -61,6 +70,7 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
 const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string[]> = {
   root: ["NEXT_PUBLIC_ROOT_URL", "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL"],
   learn: ["NEXT_PUBLIC_LEARN_URL", "NEXT_PUBLIC_LUREXA_LEARN_URL"],
+  coach: ["NEXT_PUBLIC_COACH_URL", "NEXT_PUBLIC_LUREXA_COACH_URL"],
   teach: ["NEXT_PUBLIC_TEACH_URL", "NEXT_PUBLIC_LUREXA_TEACH_URL"],
   admin: ["NEXT_PUBLIC_ADMIN_URL", "NEXT_PUBLIC_LUREXA_ADMIN_URL"],
   docs: ["NEXT_PUBLIC_DOCS_URL", "NEXT_PUBLIC_LUREXA_DOCS_URL"],
@@ -70,9 +80,7 @@ function getExplicitOverride(appKey: EcosystemAppKey, env: Record<string, string
   const vars = ENV_VAR_OVERRIDES[appKey] ?? [];
   for (const varName of vars) {
     const val = env[varName]?.trim();
-    if (val) {
-      return val.replace(/\/$/, "");
-    }
+    if (val) return val.replace(/\/$/, "");
   }
   return undefined;
 }
@@ -80,43 +88,24 @@ function getExplicitOverride(appKey: EcosystemAppKey, env: Record<string, string
 export function isProductionEnv(env: Record<string, string | undefined> = process.env): boolean {
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    if (hostname.endsWith("lurexa.org") || hostname.endsWith("vercel.app") || (!hostname.includes("localhost") && hostname !== "127.0.0.1")) {
-      return true;
-    }
+    if (hostname.endsWith("lurexa.org") || hostname.endsWith("vercel.app") || (!hostname.includes("localhost") && hostname !== "127.0.0.1")) return true;
   }
   const appEnv = env.NEXT_PUBLIC_APP_ENV?.trim();
-  if (appEnv) {
-    return appEnv === "production" || appEnv === "preview";
-  }
+  if (appEnv) return appEnv === "production" || appEnv === "preview";
   const vercelEnv = env.VERCEL_ENV?.trim();
-  if (vercelEnv) {
-    return vercelEnv === "production" || vercelEnv === "preview";
-  }
+  if (vercelEnv) return vercelEnv === "production" || vercelEnv === "preview";
   return env.NODE_ENV === "production";
 }
 
-export function getEcosystemBaseUrl(
-  appKey: EcosystemAppKey,
-  env: Record<string, string | undefined> = process.env
-): string {
+export function getEcosystemBaseUrl(appKey: EcosystemAppKey, env: Record<string, string | undefined> = process.env): string {
   const explicitOverride = getExplicitOverride(appKey, env);
-  if (explicitOverride) {
-    return explicitOverride;
-  }
-
+  if (explicitOverride) return explicitOverride;
   const meta = ECOSYSTEM_APP_REGISTRY[appKey];
-  if (!meta) {
-    throw new Error(`Unknown ecosystem app key: ${String(appKey)}`);
-  }
-
+  if (!meta) throw new Error(`Unknown ecosystem app key: ${String(appKey)}`);
   return isProductionEnv(env) ? meta.productionUrl : meta.developmentUrl;
 }
 
-export function getEcosystemUrl(
-  appKey: EcosystemAppKey,
-  path?: string,
-  env: Record<string, string | undefined> = process.env
-): string {
+export function getEcosystemUrl(appKey: EcosystemAppKey, path?: string, env: Record<string, string | undefined> = process.env): string {
   const baseUrl = getEcosystemBaseUrl(appKey, env);
   if (!path) return baseUrl;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -124,11 +113,5 @@ export function getEcosystemUrl(
 }
 
 export function getAllEcosystemApps(env: Record<string, string | undefined> = process.env): Array<EcosystemAppMeta & { url: string }> {
-  return (Object.keys(ECOSYSTEM_APP_REGISTRY) as EcosystemAppKey[]).map((key) => {
-    const meta = ECOSYSTEM_APP_REGISTRY[key];
-    return {
-      ...meta,
-      url: getEcosystemUrl(key, undefined, env),
-    };
-  });
+  return (Object.keys(ECOSYSTEM_APP_REGISTRY) as EcosystemAppKey[]).map((key) => ({ ...ECOSYSTEM_APP_REGISTRY[key], url: getEcosystemUrl(key, undefined, env) }));
 }
