@@ -86,7 +86,6 @@ function ToastItem({ message, onDismiss }: { message: ToastMessage; onDismiss: (
   );
 }
 
-/* ------------------------------------------------------------------ */
 export interface ToastProviderProps {
   children?: any;
 }

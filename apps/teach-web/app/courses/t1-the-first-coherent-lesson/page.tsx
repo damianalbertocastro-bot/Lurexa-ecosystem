@@ -16,7 +16,7 @@ export default function T1CoherentLessonPage() {
             <h1 className="mt-3 text-4xl font-black tracking-[-.055em] sm:text-5xl">
               The First Coherent Lesson (T1)
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-[#6677a5]">
+            <p className="mt-5 max-w-3xl text-base leading-7 text-[#4d5e8c]">
               Master lesson coherence, structured objective alignment, balanced Teacher Talk Time (TTT), formative checking, and proactive Dominican Spanish (L1) transfer scaffolding.
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ export default function T1CoherentLessonPage() {
               <h2 className="mt-3 text-xl font-black text-[#071d67]">
                 Collaborate with 140+ Educators
               </h2>
-              <p className="mt-2 text-sm text-[#6677a5]">
+              <p className="mt-2 text-sm text-[#4d5e8c]">
                 Exchange micro-teaching feedback and lesson structure ideas in the community circle.
               </p>
               <a

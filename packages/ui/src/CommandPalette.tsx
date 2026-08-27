@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 export interface CommandItem {
   id: string;
@@ -22,13 +22,13 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const navigate = (href: string) => {
+  const navigate = useCallback((href: string) => {
     if (onNavigate) {
       onNavigate(href);
     } else if (typeof window !== "undefined") {
       window.location.href = href;
     }
-  };
+  }, [onNavigate]);
 
   const commands: CommandItem[] = useMemo(
     () => [
@@ -93,7 +93,7 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
         },
       },
     ],
-    [onNavigate],
+    [navigate],
   );
 
   const filteredCommands = useMemo(() => {

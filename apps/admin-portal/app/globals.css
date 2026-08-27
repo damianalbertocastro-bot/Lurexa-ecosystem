@@ -3,41 +3,76 @@
 @source "../../../packages/ui/src";
 
 :root {
-  --background:#071d67;
-  --foreground:#eff4ff;
-  --focus-ring:#12cdd4;
+  --background: var(--lx-canvas);
+  --foreground: var(--lx-ink);
+  --focus-ring: var(--lx-accent);
 }
 
 @theme inline {
-  --color-background:var(--background);
-  --color-foreground:var(--foreground);
-  --font-sans:var(--font-geist-sans);
-  --font-mono:var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter, 'Inter', system-ui, -apple-system, sans-serif);
+  --animate-fade-slide-up: fadeSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fadeIn 0.25s ease-out forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
 }
 
-html,body { min-height:100%; background:var(--background); }
-html { scroll-behavior:smooth; }
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+html, body { min-height: 100%; background: var(--background); }
+html { scroll-behavior: smooth; }
 body {
-  color:var(--foreground);
-  font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
+  color: var(--foreground);
+  font-family: var(--font-inter, 'Inter', system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-:where(a,button,input,select,textarea,[tabindex]):focus-visible {
-  outline:3px solid color-mix(in srgb,var(--focus-ring) 78%,white);
-  outline-offset:3px;
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus-ring) 78%, white);
+  outline-offset: 3px;
 }
 
-:where(button,a) { -webkit-tap-highlight-color:transparent; }
-::selection { background:#12cdd4; color:#071d67; }
+:where(button, a) { -webkit-tap-highlight-color: transparent; }
+::selection { background: #12cdd4; color: #071d67; }
 
-@media (prefers-reduced-motion:reduce) {
-  html { scroll-behavior:auto; }
-  *,*::before,*::after {
-    animation-duration:.01ms !important;
-    animation-iteration-count:1 !important;
-    scroll-behavior:auto !important;
-    transition-duration:.01ms !important;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

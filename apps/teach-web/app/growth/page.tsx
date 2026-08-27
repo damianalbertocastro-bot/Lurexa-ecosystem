@@ -203,7 +203,7 @@ function GrowthContent() {
               </h1>
             </div>
             <div>
-              <p className="max-w-xl text-base leading-7 text-[#6677a5]">
+              <p className="max-w-xl text-base leading-7 text-[#4d5e8c]">
                 Lurexa Teach empowers your career progression through verified competency pathways, authentic evidence reflections, and institutional credentials.
               </p>
               {/* Clean Single-Identity Bridge to Learn Classroom */}
@@ -228,7 +228,7 @@ function GrowthContent() {
               <article key={name} className="rounded-[26px] border border-[#dfe6f8] bg-white p-6 shadow-sm">
                 <p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[#7180a8]">{name}</p>
                 <b className="mt-3 block text-2xl tracking-[-.04em] text-[#071d67]">{value}</b>
-                <p className="mt-2 text-sm leading-6 text-[#6677a5]">{detail}</p>
+                <p className="mt-2 text-sm leading-6 text-[#4d5e8c]">{detail}</p>
               </article>
             ))}
           </section>
@@ -269,7 +269,7 @@ function GrowthContent() {
                       </div>
 
                       <h3 className="text-lg font-black text-[#071d67]">{track.name}</h3>
-                      <p className="mt-2 text-xs leading-5 text-[#6677a5]">{track.description}</p>
+                      <p className="mt-2 text-xs leading-5 text-[#4d5e8c]">{track.description}</p>
 
                       {/* Level Step Bar */}
                       <div className="mt-5">
@@ -450,7 +450,7 @@ function GrowthContent() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <b className="text-sm font-bold text-[#071d67]">{item.title}</b>
-                          <p className="mt-1 text-xs leading-5 text-[#6677a5] whitespace-pre-wrap">
+                          <p className="mt-1 text-xs leading-5 text-[#4d5e8c] whitespace-pre-wrap">
                             {item.description}
                           </p>
                           <p className="mt-2 text-[11px] font-bold text-[#8994b4]">
@@ -472,7 +472,7 @@ function GrowthContent() {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-2xl bg-[#f7f9ff] p-5 text-sm leading-6 text-[#6677a5]">
+                  <p className="rounded-2xl bg-[#f7f9ff] p-5 text-sm leading-6 text-[#4d5e8c]">
                     No professional evidence has been submitted yet. Submit an artifact or reflection from any competency card above.
                   </p>
                 )}
@@ -513,7 +513,7 @@ export default function GrowthPage() {
   return (
     <Suspense
       fallback={
-        <div role="status" className="min-h-screen bg-[#f5f7ff] px-5 py-20 text-center text-sm font-bold text-[#6677a5]">
+        <div role="status" className="min-h-screen bg-[#f5f7ff] px-5 py-20 text-center text-sm font-bold text-[#4d5e8c]">
           Loading educator growth pathways…
         </div>
       }

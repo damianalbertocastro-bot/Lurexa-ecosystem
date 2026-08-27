@@ -11,7 +11,7 @@ export default function BrandIdentityPage() {
     <main className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
       <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#592bd6]">LOCAL VISUAL QA</p>
       <h1 className="mt-3 text-4xl font-black tracking-[-.055em] text-[#071d67] sm:text-5xl">Lurexa identity reference</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6677a5]">Use this local Docs route to inspect canonical shared marks, semantic sizing, inverse treatments, and the cross-product recommendation component before an intentional hosted preview or production release.</p>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#4d5e8c]">Use this local Docs route to inspect canonical shared marks, semantic sizing, inverse treatments, and the cross-product recommendation component before an intentional hosted preview or production release.</p>
 
       <section className="mt-10 rounded-[28px] border border-[#dfe6f8] bg-white p-6 sm:p-8">
         <h2 className="text-xl font-black text-[#071d67]">Master identity · semantic scale</h2>
@@ -40,7 +40,7 @@ export default function BrandIdentityPage() {
 
       <section className="mt-6 rounded-[28px] border border-dashed border-[#c9d4ee] bg-[#f8faff] p-6 sm:p-8">
         <h2 className="text-xl font-black text-[#071d67]">Future concepts</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6677a5]">Lurexa Community and other future-concept marks remain source assets under <code>packages/ui/brand/concepts</code>. They are intentionally not rendered through current-product runtime types until activation.</p>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#4d5e8c]">Lurexa Community and other future-concept marks remain source assets under <code>packages/ui/brand/concepts</code>. They are intentionally not rendered through current-product runtime types until activation.</p>
       </section>
     </main>
   );
