@@ -15,7 +15,9 @@
       "@lurexa/types": ["../../packages/types/src/index.ts"],
       "@lurexa/types/*": ["../../packages/types/src/*"],
       "@lurexa/backend": ["../../packages/backend/src/index.ts"],
-      "@lurexa/backend/*": ["../../packages/backend/src/*"]
+      "@lurexa/backend/*.server": ["../../packages/backend/src/*.server.ts"],
+      "@lurexa/backend/core/*.server": ["../../packages/backend/src/core/*.server.ts"],
+      "@lurexa/backend/mind/*.server": ["../../packages/backend/src/mind/*.server.ts"]
     }
   }
 }
