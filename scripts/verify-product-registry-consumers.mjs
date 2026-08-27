@@ -39,31 +39,29 @@ function parseRegistry(source) {
   return entries;
 }
 
-function parseCurrentProductIds(source) {
-  const match = source.match(/export type LurexaProductId\s*=\s*([^;]+);/);
-  if (!match) return new Set();
-  return new Set([...match[1].matchAll(/"([a-z-]+)"/g)].map((item) => item[1]));
-}
-
 const registrySource = read("packages/config/src/product-registry.ts");
 const registry = parseRegistry(registrySource);
-const declaredCurrentProductIds = parseCurrentProductIds(registrySource);
 const currentProducts = [...registry.values()].filter((entry) => entry.classification === "product");
-const currentProductIds = declaredCurrentProductIds.size > 0
-  ? declaredCurrentProductIds
-  : new Set(currentProducts.map((entry) => entry.id));
+const currentProductIds = new Set(currentProducts.map((entry) => entry.id));
 const currentProductNames = new Set(currentProducts.map((entry) => entry.name));
+const institutionalShells = [...registry.values()].filter((entry) => entry.classification === "institutional-shell");
+const institutionalShellIds = new Set(institutionalShells.map((entry) => entry.id));
+const institutionalShellNames = new Set(institutionalShells.map((entry) => entry.name));
 const sharedLayerNames = new Set([...registry.values()].filter((entry) => entry.classification === "shared-layer").map((entry) => entry.name));
 const surfaceNames = new Set([...registry.values()].filter((entry) => entry.classification === "ecosystem-surface").map((entry) => entry.name));
 const inactiveNames = new Set([...registry.values()].filter((entry) => entry.classification === "future-product-concept" || entry.classification === "future-concept").map((entry) => entry.name));
 
-if (currentProductIds.size !== 7) fail(`Expected 7 current product ids; typed contract exposes ${currentProductIds.size}`);
-else pass("typed registry exposes exactly the seven current products");
+if (currentProductIds.size !== 6) fail(`Expected 6 sibling products; registry exposes ${currentProductIds.size}`);
+else pass("registry exposes exactly the six sibling products");
 
-for (const id of currentProductIds) {
+for (const id of ["learn", "coach", "teach", "admin", "insight", "studio"]) {
   const entry = registry.get(id);
-  if (!entry || entry.classification !== "product") fail(`Typed current product id is missing a product registry entry: ${id}`);
+  if (!entry || entry.classification !== "product") fail(`Required sibling product is missing or misclassified: ${id}`);
 }
+
+const campus = registry.get("campus");
+if (!campus || campus.classification !== "institutional-shell") fail("Campus must be registered as the institutional shell, not a seventh sibling product");
+else pass("Campus is structurally separate as the institutional orchestration shell");
 
 const deployment = readJson("deployment/products.json");
 const bootstrap = readJson("bootstrap/repository.json");
@@ -71,7 +69,12 @@ const bootstrapAppsByPath = new Map(bootstrap.apps.map((app) => [app.path, app])
 
 for (const item of deployment.deployments) {
   if (inactiveNames.has(item.product)) fail(`Inactive concept appears in active deployment topology: ${item.product}`);
-  if (item.product !== "Lurexa Learning Technologies" && !currentProductNames.has(item.product) && !surfaceNames.has(item.product)) {
+  if (
+    item.product !== "Lurexa Learning Technologies" &&
+    !currentProductNames.has(item.product) &&
+    !institutionalShellNames.has(item.product) &&
+    !surfaceNames.has(item.product)
+  ) {
     fail(`Deployment product is not canonical registry identity: ${item.id} -> ${item.product}`);
   }
 
@@ -79,14 +82,16 @@ for (const item of deployment.deployments) {
   if (!app) fail(`Deployment root is missing from bootstrap repository manifest: ${item.rootDirectory}`);
   else if (!app.required) fail(`Deployable surface must be required in bootstrap manifest: ${item.rootDirectory}`);
 }
-if (!failures.some((item) => item.includes("Deployment") || item.includes("Deployable"))) pass("deployment surfaces resolve to current registry identities and bootstrap apps");
+if (!failures.some((item) => item.includes("Deployment") || item.includes("Deployable"))) pass("deployment surfaces resolve to products, institutional shells, or ecosystem surfaces");
 
 for (const item of deployment.futureProducts) {
   const match = [...registry.values()].find((entry) => entry.name === item.product);
   if (!match) fail(`Future deployment target is not present in registry: ${item.product}`);
-  else if (match.classification !== "product") fail(`Future deployment target must be an approved current product awaiting a surface, not ${match.classification}: ${item.product}`);
+  else if (match.classification !== "product" && match.classification !== "institutional-shell") {
+    fail(`Future deployment target must be an approved product or institutional shell awaiting a surface, not ${match.classification}: ${item.product}`);
+  }
 }
-if (!failures.some((item) => item.includes("Future deployment"))) pass("future deployment targets are approved products rather than future concepts");
+if (!failures.some((item) => item.includes("Future deployment"))) pass("future deployment targets are approved products or institutional shells rather than future concepts");
 
 const deploymentLayerNames = new Set(deployment.sharedLayers.map((layer) => layer.name));
 for (const name of sharedLayerNames) {
@@ -104,14 +109,15 @@ if (!orderMatch) {
 } else {
   const ids = [...orderMatch[1].matchAll(/"([a-z-]+)"/g)].map((match) => match[1]);
   const unique = new Set(ids);
-  if (ids.length !== unique.size) fail("Ecosystem landing productOrder contains duplicate product ids");
+  if (ids.length !== unique.size) fail("Ecosystem landing productOrder contains duplicate experience ids");
   for (const id of currentProductIds) if (!unique.has(id)) fail(`Ecosystem landing omits current product: ${id}`);
-  for (const id of unique) if (!currentProductIds.has(id)) fail(`Ecosystem landing promotes non-current product: ${id}`);
+  for (const id of institutionalShellIds) if (!unique.has(id)) fail(`Ecosystem landing omits institutional shell: ${id}`);
+  for (const id of unique) if (!currentProductIds.has(id) && !institutionalShellIds.has(id)) fail(`Ecosystem landing promotes non-current experience: ${id}`);
 }
 if (!webPage.includes('from "@lurexa/config/product-registry"')) fail("Ecosystem landing must consume product identity through @lurexa/config/product-registry");
-if (!failures.some((item) => item.includes("Ecosystem landing"))) pass("ecosystem product navigation is registry-backed and current-product complete");
+if (!failures.some((item) => item.includes("Ecosystem landing"))) pass("ecosystem navigation is registry-backed and complete across products plus Campus shell");
 
-const allowedRelatedKinds = new Set([...currentProductIds, "docs", "ecosystem", "teach-community"]);
+const allowedRelatedKinds = new Set([...currentProductIds, ...institutionalShellIds, "docs", "ecosystem", "teach-community"]);
 const relatedExperienceSources = walk("apps")
   .filter((file) => /\.(?:ts|tsx|js|jsx)$/.test(file))
   .filter((file) => {

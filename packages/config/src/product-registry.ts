@@ -1,4 +1,11 @@
-export type LurexaProductId = "learn" | "coach" | "teach" | "admin" | "insight" | "studio" | "campus";
+export type LurexaCoreProductId = "learn" | "coach" | "teach" | "admin" | "insight" | "studio";
+export type LurexaInstitutionalShellId = "campus";
+/**
+ * Compatibility type for existing ecosystem UI consumers that render both
+ * sibling products and the institutional shell. Prefer LurexaCoreProductId
+ * when code specifically means a product at the Learn/Coach/Teach/Admin/Insight/Studio tier.
+ */
+export type LurexaProductId = LurexaCoreProductId | LurexaInstitutionalShellId;
 export type LurexaLayerId = "core" | "mind";
 export type LurexaSurfaceId = "docs";
 export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "enterprise";
@@ -6,13 +13,19 @@ export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "
 export type LurexaRegistryEntry = {
   id: string;
   name: string;
-  classification: "product" | "shared-layer" | "ecosystem-surface" | "future-concept" | "future-product-concept";
+  classification:
+    | "product"
+    | "institutional-shell"
+    | "shared-layer"
+    | "ecosystem-surface"
+    | "future-concept"
+    | "future-product-concept";
   personality: string;
   description: string;
   canonicalMark: string;
 };
 
-export const lurexaProducts: Record<LurexaProductId, LurexaRegistryEntry> = {
+export const lurexaCoreProducts: Record<LurexaCoreProductId, LurexaRegistryEntry> = {
   learn: {
     id: "learn",
     name: "Lurexa Learn",
@@ -61,14 +74,26 @@ export const lurexaProducts: Record<LurexaProductId, LurexaRegistryEntry> = {
     description: "Course, lesson, assessment and reusable learning-experience authoring and publishing.",
     canonicalMark: "lurexa-studio.svg",
   },
+};
+
+export const lurexaInstitutionalShells: Record<LurexaInstitutionalShellId, LurexaRegistryEntry> = {
   campus: {
     id: "campus",
     name: "Lurexa Campus",
-    classification: "product",
+    classification: "institutional-shell",
     personality: "connected, institutional and intelligent",
-    description: "Campus-wide and institutional learning deployments connecting programs, cohorts, educators, and community experiences.",
+    description: "Institutional orchestration shell that connects Lurexa products, programs, cohorts, educators, governance and institution-level experiences without becoming a seventh sibling product.",
     canonicalMark: "lurexa-campus.svg",
   },
+};
+
+/**
+ * Compatibility aggregate for UI surfaces that still render Campus beside the
+ * sibling products. Do not use this object to infer architectural tier.
+ */
+export const lurexaProducts: Record<LurexaProductId, LurexaRegistryEntry> = {
+  ...lurexaCoreProducts,
+  ...lurexaInstitutionalShells,
 };
 
 export const lurexaLayers: Record<LurexaLayerId, LurexaRegistryEntry> = {
@@ -145,7 +170,8 @@ export const lurexaFutureConcepts: Record<LurexaConceptId, LurexaRegistryEntry> 
 };
 
 export const lurexaRegistry = {
-  products: lurexaProducts,
+  products: lurexaCoreProducts,
+  institutionalShells: lurexaInstitutionalShells,
   layers: lurexaLayers,
   surfaces: lurexaSurfaces,
   futureConcepts: lurexaFutureConcepts,

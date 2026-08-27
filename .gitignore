@@ -6,19 +6,23 @@ build/
 out/
 .turbo/
 *.node
-.env
-.env.local
-.DS_Store
-.vercel
-.env*
 *.tsbuildinfo
+.DS_Store
+.vercel/
 
-# Generated local repository inspection artifacts
+# Environment files: never commit live values. Keep only documented examples.
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Generated local repository inspection / temporary value artifacts
 repo_snapshot.txt
+.temp_val_*
 
 # Firebase Local Emulator Suite diagnostics
 firebase-debug.log
 firestore-debug.log
 
+# Local tool configuration that may contain credentials
 .config/*.json
-.env.local
