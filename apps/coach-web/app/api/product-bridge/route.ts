@@ -1,12 +1,21 @@
 import type { ProductBridgePurpose, SignatureExperienceConsumer } from "@lurexa/types";
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import { createProductBridge, resolveProductBridge } from "@lurexa/backend/product-bridge.server";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CreateBody = { destination?: SignatureExperienceConsumer; purpose?: ProductBridgePurpose; destinationRef?: string; contextRef?: string };
 type ResolveBody = { bridgeId?: string; destination?: SignatureExperienceConsumer };
+
+function qualifyDestinationRef(destination: SignatureExperienceConsumer, destinationRef: string): string {
+  if (/^https?:\/\//i.test(destinationRef)) return destinationRef;
+  if (destination === "learn" || destination === "teach" || destination === "coach") {
+    return getEcosystemUrl(destination, destinationRef);
+  }
+  return destinationRef;
+}
 
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -15,7 +24,8 @@ export async function POST(request: Request): Promise<Response> {
     if (action === "resolve") {
       const body = await request.json() as ResolveBody;
       if (!body.bridgeId || !body.destination) return Response.json({ error: "bridgeId and destination are required." }, { status: 400 });
-      return Response.json(await resolveProductBridge({ actorId: actor.uid, bridgeId: body.bridgeId, destination: body.destination }), { headers: { "Cache-Control": "private, no-store, max-age=0" } });
+      const resolution = await resolveProductBridge({ actorId: actor.uid, bridgeId: body.bridgeId, destination: body.destination });
+      return Response.json({ ...resolution, destinationRef: qualifyDestinationRef(body.destination, resolution.destinationRef) }, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
     }
     const body = await request.json() as CreateBody;
     if (!body.destination || !body.purpose || !body.destinationRef) return Response.json({ error: "destination, purpose, and destinationRef are required." }, { status: 400 });
