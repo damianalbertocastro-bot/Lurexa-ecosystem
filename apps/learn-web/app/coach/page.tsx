@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
+import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
+import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { TypingIndicator } from "./TypingIndicator";
 import type {
   CoachSession,
@@ -335,6 +337,32 @@ export default function LurexaCoachPage() {
                     </span>
                   ))}
                 </div>
+
+                <div className="mt-5 border-t border-slate-100 pt-4">
+                  <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#315fd7] mb-2.5">
+                    L1 PHONETIC TARGETS
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <PhoneticChip
+                      ipa="/st-/"
+                      example="start"
+                      category="cluster"
+                      l1Note="Start immediately with the [s] fricative without an initial [e] vowel."
+                    />
+                    <PhoneticChip
+                      ipa="/ð/"
+                      example="they"
+                      category="consonant"
+                      l1Note="Place tongue between teeth lightly; avoids shifting to Spanish hard [d]."
+                    />
+                    <PhoneticChip
+                      ipa="/v/"
+                      example="live"
+                      category="consonant"
+                      l1Note="Upper teeth on lower lip to distinguish from Spanish bilabial [b]."
+                    />
+                  </div>
+                </div>
               </article>
 
               {activeCoachingCue ? (
@@ -415,6 +443,19 @@ export default function LurexaCoachPage() {
               {/* Input Footer */}
               <footer className="border-t border-[#edf2f9] bg-white p-5 sm:p-6">
                 <div className="flex flex-col gap-4">
+                  {(isRecording || sendingTurn) && (
+                    <div className="animate-fade-slide-up rounded-2xl border border-indigo-100 bg-[#f8faff] p-3">
+                      <div className="mb-1 flex items-center justify-between px-2 text-[10px] font-black uppercase tracking-wider text-indigo-700">
+                        <span>{isRecording ? "🔴 Capturing Voice turn…" : "🔊 Coach Speaking"}</span>
+                        <span>{isRecording ? "Speak clearly into microphone" : "Audio synthesis"}</span>
+                      </div>
+                      <AudioWaveform
+                        active={true}
+                        variant={isRecording ? "recording" : "playback"}
+                      />
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-3">
                     <input
                       type="text"

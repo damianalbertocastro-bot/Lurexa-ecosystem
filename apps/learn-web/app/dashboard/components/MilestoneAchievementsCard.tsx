@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
+import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 
 interface Milestone {
   id: string;
@@ -31,6 +32,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
   onStartLesson,
 }) => {
   const router = useRouter();
+  const { playAchievement, playClick } = useSoundEffects();
 
   // Authentic system milestones mapped strictly from verified progress events
   const earnedMilestones = useMemo<Milestone[]>(() => {
@@ -100,7 +102,11 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
             {earnedMilestones.map((milestone) => (
               <div
                 key={milestone.id}
-                className="flex items-center gap-3.5 rounded-2xl border border-slate-100 bg-slate-50/70 p-3 transition hover:bg-slate-100/70"
+                onClick={playAchievement}
+                role="button"
+                tabIndex={0}
+                aria-label={`Milestone: ${milestone.title}`}
+                className="flex cursor-pointer items-center gap-3.5 rounded-2xl border border-slate-100 bg-slate-50/70 p-3 transition hover:bg-slate-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white text-xl shadow-sm border border-slate-100">
                   {milestone.icon}
@@ -122,7 +128,10 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
             <div className="pt-1 text-right">
               <button
                 type="button"
-                onClick={() => router.push("/dashboard/points")}
+                onClick={() => {
+                  playClick();
+                  router.push("/dashboard/points");
+                }}
                 className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-1"
               >
                 View all points & achievements →
