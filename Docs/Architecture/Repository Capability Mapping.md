@@ -1,236 +1,143 @@
 # Repository Capability Mapping
 
-Status: Active
-Last updated: 2026-08-19
+Status: Active  
+Last reconciled: 2026-08-27
 
 ## Purpose
 
-This document maps the repository that exists today to the authoritative Lurexa architecture without forcing package names to mirror product branding.
+This document maps the repository that exists today to the authoritative Lurexa architecture. It does not imply that every existing package or prototype is a permanent production boundary.
 
-Architectural ownership is conceptual. Physical package changes should happen only when cohesion, security, scaling, or deployment boundaries justify them.
+> Products create experiences/evidence. Core owns trust and authoritative persistence. Mind interprets authorized evidence. One learner model evolves across authorized experiences.
 
-## Authoritative responsibility model
+## Current application map
 
-> Products generate learning experiences and evidence.
->
-> Lurexa Mind interprets authorized evidence and produces learning intelligence.
->
-> Lurexa Core owns trust, identity, authorization, persistence, and authoritative records.
->
-> The Learner Model is the persistent evolving representation of the learner across the ecosystem.
+| Repository area | Owner / classification | Current truth |
+| --- | --- | --- |
+| `apps/web` | Ecosystem surface | Lurexa ecosystem landing/application shell |
+| `apps/learn-web` | Learn | Learner web plus embedded `/teacher` operational Teacher Workspace |
+| `apps/coach-web` | Coach | Standalone Coach product/runtime; canonical speaking/pronunciation/fluency UI |
+| `apps/teach-web` | Teach | Standalone educator professional-development product |
+| `apps/admin-portal` | Admin | Governance/administration product |
+| `apps/docs` | Docs surface | Documentation application |
+| `apps/mobile` | Learn surface | Expo/React Native Learn mobile foundation |
 
-## Verified repository baseline
+No current standalone `apps/insight-web`, `apps/studio-web`, or `apps/campus-web` exists.
 
-The current monorepo contains shared packages including:
+The Learn routes `/teacher/insights`, `/teacher/studio`, `/campus`, `/marketplace`, and legacy `/chat` must be interpreted according to current product/containment policy, not by route name alone:
 
-- `@lurexa/auth`
-- `@lurexa/backend`
-- `@lurexa/config`
-- `@lurexa/database`
-- `@lurexa/sdk`
-- `@lurexa/types`
-- `@lurexa/ui`
-- `@lurexa/tokens`
-- `@lurexa/utils`
-- shared ESLint and TypeScript configuration packages
+- `/teacher/insights` = Learn instructional Teacher Workspace feature, not standalone Insight;
+- `/teacher/studio` = contained local Studio interaction prototype, not standalone Studio;
+- `/campus` = representative institutional-shell prototype, not a live Campus tenant;
+- `/marketplace` = contained future concept/status surface, not live commerce;
+- `/chat` = compatibility handoff to standalone Coach.
 
-The current backend package contains services for authentication, organizations, courses, progress, AI generation, AI guardrails, analytics, offline sync, billing, administration, ecosystem behavior, telemetry, Firebase integration, learner evidence persistence, scoped learner context, the first Mind interpretation pipeline, and authenticated Coach session creation.
+## Shared package map
 
-The current `learn-web` application contains learner-facing Learn routes and an embedded Coach route. It also contains legacy/future-facing routes such as marketplace/developer areas. Their presence is implementation history, not evidence that those concepts are current top-level products. They should be reviewed later rather than deleted solely for architecture alignment.
+| Package | Current role | Reconciliation direction |
+| --- | --- | --- |
+| `@lurexa/types` | Canonical shared domain/contracts | Keep as cross-boundary contract authority |
+| `@lurexa/config` | Shared product/domain/runtime config | Keep neutral; reduce duplicate registries/env aliases |
+| `@lurexa/ui` | Shared interaction/brand components | Keep data/provider authority out of UI |
+| `@lurexa/tokens` | Shared design grammar | Preserve shared grammar with product personalities |
+| `@lurexa/backend` | Mixed browser-safe services + explicit server capabilities | Platform/package reconciliation must make client/server ownership clearer |
+| `@lurexa/sdk` | Shared SDK/contract surface | Audit overlap with backend services before expanding |
+| `@lurexa/auth` | Historical/shared auth abstraction | Classify Production/Contract/Deprecated based on actual import graph |
+| `@lurexa/database` | Historical datastore/repository abstraction | Classify production/test/deprecated pieces; Firestore is current operational store |
+| `@lurexa/utils` | Shared utilities | Keep domain-neutral |
 
-## Capability ownership map
+Package names do not need to mirror Core/Mind branding, but package boundaries must not weaken architectural ownership.
 
-| Repository area | Architectural owner | Current role | Direction |
-|---|---|---|---|
-| `@lurexa/auth` | Core | Authentication primitives | Keep as Core capability |
-| `@lurexa/database` | Core | Persistence contracts | Keep datastore-neutral interfaces; concrete server adapters may live with current backend infrastructure until a split is justified |
-| `@lurexa/backend` | Mixed implementation host | Existing Core services plus early Mind implementation | Preserve conceptual ownership boundaries even while physical code shares this package |
-| `@lurexa/types` | Shared contracts | Canonical domain, learner, and Coach session types | Home for cross-boundary contracts |
-| `@lurexa/sdk` | Shared capability contracts | Generic helpers plus learner/Mind interfaces | Expose supported product-facing Core and Mind interfaces |
-| `@lurexa/config` | Shared infrastructure | Configuration | Keep neutral/shared |
-| `@lurexa/utils` | Shared infrastructure | Generic utilities | Keep domain-neutral |
-| `@lurexa/ui` | Shared product infrastructure | UI components | No learner persistence or AI-provider logic |
-| `@lurexa/tokens` | Shared product infrastructure | Design tokens | No domain logic |
-| `apps/*` | Products | User experiences | Generate experiences/evidence and consume authorized context |
+## Core-owned capabilities implemented at verified baseline
 
-## Learner contract foundation implemented
+Current server-governed foundations include:
 
-`@lurexa/types` now distinguishes:
+- authenticated identity integration;
+- organization/tenant boundaries;
+- learning evidence and progress persistence;
+- purpose-scoped learner context;
+- educator qualification lifecycle/review;
+- exact-course teaching authorization;
+- course enrollment index;
+- Product Bridge creation/resolution;
+- trusted Coach session records/completion redaction;
+- Signature Experience projections;
+- governed Knowledge Object catalog foundations.
 
-- `LearnerContext` — purpose-scoped information an authorized product may consume.
-- `LearningEvidence` — observations contributed by products or authorized actors.
-- `LearnerInsight` — interpreted, revisable learning intelligence derived from evidence.
-- `LearnerInsightData` — typed machine-usable insight payloads such as CEFR estimates, learning targets, recurring patterns, goals, curriculum context, and recommendations.
-- `LearnerInterpretationRequest` / `LearnerInterpretationResult` — the Mind interpretation boundary.
-- `CoachSession` / `CoachSessionStartResult` — context-aware Coach session contracts that reuse the shared Learner Model rather than defining a Coach-specific learner profile.
+Core is the authority for trusted persistence and authorization. A browser-side service is not authoritative merely because it lives in `@lurexa/backend`.
 
-The separation is intentional:
+## Mind-owned capabilities implemented at verified baseline
 
-```text
-Evidence != Insight != Context
-```
+Current storage-free or Core-approved interpretation foundations include:
 
-Products do not promote an observation directly into authoritative interpreted learner state.
+- conservative learning recommendations;
+- professional educator growth recommendations;
+- linguistic/pronunciation pattern interpretation;
+- adaptive next-action/projection inputs;
+- approved explanation/trace candidates.
 
-## SDK boundaries implemented
+Mind does not grant teaching authority, entitlements or qualification and does not become the canonical persistence layer.
 
-`@lurexa/sdk` exposes:
+## Learner/professional evidence separation
 
-- `LearnerModelService` for Core-facing context/evidence/persistence operations.
-- `LearningIntelligenceService` for Mind interpretation.
-
-These remain product-agnostic contracts rather than provider-specific implementations.
-
-## Persistence implemented
-
-The repository contains datastore-neutral evidence/insight repository contracts and a current server-side Firestore adapter.
-
-New canonical evidence is stored in the server-only `learning-evidence` collection. Active interpreted state is stored in the server-only `learner-insights` collection.
-
-Evidence writes are idempotent by deterministic evidence ID. If the same ID is reused with different content, the repository rejects the conflict instead of silently overwriting evidence.
-
-Historical Learn evidence written with the earlier schema is normalized at the repository read boundary. This compatibility layer prevents an immediate migration from being required while new producers use the canonical contract.
-
-## Learn evidence producers migrated
-
-The current `CoursePlatformService` now emits canonical `LearningEvidence` for:
-
-- lesson completion → `curriculum_progress`;
-- quiz attempts → `assessment_result`;
-- scored interactive activities → `activity_result`.
-
-The previous ad-hoc event schema is no longer produced by these flows. Existing historical records remain readable through normalization.
-
-## First Mind implementation
-
-`ConservativeLearningIntelligenceService` is the first concrete Mind implementation behind the shared contract.
-
-Its current behavior is deliberately narrow: repeated unsuccessful attempts on the same activity can create a revisable practice recommendation. A single failed activity does not become a weakness, proficiency judgment, or mastery claim.
-
-This implementation is deterministic and provider-independent. Richer model-backed interpretation can replace or extend it later without changing the Core contracts.
-
-## Closed learner loop implemented
-
-The first working loop is now:
+The repository distinguishes:
 
 ```text
-Learn action
-  ↓
-Core progress record
-  ↓
-canonical LearningEvidence
-  ↓
-Mind interpretation
-  ↓
-Core learner-insight persistence
-  ↓
-purpose-scoped LearnerContext
-  ↓
-Learn / Coach adaptation
+Evidence != Interpretation != Authorized Context
 ```
 
-The current Learn server flow refreshes low-cost deterministic intelligence after evidence capture. Intelligence refresh failure is isolated from the learner's primary progress operation so an interpretation failure does not erase or reject valid learning progress.
+Student learner evidence and educator-professional evidence are purpose-separated. Educator Coach mode produces minimized professional evidence and does not enter the ordinary learner evidence pipeline.
 
-Before expensive or model-backed Mind interpretation is introduced, this synchronous refresh should be replaced by a durable asynchronous processing mechanism.
+## Learn ↔ Coach ↔ Teach continuity
 
-## Scoped learner context implemented
-
-`getScopedLearnerContext` provides a trusted server-side Core read boundary.
-
-Current properties:
-
-- self-only learner access for the learner-facing route;
-- purpose-scoped domains;
-- trusted curriculum position derived from Core progress records;
-- goals from active insights with profile fallback;
-- CEFR only when an active evidence-backed CEFR insight exists;
-- active targets and recurring patterns from typed insights;
-- recent activity identifiers from normalized learning evidence;
-- no raw learner-response payloads returned to the product.
-
-`apps/learn-web/app/api/learner-context/route.ts` exposes this through an authenticated Node.js route.
-
-## First cross-product Coach adaptation implemented
-
-The embedded `apps/learn-web/app/coach` experience is now the first second-product consumer of the shared learner context.
-
-The previous prototype behavior that hard-coded `student_demo`, B2, “Accent Reduction,” a direct browser Firestore Coach session write, and a fabricated 94% pronunciation score has been removed from the active Coach page.
-
-The current path is:
+Coach is no longer embedded as the canonical Learn-owned UI.
 
 ```text
-Authenticated learner
-  ↓
-POST /api/coach
-  ↓
-Core authentication
-  ↓
-getScopedLearnerContext(purpose = coach_session_adaptation)
-  ↓
-CoachPlatformService
-  ↓
-server-owned coach-sessions record
-  ↓
-context-aware Coach UI
+Learn learning need
+  ↓ governed Product Bridge
+Coach standalone practice
+  ↓ minimized evidence + Core/Mind
+return → Learn
+
+Teach professional growth
+  ↓ governed Product Bridge / benefit
+Coach educator-professional practice
+  ↓ professional evidence
+return → Teach
 ```
 
-Coach currently adapts its session focus to available CEFR, recent Learn curriculum context, goals, pronunciation targets, and fluency targets. If those signals are unavailable, it explicitly starts with limited context rather than inventing learner state.
+Learn compatibility `/coach` routes redirect to `apps/coach-web`; Coach independently re-authorizes context/session access.
 
-The UI no longer presents production speech recognition, pronunciation scoring, or a connected voice provider as implemented. The temporary speaking interaction is labeled as a prototype and refuses to fabricate a pronunciation score.
+## Teacher Workspace boundary
 
-This proves the architectural direction—Learn-generated evidence can influence a different product experience through Core/Mind/Learner Model boundaries—without claiming that production speech analysis is complete.
+The operational Teacher Workspace is `apps/learn-web/app/teacher`.
 
-## Firebase Admin boundary implemented
+Access requires the relevant entitlement, eligible educator qualification and exact teaching authorization. Organization owner/admin governance role alone must not substitute for qualification.
 
-Trusted server operations use `@lurexa/backend/firebase-admin.server`.
+Teach remains educator professional development and receives no delegated student-context entitlement.
 
-Production initialization uses `FIREBASE_SERVICE_ACCOUNT_JSON`; emulator operation can initialize from the configured project ID. The Admin module remains out of the browser-facing root backend barrel.
+## Prototype containment
 
-## Firestore security posture
+`Docs/Architecture/LUREXA_PROTOTYPE_CONTAINMENT.md` is normative. Marketplace, billing preview, Campus prototype, Studio prototype and inactive Learn tutor placeholders must fail honest/closed for unimplemented trusted behavior.
 
-`learning-evidence`, `learner-insights`, and canonical `coach-sessions` are server-only: client rules grant no read or write access.
+## Current verification gates
 
-`progress` is an authoritative Core record. Learners may read only their own progress and organization managers may read progress for courses they manage. Client writes are denied; writes must pass through trusted Core server APIs.
+Required `Verify Foundation & Build` protects, among other things:
 
-The legacy browser `ProgressService.syncProgress` method remains only as a compatibility surface and now fails explicitly with guidance to use the trusted Core learning API rather than attempting a Firestore write that security rules reject.
+- repository hygiene;
+- product/brand registry boundaries;
+- prototype containment;
+- documentation truth;
+- Coach first-class product ownership;
+- curriculum portfolio/runtime contracts;
+- Core/Mind contracts;
+- learner model and recommendation rules;
+- Signature Experience;
+- educator qualification/governance/growth journeys;
+- Firestore security rules;
+- Phase 0 lint/type/build.
 
-## Architecture verification gate
+`main` requires that check, requires a PR, requires current/up-to-date status and resolved review conversations, and blocks force pushes/deletion with no bypass actors.
 
-The repository now includes `scripts/verify-learner-model.mjs` and the root `verify:learner-model` command.
+## Platform/package reconciliation note
 
-CI runs this verification alongside TypeScript checks. It protects key invariants including:
-
-- canonical learner and Coach contracts remain exported;
-- Learn continues to emit canonical evidence domains;
-- Coach-session adaptation remains part of the learner-context contract;
-- evidence, insight, progress writes, and Coach sessions stay behind trusted server boundaries;
-- the active Coach page does not reintroduce the hard-coded demo learner, “Accent Reduction,” fabricated pronunciation scoring, or false voice-provider status.
-
-This is an architecture regression gate, not a substitute for behavioral unit/integration tests.
-
-## No premature repository split
-
-The implementation deliberately has not:
-
-- renamed `@lurexa/backend` to Core;
-- created a monolithic `@lurexa/mind` branding package;
-- created a giant learner-model Firestore document;
-- exposed learner evidence or insights to product clients;
-- allowed Learn or Coach to write interpreted learner state directly;
-- migrated historical evidence or progress merely for naming consistency.
-
-## Current technical debt and next work
-
-1. Validate lint/type/build for the new learner contracts and server paths in CI/Vercel.
-2. Add behavioral tests for evidence idempotency, legacy normalization, stale/superseded insights, context scoping, and Firestore security rules.
-3. Replace synchronous Mind refresh with a durable job/event mechanism before model-backed interpretation introduces material latency or cost.
-4. Add competency/curriculum metadata needed to produce useful learning-target insights without guessing from activity IDs.
-5. Establish teacher/institution learner-context authorization separately from the current self-only learner route.
-6. Define evidence-backed CEFR/placement inputs before producing proficiency insights.
-7. Add real Coach speaking/pronunciation evidence only after a reliable speech-analysis pipeline exists; do not fabricate scores.
-8. Make Coach-produced evidence feed the same Core → Mind → context loop.
-9. Review legacy product routes and mixed AI/analytics services independently from Learner Model work.
-
-## Governing principle
-
-> One learner. One evolving model. Every Lurexa experience adapts around it.
+The existence of older generic auth/database/SDK abstractions is not evidence they remain the preferred production path. Stage 6 of `ROADMAP.md` audits actual imports and classifies each package/component as **Production, Contract, Test, or Deprecated** before removal or restructuring.
