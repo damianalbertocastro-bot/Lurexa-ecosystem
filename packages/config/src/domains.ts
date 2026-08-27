@@ -1,4 +1,4 @@
-export type EcosystemAppKey = "root" | "learn" | "teach" | "admin" | "docs";
+export type EcosystemAppKey = "root" | "learn" | "coach" | "teach" | "admin" | "docs";
 
 export interface EcosystemAppMeta {
   key: EcosystemAppKey;
@@ -28,6 +28,15 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     productionUrl: "https://learn.lurexa.org",
     developmentUrl: "http://localhost:3001",
     devPort: 3001,
+  },
+  coach: {
+    key: "coach",
+    name: "Lurexa Coach",
+    shortName: "Coach",
+    description: "Adaptive speaking, pronunciation, fluency, and professional English practice",
+    productionUrl: "https://coach.lurexa.org",
+    developmentUrl: "http://localhost:3005",
+    devPort: 3005,
   },
   teach: {
     key: "teach",
@@ -61,6 +70,7 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
 const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string[]> = {
   root: ["NEXT_PUBLIC_ROOT_URL", "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL"],
   learn: ["NEXT_PUBLIC_LEARN_URL", "NEXT_PUBLIC_LUREXA_LEARN_URL"],
+  coach: ["NEXT_PUBLIC_COACH_URL", "NEXT_PUBLIC_LUREXA_COACH_URL"],
   teach: ["NEXT_PUBLIC_TEACH_URL", "NEXT_PUBLIC_LUREXA_TEACH_URL"],
   admin: ["NEXT_PUBLIC_ADMIN_URL", "NEXT_PUBLIC_LUREXA_ADMIN_URL"],
   docs: ["NEXT_PUBLIC_DOCS_URL", "NEXT_PUBLIC_LUREXA_DOCS_URL"],
