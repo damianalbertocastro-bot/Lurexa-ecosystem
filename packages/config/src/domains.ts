@@ -1,4 +1,4 @@
-export type EcosystemAppKey = "root" | "learn" | "teach" | "admin" | "docs";
+export type EcosystemAppKey = "root" | "learn" | "teach" | "admin" | "docs" | "coach";
 
 export interface EcosystemAppMeta {
   key: EcosystemAppKey;
@@ -56,6 +56,15 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     developmentUrl: "http://localhost:3004",
     devPort: 3004,
   },
+  coach: {
+    key: "coach",
+    name: "Lurexa Coach",
+    shortName: "Coach",
+    description: "AI-powered English speaking, pronunciation, and fluency studio",
+    productionUrl: "https://coach.lurexa.org",
+    developmentUrl: "http://localhost:3005",
+    devPort: 3005,
+  },
 };
 
 const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string[]> = {
@@ -64,6 +73,7 @@ const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string[]> = {
   teach: ["NEXT_PUBLIC_TEACH_URL", "NEXT_PUBLIC_LUREXA_TEACH_URL"],
   admin: ["NEXT_PUBLIC_ADMIN_URL", "NEXT_PUBLIC_LUREXA_ADMIN_URL"],
   docs: ["NEXT_PUBLIC_DOCS_URL", "NEXT_PUBLIC_LUREXA_DOCS_URL"],
+  coach: ["NEXT_PUBLIC_COACH_URL", "NEXT_PUBLIC_LUREXA_COACH_URL"],
 };
 
 function getExplicitOverride(appKey: EcosystemAppKey, env: Record<string, string | undefined>): string | undefined {
