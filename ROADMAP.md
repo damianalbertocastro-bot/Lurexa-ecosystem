@@ -85,7 +85,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Add SDK service boundary.
 - [x] Establish Core projection services for Pulse, Path, Mind Trace and Memory Thread.
 - [x] Add canonical knowledge-object references to Learning Evidence source metadata.
-- [ ] Add contract validators and compatibility tests for signature records.
+- [x] Add contract validators and compatibility tests for signature records.
 
 ## S2 — Prototype and usability validation
 
@@ -109,7 +109,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Add tenant-safe self-service projection path.
 - [x] Prevent raw evidence payload exposure.
 - [x] Enable exact Knowledge Object filtering when evidence is explicitly mapped.
-- [ ] Expand event narrative from metadata-only summaries to approved derived narrative summaries.
+- [x] Expand event narrative from metadata-only summaries to approved derived narrative summaries.
 
 ## S5 — Adaptive Learning Path
 
@@ -118,7 +118,7 @@ This program cuts across the product roadmap. Detailed execution lives in `Docs/
 - [x] Prohibit autonomous required-content skipping in v1.
 - [x] Integrate Path into Learn dashboard.
 - [ ] Map recommendations to Knowledge Objects consistently.
-- [ ] Add curriculum-governance tests.
+- [x] Add curriculum-governance tests.
 
 ## S6 — Mind Trace + Product Bridge
 

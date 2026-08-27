@@ -7,6 +7,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Question, QuestionType } from "@lurexa/types";
 import { AIGeneratorService } from "@lurexa/backend";
+import { TeacherWorkspaceBanner } from "../../components/TeacherWorkspaceBanner";
 
 export default function QuizBuilderPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -54,17 +55,16 @@ export default function QuizBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#071d67]">Quiz & Assessment Builder</h1>
-            <p className="text-[#6677a5]">Create reusable exercises or generate them with AI</p>
-          </div>
-          <Button variant="secondary" onClick={handleGenerateAiQuestions} isLoading={isAiGenerating}>
-            ✨ AI Question Generator
-          </Button>
-        </div>
+    <>
+      <TeacherWorkspaceBanner
+        title="Quiz & Assessment Builder"
+        subtitle="Create reusable exercises or generate them with AI"
+        breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Quizzes" }]}
+        actions={
+          <Button variant="secondary" onClick={handleGenerateAiQuestions} isLoading={isAiGenerating}>✨ AI Question Generator</Button>
+        }
+      />
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
         {/* Question Form */}
         <Card title="Add Question" subtitle="Define prompt, options, and correct answers">
@@ -157,6 +157,6 @@ export default function QuizBuilderPage() {
           )}
         </Card>
       </div>
-    </div>
+    </>
   );
 }

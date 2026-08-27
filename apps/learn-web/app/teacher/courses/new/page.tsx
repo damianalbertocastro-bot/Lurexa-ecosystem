@@ -10,6 +10,7 @@ import { Modal } from "@lurexa/ui/Modal";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import type { ContentBlock, Course, Lesson, Module } from "@lurexa/types";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+import { TeacherWorkspaceBanner } from "../../components/TeacherWorkspaceBanner";
 import {
   buildActivityBlocks,
   LearningActivityEditor,
@@ -228,19 +229,20 @@ function CourseBuilderContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex flex-col gap-4 border-b border-[#dfe7fb] pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-[#071d67]">Course Builder</h1>
-            <p className="text-[#6677a5]">Design modules, lessons, evidence, and AI-assisted learning experiences.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
+    <>
+      <TeacherWorkspaceBanner
+        title="Course Builder"
+        subtitle="Design modules, lessons, evidence, and AI-assisted learning experiences."
+        breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Courses", href: "/teacher/courses" }, { label: "Builder" }]}
+        actions={
+          <>
             <Badge variant={activeCourseId ? "success" : "warning"}>{activeCourseId ? "Draft Created" : "Unsaved"}</Badge>
             {activeCourseId ? <Button variant="primary" onClick={handlePublish} isLoading={isPublishing}>Publish Course</Button> : null}
             <Button variant="secondary" onClick={() => router.push("/teacher/courses")}>Return to courses</Button>
-          </div>
-        </div>
+          </>
+        }
+      />
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
         <Card title="1. Course Overview" subtitle="General course configuration">
           <form onSubmit={handleCreateCourse} className="space-y-4 pt-2">
@@ -309,13 +311,13 @@ function CourseBuilderContent() {
           <Button type="submit" className="w-full" isLoading={isSavingLesson}>{editingLesson ? "Save changes" : "Save lesson"}</Button>
         </form>
       </Modal>
-    </div>
+    </>
   );
 }
 
 export default function CourseBuilderPage() {
   return (
-    <Suspense fallback={<div role="status" className="min-h-screen bg-[var(--learn-canvas)] p-8 text-sm text-slate-600">Loading course builder…</div>}>
+    <Suspense fallback={<div role="status" className="p-8 text-sm text-slate-600">Loading course builder…</div>}>
       <CourseBuilderContent />
     </Suspense>
   );

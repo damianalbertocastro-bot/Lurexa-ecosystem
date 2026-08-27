@@ -10,7 +10,7 @@ import { Modal } from "@lurexa/ui/Modal";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import { Course, Invitation, Lesson } from "@lurexa/types";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
-import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 type TeacherCourseSummary = { course: Course; lessons: Array<{ moduleTitle: string; lesson: Lesson }> };
 
@@ -23,7 +23,7 @@ export default function TeacherDashboard() {
   const [loading, setLoading] = useState(false);
   const [isLoadingInvitations, setIsLoadingInvitations] = useState(true);
   const [revokingInvitationId, setRevokingInvitationId] = useState<string | null>(null);
-  const [isSigningOut, setIsSigningOut] = useState(false);
+
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
   const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
   const [courses, setCourses] = useState<TeacherCourseSummary[]>([]);
@@ -95,16 +95,7 @@ export default function TeacherDashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    setIsSigningOut(true);
-    try {
-      await AuthService.logout();
-      router.replace("/login");
-    } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : "Failed to sign out.");
-      setIsSigningOut(false);
-    }
-  };
+
 
   const handleCopyInviteCode = async (invite: Invitation) => {
 
@@ -140,31 +131,19 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4">
-            <LurexaLearnLogo />
-            <div><p className="text-xs font-bold tracking-[.16em] text-indigo-700">EDUCATOR WORKSPACE</p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-[var(--learn-ink)]">Make every lesson count.</h1>
-            <p className="text-slate-500">Create learning experiences and see the next useful action.</p></div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="secondary" onClick={handleSignOut} isLoading={isSigningOut}>
-              Sign out
-            </Button>
-            <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>
-              Create course
-            </Button>
-            <Button variant="secondary" onClick={() => router.push("/teacher/insights")}>
-              View class progress
-            </Button>
-            <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>
-              + Create student invitation
-            </Button>
-          </div>
-        </div>
+    <>
+      <TeacherWorkspaceBanner
+        title="Make every lesson count."
+        subtitle="Create learning experiences and see the next useful action."
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>Create course</Button>
+            <Button variant="secondary" onClick={() => router.push("/teacher/insights")}>View class progress</Button>
+            <Button variant="primary" onClick={() => setIsInviteModalOpen(true)}>+ Create student invitation</Button>
+          </>
+        }
+      />
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
         {/* Workspace navigation */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -319,6 +298,6 @@ export default function TeacherDashboard() {
           </div>
         )}
       </Modal>
-    </div>
+    </>
   );
 }

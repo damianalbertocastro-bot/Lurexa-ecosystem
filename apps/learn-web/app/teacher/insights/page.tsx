@@ -7,7 +7,7 @@ import { AuthService } from "@lurexa/backend";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
-import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 
 type AuthUser = NonNullable<Parameters<Parameters<typeof AuthService.onUserChanged>[0]>[0]>;
@@ -94,11 +94,19 @@ export default function TeacherInsightsPage() {
     finally { setSavingLearnerId(null); }
   }
 
-  return <main className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6">
-    <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
-      <div className="flex items-start gap-4"><LurexaLearnLogo /><div><p className="text-xs font-black tracking-[.16em] text-indigo-700">LUREXA LEARN · TEACHER WORKSPACE</p><h1 className="mt-1 text-3xl font-black tracking-tight text-[var(--learn-ink)] sm:text-4xl">Course intelligence & enrollment</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Operate student learning from exact-course authorization. Core owns enrollment; Mind-derived signals stay aggregate until you deliberately open an individual learner view.</p></div></div>
-      <div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => router.push("/teacher/students")}>Individual learners</Button><a href={teachGrowthPlanUrl} rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-extrabold text-violet-800">Develop yourself in Teach ↗</a><Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Workspace</Button></div>
-    </header>
+  return <>
+    <TeacherWorkspaceBanner
+      title="Course intelligence & enrollment"
+      subtitle="Operate student learning from exact-course authorization. Core owns enrollment; Mind-derived signals stay aggregate until you deliberately open an individual learner view."
+      breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Insights" }]}
+      actions={
+        <>
+          <Button variant="secondary" onClick={() => router.push("/teacher/students")}>Individual learners</Button>
+          <a href={teachGrowthPlanUrl} rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-extrabold text-violet-800">Develop yourself in Teach ↗</a>
+        </>
+      }
+    />
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
     {roster?.courses.length ? <Card title="Authorized course" subtitle="Only courses covered by your current qualification and institutional teaching authorization appear here."><select aria-label="Authorized course" value={courseId} onChange={(event) => void changeCourse(event.target.value)} className="min-h-12 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">{roster.courses.map((course) => <option key={course.courseId} value={course.courseId}>{course.courseTitle}</option>)}</select></Card> : null}
 
@@ -125,5 +133,6 @@ export default function TeacherInsightsPage() {
     {enrollment ? <Card title="Course enrollment" subtitle="Students can be enrolled before they ever generate progress. Withdrawing preserves the enrollment record and history.">
       <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-y border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Course state</th><th className="px-4 py-3 text-right">Action</th></tr></thead><tbody className="divide-y divide-slate-100">{enrollment.learners.map((learner) => <tr key={learner.learnerId}><th className="px-4 py-4 font-bold text-slate-800">{learner.displayName}</th><td className="px-4 py-4"><Badge variant={learner.enrolled ? "success" : learner.enrollmentStatus === "withdrawn" ? "warning" : "default"}>{learner.enrolled ? "Enrolled" : learner.enrollmentStatus === "withdrawn" ? "Withdrawn" : "Not enrolled"}</Badge></td><td className="px-4 py-4 text-right"><Button size="sm" variant={learner.enrolled ? "secondary" : "primary"} disabled={savingLearnerId === learner.learnerId} onClick={() => void updateEnrollment(learner)}>{savingLearnerId === learner.learnerId ? "Saving…" : learner.enrolled ? "Withdraw" : "Enroll"}</Button></td></tr>)}</tbody></table></div>
     </Card> : null}
-  </div></main>;
+    </div>
+  </>;
 }

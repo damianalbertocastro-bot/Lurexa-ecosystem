@@ -60,6 +60,31 @@ function title(evidence: LearningEvidence): string {
   }
 }
 
+function deriveApprovedNarrativeSummary(evidence: LearningEvidence): string {
+  switch (evidence.type) {
+    case "pronunciation_observation":
+      return "Spoken pronunciation and phonological intelligibility evidence recorded.";
+    case "fluency_observation":
+      return "Spoken fluency and communicative pacing practice recorded.";
+    case "language_error":
+      return "Linguistic noticing and grammar pattern observed during practice.";
+    case "correction_outcome":
+      return "Targeted correction attempt completed and verified.";
+    case "assessment_result":
+      return "Summative assessment evidence captured across competency targets.";
+    case "activity_result":
+      return evidence.source.activityId
+        ? `Completed interactive learning activity (${evidence.source.activityId}) with verified evidence.`
+        : "Interactive learning activity completed with verified evidence.";
+    case "curriculum_progress":
+      return "Curriculum progress milestone advanced through verified evidence.";
+    default:
+      return evidence.source.activityId
+        ? `Evidence recorded from activity ${evidence.source.activityId}.`
+        : "Evidence recorded through a Core-governed learning interaction.";
+  }
+}
+
 /**
  * Core-authorized Memory Thread projection.
  * It never mixes organization-scoped evidence implicitly and never exposes payloads.
@@ -109,9 +134,7 @@ export async function getScopedMemoryThreadProjection(input: {
       kind: eventKind(entry),
       sourceProduct: entry.source.product,
       title: title(entry),
-      summary: entry.source.activityId
-        ? `Evidence recorded from activity ${entry.source.activityId}.`
-        : "Evidence recorded through a Core-governed learning interaction.",
+      summary: deriveApprovedNarrativeSummary(entry),
       ...(matchedKnowledgeObjectId ? { knowledgeObjectId: matchedKnowledgeObjectId } : {}),
       evidenceIds: [entry.id],
       confidence: confidence(entry.provenance.confidence),

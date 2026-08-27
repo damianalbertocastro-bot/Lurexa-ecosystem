@@ -9,6 +9,7 @@ import { Input } from "@lurexa/ui/Input";
 import { Modal } from "@lurexa/ui/Modal";
 import { ContentBlock, Course, Lesson } from "@lurexa/types";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 type TeacherCourseSummary = { course: Course; lessons: Array<{ moduleTitle: string; lesson: Lesson }> };
 
@@ -74,12 +75,16 @@ export default function TeacherCoursesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-4 border-b border-[#dfe7fb] pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <div><h1 className="text-3xl font-bold text-[#071d67]">Course management</h1><p className="text-[#6677a5]">Create courses and review the lessons in each course.</p></div>
-          <div className="flex gap-3"><Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Back to dashboard</Button><Button variant="primary" onClick={() => router.push("/teacher/courses/new")}>Create course</Button></div>
-        </div>
+    <>
+      <TeacherWorkspaceBanner
+        title="Course management"
+        subtitle="Create courses and review the lessons in each course."
+        breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Courses" }]}
+        actions={
+          <Button variant="primary" onClick={() => router.push("/teacher/courses/new")}>Create course</Button>
+        }
+      />
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {loading ? <p className="text-[#6677a5]">Loading courses...</p> : courses.length === 0 ? <Card title="No courses yet"><p className="text-[#6677a5]">Create a course, then add modules and lessons in the course builder.</p></Card> : courses.map(({ course, lessons }) => (
           <Card key={course.id} title={course.title} subtitle={`Last updated ${new Date(course.updatedAt).toLocaleString()}`}>
             <div className="flex flex-wrap items-center gap-3 pt-2"><Badge variant={course.status === "published" ? "success" : "warning"}>{course.status}</Badge><span className="text-sm text-[#5d6f9d]">{course.description}</span><Button variant="secondary" size="sm" onClick={() => openCourseEditor(course)}>Edit course</Button></div>
@@ -91,6 +96,6 @@ export default function TeacherCoursesPage() {
       </div>
       <Modal isOpen={editingCourse !== null} onClose={() => setEditingCourse(null)} title="Edit course details"><form onSubmit={handleUpdateCourse} className="space-y-4"><Input label="Course title" value={courseTitle} onChange={(event) => setCourseTitle(event.target.value)} required /><Input label="Description" value={courseDescription} onChange={(event) => setCourseDescription(event.target.value)} required /><Button type="submit" className="w-full" isLoading={saving}>Save course changes</Button></form></Modal>
       <Modal isOpen={editingLesson !== null} onClose={() => setEditingLesson(null)} title="Edit lesson"><form onSubmit={handleUpdateLesson} className="space-y-4"><Input label="Lesson title" value={lessonTitle} onChange={(event) => setLessonTitle(event.target.value)} required /><label className="block text-sm font-medium text-[#314b88]">Lesson content<textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={lessonContent} onChange={(event) => setLessonContent(event.target.value)} rows={8} required /></label><Button type="submit" className="w-full" isLoading={saving}>Save lesson changes</Button></form></Modal>
-    </div>
+    </>
   );
 }

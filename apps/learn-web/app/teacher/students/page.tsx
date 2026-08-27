@@ -14,6 +14,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Input } from "@lurexa/ui/Input";
 import { LearnerPulse } from "@lurexa/ui/LearnerPulse";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 const signatureEnabled = process.env.NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1 === "on";
 
@@ -125,16 +126,13 @@ export default function TeacherStudentsPage() {
     }
   };
 
-  return <div className="min-h-screen bg-[var(--learn-canvas)] p-4 sm:p-8">
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 border-b border-[#dfe7fb] pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#315fd7]">Lurexa Learn · Teacher Workspace</p>
-          <h1 className="mt-2 text-3xl font-bold text-[#071d67]">Students</h1>
-          <p className="mt-2 max-w-2xl text-[#6677a5]">Manage learner access, review course participation, and use purpose-scoped instructional support without leaving Lurexa Learn.</p>
-        </div>
-        <Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>Back to dashboard</Button>
-      </div>
+  return <>
+    <TeacherWorkspaceBanner
+      title="Students"
+      subtitle="Manage learner access, review course participation, and use purpose-scoped instructional support without leaving Lurexa Learn."
+      breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Students" }]}
+    />
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
       {error ? <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-800">{error}</div> : null}
 
@@ -181,5 +179,5 @@ export default function TeacherStudentsPage() {
 
       {roster?.limitations?.length ? <aside className="rounded-2xl bg-[#f7f9ff] px-5 py-4 text-xs leading-5 text-[#6677a5]"><b className="text-[#30457f]">Roster limitations:</b> {roster.limitations.join(" ")}</aside> : null}
     </div>
-  </div>;
+  </>;
 }

@@ -8,6 +8,7 @@ import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { BillingService, PLAN_CONFIGS, PlanLimits } from "@lurexa/backend";
 import { PricingPlan } from "@lurexa/types";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 export default function TeacherBillingPage() {
   const router = useRouter();
@@ -39,23 +40,18 @@ export default function TeacherBillingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#071d67]">Billing & Subscription Management</h1>
-            <p className="text-[#6677a5]">Manage plan tiers, student seats, and usage limits</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant={currentPlan === "free" ? "default" : "success"}>
-              Active Plan: {currentPlan.toUpperCase()}
-            </Badge>
-            <Button variant="secondary" onClick={() => router.push("/teacher/dashboard")}>
-              Back to dashboard
-            </Button>
-          </div>
-        </div>
+    <>
+      <TeacherWorkspaceBanner
+        title="Billing & Subscription Management"
+        subtitle="Manage plan tiers, student seats, and usage limits"
+        breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Billing" }]}
+        actions={
+          <Badge variant={currentPlan === "free" ? "default" : "success"}>
+            Active Plan: {currentPlan.toUpperCase()}
+          </Badge>
+        }
+      />
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
         {/* Current Usage Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -159,6 +155,6 @@ export default function TeacherBillingPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </>
   );
 }

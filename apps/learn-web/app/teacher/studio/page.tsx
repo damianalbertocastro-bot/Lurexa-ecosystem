@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 interface StudioKnowledgeObject {
   id: string;
@@ -95,61 +96,30 @@ export default function LurexaStudioPage() {
       : knowledgeObjects.filter((o) => o.cefrLevels.includes(selectedCefrFilter));
 
   return (
-    <div className="min-h-screen bg-[#f8faff] text-[#071d67]">
-      {/* Top Header */}
-      <header className="border-b border-[#dfe6f8] bg-white px-6 py-4 shadow-sm sm:px-10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#be185d] to-[#6b2bd9] text-lg font-black text-white shadow-md">
-              🧭
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-[#be185d]">
-                  Lurexa Studio
-                </span>
-                <span className="rounded-full bg-[#fdf2f8] px-2 py-0.5 text-[10px] font-extrabold text-[#be185d]">
-                  Instructional Design & Semantic Catalog
-                </span>
-              </div>
-              <h1 className="text-lg font-black tracking-tight">Curriculum & Knowledge Authoring</h1>
-            </div>
-          </div>
+    <>
+      <TeacherWorkspaceBanner
+        title="Curriculum & Knowledge Authoring"
+        subtitle="Lurexa Studio — Instructional Design & Semantic Catalog"
+        breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Studio" }]}
+      />
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab("knowledge-objects")}
-              className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${
-                activeTab === "knowledge-objects"
-                  ? "bg-[#071d67] text-white"
-                  : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"
-              }`}
-            >
-              Knowledge Objects
-            </button>
-            <button
-              onClick={() => setActiveTab("lesson-builder")}
-              className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${
-                activeTab === "lesson-builder"
-                  ? "bg-[#071d67] text-white"
-                  : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"
-              }`}
-            >
-              7-Stage Lesson Builder
-            </button>
-            <button
-              onClick={() => setActiveTab("branching")}
-              className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${
-                activeTab === "branching"
-                  ? "bg-[#071d67] text-white"
-                  : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"
-              }`}
-            >
-              Branching Scenarios
-            </button>
-          </div>
+      {/* Tab navigation */}
+      <nav className="border-b border-[#dfe6f8] bg-white px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 py-3">
+          <button
+            onClick={() => setActiveTab("knowledge-objects")}
+            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "knowledge-objects" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
+          >Knowledge Objects</button>
+          <button
+            onClick={() => setActiveTab("lesson-builder")}
+            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "lesson-builder" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
+          >7-Stage Lesson Builder</button>
+          <button
+            onClick={() => setActiveTab("branching")}
+            className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${activeTab === "branching" ? "bg-[#071d67] text-white" : "bg-[#edf1fb] text-[#536ba5] hover:bg-[#dfe6f8]"}`}
+          >Branching Scenarios</button>
         </div>
-      </header>
+      </nav>
 
       {/* Main Studio Body */}
       <main className="mx-auto max-w-7xl px-6 py-10 sm:px-10">
@@ -445,6 +415,6 @@ export default function LurexaStudioPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
