@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   applicationName: "Lurexa Admin",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: any }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.className} h-full antialiased`} suppressHydrationWarning>
       <head>

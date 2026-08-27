@@ -87,6 +87,7 @@ function ToastItem({ message, onDismiss }: { message: ToastMessage; onDismiss: (
 }
 
 export interface ToastProviderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 18/19 monorepo cross-version compatibility
   children?: any;
 }
 

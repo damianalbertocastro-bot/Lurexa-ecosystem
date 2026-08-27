@@ -11,6 +11,8 @@ import type {
   SpokenEvidenceRecord,
 } from "@lurexa/types";
 
+import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
+import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 
 type CapabilityContext = {
@@ -226,6 +228,8 @@ export function RecordedSpeakingActivity({
   const [modelAudioLoading, setModelAudioLoading] = useState(false);
   const [modelAudioError, setModelAudioError] = useState<string | null>(null);
 
+  const { playClick, playSuccess, playAchievement } = useSoundEffects();
+
   useEffect(() => () => {
     if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -419,13 +423,26 @@ export function RecordedSpeakingActivity({
         </div>
       ) : null}
 
+      {/* Active Recording Waveform */}
+      {recording ? (
+        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50/60 p-4 animate-fade-in flex flex-col items-center gap-2">
+          <AudioWaveform active={recording} variant="recording" barCount={22} />
+          <span className="text-xs font-black text-rose-600 animate-pulse">
+            ● Capturing vocal frequency ({elapsedSeconds}s)
+          </span>
+        </div>
+      ) : null}
+
       {/* Recording Actions */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!recording ? (
           <button
             type="button"
-            onClick={() => void startRecording()}
-            className="rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 transition flex items-center gap-2"
+            onClick={() => {
+              playClick();
+              void startRecording();
+            }}
+            className="rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 transition flex items-center gap-2 active:scale-95"
           >
             <span className="h-3 w-3 rounded-full bg-rose-400 animate-pulse" />
             <span>Start Recording</span>
@@ -433,8 +450,11 @@ export function RecordedSpeakingActivity({
         ) : (
           <button
             type="button"
-            onClick={stopRecording}
-            className="rounded-2xl bg-rose-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-rose-500 transition flex items-center gap-2"
+            onClick={() => {
+              playClick();
+              stopRecording();
+            }}
+            className="rounded-2xl bg-rose-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-rose-500 transition flex items-center gap-2 active:scale-95"
           >
             <span className="h-3 w-3 rounded-sm bg-white" />
             <span>Stop Recording ({elapsedSeconds}s)</span>
@@ -445,8 +465,11 @@ export function RecordedSpeakingActivity({
           <button
             type="button"
             disabled={!meetsDuration || status === "uploading" || status === "saved"}
-            onClick={() => void saveRecording()}
-            className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40 transition"
+            onClick={() => {
+              playAchievement();
+              void saveRecording();
+            }}
+            className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40 transition active:scale-95"
           >
             {status === "uploading" ? "Saving Evidence…" : status === "saved" ? "Saved ✓" : "Save Spoken Evidence"}
           </button>

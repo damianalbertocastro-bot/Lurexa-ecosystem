@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { TeachAuthProvider } from "./components/TeachAuthProvider";
 import { TeachRelatedExperiences } from "./components/TeachRelatedExperiences";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: { default: "Lurexa Teach | Grow as an educator", template: "%s | Lurexa Teach" },
   description: "Professional learning, English growth, classroom practice, credentials, and community for teachers.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: any }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" className="antialiased" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

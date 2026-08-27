@@ -7,10 +7,14 @@ import type { TeachCourse, TeachEnrollment } from "@lurexa/types";
 import { TeachShell } from "../../components/TeachShell";
 import { TeachPrivate } from "../../components/TeachPrivate";
 import { useTeachAuth } from "../../components/TeachAuthProvider";
+import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
+import { useConfetti } from "@lurexa/ui/useConfetti";
 
 export default function CourseRuntimePage() {
   const params = useParams<{ courseId: string }>();
   const { user } = useTeachAuth();
+  const { playSuccess, playAchievement } = useSoundEffects();
+  const { triggerConfetti } = useConfetti();
   const [course, setCourse] = useState<TeachCourse | null>(null);
   const [enrollment, setEnrollment] = useState<TeachEnrollment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,11 +57,20 @@ export default function CourseRuntimePage() {
       const current = await ensureEnrollment();
       if (!current) return;
       const ids = new Set(current.completedModuleIds);
+      const isCompleting = !ids.has(moduleId);
       if (ids.has(moduleId)) ids.delete(moduleId); else ids.add(moduleId);
       const nextIds = Array.from(ids);
       await TeachService.updateEnrollmentProgress(current.id, nextIds, course.modules.length);
       const progressPercent = Math.round((nextIds.length / course.modules.length) * 100);
       setEnrollment({ ...current, completedModuleIds: nextIds, progressPercent, status: progressPercent === 100 ? "completed" : "active", updatedAt: new Date().toISOString() });
+      if (isCompleting) {
+        if (progressPercent === 100) {
+          playAchievement();
+          triggerConfetti();
+        } else {
+          playSuccess();
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Progress could not be saved.");
     } finally {
