@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -11,7 +10,6 @@ import { PricingPlan } from "@lurexa/types";
 import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 export default function TeacherBillingPage() {
-  const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<PricingPlan>("free");
   const [limits, setLimits] = useState<PlanLimits>(PLAN_CONFIGS["free"]);
   const [loading, setLoading] = useState(false);

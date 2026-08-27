@@ -16,7 +16,7 @@ export default function CoachHome() {
         <div>
           <p className="text-[11px] font-black tracking-[.2em] text-[#91f5eb]">LUREXA COACH · AI SPEAKING & PRONUNCIATION</p>
           <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[.93] tracking-[-.065em] sm:text-7xl">Your English should sound more like <span className="text-[#8df4ef]">you—only clearer.</span></h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-indigo-100">Coach is Lurexa's dedicated speaking product: an adaptive space for conversation, pronunciation, fluency, intelligibility, and professional English practice.</p>
+          <p className="mt-7 max-w-2xl text-lg leading-8 text-indigo-100">Coach is Lurexa&apos;s dedicated speaking product: an adaptive space for conversation, pronunciation, fluency, intelligibility, and professional English practice.</p>
           <div className="mt-9 flex flex-wrap gap-3"><Link href="/practice" className="inline-flex min-h-13 items-center rounded-2xl bg-white px-6 text-sm font-black text-[#4224a2] shadow-xl">Start speaking →</Link><Link href="/pronunciation" className="inline-flex min-h-13 items-center rounded-2xl border border-white/20 bg-white/10 px-6 text-sm font-black text-white">Explore pronunciation</Link></div>
           <p className="mt-5 text-xs font-bold text-indigo-200">One Lurexa identity. One evolving model. Coach remembers what matters.</p>
         </div>

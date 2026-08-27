@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import type {
   Invitation,
@@ -32,7 +31,6 @@ async function authenticatedJson<T>(user: AuthUser, url: string): Promise<T> {
 }
 
 export default function TeacherStudentsPage() {
-  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [invitations, setInvitations] = useState<Invitation[]>([]);

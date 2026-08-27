@@ -55,12 +55,9 @@ export function TeacherWorkspaceBanner({
   actions,
 }: TeacherWorkspaceBannerProps) {
   const [displayName, setDisplayName] = useState<string | null>(null);
-  const [greeting, setGreeting] = useState(getGreeting);
+  const greeting = getGreeting();
 
   useEffect(() => {
-    // Re-derive the greeting client-side to avoid hydration mismatch.
-    setGreeting(getGreeting());
-
     const unsubscribe = AuthService.onUserChanged((user) => {
       setDisplayName(user?.displayName ?? null);
     });
