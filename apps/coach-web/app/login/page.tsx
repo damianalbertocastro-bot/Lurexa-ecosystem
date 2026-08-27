@@ -20,7 +20,9 @@ export default function LoginPage() {
     try {
       if (mode === "login") await AuthService.login(email, password);
       else await AuthService.register(email, password);
-      router.replace("/dashboard");
+      const requested = new URLSearchParams(window.location.search).get("continue");
+      const safeDestination = requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard";
+      router.replace(safeDestination);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "We could not complete that request.");
     } finally { setBusy(false); }
