@@ -55,6 +55,9 @@ jobs:
       - name: Verify Documentation Truth
         run: pnpm verify:documentation-truth
 
+      - name: Verify Platform Package Boundaries
+        run: pnpm verify:platform-package-boundaries
+
       - name: Verify Coach First-Class Product Boundary
         run: node scripts/verify-coach-product.mjs
 
