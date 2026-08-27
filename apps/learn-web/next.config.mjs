@@ -5,7 +5,6 @@ const nextConfig = {
     '@lurexa/ui',
     '@lurexa/backend',
     '@lurexa/sdk',
-    '@lurexa/database',
   ],
   reactStrictMode: true,
 };
