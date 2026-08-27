@@ -13,12 +13,9 @@ import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { useToast } from "@lurexa/ui/Toast";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import { getEcosystemUrl } from "@lurexa/config/domains";
 import { AuthService } from "@lurexa/backend";
 import type { InstitutionalBillingAccount, InstitutionalPlanTier } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
-
-const ecosystemUrl = getEcosystemUrl("root");
 
 export default function AdminBillingPage() {
   const router = useRouter();

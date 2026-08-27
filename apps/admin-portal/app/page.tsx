@@ -102,9 +102,9 @@ export default function AdminDashboardPage() {
   }
 
   const metrics = snapshot?.metrics ?? null;
-  const rawOrganizations = snapshot?.organizations ?? [];
 
   const filteredOrganizations = useMemo(() => {
+    const rawOrganizations = snapshot?.organizations ?? [];
     return rawOrganizations.filter((org) => {
       const matchesSearch =
         !searchQuery.trim() ||
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
       const matchesStatus = statusFilter === "all" || org.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [rawOrganizations, searchQuery, statusFilter]);
+  }, [snapshot?.organizations, searchQuery, statusFilter]);
 
   if (loading) {
     return (
