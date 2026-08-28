@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CoachShell } from "../components/CoachShell";
 import { Button } from "@lurexa/ui/Button";
@@ -17,16 +16,16 @@ export default function CoachDashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<CefrLevel | "ALL">("ALL");
-  const [loading, setLoading] = useState(true);
   const urls = resolveLurexaPublicUrls();
+
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged((user) => {
       setCurrentUser(user);
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
+
 
   const filteredPacks =
     selectedLevel === "ALL"
