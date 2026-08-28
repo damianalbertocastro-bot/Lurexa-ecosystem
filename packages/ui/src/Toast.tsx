@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 /* ------------------------------------------------------------------ */
@@ -93,7 +93,12 @@ export interface ToastProviderProps {
 
 export function ToastProvider({ children }: ToastProviderProps) {
   const [messages, setMessages] = useState<ToastMessage[]>([]);
+  const [mounted, setMounted] = useState(false);
   const counterRef = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toast = useCallback((options: Omit<ToastMessage, "id">) => {
     const id = `toast-${++counterRef.current}-${Date.now()}`;
@@ -107,7 +112,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      {typeof window !== "undefined"
+      {mounted
         ? ((createPortal(
             <div
               aria-label="Notifications"
@@ -122,4 +127,4 @@ export function ToastProvider({ children }: ToastProviderProps) {
         : null}
     </ToastContext.Provider>
   );
-};
+}
