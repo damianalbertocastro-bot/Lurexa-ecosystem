@@ -39,11 +39,21 @@ function eventId(): string {
   return `evt_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
+function sanitizeTelemetryValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((item) => sanitizeTelemetryValue(item));
+  if (!value || typeof value !== "object") return value;
+  if (value instanceof Date) return value.toISOString();
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, nestedValue]) => [
+      key,
+      sensitiveMetadataKey.test(key) ? "[redacted]" : sanitizeTelemetryValue(nestedValue),
+    ]),
+  );
+}
+
 function sanitizeMetadata(metadata: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
   if (!metadata) return undefined;
-  return Object.fromEntries(
-    Object.entries(metadata).map(([key, value]) => [key, sensitiveMetadataKey.test(key) ? "[redacted]" : value]),
-  );
+  return sanitizeTelemetryValue(metadata) as Record<string, unknown>;
 }
 
 function emit(event: OperationalTelemetryEvent): void {
