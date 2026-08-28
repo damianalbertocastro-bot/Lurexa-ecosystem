@@ -1,6 +1,8 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
-import { LearnCurriculumAudioService } from "@lurexa/backend/learn-curriculum-audio.server";
-import { resolveLearningCapability } from "@lurexa/backend/learning-capability.server";
+import {
+  CurriculumAudioProviderError,
+  LearnCurriculumAudioService,
+} from "@lurexa/backend/learn-curriculum-audio.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,12 +19,6 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof payload.lessonId !== "string" || !payload.lessonId) throw new Error("lessonId is required.");
     if (typeof payload.activityId !== "string" || !payload.activityId) throw new Error("activityId is required.");
 
-    await resolveLearningCapability({
-      actor,
-      courseId: payload.courseId,
-      lessonId: payload.lessonId,
-      activityId: payload.activityId,
-    });
     const audio = await LearnCurriculumAudioService.generate({
       actor,
       courseId: payload.courseId,
@@ -39,16 +35,18 @@ export async function POST(request: Request): Promise<Response> {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate curriculum audio.";
-    const status = message === "Authentication is required."
-      ? 401
-      : message.includes("not configured")
-        ? 503
-        : message.includes("provider request failed")
-          ? 502
+    const status =
+      error instanceof CurriculumAudioProviderError
+        ? error.code === "AUDIO_PROVIDER_UNCONFIGURED"
+          ? 503
+          : 502
+        : message === "Authentication is required."
+          ? 401
           : message.toLowerCase().includes("not found")
             ? 404
             : 400;
-    console.error("Learn curriculum audio request failed.", { status, message });
-    return Response.json({ error: message }, { status });
+    const code = error instanceof CurriculumAudioProviderError ? error.code : undefined;
+    console.error("Learn curriculum audio request failed.", { status, code, message });
+    return Response.json({ error: message, ...(code ? { code } : {}) }, { status });
   }
 }
