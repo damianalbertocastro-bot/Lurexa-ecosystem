@@ -24,6 +24,7 @@
     "verify:platform-package-boundaries": "node scripts/verify-platform-package-boundaries.mjs",
     "verify:environment-contracts": "node scripts/verify-environment-contracts.mjs",
     "verify:observability": "node scripts/verify-observability.mjs",
+    "verify:speech-runtime": "node scripts/verify-speech-runtime.mjs",
     "verify:curriculum-portfolio": "node scripts/verify-curriculum-portfolio.mjs",
     "verify:tokens": "pnpm --filter @lurexa/tokens lint && pnpm --filter @lurexa/tokens check-types",
     "verify:core-mind-boundary": "node scripts/verify-core-mind-boundary.mjs",
@@ -37,8 +38,7 @@
     "verify:governance": "node scripts/verify-governance-and-quality.mjs",
     "simulate:lifecycle": "node scripts/simulate-complete-learner-lifecycle.mjs",
     "simulate:a1-pilot": "node scripts/simulate-a1-pilot-cohort.mjs",
-    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:observability && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:coach && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-
+    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:observability && pnpm verify:speech-runtime && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:coach && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "phase0:lint": "pnpm --filter learn-web... lint",
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",
