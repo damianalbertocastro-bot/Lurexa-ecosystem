@@ -85,28 +85,28 @@ importers:
       '@lurexa/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@lurexa/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       '@lurexa/types':
         specifier: workspace:*
         version: link:../../packages/types
       '@lurexa/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@lurexa/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       next:
-        specifier: 16.3.1
-        version: 16.3.1(@opentelemetry/api@1.9.1)(@playwright/test@1.62.1)(@types/node@24.13.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: 16.2.12
+        version: 16.2.12(@opentelemetry/api@1.9.1)(@playwright/test@1.62.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
-        specifier: 19.2.8
-        version: 19.2.8
+        specifier: 19.2.4
+        version: 19.2.4
       react-dom:
-        specifier: 19.2.8
-        version: 19.2.8(react@19.2.8)
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@lurexa/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@lurexa/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
@@ -114,22 +114,22 @@ importers:
         specifier: ^24.13.3
         version: 24.13.3
       '@types/react':
-        specifier: 19.2.18
+        specifier: ^19
         version: 19.2.18
       '@types/react-dom':
-        specifier: 19.2.4
+        specifier: ^19
         version: 19.2.4(@types/react@19.2.18)
       eslint:
-        specifier: ^9.39.1
+        specifier: ^9
         version: 9.39.5(jiti@2.7.0)
       eslint-config-next:
-        specifier: 16.3.1
-        version: 16.3.1(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.2)
+        specifier: 16.2.12
+        version: 16.2.12(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.2)
       tailwindcss:
         specifier: ^4
         version: 4.3.3
       typescript:
-        specifier: 5.9.2
+        specifier: ^5
         version: 5.9.2
 
   apps/docs:
@@ -1617,7 +1617,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {node: '>=0.10.0'}
+    engines: {'0': node >=0.10.0}
 
   '@expo/cli@0.18.31':
     resolution: {integrity: sha512-v9llw9fT3Uv+TCM6Xllo54t672CuYtinEQZ2LPJ2EJsCwuTc4Cd2gXQaouuIVD21VoeGQnr5JtJuWbF97sBKzQ==}
@@ -13232,7 +13232,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.14.0(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.5(jiti@2.7.0)))(eslint@9.39.5(jiti@2.7.0)):
+  eslint-module-utils@2.14.0(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.5(jiti@2.7.0)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -13253,7 +13253,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.5(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.14.0(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.5(jiti@2.7.0)))(eslint@9.39.5(jiti@2.7.0))
+      eslint-module-utils: 2.14.0(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.5(jiti@2.7.0))
       hasown: 2.0.4
       is-core-module: 2.16.2
       is-glob: 4.0.3

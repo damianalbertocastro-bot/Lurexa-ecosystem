@@ -13,18 +13,30 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@lurexa/config": ["../../packages/config/src/index.ts"],
       "@lurexa/config/*": ["../../packages/config/src/*"],
+      "@lurexa/tokens": ["../../packages/tokens/src/index.ts"],
       "@lurexa/types": ["../../packages/types/src/index.ts"],
+      "@lurexa/utils": ["../../packages/utils/src/index.ts"],
       "@lurexa/backend": ["../../packages/backend/src/index.ts"],
       "@lurexa/backend/*": ["../../packages/backend/src/*"],
       "@lurexa/ui/*": ["../../packages/ui/src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
