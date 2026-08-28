@@ -61,6 +61,9 @@ jobs:
       - name: Verify Environment Contracts
         run: pnpm verify:environment-contracts
 
+      - name: Verify Observability Contract
+        run: pnpm verify:observability
+
       - name: Verify Coach First-Class Product Boundary
         run: node scripts/verify-coach-product.mjs
 
