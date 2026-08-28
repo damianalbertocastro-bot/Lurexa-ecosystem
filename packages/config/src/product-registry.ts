@@ -8,7 +8,8 @@ export type LurexaInstitutionalShellId = "campus";
 export type LurexaProductId = LurexaCoreProductId | LurexaInstitutionalShellId;
 export type LurexaLayerId = "core" | "mind";
 export type LurexaSurfaceId = "docs";
-export type LurexaConceptId = "community" | "marketplace" | "api" | "mobile" | "enterprise";
+export type LurexaProductSurfaceId = "mobile";
+export type LurexaConceptId = "community" | "marketplace" | "api" | "enterprise";
 
 export type LurexaRegistryEntry = {
   id: string;
@@ -18,6 +19,7 @@ export type LurexaRegistryEntry = {
     | "institutional-shell"
     | "shared-layer"
     | "ecosystem-surface"
+    | "product-surface"
     | "future-concept"
     | "future-product-concept";
   personality: string;
@@ -126,6 +128,17 @@ export const lurexaSurfaces: Record<LurexaSurfaceId, LurexaRegistryEntry> = {
   },
 };
 
+export const lurexaProductSurfaces: Record<LurexaProductSurfaceId, LurexaRegistryEntry> = {
+  mobile: {
+    id: "mobile",
+    name: "Lurexa Learn Mobile",
+    classification: "product-surface",
+    personality: "portable and resilient",
+    description: "Native mobile surface owned by Lurexa Learn. It may expose governed Coach functionality through shared contracts without becoming a seventh sibling product or an independent product identity.",
+    canonicalMark: "lurexa-learn.svg",
+  },
+};
+
 export const lurexaFutureConcepts: Record<LurexaConceptId, LurexaRegistryEntry> = {
   community: {
     id: "community",
@@ -151,14 +164,6 @@ export const lurexaFutureConcepts: Record<LurexaConceptId, LurexaRegistryEntry> 
     description: "Roadmap-backed public/partner API direction; not an approved top-level product.",
     canonicalMark: "lurexa-api-concept.svg",
   },
-  mobile: {
-    id: "mobile",
-    name: "Mobile concept",
-    classification: "future-concept",
-    personality: "portable and resilient",
-    description: "Roadmap-backed native-mobile direction; currently mobile remains a Lurexa Learn surface.",
-    canonicalMark: "lurexa-mobile-concept.svg",
-  },
   enterprise: {
     id: "enterprise",
     name: "Enterprise concept",
@@ -174,5 +179,6 @@ export const lurexaRegistry = {
   institutionalShells: lurexaInstitutionalShells,
   layers: lurexaLayers,
   surfaces: lurexaSurfaces,
+  productSurfaces: lurexaProductSurfaces,
   futureConcepts: lurexaFutureConcepts,
 } as const;
