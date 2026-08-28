@@ -48,19 +48,22 @@ export default function LurexaStudioPage() {
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const loadObjects = async () => {
-    try {
-      const list = await StudioAuthoringService.listKnowledgeObjects();
-      setKnowledgeObjects(list);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void loadObjects();
+    let ignore = false;
+    void StudioAuthoringService.listKnowledgeObjects().then((list) => {
+      if (!ignore) {
+        setKnowledgeObjects(list);
+        setLoading(false);
+      }
+    }).catch((err) => {
+      if (!ignore) {
+        console.error(err);
+        setLoading(false);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const toggleSkill = (skill: EnglishSkill) => {
@@ -98,7 +101,8 @@ export default function LurexaStudioPage() {
 
       setName("");
       setObjective("");
-      await loadObjects();
+      const updated = await StudioAuthoringService.listKnowledgeObjects();
+      setKnowledgeObjects(updated);
       setStatusMessage("Knowledge Object Draft successfully created and stored in Core.");
     } catch (err) {
       setStatusMessage(err instanceof Error ? err.message : "Failed to create draft.");
@@ -114,7 +118,8 @@ export default function LurexaStudioPage() {
     setStatusMessage(null);
     try {
       await StudioAuthoringService.publishKnowledgeObject(actor as never, id);
-      await loadObjects();
+      const updated = await StudioAuthoringService.listKnowledgeObjects();
+      setKnowledgeObjects(updated);
       setStatusMessage("Knowledge Object approved and published to immutable production catalog.");
     } catch (err) {
       setStatusMessage(err instanceof Error ? err.message : "Publishing failed.");

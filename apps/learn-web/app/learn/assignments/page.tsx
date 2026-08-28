@@ -24,21 +24,24 @@ export default function StudentAssignmentsPage() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadStudentAssignments = async () => {
+  useEffect(() => {
+    let ignore = false;
     const user = auth.currentUser;
     const studentId = user ? user.uid : "student-juan-perez";
-    try {
-      const list = await AssignmentService.listStudentAssignments("org-demo", studentId);
-      setItems(list);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void loadStudentAssignments();
+    void AssignmentService.listStudentAssignments("org-demo", studentId).then((list) => {
+      if (!ignore) {
+        setItems(list);
+        setLoading(false);
+      }
+    }).catch((err) => {
+      if (!ignore) {
+        console.error(err);
+        setLoading(false);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +62,9 @@ export default function StudentAssignmentsPage() {
       });
       setSubmittingItem(null);
       setResponseText("");
-      await loadStudentAssignments();
+      const studentId = user ? user.uid : "student-juan-perez";
+      const updated = await AssignmentService.listStudentAssignments("org-demo", studentId);
+      setItems(updated);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Failed to submit assignment.");
     } finally {
@@ -75,6 +80,11 @@ export default function StudentAssignmentsPage() {
       {/* Header */}
       <section className="border-b border-slate-200 bg-white py-8">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
+          {errorMessage && (
+            <div role="alert" className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-bold text-rose-800">
+              {errorMessage}
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">

@@ -39,19 +39,22 @@ export default function TeacherAssignmentsPage() {
   const [grading, setGrading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadAssignments = async () => {
-    try {
-      const list = await AssignmentService.listAssignmentsForClass("ALL");
-      setAssignments(list);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void loadAssignments();
+    let ignore = false;
+    void AssignmentService.listAssignmentsForClass("ALL").then((list) => {
+      if (!ignore) {
+        setAssignments(list);
+        setLoading(false);
+      }
+    }).catch((err) => {
+      if (!ignore) {
+        console.error(err);
+        setLoading(false);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleCreateAssignment = async (e: React.FormEvent) => {
@@ -94,7 +97,8 @@ export default function TeacherAssignmentsPage() {
       setTitle("");
       setDescription("");
       setInstructions("");
-      await loadAssignments();
+      const updated = await AssignmentService.listAssignmentsForClass("ALL");
+      setAssignments(updated);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Failed to create assignment.");
     } finally {
@@ -152,6 +156,11 @@ export default function TeacherAssignmentsPage() {
       />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+        {errorMessage && (
+          <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-800">
+            {errorMessage}
+          </div>
+        )}
         {/* Assignment Metrics */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card title="Active Assignments" subtitle="Currently open for submission">
