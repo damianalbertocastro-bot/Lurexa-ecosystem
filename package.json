@@ -10,7 +10,10 @@
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present check-types",
     "check-types": "pnpm -r --if-present check-types",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm test:security && pnpm test:integration && pnpm test:e2e",
+    "test:security": "pnpm test:learn-rules",
+    "test:integration": "pnpm test:learn-mvp-journey && FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:signature-delegation\" && FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:educator-growth-integration\"",
+    "test:e2e": "pnpm --filter learn-web test:e2e",
     "test:learn-rules": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-rules\"",
     "test:learn-mvp-journey": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-mvp-journey\"",
     "verify:repository-hygiene": "node scripts/verify-repository-hygiene.mjs",
@@ -20,6 +23,7 @@
     "verify:documentation-truth": "node scripts/verify-documentation-truth.mjs",
     "verify:platform-package-boundaries": "node scripts/verify-platform-package-boundaries.mjs",
     "verify:environment-contracts": "node scripts/verify-environment-contracts.mjs",
+    "verify:observability": "node scripts/verify-observability.mjs",
     "verify:curriculum-portfolio": "node scripts/verify-curriculum-portfolio.mjs",
     "verify:tokens": "pnpm --filter @lurexa/tokens lint && pnpm --filter @lurexa/tokens check-types",
     "verify:core-mind-boundary": "node scripts/verify-core-mind-boundary.mjs",
@@ -33,7 +37,11 @@
     "verify:governance": "node scripts/verify-governance-and-quality.mjs",
     "simulate:lifecycle": "node scripts/simulate-complete-learner-lifecycle.mjs",
     "simulate:a1-pilot": "node scripts/simulate-a1-pilot-cohort.mjs",
+<<<<<<< HEAD
     "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:coach && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+=======
+    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:observability && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+>>>>>>> 7e9ce5cf88226b2459f82727be559318aa1bfd59
     "phase0:lint": "pnpm --filter learn-web... lint",
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",

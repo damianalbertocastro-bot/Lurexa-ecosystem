@@ -128,20 +128,24 @@ Deployment truth: the repository implementation is verified; independent externa
 
 ## R6 — Platform / Package Reconciliation
 
-**Maturity: Pending**
+**Maturity: Verified**
 
-Goals:
+Completed scope:
 
-- classify every shared package as Production, Contract, Test or Deprecated;
-- eliminate ambiguous/stale Phase-0 abstractions only after import-graph verification;
-- separate browser-safe client services from privileged server-only capabilities more clearly;
-- prevent authoritative commerce/billing/platform mutations from leaking into client-safe barrels;
-- reconcile `@lurexa/auth`, `@lurexa/database`, `@lurexa/sdk` and `@lurexa/backend` responsibilities;
-- normalize framework/dependency policy where runtime constraints allow;
-- introduce canonical typed environment contracts and reduce duplicate environment names;
-- remove temporary lint compatibility exceptions when underlying dead bindings are removed.
+- [x] Classify every active shared package as Production, Contract or Test and record retired package names separately.
+- [x] Remove the zero-runtime-consumer `@lurexa/auth` and `@lurexa/database` scaffolds after import-graph verification.
+- [x] Keep authentication, authorization and persistence ownership in governed app/Core/backend boundaries rather than recreating generic parallel packages.
+- [x] Keep `@lurexa/sdk` contract-only and prevent it from becoming a second authority/implementation layer.
+- [x] Tighten `@lurexa/backend` to a browser-safe root plus explicit `*.server`, `core/*.server` and `mind/*.server` capability exports.
+- [x] Remove unrestricted backend wildcard exports and TypeScript aliases that could bypass the governed server boundary.
+- [x] Remove stale Learn build hooks for retired packages.
+- [x] Remove unsafe Phase-0 commerce/billing/quota authority stubs until governed server-owned replacements exist.
+- [x] Introduce canonical typed environment contracts, normalize public/server environment names and prohibit legacy aliases in runtime source.
+- [x] Reconcile repository/bootstrap package inventories with the actual workspace.
+- [x] Enforce package retirement, backend export policy and environment contracts through required CI.
+- [x] Verify frozen dependency installation, repository gates, Phase 0, and all configured product lint/type/build validations after the cleanup.
 
-Exit evidence: package ownership and import boundaries are explicit, dead abstractions are removed/deprecated safely, and all repository gates remain green.
+Exit evidence: PR #75 normalized environment contracts and PR #76 completed the package/runtime-policy cleanup. Both exact heads passed the protected `Verify Foundation & Build` gate and Product Deployment Validation before merge.
 
 ## R7 — Deployment Reconciliation
 

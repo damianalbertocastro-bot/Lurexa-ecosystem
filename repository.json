@@ -6,15 +6,14 @@
     { "name": "web", "path": "apps/web", "role": "ecosystem-landing" },
     { "name": "docs", "path": "apps/docs", "role": "documentation" },
     { "name": "learn-web", "path": "apps/learn-web", "role": "learner-product" },
+    { "name": "coach-web", "path": "apps/coach-web", "role": "coach-product" },
     { "name": "teach-web", "path": "apps/teach-web", "role": "teacher-development-product" },
     { "name": "admin-portal", "path": "apps/admin-portal", "role": "admin-product" },
     { "name": "mobile", "path": "apps/mobile", "role": "mobile-product" }
   ],
   "packages": [
-    { "name": "@lurexa/auth", "path": "packages/auth" },
     { "name": "@lurexa/backend", "path": "packages/backend" },
     { "name": "@lurexa/config", "path": "packages/config" },
-    { "name": "@lurexa/database", "path": "packages/database" },
     { "name": "@lurexa/eslint-config", "path": "packages/eslint-config" },
     { "name": "@lurexa/sdk", "path": "packages/sdk" },
     { "name": "@lurexa/tokens", "path": "packages/tokens" },

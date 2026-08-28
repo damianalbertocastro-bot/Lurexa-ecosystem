@@ -12,10 +12,8 @@
     { "name": "storybook", "path": "apps/storybook", "required": false }
   ],
   "packages": [
-    { "name": "@lurexa/auth", "path": "packages/auth", "required": true },
     { "name": "@lurexa/backend", "path": "packages/backend", "required": true },
     { "name": "@lurexa/config", "path": "packages/config", "required": true },
-    { "name": "@lurexa/database", "path": "packages/database", "required": true },
     { "name": "@lurexa/eslint-config", "path": "packages/eslint-config", "required": true },
     { "name": "@lurexa/sdk", "path": "packages/sdk", "required": true },
     { "name": "@lurexa/tokens", "path": "packages/tokens", "required": true },

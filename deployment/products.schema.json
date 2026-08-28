@@ -22,7 +22,10 @@
           "rootDirectory": { "type": "string" },
           "vercelProject": { "type": ["string", "null"] },
           "existingVercelProject": { "type": ["string", "null"] },
-          "status": { "type": "string" }
+          "status": {
+            "type": "string",
+            "enum": ["declared", "provisioned", "preview-ready", "production-live", "shared-deployment", "non-vercel", "retired"]
+          }
         },
         "additionalProperties": false
       }

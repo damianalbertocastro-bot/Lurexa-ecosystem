@@ -1,25 +1,15 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "packages": {
-    "@lurexa/auth": {
-      "path": "packages/auth",
-      "class": "Deprecated",
-      "role": "Legacy session/context scaffold. Canonical product authentication is implemented through current app/Core boundaries; do not add new runtime consumers."
-    },
     "@lurexa/backend": {
       "path": "packages/backend",
       "class": "Production",
-      "role": "Shared implementation package. Root barrel is browser-safe; privileged capabilities must be imported through explicit server-only subpaths."
+      "role": "Shared implementation package. Root barrel is browser-safe; privileged capabilities are exposed only through explicit server-only subpaths."
     },
     "@lurexa/config": {
       "path": "packages/config",
       "class": "Contract",
       "role": "Shared product/domain/configuration contracts that must remain runtime-neutral."
-    },
-    "@lurexa/database": {
-      "path": "packages/database",
-      "class": "Deprecated",
-      "role": "Legacy generic database abstraction/scaffold. Core persistence is implemented by governed backend repositories; do not add new runtime consumers."
     },
     "@lurexa/eslint-config": {
       "path": "packages/eslint-config",
@@ -55,6 +45,16 @@
       "path": "packages/utils",
       "class": "Production",
       "role": "Small runtime-neutral shared utilities."
+    }
+  },
+  "retiredPackages": {
+    "@lurexa/auth": {
+      "formerPath": "packages/auth",
+      "replacement": "Canonical product authentication and authorization live in governed app/Core/backend boundaries."
+    },
+    "@lurexa/database": {
+      "formerPath": "packages/database",
+      "replacement": "Core-owned backend repositories and trusted persistence boundaries replace the legacy generic database scaffold."
     }
   }
 }

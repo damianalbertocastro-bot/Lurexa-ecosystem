@@ -61,6 +61,9 @@ jobs:
       - name: Verify Environment Contracts
         run: pnpm verify:environment-contracts
 
+      - name: Verify Observability Contract
+        run: pnpm verify:observability
+
       - name: Verify Coach First-Class Product Boundary
         run: node scripts/verify-coach-product.mjs
 
@@ -117,6 +120,18 @@ jobs:
 
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules
+
+      - name: Verify Institutional Tenant Isolation
+        run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only auth,firestore --project lurexa-app "pnpm --filter @lurexa/backend test:institution-isolation"
+
+      - name: Verify Learn MVP Journey
+        run: pnpm test:learn-mvp-journey
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter learn-web exec playwright install --with-deps chromium
+
+      - name: Verify Learn Browser Journeys
+        run: pnpm test:e2e
 
       - name: Verify Phase 0
         run: pnpm verify:phase0
