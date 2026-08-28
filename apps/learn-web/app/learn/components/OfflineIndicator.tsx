@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Badge } from "@lurexa/ui/Badge";
 import { useToast } from "@lurexa/ui/Toast";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { OfflineSyncService } from "@lurexa/backend";

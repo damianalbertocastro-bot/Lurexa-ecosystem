@@ -2,7 +2,6 @@
   "name": "@lurexa/coach-web",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": "24.x" },
   "scripts": {
     "dev": "next dev --port 3005",
     "build": "next build",
@@ -13,22 +12,22 @@
   "dependencies": {
     "@lurexa/backend": "workspace:*",
     "@lurexa/config": "workspace:*",
+    "@lurexa/tokens": "workspace:*",
     "@lurexa/types": "workspace:*",
     "@lurexa/ui": "workspace:*",
-    "next": "16.3.1",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "@lurexa/utils": "workspace:*",
+    "next": "16.2.12",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@lurexa/eslint-config": "workspace:*",
-    "@lurexa/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.3",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "16.3.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
-    "typescript": "5.9.2"
+    "typescript": "^5"
   }
 }

@@ -228,7 +228,7 @@ export function RecordedSpeakingActivity({
   const [modelAudioLoading, setModelAudioLoading] = useState(false);
   const [modelAudioError, setModelAudioError] = useState<string | null>(null);
 
-  const { playClick, playSuccess, playAchievement } = useSoundEffects();
+  const { playClick, playAchievement } = useSoundEffects();
 
   useEffect(() => () => {
     if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
