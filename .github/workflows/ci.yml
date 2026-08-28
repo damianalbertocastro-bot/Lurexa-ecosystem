@@ -12,126 +12,196 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Verify Foundation & Build
+  foundation:
+    name: Foundation Contracts
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.3.0
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify Repository Hygiene
+        run: pnpm verify:repository-hygiene
+      - name: Verify Brand System
+        run: pnpm verify:brand-system
+      - name: Verify Product Registry Consumers
+        run: pnpm verify:product-registry
+      - name: Verify Prototype Containment
+        run: pnpm verify:prototype-containment
+      - name: Verify Documentation Truth
+        run: pnpm verify:documentation-truth
+      - name: Verify Platform Package Boundaries
+        run: pnpm verify:platform-package-boundaries
+      - name: Verify Environment Contracts
+        run: pnpm verify:environment-contracts
+      - name: Verify Observability Contract
+        run: pnpm verify:observability
+      - name: Verify Coach First-Class Product Boundary
+        run: node scripts/verify-coach-product.mjs
+      - name: Verify Design Tokens
+        run: pnpm verify:tokens
+      - name: Verify Superadmin Bootstrap Safety
+        run: pnpm verify:superadmin-bootstrap
+      - name: Verify Vercel Release Contract
+        run: pnpm verify:vercel-release
 
+  architecture:
+    name: Architecture & Intelligence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify Core Mind Boundary
+        run: pnpm verify:core-mind-boundary
+      - name: Verify Core Mind Contract
+        run: pnpm verify:mind-contract
+      - name: Verify Core Analytics Boundary
+        run: pnpm verify:core-analytics
+      - name: Verify Linguistic Intelligence
+        run: pnpm verify:linguistic-intelligence
+      - name: Verify Learner Model Architecture
+        run: pnpm verify:learner-model
+      - name: Verify Mind Recommendations
+        run: pnpm verify:mind-recommendations
+      - name: Verify Signature Experience Contracts
+        run: pnpm verify:signature-experience
+      - name: Verify Signature Rollout S9
+        run: node scripts/verify-signature-rollout.mjs
+      - name: Verify Educator Governance Boundary
+        run: node scripts/verify-educator-governance.mjs
+      - name: Verify Educator Growth Integration
+        run: node scripts/verify-educator-growth-integration.mjs
+
+  curriculum:
+    name: Curriculum Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify Curriculum Portfolio
+        run: pnpm verify:curriculum-portfolio
+      - name: Verify Full Curriculum Runner
+        run: pnpm verify:curriculum-runner
+
+  security-integration:
+    name: Security & Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
       - name: Setup Java 21 for Firebase emulators
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Verify Repository Hygiene
-        run: pnpm verify:repository-hygiene
-
-      - name: Verify Brand System
-        run: pnpm verify:brand-system
-
-      - name: Verify Product Registry Consumers
-        run: pnpm verify:product-registry
-
-      - name: Verify Prototype Containment
-        run: pnpm verify:prototype-containment
-
-      - name: Verify Documentation Truth
-        run: pnpm verify:documentation-truth
-
-      - name: Verify Platform Package Boundaries
-        run: pnpm verify:platform-package-boundaries
-
-      - name: Verify Environment Contracts
-        run: pnpm verify:environment-contracts
-
-      - name: Verify Observability Contract
-        run: pnpm verify:observability
-
-      - name: Verify Coach First-Class Product Boundary
-        run: node scripts/verify-coach-product.mjs
-
-      - name: Verify Curriculum Portfolio
-        run: pnpm verify:curriculum-portfolio
-
-      - name: Verify Full Curriculum Runner
-        run: pnpm verify:curriculum-runner
-
-      - name: Verify Design Tokens
-        run: pnpm verify:tokens
-
-      - name: Verify Core Mind Boundary
-        run: pnpm verify:core-mind-boundary
-
-      - name: Verify Core Mind Contract
-        run: pnpm verify:mind-contract
-
-      - name: Verify Core Analytics Boundary
-        run: pnpm verify:core-analytics
-
-      - name: Verify Superadmin Bootstrap Safety
-        run: pnpm verify:superadmin-bootstrap
-
-      - name: Verify Vercel Release Contract
-        run: pnpm verify:vercel-release
-
-      - name: Verify Linguistic Intelligence
-        run: pnpm verify:linguistic-intelligence
-
-      - name: Verify Learner Model Architecture
-        run: pnpm verify:learner-model
-
-      - name: Verify Mind Recommendations
-        run: pnpm verify:mind-recommendations
-
-      - name: Verify Signature Experience Contracts
-        run: pnpm verify:signature-experience
-
-      - name: Verify Signature Rollout S9
-        run: node scripts/verify-signature-rollout.mjs
-
-      - name: Verify Educator Governance Boundary
-        run: node scripts/verify-educator-governance.mjs
-
-      - name: Verify Educator Growth Integration
-        run: node scripts/verify-educator-growth-integration.mjs
-
       - name: Verify Educator Qualification Delegation
         run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app "pnpm --filter @lurexa/backend test:signature-delegation"
-
       - name: Verify Learn Teach Coach Educator Journey
         run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app "pnpm --filter @lurexa/backend test:educator-growth-integration"
-
       - name: Verify Learn Firestore Security Rules
         run: pnpm test:learn-rules
-
       - name: Verify Institutional Tenant Isolation
         run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only auth,firestore --project lurexa-app "pnpm --filter @lurexa/backend test:institution-isolation"
-
       - name: Verify Learn MVP Journey
         run: pnpm test:learn-mvp-journey
 
+  browser:
+    name: Learn Browser Journeys
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
         run: pnpm --filter learn-web exec playwright install --with-deps chromium
-
       - name: Verify Learn Browser Journeys
         run: pnpm test:e2e
 
+  phase0:
+    name: Learn Phase 0 Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Verify Phase 0
         run: pnpm verify:phase0
+
+  verify:
+    name: Verify Foundation & Build
+    if: always()
+    needs: [foundation, architecture, curriculum, security-integration, browser, phase0]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every reliability gate
+        shell: bash
+        run: |
+          test "${{ needs.foundation.result }}" = "success"
+          test "${{ needs.architecture.result }}" = "success"
+          test "${{ needs.curriculum.result }}" = "success"
+          test "${{ needs.security-integration.result }}" = "success"
+          test "${{ needs.browser.result }}" = "success"
+          test "${{ needs.phase0.result }}" = "success"
+          echo "All Lurexa foundation, architecture, curriculum, security, browser, and build gates passed."
