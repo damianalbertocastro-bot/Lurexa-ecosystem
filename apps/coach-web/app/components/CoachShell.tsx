@@ -68,6 +68,14 @@ export function CoachShell({
           {/* Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
             <a
+              href={urls.ecosystem}
+              className={`hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                inverse ? "text-slate-300 hover:text-white" : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+              }`}
+            >
+              Lurexa ↗
+            </a>
+            <a
               href={urls.learn}
               className={`hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                 inverse ? "text-slate-300 hover:text-white" : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
@@ -83,6 +91,7 @@ export function CoachShell({
             >
               Teach ↗
             </a>
+
 
             <ThemeToggle />
             <EcosystemDropdown currentApp="coach" inverse={inverse} />
