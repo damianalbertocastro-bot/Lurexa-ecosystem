@@ -31,6 +31,9 @@ export * from "./curriculum/c1";
 export * from "./curriculum/c2";
 export * from "./coach-catalog";
 export * from "./institutional-analytics.service";
+export * from "./assignment.service";
+export * from "./roster-import.service";
+export * from "./studio-authoring.service";
 export * from "./offline-sync-engine";
 
 // Server-only capabilities intentionally do not belong in this browser-safe

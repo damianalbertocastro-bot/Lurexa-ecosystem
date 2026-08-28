@@ -18,3 +18,5 @@ export * from "./institution";
 export * from "./signature-experience";
 export * from "./signature-rollout";
 export * from "./educator-access";
+export * from "./assignment";
+export * from "./studio";

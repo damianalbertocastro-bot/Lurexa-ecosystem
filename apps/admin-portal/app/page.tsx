@@ -149,6 +149,18 @@ export default function AdminDashboardPage() {
               >
                 Billing &amp; Licenses
               </Link>
+              <Link
+                href="/roster"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
+              >
+                Roster Sync
+              </Link>
+              <Link
+                href="/analytics/phonetics"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
+              >
+                Phonetics &amp; Speaking
+              </Link>
               <ThemeToggle />
               <EcosystemDropdown currentApp="admin" inverse />
               <a
