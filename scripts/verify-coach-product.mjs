@@ -43,10 +43,11 @@ else {
   if (coachDeployment.product !== "Lurexa Coach") fail("coach-web deployment must use canonical Lurexa Coach identity");
   if (coachDeployment.workspace !== "@lurexa/coach-web") fail("coach-web deployment must target @lurexa/coach-web");
   if (coachDeployment.rootDirectory !== "apps/coach-web") fail("coach-web deployment root must be apps/coach-web");
-  if (coachDeployment.vercelProject !== "lurexa-coach-web") fail("coach-web Vercel project name must be lurexa-coach-web");
+  if (coachDeployment.vercelProject !== "coach-web") fail("coach-web Vercel project name must match the provisioned external project coach-web");
+  if (!["provisioned", "preview-ready", "production-live"].includes(coachDeployment.status)) fail("coach-web deployment must use a truthful provisioned-or-higher lifecycle state");
 }
 if (deployment.futureProducts.some((item) => item.product === "Lurexa Coach")) fail("Coach cannot remain a future deployment after apps/coach-web exists");
-if (!failures.some((item) => item.includes("deployment") || item.includes("Vercel") || item.includes("future deployment"))) pass("Coach is promoted into active deployment topology");
+if (!failures.some((item) => item.includes("deployment") || item.includes("Vercel") || item.includes("future deployment"))) pass("Coach is promoted into governed deployment topology without overstating runtime readiness");
 
 const domains = read("packages/config/src/domains.ts");
 const environment = read("packages/config/src/environment.ts");
