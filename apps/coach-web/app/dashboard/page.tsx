@@ -275,18 +275,26 @@ export default function CoachDashboardPage() {
                   href={urls.learn}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#071d67]">Lurexa Learn ↗</p>
+                  <p className="text-xs font-black text-[#071d67]">Open Learn ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Resume course lessons, curriculum pathways, and assignments.</p>
                 </a>
                 <a
                   href={urls.teach}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#6b2bd9]">Lurexa Teach ↗</p>
+                  <p className="text-xs font-black text-[#6b2bd9]">Open Teach ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Educator training, CEFR proficiency growth, and credentials.</p>
+                </a>
+                <a
+                  href={urls.ecosystem}
+                  className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
+                >
+                  <p className="text-xs font-black text-[#0ba5a8]">All Lurexa products ↗</p>
+                  <p className="mt-0.5 text-[11px] text-slate-500">Explore platform tools, documentation, and campus services.</p>
                 </a>
               </div>
             </Card>
+
           </aside>
         </div>
       </main>

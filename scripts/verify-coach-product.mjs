@@ -55,12 +55,38 @@ if (!domains.includes('"root" | "learn" | "coach" | "teach"')) fail("ecosystem d
 if (!domains.includes('productionUrl: "https://coach.lurexa.org"')) fail("Coach canonical domain must be coach.lurexa.org");
 if (!domains.includes('developmentUrl: "http://localhost:3005"')) fail("Coach domain registry must reserve localhost:3005");
 if (!environment.includes('coach: "NEXT_PUBLIC_LUREXA_COACH_URL"')) fail("canonical environment contract must expose the Coach public URL override");
-if (!failures.some((item) => item.includes("domain") || item.includes("environment contract"))) pass("Coach has a canonical cross-product domain contract");
+for (const requiredFirebaseEnv of [
+  "NEXT_PUBLIC_FIREBASE_API_KEY",
+  "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+  "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  "NEXT_PUBLIC_FIREBASE_APP_ID",
+]) {
+  if (!environment.includes(requiredFirebaseEnv)) fail(`shared Firebase environment contract is missing ${requiredFirebaseEnv}`);
+}
+if (!failures.some((item) => item.includes("domain") || item.includes("environment contract") || item.includes("Firebase environment"))) pass("Coach has canonical cross-product domain and shared Firebase identity contracts");
 
 const productUrls = read("packages/config/src/product-urls.ts");
 if (!productUrls.includes('coach: "https://coach.lurexa.org"')) fail("product URL fallbacks must resolve Coach to its own domain");
 if (/coach:\s*cleanUrl\([^\n]+\)\s*\?\?\s*`?\$\{learn\}\/coach/.test(productUrls)) fail("Coach must not fall back to a Learn-owned /coach route");
 else pass("public URL resolution no longer treats Coach as a Learn sub-route");
+
+const login = read("apps/coach-web/app/login/page.tsx");
+if (!login.includes('import { AuthService } from "@lurexa/backend"')) fail("Coach login must use the shared Lurexa AuthService");
+if (!login.includes("AuthService.login(email, password)") || !login.includes("AuthService.register(email, password)")) fail("Coach auth flows must use the shared Firebase-backed login/register contract");
+if (!login.includes("auth/email-already-in-use")) fail("Coach registration must explicitly redirect existing Lurexa identities toward sign-in semantics");
+if (!login.includes("same Lurexa account")) fail("Coach login must communicate cross-product account reuse");
+if (!failures.some((item) => item.includes("Coach login") || item.includes("Coach auth") || item.includes("Coach registration"))) pass("Coach reuses one Lurexa identity instead of creating product-specific accounts");
+
+const coachShell = read("apps/coach-web/app/components/CoachShell.tsx");
+if (!coachShell.includes("resolveLurexaPublicUrls")) fail("Coach shell must use centralized Lurexa public URL resolution");
+for (const destination of ["urls.ecosystem", "urls.learn", "urls.teach"]) {
+  if (!coachShell.includes(destination)) fail(`Coach shell is missing connected navigation for ${destination}`);
+}
+const coachDashboard = read("apps/coach-web/app/dashboard/page.tsx");
+if (!coachDashboard.includes("Open Learn") || !coachDashboard.includes("Open Teach") || !coachDashboard.includes("All Lurexa products")) fail("Coach dashboard must expose working connected-product destinations");
+if (!failures.some((item) => item.includes("Coach shell") || item.includes("Coach dashboard"))) pass("Coach exposes centralized cross-product navigation from shared shell and dashboard");
 
 const legacyLearnCoach = read("apps/learn-web/app/coach/page.tsx");
 if (!legacyLearnCoach.includes('resolveLurexaPublicUrls().coach') || !legacyLearnCoach.includes('redirect(')) fail("Learn /coach must be a compatibility redirect to standalone Coach");

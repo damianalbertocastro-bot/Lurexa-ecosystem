@@ -35,13 +35,21 @@ function CoachLoginForm() {
       const continueTo = readSafeContinueTo(searchParams.get("continue"));
       router.replace(continueTo || "/dashboard");
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : mode === "login"
-          ? "Unable to sign in. Please verify your credentials."
-          : "Unable to create your account. Please try again."
-      );
+      const code =
+        typeof cause === "object" && cause !== null && "code" in cause
+          ? String((cause as { code?: unknown }).code)
+          : "";
+      if (code === "auth/email-already-in-use") {
+        setError("This email already belongs to a Lurexa account. Sign in with your same Lurexa account instead.");
+      } else {
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : mode === "login"
+            ? "Unable to sign in with your same Lurexa account. Please verify your credentials."
+            : "Unable to create your account. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -65,9 +73,10 @@ function CoachLoginForm() {
         </h1>
         <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-sm mx-auto">
           {mode === "login"
-            ? "Sign in with your existing Lurexa Learn or Teach account. No second account is required."
+            ? "Sign in with your existing same Lurexa account across Learn and Teach. No second account is required."
             : "One account connects your practice across Coach, Learn, and Teach."}
         </p>
+
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
