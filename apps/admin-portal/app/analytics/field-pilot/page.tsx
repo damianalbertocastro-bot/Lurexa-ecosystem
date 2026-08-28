@@ -6,7 +6,6 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { Card } from "@lurexa/ui/card";
-import { Badge } from "@lurexa/ui/Badge";
 import { FieldTelemetryService, type DominicanFieldPilotTelemetryReport } from "@lurexa/backend";
 
 export default function DominicanFieldPilotAnalyticsPage() {

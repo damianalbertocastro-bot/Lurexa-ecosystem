@@ -46,9 +46,9 @@ export default function LurexaStudioPage() {
     [promptText, cefrLevel]
   );
   const [saving, setSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const loadObjects = async () => {
-    setLoading(true);
     try {
       const list = await StudioAuthoringService.listKnowledgeObjects();
       setKnowledgeObjects(list);
@@ -75,6 +75,7 @@ export default function LurexaStudioPage() {
     const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "author-lead", id: "author-lead", email: "author@lurexa.org" };
 
     setSaving(true);
+    setStatusMessage(null);
     try {
       await StudioAuthoringService.createKnowledgeObjectDraft(actor as never, {
         name,
@@ -98,9 +99,9 @@ export default function LurexaStudioPage() {
       setName("");
       setObjective("");
       await loadObjects();
-      alert("🎉 Knowledge Object Draft successfully created and stored in Core!");
+      setStatusMessage("Knowledge Object Draft successfully created and stored in Core.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to create draft.");
+      setStatusMessage(err instanceof Error ? err.message : "Failed to create draft.");
     } finally {
       setSaving(false);
     }
@@ -110,12 +111,13 @@ export default function LurexaStudioPage() {
     const user = auth.currentUser;
     const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "reviewer-lead", id: "reviewer-lead", email: "reviewer@lurexa.org" };
 
+    setStatusMessage(null);
     try {
       await StudioAuthoringService.publishKnowledgeObject(actor as never, id);
       await loadObjects();
-      alert("✓ Knowledge Object approved and published to immutable production catalog.");
+      setStatusMessage("Knowledge Object approved and published to immutable production catalog.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Publishing failed.");
+      setStatusMessage(err instanceof Error ? err.message : "Publishing failed.");
     }
   };
 
@@ -142,6 +144,12 @@ export default function LurexaStudioPage() {
           </p>
         </section>
 
+        {statusMessage && (
+          <div role="status" className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-xs font-bold text-indigo-900">
+            {statusMessage}
+          </div>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
           {/* Authoring Form */}
           <form onSubmit={handleCreateDraft} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
@@ -162,7 +170,7 @@ export default function LurexaStudioPage() {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">CEFR Level</label>
                 <select
@@ -176,6 +184,20 @@ export default function LurexaStudioPage() {
                   <option value="B2">B2 - Vantage</option>
                   <option value="C1">C1 - Advanced</option>
                   <option value="C2">C2 - Mastery</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Activity Type</label>
+                <select
+                  value={activityType}
+                  onChange={(e) => setActivityType(e.target.value as StudioKnowledgeObjectDraftV1["activityConfig"]["type"])}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                >
+                  <option value="phoneme_shadowing">Phoneme Shadowing</option>
+                  <option value="coda_drill">Coda Articulation Drill</option>
+                  <option value="minimal_pair_discrimination">Minimal Pair Discrimination</option>
+                  <option value="connected_speech_flow">Connected Speech Flow</option>
                 </select>
               </div>
 

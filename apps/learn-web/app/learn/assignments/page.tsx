@@ -22,8 +22,9 @@ export default function StudentAssignmentsPage() {
   const [responseText, setResponseText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const loadStudentAssignments = async () => {
-    setLoading(true);
     const user = auth.currentUser;
     const studentId = user ? user.uid : "student-juan-perez";
     try {
@@ -47,6 +48,7 @@ export default function StudentAssignmentsPage() {
     const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "student-juan-perez", id: "student-juan-perez", email: "juan@school.edu" };
 
     setSubmitting(true);
+    setErrorMessage(null);
     try {
       await AssignmentService.submitAssignment(actor as never, {
         assignmentId: submittingItem.id,
@@ -59,7 +61,7 @@ export default function StudentAssignmentsPage() {
       setResponseText("");
       await loadStudentAssignments();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to submit assignment.");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to submit assignment.");
     } finally {
       setSubmitting(false);
     }

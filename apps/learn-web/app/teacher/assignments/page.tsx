@@ -37,9 +37,9 @@ export default function TeacherAssignmentsPage() {
   const [gradeScore, setGradeScore] = useState<number>(9);
   const [gradeFeedback, setGradeFeedback] = useState("");
   const [grading, setGrading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadAssignments = async () => {
-    setLoading(true);
     try {
       const list = await AssignmentService.listAssignmentsForClass("ALL");
       setAssignments(list);
@@ -57,36 +57,35 @@ export default function TeacherAssignmentsPage() {
   const handleCreateAssignment = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = auth.currentUser;
-    const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "teacher-demo", id: "teacher-demo", email: "teacher@school.edu" };
+    const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "teacher-carolina", id: "teacher-carolina", email: "carolina@dominicanschool.edu" };
 
     setCreating(true);
+    setErrorMessage(null);
     try {
       await AssignmentService.createAssignment(actor as never, {
         organizationId: "org-demo",
-        courseId: `english-${targetLevel.toLowerCase()}-foundations`,
+        courseId: "english-a1-foundations",
         classId: "class-dominican-morning-101",
-        teacherId: actor.uid,
+        teacherId: actor.uid || actor.id,
         title,
         description,
         instructions,
         targetType,
-        targetRef: `target-${Date.now().toString(36)}`,
+        targetRef: "a1-speaking-intro",
         targetLevel,
-        dueDate: dueDate || new Date(Date.now() + 86400000 * 5).toISOString(),
         status: "published",
+        dueDate: dueDate || new Date(Date.now() + 7 * 86400000).toISOString(),
         rubric: [
           {
-            id: "r-clarity",
-            name: "Intelligibility & Pronunciation",
-            description: "Audible phonetic contrast with natural stress",
-            maxScore: 10,
+            criterionId: "r1-intelligibility",
+            label: "Intelligibility & Syllable Codas",
+            maxPoints: 10,
             weight: 0.6,
           },
           {
-            id: "r-fluency",
-            name: "Fluency & Rhythm",
-            description: "Smooth continuous speech pacing",
-            maxScore: 10,
+            criterionId: "r2-fluency",
+            label: "Natural Pace & Flow",
+            maxPoints: 10,
             weight: 0.4,
           },
         ],
@@ -97,7 +96,7 @@ export default function TeacherAssignmentsPage() {
       setInstructions("");
       await loadAssignments();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to create assignment.");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to create assignment.");
     } finally {
       setCreating(false);
     }
@@ -116,6 +115,7 @@ export default function TeacherAssignmentsPage() {
     const actor = user ? { uid: user.uid, id: user.uid, email: user.email || "" } : { uid: "teacher-demo", id: "teacher-demo", email: "teacher@school.edu" };
 
     setGrading(true);
+    setErrorMessage(null);
     try {
       await AssignmentService.gradeSubmission(actor as never, gradingSubmission.id, {
         score: gradeScore,
@@ -128,7 +128,7 @@ export default function TeacherAssignmentsPage() {
         setSubmissions(list);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to grade submission.");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to grade submission.");
     } finally {
       setGrading(false);
     }

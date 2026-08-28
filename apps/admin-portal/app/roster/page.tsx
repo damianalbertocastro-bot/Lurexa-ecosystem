@@ -46,7 +46,7 @@ export default function AdminRosterPage() {
       );
       setImportResult(result);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Roster import failed.");
+      setParseErrors([err instanceof Error ? err.message : "Roster import failed."]);
     } finally {
       setImporting(false);
     }
