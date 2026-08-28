@@ -1,4 +1,10 @@
-export type EcosystemAppKey = "root" | "learn" | "teach" | "admin" | "docs" | "coach";
+import {
+  lurexaPlatformEnv,
+  lurexaPublicUrlEnv,
+  type LurexaEnvironment,
+} from "./environment";
+
+export type EcosystemAppKey = "root" | "learn" | "coach" | "teach" | "admin" | "docs";
 
 export interface EcosystemAppMeta {
   key: EcosystemAppKey;
@@ -29,6 +35,15 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     developmentUrl: "http://localhost:3001",
     devPort: 3001,
   },
+  coach: {
+    key: "coach",
+    name: "Lurexa Coach",
+    shortName: "Coach",
+    description: "Adaptive speaking, pronunciation, fluency, and professional English practice",
+    productionUrl: "https://coach.lurexa.org",
+    developmentUrl: "http://localhost:3005",
+    devPort: 3005,
+  },
   teach: {
     key: "teach",
     name: "Lurexa Teach",
@@ -56,38 +71,23 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     developmentUrl: "http://localhost:3004",
     devPort: 3004,
   },
-  coach: {
-    key: "coach",
-    name: "Lurexa Coach",
-    shortName: "Coach",
-    description: "AI-powered English speaking, pronunciation, and fluency studio",
-    productionUrl: "https://coach.lurexa.org",
-    developmentUrl: "http://localhost:3005",
-    devPort: 3005,
-  },
 };
 
-const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string[]> = {
-  root: ["NEXT_PUBLIC_ROOT_URL", "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL"],
-  learn: ["NEXT_PUBLIC_LEARN_URL", "NEXT_PUBLIC_LUREXA_LEARN_URL"],
-  teach: ["NEXT_PUBLIC_TEACH_URL", "NEXT_PUBLIC_LUREXA_TEACH_URL"],
-  admin: ["NEXT_PUBLIC_ADMIN_URL", "NEXT_PUBLIC_LUREXA_ADMIN_URL"],
-  docs: ["NEXT_PUBLIC_DOCS_URL", "NEXT_PUBLIC_LUREXA_DOCS_URL"],
-  coach: ["NEXT_PUBLIC_COACH_URL", "NEXT_PUBLIC_LUREXA_COACH_URL"],
+const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string> = {
+  root: lurexaPublicUrlEnv.ecosystem,
+  learn: lurexaPublicUrlEnv.learn,
+  coach: lurexaPublicUrlEnv.coach,
+  teach: lurexaPublicUrlEnv.teach,
+  admin: lurexaPublicUrlEnv.admin,
+  docs: lurexaPublicUrlEnv.docs,
 };
 
-function getExplicitOverride(appKey: EcosystemAppKey, env: Record<string, string | undefined>): string | undefined {
-  const vars = ENV_VAR_OVERRIDES[appKey] ?? [];
-  for (const varName of vars) {
-    const val = env[varName]?.trim();
-    if (val) {
-      return val.replace(/\/$/, "");
-    }
-  }
-  return undefined;
+function getExplicitOverride(appKey: EcosystemAppKey, env: LurexaEnvironment): string | undefined {
+  const value = env[ENV_VAR_OVERRIDES[appKey]]?.trim();
+  return value ? value.replace(/\/$/, "") : undefined;
 }
 
-export function isProductionEnv(env: Record<string, string | undefined> = process.env): boolean {
+export function isProductionEnv(env: LurexaEnvironment = process.env): boolean {
   const browserWindow = typeof globalThis !== "undefined"
     ? (globalThis as unknown as { window?: { location?: { hostname?: string } } }).window
     : undefined;
@@ -97,30 +97,24 @@ export function isProductionEnv(env: Record<string, string | undefined> = proces
       return true;
     }
   }
-  const appEnv = env.NEXT_PUBLIC_APP_ENV?.trim();
-  if (appEnv) {
-    return appEnv === "production" || appEnv === "preview";
-  }
-  const vercelEnv = env.VERCEL_ENV?.trim();
-  if (vercelEnv) {
-    return vercelEnv === "production" || vercelEnv === "preview";
-  }
-  return env.NODE_ENV === "production";
+  const appEnv = env[lurexaPlatformEnv.appEnvironment]?.trim();
+  if (appEnv) return appEnv === "production" || appEnv === "preview";
+
+  const vercelEnv = env[lurexaPlatformEnv.vercelEnvironment]?.trim();
+  if (vercelEnv) return vercelEnv === "production" || vercelEnv === "preview";
+
+  return env[lurexaPlatformEnv.nodeEnvironment] === "production";
 }
 
 export function getEcosystemBaseUrl(
   appKey: EcosystemAppKey,
-  env: Record<string, string | undefined> = process.env
+  env: LurexaEnvironment = process.env,
 ): string {
   const explicitOverride = getExplicitOverride(appKey, env);
-  if (explicitOverride) {
-    return explicitOverride;
-  }
+  if (explicitOverride) return explicitOverride;
 
   const meta = ECOSYSTEM_APP_REGISTRY[appKey];
-  if (!meta) {
-    throw new Error(`Unknown ecosystem app key: ${String(appKey)}`);
-  }
+  if (!meta) throw new Error(`Unknown ecosystem app key: ${String(appKey)}`);
 
   return isProductionEnv(env) ? meta.productionUrl : meta.developmentUrl;
 }
@@ -128,7 +122,7 @@ export function getEcosystemBaseUrl(
 export function getEcosystemUrl(
   appKey: EcosystemAppKey,
   path?: string,
-  env: Record<string, string | undefined> = process.env
+  env: LurexaEnvironment = process.env,
 ): string {
   const baseUrl = getEcosystemBaseUrl(appKey, env);
   if (!path) return baseUrl;
@@ -136,12 +130,9 @@ export function getEcosystemUrl(
   return `${baseUrl}${normalizedPath}`;
 }
 
-export function getAllEcosystemApps(env: Record<string, string | undefined> = process.env): Array<EcosystemAppMeta & { url: string }> {
-  return (Object.keys(ECOSYSTEM_APP_REGISTRY) as EcosystemAppKey[]).map((key) => {
-    const meta = ECOSYSTEM_APP_REGISTRY[key];
-    return {
-      ...meta,
-      url: getEcosystemUrl(key, undefined, env),
-    };
-  });
+export function getAllEcosystemApps(env: LurexaEnvironment = process.env): Array<EcosystemAppMeta & { url: string }> {
+  return (Object.keys(ECOSYSTEM_APP_REGISTRY) as EcosystemAppKey[]).map((key) => ({
+    ...ECOSYSTEM_APP_REGISTRY[key],
+    url: getEcosystemUrl(key, undefined, env),
+  }));
 }

@@ -5,7 +5,7 @@
 :root {
   --background: var(--lx-canvas);
   --foreground: var(--lx-ink);
-  --coach-navy: var(--lx-ink);
+  --coach-navy: #071d67;
   --coach-ink: var(--lx-ink);
   --coach-violet: #592bd6;
   --coach-cyan: #0ba5a8;
@@ -56,12 +56,12 @@
   50% { opacity: 0.6; }
 }
 
-html { scroll-behavior: smooth; background: var(--coach-canvas); }
+html { scroll-behavior: smooth; background: var(--lx-canvas); }
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--coach-canvas);
-  color: var(--coach-ink);
+  background: var(--lx-canvas);
+  color: var(--lx-ink);
   font-family: var(--font-geist-sans), 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

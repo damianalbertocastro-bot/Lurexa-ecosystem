@@ -1,0 +1,22 @@
+# Default repository ownership
+* @damianalbertocastro-bot
+
+# Architecture and platform trust boundaries
+/Docs/Architecture/ @damianalbertocastro-bot
+/packages/backend/ @damianalbertocastro-bot
+/packages/types/ @damianalbertocastro-bot
+/packages/config/ @damianalbertocastro-bot
+/firestore.rules @damianalbertocastro-bot
+/firestore.indexes.json @damianalbertocastro-bot
+
+# Product surfaces
+/apps/learn-web/ @damianalbertocastro-bot
+/apps/teach-web/ @damianalbertocastro-bot
+/apps/admin-portal/ @damianalbertocastro-bot
+/apps/web/ @damianalbertocastro-bot
+/apps/docs/ @damianalbertocastro-bot
+
+# CI and deployment governance
+/.github/workflows/ @damianalbertocastro-bot
+/deployment/ @damianalbertocastro-bot
+/scripts/verify-*.mjs @damianalbertocastro-bot

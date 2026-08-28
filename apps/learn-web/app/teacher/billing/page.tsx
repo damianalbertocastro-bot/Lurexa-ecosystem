@@ -1,158 +1,53 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { Button } from "@lurexa/ui/Button";
-import { Card } from "@lurexa/ui/Card";
-import { Badge } from "@lurexa/ui/Badge";
-import { ProgressBar } from "@lurexa/ui/ProgressBar";
-import { BillingService, PLAN_CONFIGS, PlanLimits } from "@lurexa/backend";
-import { PricingPlan } from "@lurexa/types";
+import Link from "next/link";
 import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
 
 export default function TeacherBillingPage() {
-  const [currentPlan, setCurrentPlan] = useState<PricingPlan>("free");
-  const [limits, setLimits] = useState<PlanLimits>(PLAN_CONFIGS["free"]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    async function loadBilling() {
-      const sub = await BillingService.getSubscription("org_demo");
-      if (sub) {
-        setCurrentPlan(sub.plan);
-        setLimits(PLAN_CONFIGS[sub.plan]);
-      }
-    }
-    loadBilling();
-  }, []);
-
-  const handleUpgrade = async (plan: PricingPlan) => {
-    setLoading(true);
-    try {
-      const session = await BillingService.createCheckoutSession("org_demo", plan);
-      window.location.href = session.checkoutUrl;
-    } catch {
-      alert("Failed to initiate checkout.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <>
       <TeacherWorkspaceBanner
-        title="Billing & Subscription Management"
-        subtitle="Manage plan tiers, student seats, and usage limits"
+        title="Billing & Subscription"
+        subtitle="Commercial planning surface — checkout is not active"
         breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Billing" }]}
-        actions={
-          <Badge variant={currentPlan === "free" ? "default" : "success"}>
-            Active Plan: {currentPlan.toUpperCase()}
-          </Badge>
-        }
       />
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="rounded-[30px] border border-[#dfe7fb] bg-white p-8 shadow-sm">
+          <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
+            Billing preview · no payment processing
+          </span>
+          <h1 className="mt-5 text-3xl font-black tracking-[-.045em] text-[#071d67]">Plans can be designed here, but they cannot be purchased yet.</h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6074a5]">
+            This surface intentionally does not display a fake active organization plan, fabricated usage counts, or redirect to a demo Stripe URL. Production billing must be tied to the authenticated organization and verified through a trusted server-owned payment lifecycle.
+          </p>
 
-        {/* Current Usage Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card title="Student Seats" subtitle="Enrolled / Capacity">
-            <div className="space-y-2 pt-2">
-              <span className="text-2xl font-bold text-[#071d67]">
-                18 / {limits.maxStudents}
-              </span>
-              <ProgressBar value={(18 / limits.maxStudents) * 100} />
-            </div>
-          </Card>
-
-          <Card title="AI Queries / Student" subtitle="Monthly guardrail cap">
-            <div className="space-y-2 pt-2">
-              <span className="text-2xl font-bold text-[#592bd6]">
-                {limits.aiQueriesPerStudentMonth} Queries
-              </span>
-              <p className="text-xs text-[#4d5e8c]">Resets on the 1st of every month</p>
-            </div>
-          </Card>
-
-          <Card title="Offline Support" subtitle=" Dominican Republic sync">
-            <div className="pt-2">
-              <Badge variant={limits.offlineSupport ? "success" : "warning"}>
-                {limits.offlineSupport ? "Enabled ✓" : "Requires Basic Plan"}
-              </Badge>
-            </div>
-          </Card>
-        </div>
-
-        {/* Pricing Tier Matrix */}
-        <Card title="Available Pricing Plans" subtitle="Select a plan that fits your school's scale">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-            {/* Free Tier */}
-            <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-[#071d67]">Free Tier</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$0 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
-                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
-                  <li>• Up to 20 students</li>
-                  <li>• 3 courses</li>
-                  <li>• 10 AI queries/student/mo</li>
-                  <li>• Basic analytics</li>
-                </ul>
-              </div>
-              <Button
-                variant="secondary"
-                className="mt-6 w-full"
-                disabled={currentPlan === "free"}
-              >
-                {currentPlan === "free" ? "Current Plan" : "Downgrade"}
-              </Button>
-            </div>
-
-            {/* Basic Tier */}
-            <div className="rounded-xl border-2 border-[#592bd6] p-6 flex flex-col justify-between bg-[#f1eeff] relative">
-              <div className="absolute -top-3 right-4 bg-[#592bd6] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                POPULAR
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-[#071d67]">Basic Plan</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$9 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
-                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
-                  <li>• Up to 100 students</li>
-                  <li>• Unlimited courses</li>
-                  <li>• 50 AI queries/student/mo</li>
-                  <li>• Offline PWA sync enabled</li>
-                </ul>
-              </div>
-              <Button
-                variant="primary"
-                className="mt-6 w-full"
-                onClick={() => handleUpgrade("basic")}
-                isLoading={loading}
-              >
-                {currentPlan === "basic" ? "Current Plan" : "Upgrade to Basic"}
-              </Button>
-            </div>
-
-            {/* Pro Tier */}
-            <div className="rounded-xl border border-[#dfe7fb] p-6 flex flex-col justify-between bg-white">
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-[#071d67]">Pro Plan</h3>
-                <p className="text-2xl font-extrabold text-[#071d67]">$29 <span className="text-xs font-normal text-[#4d5e8c]">/mo</span></p>
-                <ul className="text-xs space-y-2 text-[#5d6f9d] pt-2">
-                  <li>• Up to 500 students</li>
-                  <li>• Unlimited courses</li>
-                  <li>• 200 AI queries/student/mo</li>
-                  <li>• Advanced analytics & alerts</li>
-                </ul>
-              </div>
-              <Button
-                variant="secondary"
-                className="mt-6 w-full"
-                onClick={() => handleUpgrade("pro")}
-                isLoading={loading}
-              >
-                {currentPlan === "pro" ? "Current Plan" : "Upgrade to Pro"}
-              </Button>
-            </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              ["Free", "Entry access and bounded usage"],
+              ["Institution", "Managed seats, courses and governance"],
+              ["Enterprise", "Contracted scale and advanced controls"],
+            ].map(([name, description]) => (
+              <article key={name} className="rounded-2xl border border-[#e3e9f8] bg-[#f8faff] p-5">
+                <h2 className="font-black text-[#071d67]">{name}</h2>
+                <p className="mt-2 text-sm leading-6 text-[#6074a5]">{description}</p>
+                <p className="mt-4 text-xs font-black uppercase tracking-[.12em] text-[#7b88a9]">Pricing not finalized</p>
+              </article>
+            ))}
           </div>
-        </Card>
-      </div>
+
+          <div className="mt-8 rounded-2xl border border-[#dfe7fb] p-5">
+            <h2 className="font-black text-[#071d67]">Activation requirements</h2>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#6074a5]">
+              <li>• Authenticated organization and authorized billing administrator.</li>
+              <li>• Server-created checkout/session with verified provider response.</li>
+              <li>• Signed webhook reconciliation before subscription state changes.</li>
+              <li>• Core-owned entitlement, invoice and audit records.</li>
+            </ul>
+          </div>
+
+          <Link href="/teacher/dashboard" className="mt-8 inline-flex rounded-xl bg-[#071d67] px-5 py-3 text-sm font-black text-white">
+            Return to Teacher Workspace
+          </Link>
+        </section>
+      </main>
     </>
   );
 }

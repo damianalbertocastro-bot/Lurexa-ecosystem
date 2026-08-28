@@ -52,7 +52,7 @@ if (!registry.includes('name: "Lurexa Community"') || !registry.includes('classi
   pass("Community remains future-product-concept, not a current product");
 }
 
-const urlContract = read("packages/config/src/product-urls.ts");
+const urlContract = read("packages/config/src/environment.ts");
 const requiredUrlVariables = [
   "NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL",
   "NEXT_PUBLIC_LUREXA_LEARN_URL",
@@ -106,13 +106,7 @@ for (const [file, expected] of shellExpectations) {
 }
 if (!failures.some((item) => item.includes("layout.tsx"))) pass("current web shells expose canonical product/company metadata");
 
-const shellDirectories = [
-  "apps/web/app",
-  "apps/learn-web/app",
-  "apps/teach-web/app",
-  "apps/admin-portal/app",
-  "apps/docs/app",
-];
+const shellDirectories = ["apps/web/app", "apps/learn-web/app", "apps/teach-web/app", "apps/admin-portal/app", "apps/docs/app"];
 for (const directory of shellDirectories) {
   const icon = `${directory}/icon.svg`;
   const legacyFavicon = `${directory}/favicon.ico`;
@@ -158,9 +152,6 @@ if (webPage.includes('"community"') || webPage.includes("Lurexa Community")) {
   pass("Community is absent from current ecosystem product navigation");
 }
 
-// The ecosystem homepage serves static copies of the product marks so their
-// appearance does not depend on consumer Tailwind output. Keep those copies
-// aligned with the canonical UI assets and make the page reference each one.
 for (const id of currentProducts) {
   const canonicalPath = `packages/ui/brand/marks/lurexa-${id}.svg`;
   const publicPath = `apps/web/public/brand/lurexa-${id}.svg`;
@@ -168,7 +159,6 @@ for (const id of currentProducts) {
     fail(`Missing ecosystem public product mark: ${publicPath}`);
     continue;
   }
-
   const normalizeSvg = (value) => value.replace(/\s+/g, "");
   if (normalizeSvg(read(canonicalPath)) !== normalizeSvg(read(publicPath))) {
     fail(`Ecosystem public product mark diverges from canonical asset: ${id}`);

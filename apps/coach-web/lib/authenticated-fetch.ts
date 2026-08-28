@@ -1,13 +1,10 @@
-"use client";
-
 import { auth } from "@lurexa/backend";
 
 export async function authenticatedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const user = auth.currentUser;
-  const token = user ? await user.getIdToken() : null;
+  if (!user) throw new Error("Sign in is required.");
+  const token = await user.getIdToken();
   const headers = new Headers(init?.headers || {});
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
+  headers.set("Authorization", `Bearer ${token}`);
   return fetch(input, { ...init, headers });
 }

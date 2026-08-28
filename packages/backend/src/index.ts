@@ -8,9 +8,6 @@ export * from "./ai-generator.service";
 export * from "./analytics.service";
 export * from "./offline-db";
 export * from "./offline-sync.service";
-export * from "./billing.service";
-export * from "./ai-guardrails.service";
-export * from "./marketplace.service";
 export * from "./admin.service";
 export * from "./ecosystem.service";
 export * from "./telemetry.service";
@@ -35,8 +32,12 @@ export * from "./curriculum/c2";
 export * from "./coach-catalog";
 export * from "./offline-sync-engine";
 
-
 // Server-only capabilities intentionally do not belong in this browser-safe
 // barrel. Import them through their explicit server subpaths from API routes or
 // other server modules so Firebase Admin / Google Cloud code cannot leak into
 // Client Component dependency graphs.
+//
+// Prototype commerce/billing/quota stubs are also intentionally excluded.
+// Trusted subscription, entitlement, payment and AI-quota decisions must be
+// implemented behind authenticated server-owned Core boundaries before they
+// can return to a supported package surface.

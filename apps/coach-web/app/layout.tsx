@@ -3,11 +3,15 @@ import { ToastProvider } from "@lurexa/ui/Toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Lurexa Coach | AI English Speaking & Pronunciation Studio", template: "%s | Lurexa Coach" },
-  description: "Focused, context-aware English speaking, pronunciation, and fluency practice optimizing for intelligibility and communicative control.",
+  title: {
+    default: "Lurexa Coach | AI English Speaking & Pronunciation Studio",
+    template: "%s | Lurexa Coach",
+  },
+  description:
+    "Focused, context-aware English speaking, pronunciation, and fluency practice optimizing for intelligibility and communicative control.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className="antialiased" suppressHydrationWarning>
       <head>
@@ -18,9 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

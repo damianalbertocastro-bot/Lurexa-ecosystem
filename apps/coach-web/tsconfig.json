@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -24,30 +20,15 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@lurexa/config": [
-        "../../packages/config/src/index.ts"
-      ],
-      "@lurexa/config/*": [
-        "../../packages/config/src/*"
-      ],
-      "@lurexa/tokens": [
-        "../../packages/tokens/src/index.ts"
-      ],
-      "@lurexa/types": [
-        "../../packages/types/src/index.ts"
-      ],
-      "@lurexa/utils": [
-        "../../packages/utils/src/index.ts"
-      ],
-      "@lurexa/backend": [
-        "../../packages/backend/src/index.ts"
-      ],
-      "@lurexa/ui/*": [
-        "../../packages/ui/src/*"
-      ]
+      "@/*": ["./*"],
+      "@lurexa/config": ["../../packages/config/src/index.ts"],
+      "@lurexa/config/*": ["../../packages/config/src/*"],
+      "@lurexa/tokens": ["../../packages/tokens/src/index.ts"],
+      "@lurexa/types": ["../../packages/types/src/index.ts"],
+      "@lurexa/utils": ["../../packages/utils/src/index.ts"],
+      "@lurexa/backend": ["../../packages/backend/src/index.ts"],
+      "@lurexa/backend/*": ["../../packages/backend/src/*"],
+      "@lurexa/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": [
@@ -57,7 +38,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

@@ -70,7 +70,6 @@ export function VoiceRecorder({
       }, 200);
     } catch (err) {
       console.warn("Microphone access not available or denied:", err);
-      // Fallback simulation for environments without audio hardware
       setIsRecording(true);
       startTimeRef.current = Date.now();
       timerRef.current = setInterval(() => {
@@ -104,7 +103,7 @@ export function VoiceRecorder({
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(promptText);
     utterance.lang = "en-US";
-    utterance.rate = 0.88; // Slightly measured rate for language learners
+    utterance.rate = 0.88;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -138,7 +137,6 @@ export function VoiceRecorder({
         </div>
       )}
 
-      {/* Visualizer Area */}
       <div className="my-3 flex min-h-[56px] items-center justify-center rounded-2xl bg-[var(--lx-canvas)] p-3">
         {isRecording ? (
           <div className="flex w-full flex-col items-center gap-2">
@@ -167,7 +165,6 @@ export function VoiceRecorder({
         )}
       </div>
 
-      {/* Controls */}
       <div className="mt-4 flex items-center justify-end gap-2">
         {isRecording ? (
           <Button variant="destructive" size="sm" onClick={stopRecording}>
