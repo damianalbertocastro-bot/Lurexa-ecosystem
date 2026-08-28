@@ -37,7 +37,11 @@ service cloud.firestore {
       allow update: if isInvitationRecipient(resource.data) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["usedAt"]) && request.resource.data.usedAt != null;
       allow delete: if isOrganizationManager(resource.data.orgId);
     }
-    match /courses/{courseId} { allow read: if isAuthenticated(); allow write: if isAuthenticated() && (request.auth.token.role == 'teacher' || request.auth.token.role == 'admin'); }
+    match /courses/{courseId} {
+      allow read: if isOrganizationMember(resource.data.orgId);
+      allow create: if request.resource.data.orgId is string && isOrganizationManager(request.resource.data.orgId);
+      allow update, delete: if isOrganizationManager(resource.data.orgId) && request.resource.data.orgId == resource.data.orgId;
+    }
     match /progress/{progressId} { allow read: if isAuthenticated() && (request.auth.uid == resource.data.studentId || isOrganizationManager(courseOrgId(resource.data.courseId))); allow write: if false; }
     match /learning-evidence/{evidenceId} { allow read, write: if false; }
     match /learner-insights/{insightId} { allow read, write: if false; }
