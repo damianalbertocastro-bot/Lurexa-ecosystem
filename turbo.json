@@ -29,10 +29,13 @@
     "FIREBASE_PROJECT_ID",
     "FIREBASE_STORAGE_BUCKET",
     "FIRESTORE_EMULATOR_HOST",
+    "GCLOUD_PROJECT",
+    "GOOGLE_CLOUD_PROJECT",
     "GEMINI_API_KEY",
     "LUREXA_LEARN_TUTOR_MODEL",
     "LUREXA_LEARN_TTS_VOICE"
   ],
+
   "ui": "tui",
   "tasks": {
     "build": {
