@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
@@ -40,8 +40,11 @@ export default function LurexaStudioPage() {
   const [activityType, setActivityType] = useState<StudioKnowledgeObjectDraftV1["activityConfig"]["type"]>("phoneme_shadowing");
   const [l1Rule, setL1Rule] = useState("Prosthesis /e/ prevention before /sC/ clusters.");
 
-  // Linting State
-  const [lintReport, setLintReport] = useState<CefrLinguisticValidationReportV1 | null>(null);
+  // Linting State derived directly from promptText and cefrLevel
+  const lintReport: CefrLinguisticValidationReportV1 = useMemo(
+    () => StudioAuthoringService.lintCefrLinguistics(promptText, cefrLevel),
+    [promptText, cefrLevel]
+  );
   const [saving, setSaving] = useState(false);
 
   const loadObjects = async () => {
@@ -59,12 +62,6 @@ export default function LurexaStudioPage() {
   useEffect(() => {
     void loadObjects();
   }, []);
-
-  // Run real-time linguistic lint whenever promptText or cefrLevel changes
-  useEffect(() => {
-    const report = StudioAuthoringService.lintCefrLinguistics(promptText, cefrLevel);
-    setLintReport(report);
-  }, [promptText, cefrLevel]);
 
   const toggleSkill = (skill: EnglishSkill) => {
     setSelectedSkills((prev) =>
@@ -137,6 +134,14 @@ export default function LurexaStudioPage() {
       />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+        <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+          <p className="text-xs font-black uppercase tracking-[.14em]">Studio prototype · local preview only</p>
+          <h1 className="mt-2 text-2xl font-black">Knowledge Object Authoring Workbench</h1>
+          <p className="mt-2 max-w-4xl text-sm leading-7">
+            This workbench demonstrates knowledge object authoring and real-time CEFR linguistic linting. It has not been saved to Core or published to Studio.
+          </p>
+        </section>
+
         <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
           {/* Authoring Form */}
           <form onSubmit={handleCreateDraft} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">

@@ -1,4 +1,4 @@
-import type { CefrLevel } from "./course";
+import type { CefrLevel } from "./learner";
 
 export type AssignmentTargetType =
   | "lesson_stage"

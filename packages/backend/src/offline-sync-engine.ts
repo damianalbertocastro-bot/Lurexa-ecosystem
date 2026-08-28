@@ -10,9 +10,22 @@ export interface OfflineLessonPackage {
   checksum: string;
 }
 
+export interface OfflineAudioRecord {
+  audioId: string;
+  learnerId: string;
+  lessonId: string;
+  audioBlobBase64: string;
+  durationMs: number;
+  recordedAt: string;
+  compressedSizeKb: number;
+  syncAttempts: number;
+  status: "pending" | "uploading" | "synced" | "failed";
+}
+
 export interface OfflineSyncQueueRecord {
   queueId: string;
   evidence: LearningEvidence;
+  audioRecord?: OfflineAudioRecord;
   capturedOfflineAt: string;
   syncStatus: "pending" | "syncing" | "synced" | "failed";
   retryCount: number;
@@ -27,6 +40,8 @@ export interface OfflineSyncBatchResult {
 }
 
 export class OfflineSyncEngine {
+  private static offlineAudioStore: Map<string, OfflineAudioRecord> = new Map();
+
   /**
    * Packages a lesson for offline client-side storage with an integrity checksum.
    */
@@ -36,7 +51,6 @@ export class OfflineSyncEngine {
     lesson: Lesson
   ): OfflineLessonPackage {
     const raw = JSON.stringify({ courseId, moduleId, lesson });
-    // Lightweight checksum
     let hash = 0;
     for (let i = 0; i < raw.length; i++) {
       hash = (hash << 5) - hash + raw.charCodeAt(i);
@@ -56,14 +70,44 @@ export class OfflineSyncEngine {
   }
 
   /**
+   * Enqueues a spoken audio attempt captured while offline for background transmission.
+   */
+  public static queueOfflineAudio(
+    learnerId: string,
+    lessonId: string,
+    audioBlobBase64: string,
+    durationMs: number
+  ): OfflineAudioRecord {
+    const audioId = `audio-off-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const compressedSizeKb = Math.round((audioBlobBase64.length * 0.75) / 1024);
+
+    const record: OfflineAudioRecord = {
+      audioId,
+      learnerId,
+      lessonId,
+      audioBlobBase64,
+      durationMs,
+      recordedAt: new Date().toISOString(),
+      compressedSizeKb,
+      syncAttempts: 0,
+      status: "pending",
+    };
+
+    OfflineSyncEngine.offlineAudioStore.set(audioId, record);
+    return record;
+  }
+
+  /**
    * Enqueues an offline evidence observation generated while disconnected.
    */
   public static createOfflineQueueItem(
-    evidence: LearningEvidence
+    evidence: LearningEvidence,
+    audioRecord?: OfflineAudioRecord
   ): OfflineSyncQueueRecord {
     return {
       queueId: `queue_${evidence.id}_${Date.now()}`,
       evidence,
+      audioRecord,
       capturedOfflineAt: new Date().toISOString(),
       syncStatus: "pending",
       retryCount: 0,
@@ -82,6 +126,9 @@ export class OfflineSyncEngine {
     for (const item of queue) {
       if (item.syncStatus === "pending" || item.syncStatus === "failed") {
         item.syncStatus = "synced";
+        if (item.audioRecord) {
+          item.audioRecord.status = "synced";
+        }
         syncedEvidenceIds.push(item.evidence.id);
       }
     }

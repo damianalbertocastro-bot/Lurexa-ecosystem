@@ -5,6 +5,8 @@ import type {
   User,
 } from "@lurexa/types";
 
+export type { AssignmentV1, AssignmentSubmissionV1, AssignmentMindEvaluationV1 };
+
 export class AssignmentService {
   private static assignments: Map<string, AssignmentV1> = new Map();
   private static submissions: Map<string, AssignmentSubmissionV1> = new Map();
@@ -82,10 +84,11 @@ export class AssignmentService {
   }
 
   public static async createAssignment(
-    actor: User,
+    actor: User | { id?: string; uid?: string },
     input: Omit<AssignmentV1, "contractVersion" | "id" | "createdAt" | "updatedAt">
   ): Promise<AssignmentV1> {
-    if (!actor.id && !actor.uid) throw new Error("Authentication is required.");
+    const actorId = actor.id || (actor as { uid?: string }).uid;
+    if (!actorId) throw new Error("Authentication is required.");
     const id = `assign-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
     const now = new Date().toISOString();
 
@@ -128,14 +131,14 @@ export class AssignmentService {
   }
 
   public static async submitAssignment(
-    actor: User,
+    actor: User | { id?: string; uid?: string },
     input: {
       assignmentId: string;
       studentName: string;
       payload: AssignmentSubmissionV1["payload"];
     }
   ): Promise<AssignmentSubmissionV1> {
-    const studentId = actor.uid || actor.id;
+    const studentId = actor.id || (actor as { uid?: string }).uid;
     if (!studentId) throw new Error("Authentication is required.");
 
     const assignment = AssignmentService.assignments.get(input.assignmentId);
@@ -186,11 +189,11 @@ export class AssignmentService {
   }
 
   public static async gradeSubmission(
-    teacherActor: User,
+    teacherActor: User | { id?: string; uid?: string },
     submissionId: string,
     grade: { score: number; maxScore: number; feedback: string }
   ): Promise<AssignmentSubmissionV1> {
-    const teacherId = teacherActor.uid || teacherActor.id;
+    const teacherId = teacherActor.id || (teacherActor as { uid?: string }).uid;
     if (!teacherId) throw new Error("Authentication is required.");
 
     const submission = AssignmentService.submissions.get(submissionId);

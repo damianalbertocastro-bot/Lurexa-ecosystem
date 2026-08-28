@@ -2,8 +2,11 @@ import type {
   CefrLevel,
   CefrLinguisticValidationReportV1,
   StudioKnowledgeObjectDraftV1,
+  EnglishSkill,
   User,
 } from "@lurexa/types";
+
+export type { CefrLinguisticValidationReportV1, StudioKnowledgeObjectDraftV1, EnglishSkill };
 
 // Standard CEFR Vocabulary Frequency Sets for Real-Time Authoring Linting
 const A1_WORDS = new Set([
@@ -73,10 +76,10 @@ export class StudioAuthoringService {
   }
 
   public static async createKnowledgeObjectDraft(
-    authorActor: User,
+    authorActor: User | { id?: string; uid?: string },
     input: Omit<StudioKnowledgeObjectDraftV1, "contractVersion" | "id" | "version" | "status" | "createdAt" | "updatedAt">
   ): Promise<StudioKnowledgeObjectDraftV1> {
-    const authorId = authorActor.uid || authorActor.id;
+    const authorId = authorActor.id || (authorActor as { uid?: string }).uid;
     if (!authorId) throw new Error("Authentication is required to author knowledge objects.");
 
     const id = `ko-${input.cefrLevel.toLowerCase()}-${Date.now().toString(36)}`;
@@ -87,8 +90,8 @@ export class StudioAuthoringService {
       id,
       version: 1,
       status: "draft",
-      authorId,
       ...input,
+      authorId,
       createdAt: now,
       updatedAt: now,
     };
@@ -116,7 +119,7 @@ export class StudioAuthoringService {
   }
 
   public static async submitForPeerReview(
-    authorActor: User,
+    authorActor: User | { id?: string; uid?: string },
     id: string
   ): Promise<StudioKnowledgeObjectDraftV1> {
     const ko = StudioAuthoringService.knowledgeObjects.get(id);
@@ -133,11 +136,11 @@ export class StudioAuthoringService {
   }
 
   public static async publishKnowledgeObject(
-    reviewerActor: User,
+    reviewerActor: User | { id?: string; uid?: string },
     id: string,
     reviewNotes?: string
   ): Promise<StudioKnowledgeObjectDraftV1> {
-    const reviewerId = reviewerActor.uid || reviewerActor.id;
+    const reviewerId = reviewerActor.id || (reviewerActor as { uid?: string }).uid;
     if (!reviewerId) throw new Error("Reviewer authentication is required.");
 
     const ko = StudioAuthoringService.knowledgeObjects.get(id);

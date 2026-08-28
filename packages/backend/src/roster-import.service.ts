@@ -5,6 +5,8 @@ import type {
   User,
 } from "@lurexa/types";
 
+export type { RosterImportBatchResult, RosterStudentEntry };
+
 export class RosterImportService {
   /**
    * Parses standard CSV text containing bulk learner roster information.
@@ -58,11 +60,12 @@ export class RosterImportService {
    * Executes atomic batch onboarding of roster entries for an organization.
    */
   public static async importRoster(
-    adminActor: User,
+    adminActor: User | { id?: string; uid?: string },
     organizationId: string,
     entries: RosterStudentEntry[]
   ): Promise<RosterImportBatchResult> {
-    if (!adminActor.uid && !adminActor.id) throw new Error("Authentication is required.");
+    const actorId = adminActor.id || (adminActor as { uid?: string }).uid;
+    if (!actorId) throw new Error("Authentication is required.");
 
     const createdStudentIds: string[] = [];
     const errors: Array<{ line: number; email: string; reason: string }> = [];

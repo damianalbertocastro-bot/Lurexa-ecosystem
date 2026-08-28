@@ -35,6 +35,7 @@ export * from "./assignment.service";
 export * from "./roster-import.service";
 export * from "./studio-authoring.service";
 export * from "./offline-sync-engine";
+export * from "./field-telemetry.service";
 
 // Server-only capabilities intentionally do not belong in this browser-safe
 // barrel. Import them through their explicit server subpaths from API routes or
