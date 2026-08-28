@@ -2,10 +2,22 @@ import type {
   AssignmentV1,
   AssignmentSubmissionV1,
   AssignmentMindEvaluationV1,
+  AssignmentTargetType,
+  AssignmentRubricCriterion,
+  AssignmentStatus,
+  SubmissionStatus,
   User,
 } from "@lurexa/types";
 
-export type { AssignmentV1, AssignmentSubmissionV1, AssignmentMindEvaluationV1 };
+export type {
+  AssignmentV1,
+  AssignmentSubmissionV1,
+  AssignmentMindEvaluationV1,
+  AssignmentTargetType,
+  AssignmentRubricCriterion,
+  AssignmentStatus,
+  SubmissionStatus,
+};
 
 export class AssignmentService {
   private static assignments: Map<string, AssignmentV1> = new Map();

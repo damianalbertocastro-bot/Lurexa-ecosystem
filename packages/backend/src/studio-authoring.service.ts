@@ -76,8 +76,8 @@ export class StudioAuthoringService {
   }
 
   public static async createKnowledgeObjectDraft(
-    authorActor: User | { id?: string; uid?: string },
-    input: Omit<StudioKnowledgeObjectDraftV1, "contractVersion" | "id" | "version" | "status" | "createdAt" | "updatedAt">
+    authorActor: User | { id?: string; uid?: string; email?: string },
+    input: Omit<StudioKnowledgeObjectDraftV1, "contractVersion" | "id" | "version" | "status" | "createdAt" | "updatedAt" | "authorId">
   ): Promise<StudioKnowledgeObjectDraftV1> {
     const authorId = authorActor.id || (authorActor as { uid?: string }).uid;
     if (!authorId) throw new Error("Authentication is required to author knowledge objects.");

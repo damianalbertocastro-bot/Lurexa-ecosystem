@@ -80,15 +80,17 @@ export default function TeacherAssignmentsPage() {
         dueDate: dueDate || new Date(Date.now() + 7 * 86400000).toISOString(),
         rubric: [
           {
-            criterionId: "r1-intelligibility",
-            label: "Intelligibility & Syllable Codas",
-            maxPoints: 10,
+            id: "r1-intelligibility",
+            name: "Intelligibility & Syllable Codas",
+            description: "Clear consonant codas and audible cluster beginnings.",
+            maxScore: 10,
             weight: 0.6,
           },
           {
-            criterionId: "r2-fluency",
-            label: "Natural Pace & Flow",
-            maxPoints: 10,
+            id: "r2-fluency",
+            name: "Natural Pace & Flow",
+            description: "Fluent speech rhythm without excessive hesitation.",
+            maxScore: 10,
             weight: 0.4,
           },
         ],
