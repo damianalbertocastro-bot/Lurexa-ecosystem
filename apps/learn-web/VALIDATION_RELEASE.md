@@ -1,5 +1,7 @@
 # Lurexa Learn Validation Release
 
+Validation cohort release ID: `2026-08-28-r1`
+
 This product is included in the first empirical production-readiness validation release.
 
 The release is valid for formal user research only after:
