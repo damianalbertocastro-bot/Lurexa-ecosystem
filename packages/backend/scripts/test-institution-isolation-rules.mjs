@@ -39,12 +39,15 @@ async function signIn(email) {
   return response.json();
 }
 
-function documentUrl(collection, documentId) {
-  return `http://${firestoreHost}/v1/projects/${projectId}/databases/(default)/documents/${collection}/${documentId}`;
+function documentUrl(collection, documentId, updateMask) {
+  const base = `http://${firestoreHost}/v1/projects/${projectId}/databases/(default)/documents/${collection}/${documentId}`;
+  if (!updateMask?.length) return base;
+  const query = updateMask.map((field) => `updateMask.fieldPaths=${encodeURIComponent(field)}`).join("&");
+  return `${base}?${query}`;
 }
 
-async function firestoreRequest(token, method, collection, documentId, body) {
-  return fetch(documentUrl(collection, documentId), {
+async function firestoreRequest(token, method, collection, documentId, body, updateMask) {
+  return fetch(documentUrl(collection, documentId, updateMask), {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -98,25 +101,25 @@ try {
   assertStatus(await firestoreRequest(outsider.idToken, "GET", "courses", courseA), 403, "authenticated outsider cannot read tenant course data");
 
   assertStatus(
-    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseA, { fields: { title: { stringValue: "Tenant A English Updated" } } }),
+    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseA, { fields: { title: { stringValue: "Tenant A English Updated" } } }, ["title"]),
     200,
     "teacher membership can update a course inside its own tenant",
   );
 
   assertStatus(
-    await firestoreRequest(teacherBWithClaim.idToken, "PATCH", "courses", courseA, { fields: { title: { stringValue: "Cross-tenant overwrite" } } }),
+    await firestoreRequest(teacherBWithClaim.idToken, "PATCH", "courses", courseA, { fields: { title: { stringValue: "Cross-tenant overwrite" } } }, ["title"]),
     403,
     "global teacher role claim cannot update another tenant's course",
   );
 
   assertStatus(
-    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseB, { fields: { title: { stringValue: "Cross-tenant overwrite" } } }),
+    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseB, { fields: { title: { stringValue: "Cross-tenant overwrite" } } }, ["title"]),
     403,
     "Tenant A teacher cannot update Tenant B course",
   );
 
   assertStatus(
-    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseA, { fields: { orgId: { stringValue: orgB } } }),
+    await firestoreRequest(teacherA.idToken, "PATCH", "courses", courseA, { fields: { orgId: { stringValue: orgB } } }, ["orgId"]),
     403,
     "course ownership cannot be reassigned to another tenant from the client",
   );
