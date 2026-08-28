@@ -4,11 +4,27 @@ import type { AuthenticatedActor } from "./course-platform.server";
 import { getRawServiceAccountJson } from "./firebase-admin.server";
 import { resolveLearningCapability } from "./learning-capability.server";
 import { buildA1ProductionCurriculum } from "./a1-production-curriculum.server";
+import { TelemetryService } from "./telemetry.service";
 
 const DEFAULT_LANGUAGE_CODE = "en-US";
 const DEFAULT_VOICE = "en-US-Neural2-F";
 
 type GoogleServiceAccount = { project_id?: unknown; client_email?: unknown; private_key?: unknown };
+
+export type CurriculumAudioErrorCode =
+  | "AUDIO_PROVIDER_UNCONFIGURED"
+  | "AUDIO_PROVIDER_FAILED"
+  | "AUDIO_PROVIDER_EMPTY_RESPONSE";
+
+export class CurriculumAudioProviderError extends Error {
+  readonly code: CurriculumAudioErrorCode;
+
+  constructor(code: CurriculumAudioErrorCode, message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = "CurriculumAudioProviderError";
+    this.code = code;
+  }
+}
 
 export interface AudioManifestItem {
   lessonId: string;
@@ -56,7 +72,10 @@ function toArrayBuffer(audioContent: Uint8Array | string): ArrayBuffer {
 }
 
 /**
- * Creates a minimal valid silent/synthetic audio buffer for resilient test and dev environments.
+ * Creates a minimal valid silent/synthetic audio buffer for resilient local
+ * development and automated test environments only. Production-like runtimes
+ * must surface provider failures instead of pretending real curriculum audio
+ * was generated.
  */
 function createSyntheticAudioBuffer(durationSeconds = 2): ArrayBuffer {
   const sampleRate = 22050;
@@ -64,25 +83,25 @@ function createSyntheticAudioBuffer(durationSeconds = 2): ArrayBuffer {
   const buffer = new ArrayBuffer(44 + numSamples * 2);
   const view = new DataView(buffer);
 
-  // RIFF identifier 'RIFF'
   view.setUint32(0, 0x52494646, false);
   view.setUint32(4, 36 + numSamples * 2, true);
-  // 'WAVE'
   view.setUint32(8, 0x57415645, false);
-  // 'fmt ' chunk
   view.setUint32(12, 0x666d7420, false);
-  view.setUint32(16, 16, true); // 16 for PCM
-  view.setUint16(20, 1, true); // PCM format
-  view.setUint16(22, 1, true); // Mono channel
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true); // Byte rate
-  view.setUint16(32, 2, true); // Block align
-  view.setUint16(34, 16, true); // Bits per sample
-  // 'data' chunk
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
   view.setUint32(36, 0x64617461, false);
   view.setUint32(40, numSamples * 2, true);
 
   return buffer;
+}
+
+function canUseSyntheticAudio(): boolean {
+  return process.env.NODE_ENV !== "production";
 }
 
 export const LearnCurriculumAudioService = {
@@ -95,6 +114,19 @@ export const LearnCurriculumAudioService = {
     lessonId: string;
     activityId: string;
   }): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+    const operation = TelemetryService.beginOperation({
+      service: "learn-curriculum-audio",
+      product: "learn",
+      surface: "learner-web",
+      operation: "synthesize_curriculum_audio",
+      provider: "google-cloud-text-to-speech",
+      metadata: {
+        courseId: input.courseId,
+        lessonId: input.lessonId,
+        activityId: input.activityId,
+      },
+    });
+
     const capability = await resolveLearningCapability(input);
     const audioInput =
       capability.kind === "model_listening"
@@ -113,8 +145,23 @@ export const LearnCurriculumAudioService = {
 
     const ttsClient = createTextToSpeechClient();
     if (!ttsClient) {
-      // In development or automated test environments without Cloud credentials, return synthetic calibrated audio
+      const error = new CurriculumAudioProviderError(
+        "AUDIO_PROVIDER_UNCONFIGURED",
+        "Curriculum audio provider is not configured for this runtime.",
+      );
+
+      if (!canUseSyntheticAudio()) {
+        operation.fail(error, { errorCode: error.code });
+        throw error;
+      }
+
       const estimatedSeconds = Math.max(2, Math.ceil(audioInput.length / 15));
+      operation.complete({
+        level: "warning",
+        result: "skipped",
+        message: "Synthetic curriculum audio used in a non-production runtime.",
+        metadata: { syntheticFallback: true },
+      });
       return {
         bytes: createSyntheticAudioBuffer(estimatedSeconds),
         contentType: "audio/wav",
@@ -130,20 +177,45 @@ export const LearnCurriculumAudioService = {
         },
         audioConfig: {
           audioEncoding: "MP3",
-          speakingRate: 0.92, // Calibrated pace for A1 comprehension
+          speakingRate: 0.92,
           pitch: 0.0,
         },
       });
 
       if (!response.audioContent) {
-        throw new Error("Curriculum audio provider returned an empty response.");
+        throw new CurriculumAudioProviderError(
+          "AUDIO_PROVIDER_EMPTY_RESPONSE",
+          "Curriculum audio provider returned an empty response.",
+        );
       }
 
+      operation.complete({
+        result: "success",
+        metadata: { voice: process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE },
+      });
       return { bytes: toArrayBuffer(response.audioContent), contentType: "audio/mpeg" };
     } catch (error) {
-      console.error("Learn curriculum audio provider request failed:", error instanceof Error ? error.message : error);
-      // Resilient fallback to calibrated synthetic buffer
+      const providerError = error instanceof CurriculumAudioProviderError
+        ? error
+        : new CurriculumAudioProviderError(
+            "AUDIO_PROVIDER_FAILED",
+            "Curriculum audio provider request failed.",
+            { cause: error },
+          );
+
+      if (!canUseSyntheticAudio()) {
+        operation.fail(providerError, { errorCode: providerError.code });
+        throw providerError;
+      }
+
       const estimatedSeconds = Math.max(2, Math.ceil(audioInput.length / 15));
+      operation.complete({
+        level: "warning",
+        result: "skipped",
+        message: "Synthetic curriculum audio used after a provider failure in a non-production runtime.",
+        errorCode: providerError.code,
+        metadata: { syntheticFallback: true },
+      });
       return {
         bytes: createSyntheticAudioBuffer(estimatedSeconds),
         contentType: "audio/wav",
