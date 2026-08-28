@@ -49,6 +49,7 @@ const institutionalShellIds = new Set(institutionalShells.map((entry) => entry.i
 const institutionalShellNames = new Set(institutionalShells.map((entry) => entry.name));
 const sharedLayerNames = new Set([...registry.values()].filter((entry) => entry.classification === "shared-layer").map((entry) => entry.name));
 const surfaceNames = new Set([...registry.values()].filter((entry) => entry.classification === "ecosystem-surface").map((entry) => entry.name));
+const productSurfaceIds = new Set([...registry.values()].filter((entry) => entry.classification === "product-surface").map((entry) => entry.id));
 const inactiveNames = new Set([...registry.values()].filter((entry) => entry.classification === "future-product-concept" || entry.classification === "future-concept").map((entry) => entry.name));
 
 if (currentProductIds.size !== 6) fail(`Expected 6 sibling products; registry exposes ${currentProductIds.size}`);
@@ -62,6 +63,13 @@ for (const id of ["learn", "coach", "teach", "admin", "insight", "studio"]) {
 const campus = registry.get("campus");
 if (!campus || campus.classification !== "institutional-shell") fail("Campus must be registered as the institutional shell, not a seventh sibling product");
 else pass("Campus is structurally separate as the institutional orchestration shell");
+
+const mobile = registry.get("mobile");
+if (!mobile || mobile.classification !== "product-surface" || !productSurfaceIds.has("mobile")) {
+  fail("Mobile must be registered as an implemented product surface rather than a future concept or sibling product");
+} else {
+  pass("mobile is explicitly classified as an implemented product surface");
+}
 
 const deployment = readJson("deployment/products.json");
 const bootstrap = readJson("bootstrap/repository.json");
