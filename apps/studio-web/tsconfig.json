@@ -48,6 +48,15 @@
       "@lurexa/ui": [
         "../../packages/ui/src/index.ts"
       ],
+      "@lurexa/ui/Button": [
+        "../../packages/ui/src/button.tsx"
+      ],
+      "@lurexa/ui/Card": [
+        "../../packages/ui/src/card.tsx"
+      ],
+      "@lurexa/ui/Code": [
+        "../../packages/ui/src/code.tsx"
+      ],
       "@lurexa/ui/*": [
         "../../packages/ui/src/*"
       ],
