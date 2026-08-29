@@ -49,7 +49,7 @@ check("getRemediationForTransfer exported", src.includes("export function getRem
 check("getHighPriorityTransfers exported", src.includes("export function getHighPriorityTransfers"));
 
 // 6. Phonological transfer counts (8+ per profile)
-const transferBlocks = src.match(/transferType:\s*'/g) || [];
+const transferBlocks = src.match(/transferType:\s*['"]/g) || [];
 check(`32+ phonological transfers across 4 profiles (found ${transferBlocks.length})`, transferBlocks.length >= 32);
 
 // 7. Remediation strategies
@@ -81,7 +81,9 @@ check("No 'any' type usage", !src.includes(": any") && !src.includes("<any>"));
 
 // 14. Priority levels used
 check("Priority levels used (critical/high/medium/low)", 
-  src.includes("'critical'") && src.includes("'high'") && src.includes("'medium'"));
+  (src.includes("'critical'") || src.includes('"critical"')) && 
+  (src.includes("'high'") || src.includes('"high"')) && 
+  (src.includes("'medium'") || src.includes('"medium"')));
 
 console.log(`\n📊 Result: ${pass} passed, ${fail} failed out of ${pass + fail}\n`);
 process.exit(fail > 0 ? 1 : 0);

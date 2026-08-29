@@ -391,6 +391,17 @@ const PUERTO_RICAN_SPANISH_PROFILE: L1ContrastiveProfile = {
         { wordA: "pan", wordB: "pang", ipaA: "/pæn/", ipaB: "/pæŋ/", contrastFeature: "Final /n/ vs /ŋ/" },
       ],
     },
+    {
+      id: "pr-strat-lax-vowels",
+      targetTransferIds: ["pr-lax-vowel-raising"],
+      technique: "Jaw relaxation for lax /ɪ/",
+      description: "Slightly lower jaw and relax tongue muscles to contrast lax /ɪ/ from tense /i/.",
+      articulatoryInstructions: "Keep tongue relaxed in center of mouth, avoid spreading lips into a wide smile.",
+      minimalPairDrills: [
+        { wordA: "live", wordB: "leave", ipaA: "/lɪv/", ipaB: "/liːv/", contrastFeature: "Lax /ɪ/ vs Tense /i/" },
+        { wordA: "fit", wordB: "feet", ipaA: "/fɪt/", ipaB: "/fiːt/", contrastFeature: "Vowel duration and tenseness" },
+      ],
+    },
   ],
 };
 
@@ -550,6 +561,17 @@ const MEXICAN_SPANISH_PROFILE: L1ContrastiveProfile = {
       minimalPairDrills: [
         { wordA: "sip", wordB: "zip", ipaA: "/sɪp/", ipaB: "/zɪp/", contrastFeature: "Voiceless /s/ vs Voiced /z/" },
         { wordA: "price", wordB: "prize", ipaA: "/praɪs/", ipaB: "/praɪz/", contrastFeature: "Voiced coda distinction" },
+      ],
+    },
+    {
+      id: "mx-strat-labiodental-v",
+      targetTransferIds: ["mx-v-b-merger"],
+      technique: "Upper teeth contact on lower lip",
+      description: "Ensure upper incisors rest gently on lower lip rather than closing both lips together.",
+      articulatoryInstructions: "Bite lower lip gently with top teeth and blow continuous friction air for /v/.",
+      minimalPairDrills: [
+        { wordA: "vest", wordB: "best", ipaA: "/vɛst/", ipaB: "/bɛst/", contrastFeature: "Labiodental /v/ vs Bilabial /b/" },
+        { wordA: "vow", wordB: "bow", ipaA: "/vaʊ/", ipaB: "/baʊ/", contrastFeature: "Fricative vs Stop" },
       ],
     },
   ],
