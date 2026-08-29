@@ -31,7 +31,7 @@ export class BatchProvisioningServerService {
   public static async provisionInstitutionalRoster(
     organizationId: string,
     rows: EnterpriseRosterRow[],
-    tier: SubscriptionTier = "ENTERPRISE"
+    _tier: SubscriptionTier = "ENTERPRISE"
   ): Promise<BatchProvisioningResult> {
     let successCount = 0;
     const errors: { row: number; email: string; message: string }[] = [];
@@ -71,10 +71,11 @@ export class BatchProvisioningServerService {
   ): PlanQuotas {
     const baseQuotas = DEFAULT_TIER_QUOTAS[tier];
     return {
+      tier,
       monthlyVoiceMinutes: baseQuotas.monthlyVoiceMinutes * seatCount,
       monthlyAiTurns: baseQuotas.monthlyAiTurns * seatCount,
       universalLearnerModelSync: true,
-      offlineModulesAllowed: -1, // Unlimited
+      offlineModulesAllowed: 999, // Unlimited
       streamingAudioEnabled: true,
       cohortAnalyticsEnabled: true,
     };

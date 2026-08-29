@@ -43,7 +43,7 @@ export class BillingServerService {
   public static async createCheckoutSession(
     options: CheckoutSessionOptions
   ): Promise<StripeCheckoutResult> {
-    const plan = SUBSCRIPTION_PRICING_PLANS.find((p) => p.tier === options.tier);
+    const plan = SUBSCRIPTION_PRICING_PLANS[options.tier];
     if (!plan) {
       throw new Error(`Invalid subscription tier requested: ${options.tier}`);
     }
@@ -55,7 +55,7 @@ export class BillingServerService {
       sessionId,
       checkoutUrl,
       tier: options.tier,
-      amountCents: Math.round(plan.priceMonthlyUsd * 100),
+      amountCents: Math.round(plan.monthlyPriceUsd * 100),
     };
   }
 

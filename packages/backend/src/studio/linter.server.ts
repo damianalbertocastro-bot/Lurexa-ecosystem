@@ -5,7 +5,7 @@
  * 7 English skills standards, and Dominican/L1 transfer metadata before marketplace publication.
  */
 
-import type { KnowledgeObject, CefrLevel } from "@lurexa/types";
+import type { StudioKnowledgeObjectDraftV1, CefrLevel } from "@lurexa/types";
 
 export interface LintValidationIssue {
   severity: "error" | "warning" | "info";
@@ -23,7 +23,7 @@ export interface PedagogicalLintReport {
 }
 
 export class StudioPedagogicalLinter {
-  public static lintKnowledgeObject(obj: Partial<KnowledgeObject>): PedagogicalLintReport {
+  public static lintKnowledgeObject(obj: Partial<StudioKnowledgeObjectDraftV1>): PedagogicalLintReport {
     const issues: LintValidationIssue[] = [];
     let score = 100;
 
@@ -39,47 +39,47 @@ export class StudioPedagogicalLinter {
     }
 
     // Rule 2: Title and Objective Clarity
-    if (!obj.title || obj.title.length < 5) {
+    if (!obj.name || obj.name.length < 5) {
       issues.push({
         severity: "error",
         ruleId: "LINT-META-01",
-        field: "title",
-        message: "Title must be descriptive and at least 5 characters.",
+        field: "name",
+        message: "Name must be descriptive and at least 5 characters.",
       });
       score -= 20;
     }
 
-    // Rule 3: Pedagogical Competency Tagging
-    if (!obj.competencies || obj.competencies.length === 0) {
+    // Rule 3: Pedagogical Objective
+    if (!obj.pedagogicalObjective || obj.pedagogicalObjective.length < 10) {
       issues.push({
         severity: "warning",
-        ruleId: "LINT-COMP-01",
-        field: "competencies",
-        message: "Declaring at least one competency ID is strongly recommended for adaptive sequencing.",
+        ruleId: "LINT-OBJ-01",
+        field: "pedagogicalObjective",
+        message: "Declaring a clear pedagogical objective is strongly recommended for adaptive sequencing.",
       });
       score -= 15;
     }
 
     // Rule 4: Pronunciation & Transfer Metadata
-    if (obj.skill === "phonetics" || obj.skill === "speaking") {
-      if (!obj.culturalContext || !obj.culturalContext.transferNotes) {
+    if (obj.skills?.includes("phonetics") || obj.skills?.includes("speaking")) {
+      if (!obj.l1InterferenceRule) {
         issues.push({
           severity: "warning",
           ruleId: "LINT-L1-01",
-          field: "culturalContext",
+          field: "l1InterferenceRule",
           message: "Speaking and phonetics modules should specify L1 transfer friction points.",
         });
         score -= 10;
       }
     }
 
-    // Rule 5: Activity Structure
-    if (!obj.activities || obj.activities.length === 0) {
+    // Rule 5: Activity Configuration
+    if (!obj.activityConfig || !obj.activityConfig.promptText) {
       issues.push({
         severity: "error",
         ruleId: "LINT-ACT-01",
-        field: "activities",
-        message: "Knowledge Object must contain at least 1 interactive learning activity.",
+        field: "activityConfig",
+        message: "Knowledge Object must configure a prompt and interactive activity.",
       });
       score -= 25;
     }
@@ -91,7 +91,7 @@ export class StudioPedagogicalLinter {
       isValid,
       score: finalScore,
       cefrLevel: (obj.cefrLevel as CefrLevel) || "A1",
-      skillCoverages: obj.skill ? [obj.skill] : ["vocabulary", "grammar"],
+      skillCoverages: obj.skills ? [...obj.skills] : ["vocabulary", "grammar"],
       issues,
     };
   }
