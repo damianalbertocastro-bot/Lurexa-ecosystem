@@ -8,6 +8,8 @@
     { "name": "coach-web", "path": "apps/coach-web", "required": true },
     { "name": "teach-web", "path": "apps/teach-web", "required": true },
     { "name": "admin-portal", "path": "apps/admin-portal", "required": true },
+    { "name": "studio-web", "path": "apps/studio-web", "required": true },
+    { "name": "insight-web", "path": "apps/insight-web", "required": true },
     { "name": "mobile", "path": "apps/mobile", "required": true },
     { "name": "storybook", "path": "apps/storybook", "required": false }
   ],

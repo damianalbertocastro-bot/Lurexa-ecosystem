@@ -20,3 +20,6 @@ export * from "./signature-rollout";
 export * from "./educator-access";
 export * from "./assignment";
 export * from "./studio";
+export * from "./subscription";
+export * from "./placement";
+

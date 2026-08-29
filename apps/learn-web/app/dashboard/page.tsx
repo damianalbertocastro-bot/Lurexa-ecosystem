@@ -16,6 +16,7 @@ import { MilestoneAchievementsCard } from "./components/MilestoneAchievementsCar
 import { CoachPracticeCard } from "./components/CoachPracticeCard";
 import { SupportHelpModal } from "./components/SupportHelpModal";
 import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
+import { UniversalLearnerModelCard } from "./components/UniversalLearnerModelCard";
 
 interface LearnerCourseSummary {
   course: Course;
@@ -201,6 +202,8 @@ export default function StudentDashboardPage() {
                 </div>
               </Card>
             )}
+
+            <UniversalLearnerModelCard />
 
             <section className="space-y-4" aria-labelledby="enrolled-courses-heading">
               <div className="flex items-center justify-between">

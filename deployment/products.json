@@ -74,6 +74,24 @@
       "status": "provisioned"
     },
     {
+      "id": "studio-web",
+      "product": "Lurexa Studio",
+      "surface": "authoring-studio-web",
+      "workspace": "@lurexa/studio-web",
+      "rootDirectory": "apps/studio-web",
+      "vercelProject": "lurexa-studio-web",
+      "status": "provisioned"
+    },
+    {
+      "id": "insight-web",
+      "product": "Lurexa Insight",
+      "surface": "analytics-insight-web",
+      "workspace": "@lurexa/insight-web",
+      "rootDirectory": "apps/insight-web",
+      "vercelProject": "lurexa-insight-web",
+      "status": "provisioned"
+    },
+    {
       "id": "mobile",
       "product": "Lurexa Learn",
       "surface": "mobile",
@@ -84,16 +102,6 @@
     }
   ],
   "futureProducts": [
-    {
-      "product": "Lurexa Insight",
-      "expectedVercelProject": "lurexa-insight-web",
-      "createWhen": "apps/insight-web exists"
-    },
-    {
-      "product": "Lurexa Studio",
-      "expectedVercelProject": "lurexa-studio-web",
-      "createWhen": "apps/studio-web exists"
-    },
     {
       "product": "Lurexa Campus",
       "expectedVercelProject": "lurexa-campus-web",
