@@ -3,7 +3,7 @@
  * Mind AI Asynchronous Background Worker for Phoneme forced-alignment & L1 Diagnostic Analysis
  */
 
-import { getProfileByL1Code, getHighPriorityTransfers, type PhonologicalTransfer } from "./curriculum/multi-l1-profiles";
+import { getProfileByL1Code, getHighPriorityTransfers } from "./curriculum/multi-l1-profiles";
 import { getServerFirestore } from "./firebase-admin.server";
 
 export interface PhonemeDiagnosticResult {
@@ -67,9 +67,9 @@ export class PhonemeDiagnosticWorkerService {
       ? Math.round(totalScore / evaluatedTransfers.length)
       : 85;
 
-    const recommendedDrills = (profile?.rules || [])
+    const recommendedDrills = (profile?.remediationStrategies || [])
       .slice(0, 2)
-      .map((s) => s.remedialStrategy);
+      .map((s: { description: string }) => s.description);
 
     const result: PhonemeDiagnosticResult = {
       evidenceId: params.evidenceId,
