@@ -26,9 +26,9 @@ export default function NativeLearnScreen() {
           id: `evi_mob_${Date.now()}`,
           learnerId: "student_mobile",
           organizationId: "org_self_paced",
-          type: "quiz_completed",
+          type: "activity_result",
           observedAt: new Date().toISOString(),
-          dataClassification: "internal",
+          dataClassification: "standard",
           source: { product: "learn", activityId: "les_mobile_01" },
           provenance: {
             method: "system_observed",
@@ -36,11 +36,9 @@ export default function NativeLearnScreen() {
             confidence: 1.0,
           },
           payload: {
-            quizId: "quiz_intro",
+            activityId: "les_mobile_01",
+            completed: true,
             score: 1.0,
-            passed: true,
-            attempts: 1,
-            timeSpentMs: 240000,
           },
         };
         OfflineSyncEngine.createOfflineQueueItem(offlineEvidence);
