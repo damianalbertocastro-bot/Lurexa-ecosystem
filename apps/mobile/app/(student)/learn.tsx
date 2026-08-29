@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,36 +8,43 @@ import {
   Alert,
 } from "react-native";
 import { ProgressService, OfflineSyncEngine } from "@lurexa/backend";
+import type { LearningEvidence } from "@lurexa/types";
 import { OfflineIndicator } from "../../src/components/OfflineIndicator";
 
 export default function NativeLearnScreen() {
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const isOnline = true;
+  const [isOnline] = useState(true);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
-
-  useEffect(() => {
-    const queue = OfflineSyncEngine.getPendingQueue();
-    setPendingSyncCount(queue.length);
-  }, []);
 
   const handleMarkComplete = async () => {
     setLoading(true);
     try {
       if (!isOnline) {
-        OfflineSyncEngine.enqueueMutation({
-          id: `mut_prog_${Date.now()}`,
-          entity: "progress",
-          action: "upsert",
-          payload: {
-            id: "mobile_prog_1",
-            studentId: "student_mobile",
-            lessonId: "les_mobile_01",
-            completed: true,
+        const offlineEvidence: LearningEvidence = {
+          contractVersion: "1",
+          id: `evi_mob_${Date.now()}`,
+          learnerId: "student_mobile",
+          organizationId: "org_self_paced",
+          type: "quiz_completed",
+          observedAt: new Date().toISOString(),
+          dataClassification: "internal",
+          source: { product: "learn", activityId: "les_mobile_01" },
+          provenance: {
+            method: "system_observed",
+            actorId: "student_mobile",
+            confidence: 1.0,
           },
-          timestamp: new Date().toISOString(),
-        });
-        setPendingSyncCount(OfflineSyncEngine.getPendingQueue().length);
+          payload: {
+            quizId: "quiz_intro",
+            score: 1.0,
+            passed: true,
+            attempts: 1,
+            timeSpentMs: 240000,
+          },
+        };
+        OfflineSyncEngine.createOfflineQueueItem(offlineEvidence);
+        setPendingSyncCount((c) => c + 1);
         setCompleted(true);
         Alert.alert("Offline Mode", "Lesson progress saved offline. Will sync when reconnected.");
         return;
