@@ -111,7 +111,23 @@ export const MULTI_L1_PROFILES: Record<string, L1DialectProfile> = {
         tendency: "Pronouncing 'shoes' as 'choose' or vice-versa",
         exampleTargetWord: "special [ˈspɛʃl]",
         remedialStrategy: "Sustained palato-alveolar friction without initial plosive stop closure.",
-      },
-    ],
-  },
 };
+
+export type PhonologicalTransfer = L1DialectTransferRule;
+
+export function getProfileByL1Code(code?: string): L1DialectProfile {
+  if (!code) return MULTI_L1_PROFILES.DOM;
+  const normalized = code.toUpperCase().includes("PR")
+    ? "PR"
+    : code.toUpperCase().includes("COL")
+    ? "COL"
+    : code.toUpperCase().includes("MEX")
+    ? "MEX"
+    : "DOM";
+  return MULTI_L1_PROFILES[normalized] || MULTI_L1_PROFILES.DOM;
+}
+
+export function getHighPriorityTransfers(code?: string): PhonologicalTransfer[] {
+  const profile = getProfileByL1Code(code);
+  return profile.rules;
+}

@@ -67,9 +67,9 @@ export class PhonemeDiagnosticWorkerService {
       ? Math.round(totalScore / evaluatedTransfers.length)
       : 85;
 
-    const recommendedDrills = (profile?.remediationStrategies || [])
+    const recommendedDrills = (profile?.rules || [])
       .slice(0, 2)
-      .map((s) => s.description);
+      .map((s) => s.remedialStrategy);
 
     const result: PhonemeDiagnosticResult = {
       evidenceId: params.evidenceId,

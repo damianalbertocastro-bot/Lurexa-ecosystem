@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { InstitutionalAnalyticsService, type InstitutionalCohortAnalytics } from "@lurexa/backend";
 
 interface MetricCardProps {
   label: string;
@@ -34,6 +35,10 @@ function MetricCard({ label, value, subtext, trend, color }: MetricCardProps) {
 }
 
 export default function InsightOverviewPage() {
+  const [analytics] = useState<InstitutionalCohortAnalytics>(() =>
+    InstitutionalAnalyticsService.getCohortAnalytics("uasd-santo-domingo")
+  );
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
       {/* Hero / Header */}
@@ -43,13 +48,13 @@ export default function InsightOverviewPage() {
             <span className="inline-flex items-center rounded-md bg-indigo-500/10 px-2 py-0.5 text-xs font-bold text-indigo-400 ring-1 ring-indigo-500/30">
               Institutional Intelligence
             </span>
-            <span className="text-xs text-slate-500">Autonomous Evidence Analytics</span>
+            <span className="text-xs text-slate-500">{analytics.organizationName}</span>
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Institutional Learning & Phonemic Radar
+            Executive Learning & CEFR Velocity Radar
           </h1>
           <p className="mt-1 text-sm text-slate-400">
-            Real-time aggregate diagnostics, Dominican Spanish linguistic transfer metrics, and classroom intervention dispatch.
+            Longitudinal CEFR progression, Dominican Spanish linguistic transfer metrics, and dropout early-warning telemetry.
           </p>
         </div>
 
@@ -73,42 +78,86 @@ export default function InsightOverviewPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="Active Cohort Learners"
-          value="1,420"
+          value={analytics.activeLearnersCount.toLocaleString()}
           subtext="+18% enrollment this semester"
           trend="up"
           color="indigo"
         />
         <MetricCard
-          label="Average Spoken Fluency"
-          value="78.4%"
-          subtext="Speech onset latency: 340ms avg"
+          label="Avg. Speaking Practice"
+          value={`${analytics.averageSpeakingMinutesPerLearner} min`}
+          subtext="Per learner / weekly active average"
           trend="up"
           color="emerald"
         />
         <MetricCard
-          label="Top Transfer Bottleneck"
-          value="Coda Weakening"
-          subtext="41% of A1-A2 learners affected"
-          trend="down"
-          color="amber"
-        />
-        <MetricCard
-          label="Resolved Interventions"
-          value="94.2%"
-          subtext="182 automated assignments dispatched"
+          label="Grading SLA (<24h)"
+          value={`${Math.round((analytics.assignmentSla.gradedWithin24Hours / analytics.assignmentSla.totalSubmitted) * 100)}%`}
+          subtext={`Avg turnaround: ${analytics.assignmentSla.averageGradingHours} hours`}
           trend="up"
           color="cyan"
         />
+        <MetricCard
+          label="Mind AI Grade Acceptance"
+          value={`${analytics.assignmentSla.aiSuggestedGradesAcceptedPercent}%`}
+          subtext="Instructor alignment rate"
+          trend="up"
+          color="amber"
+        />
       </div>
 
-      {/* Grid: Phonemic Transfer Summary & Quick Cohort Audit */}
+      {/* CEFR Velocity Section */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-white">CEFR Cohort Velocity & Milestone Benchmarks</h2>
+            <p className="text-xs text-slate-400">Time-to-proficiency vs international benchmark timelines</p>
+          </div>
+          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400 ring-1 ring-emerald-500/30">
+            ⚡ Accelerating Track
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          {analytics.cefrVelocity.map((v, idx) => (
+            <div key={idx} className="rounded-lg border border-slate-800 bg-slate-950/60 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-sm font-bold text-indigo-400">
+                  {v.fromLevel} → {v.toLevel}
+                </span>
+                <span className="text-xs font-medium text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
+                  {Math.round(v.completionRate * 100)}% Pass Rate
+                </span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-300">
+                  <span>Actual Velocity:</span>
+                  <span className="font-bold text-white">{v.averageWeeksToComplete} wks</span>
+                </div>
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>Standard Benchmark:</span>
+                  <span>{v.benchmarkWeeks} wks</span>
+                </div>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400"
+                  style={{ width: `${Math.min(100, (v.benchmarkWeeks / v.averageWeeksToComplete) * 80)}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid: Phonemic Transfer Summary & Early Warning Risk System */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Dominican Spanish Phonological Interference Radar */}
         <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">Dominican Spanish → US English Transfer Radar</h2>
-              <p className="text-xs text-slate-400">Classroom-wide detection density across 6 key phonological categories</p>
+              <p className="text-xs text-slate-400">Classroom-wide detection density across key phonological categories</p>
             </div>
             <Link href="/cohorts" className="text-xs font-semibold text-indigo-400 hover:underline">
               View Matrix →
@@ -116,97 +165,59 @@ export default function InsightOverviewPage() {
           </div>
 
           <div className="space-y-4">
-            {/* Category 1: Final /s/ and Coda Deletion */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-slate-200">1. Coda /s/ and Final Consonant Deletion (/s/, /d/, /t/, /z/)</span>
-                <span className="text-amber-400 font-bold">42% Occurrence Rate</span>
+            {analytics.phonemeStruggleMatrix.map((struggle, idx) => (
+              <div key={idx} className="space-y-1.5">
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-slate-200">
+                    {idx + 1}. {struggle.phoneme} ({struggle.ipa}) — {struggle.recommendedIntervention}
+                  </span>
+                  <span className={`font-bold ${
+                    struggle.severity === "high" ? "text-amber-400" : struggle.severity === "moderate" ? "text-cyan-400" : "text-emerald-400"
+                  }`}>
+                    {Math.round((1 - struggle.averageAccuracy) * 100)}% Interference Rate
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      struggle.severity === "high" ? "bg-amber-500" : struggle.severity === "moderate" ? "bg-cyan-500" : "bg-emerald-500"
+                    }`}
+                    style={{ width: `${Math.round((1 - struggle.averageAccuracy) * 100)}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-amber-500 rounded-full" style={{ width: "42%" }} />
-              </div>
-            </div>
-
-            {/* Category 2: Epenthesis before initial /s/ */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-slate-200">2. Epenthesis before Initial /s/-clusters (e.g. &quot;espeak&quot; for speak)</span>
-                <span className="text-indigo-400 font-bold">36% Occurrence Rate</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-indigo-500 rounded-full" style={{ width: "36%" }} />
-              </div>
-            </div>
-
-            {/* Category 3: Liquid Neutralization */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-slate-200">3. Liquid Neutralization (/l/ vs /r/ coda lambdacism)</span>
-                <span className="text-cyan-400 font-bold">28% Occurrence Rate</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-cyan-500 rounded-full" style={{ width: "28%" }} />
-              </div>
-            </div>
-
-            {/* Category 4: Vowel Duration Gap */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-slate-200">4. Vowel Tenseness & Duration Gap (Spanish 5-vowel vs English 12+)</span>
-                <span className="text-emerald-400 font-bold">22% Occurrence Rate</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: "22%" }} />
-              </div>
-            </div>
-
-            {/* Category 5: 3rd-person singular inflection */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-slate-200">5. 3rd-Person Singular Inflection Drops (-s/-es present tense)</span>
-                <span className="text-purple-400 font-bold">19% Occurrence Rate</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-purple-500 rounded-full" style={{ width: "19%" }} />
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="rounded-lg bg-indigo-950/30 border border-indigo-500/20 p-4 text-xs text-indigo-200 flex items-center justify-between">
             <span>
-              💡 <strong>Pedagogical Insight:</strong> Coda weakening is showing a <strong>32% decline</strong> in cohorts practicing the new B1 Capstone interactive audio drills.
+              💡 <strong>Pedagogical Insight:</strong> Regular past <em>-ed</em> morpheme boundary exercises are showing a <strong>34% accuracy boost</strong> in cohorts using the new L1 contrastive practice sessions.
             </span>
           </div>
         </div>
 
-        {/* Right 1 Col: Quick Cohort Health & Milestones */}
+        {/* Right 1 Col: Early Warning Risk Alerts */}
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-6">
           <div>
-            <h2 className="text-lg font-bold text-white">Active Cohorts</h2>
-            <p className="text-xs text-slate-400">Classroom milestone velocity</p>
+            <h2 className="text-lg font-bold text-white">Early Warning Radar</h2>
+            <p className="text-xs text-slate-400">At-risk learners requiring intervention</p>
           </div>
 
           <div className="space-y-3">
-            {[
-              { name: "Santo Domingo Cohort Alpha", level: "A1 Foundations", students: 140, health: "Optimal" },
-              { name: "Santiago Regional ESL-2", level: "A2 Breakthrough", students: 210, health: "Optimal" },
-              { name: "UASD English Immersion B1", level: "B1 Intermediate", students: 320, health: "Review Needed" },
-              { name: "Educator PD Cohort T1", level: "Teach Level 1", students: 85, health: "Optimal" },
-            ].map((cohort, i) => (
-              <div key={i} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3.5 space-y-1.5">
+            {analytics.earlyWarningRisks.map((risk, i) => (
+              <div key={i} className="rounded-lg border border-rose-900/40 bg-rose-950/20 p-3.5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold text-slate-200">{cohort.name}</p>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    cohort.health === "Optimal"
-                      ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
-                      : "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"
-                  }`}>
-                    {cohort.health}
+                  <p className="text-xs font-bold text-white">{risk.learnerName}</p>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 ring-1 ring-rose-500/30">
+                    Risk {risk.riskScore}/100
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
-                  <span>{cohort.level}</span>
-                  <span>{cohort.students} learners</span>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  {risk.recommendedAction}
+                </p>
+                <div className="flex items-center justify-between text-[10px] text-slate-500">
+                  <span>Level: {risk.currentCefr}</span>
+                  <span>{risk.daysInactive} days inactive</span>
                 </div>
               </div>
             ))}
@@ -214,9 +225,9 @@ export default function InsightOverviewPage() {
 
           <Link
             href="/interventions"
-            className="block text-center rounded-lg border border-slate-800 bg-slate-950 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+            className="block text-center rounded-lg bg-indigo-600 py-2.5 text-xs font-bold text-white hover:bg-indigo-500 shadow-md transition"
           >
-            Launch Targeted Remediation →
+            Dispatch Automated Interventions →
           </Link>
         </div>
       </div>

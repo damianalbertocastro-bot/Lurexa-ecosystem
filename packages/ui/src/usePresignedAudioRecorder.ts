@@ -88,6 +88,18 @@ export function usePresignedAudioRecorder({
     };
   }, [audioUrl]);
 
+  const stopRecording = useCallback(async () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setIsPaused(false);
+  }, []);
+
   const startRecording = useCallback(async () => {
     setError(null);
     setAudioBlob(null);
@@ -142,7 +154,7 @@ export function usePresignedAudioRecorder({
         const elapsed = Date.now() - startTimeRef.current;
         setDurationMs(elapsed);
         if (elapsed >= maxDurationSeconds * 1000) {
-          stopRecording();
+          void stopRecording();
         }
       }, 100);
     } catch (err) {
@@ -150,19 +162,7 @@ export function usePresignedAudioRecorder({
       setError(msg);
       if (onError && err instanceof Error) onError(err);
     }
-  }, [maxDurationSeconds, onError, audioUrl]);
-
-  const stopRecording = useCallback(async () => {
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-    }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-    setIsPaused(false);
-  }, []);
+  }, [maxDurationSeconds, onError, audioUrl, stopRecording]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
