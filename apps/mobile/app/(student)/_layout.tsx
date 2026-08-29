@@ -2,9 +2,14 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { Text } from "react-native";
 
+// Cast to bypass React 18/19 mismatch between expo-router and root @types/react
+const TabsNavigator = Tabs as unknown as React.ComponentType<Record<string, unknown>> & {
+  Screen: React.ComponentType<Record<string, unknown>>;
+};
+
 export default function StudentLayout() {
   return (
-    <Tabs
+    <TabsNavigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -22,34 +27,34 @@ export default function StudentLayout() {
         },
       }}
     >
-      <Tabs.Screen
+      <TabsNavigator.Screen
         name="learn"
         options={{
           title: "Learn",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>📚</Text>,
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ color, fontSize: 18 }}>📚</Text>,
         }}
       />
-      <Tabs.Screen
+      <TabsNavigator.Screen
         name="coach"
         options={{
           title: "Coach",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>🗣️</Text>,
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ color, fontSize: 18 }}>🗣️</Text>,
         }}
       />
-      <Tabs.Screen
+      <TabsNavigator.Screen
         name="tutor"
         options={{
           title: "Tutor",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>🤖</Text>,
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ color, fontSize: 18 }}>🤖</Text>,
         }}
       />
-      <Tabs.Screen
+      <TabsNavigator.Screen
         name="placement"
         options={{
           title: "Placement",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>🎯</Text>,
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ color, fontSize: 18 }}>🎯</Text>,
         }}
       />
-    </Tabs>
+    </TabsNavigator>
   );
 }
