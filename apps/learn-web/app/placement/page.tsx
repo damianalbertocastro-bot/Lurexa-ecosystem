@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthService } from "@lurexa/backend";
+import { AuthService, MindRecommendationService } from "@lurexa/backend";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import type { CefrLevel } from "@lurexa/types";
+import type { CefrLevel, PlanRecommendation } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
 type PlacementSkill = "listening" | "grammar" | "vocabulary" | "reading" | "phonetics";
@@ -510,6 +510,44 @@ export default function PlacementPage() {
                 </div>
               </div>
             ) : null}
+
+            {/* Mind Recommended Ecosystem Plan */}
+            {(() => {
+              const recommendation: PlanRecommendation | null = MindRecommendationService.evaluatePlanSynergy({
+                userId: "learner_self",
+                cefrLevel: result.estimatedLevel,
+                activeTier: "BASIC",
+                completedLessonCount: 0,
+                coachMinutesUsedThisMonth: 12,
+                identifiedDominicanTransfers: ["coda_weakening", "s_cluster_epenthesis"],
+                enrolledProductCount: 2,
+              });
+
+              if (!recommendation) return null;
+
+              return (
+                <div className="mt-8 rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 p-6 text-white border border-indigo-500/30 shadow-lg">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="rounded-full bg-cyan-400/20 border border-cyan-400/50 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                      Recommended Plan: {recommendation.recommendedTier}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">Current Tier: BASIC</span>
+                  </div>
+
+                  <h4 className="mt-3 text-lg font-black text-white">Universal Learner Model Synergy</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">{recommendation.reason}</p>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {recommendation.synergyBenefits.map((benefit, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-cyan-200">
+                        <span>✓</span>
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Action CTAs */}
             <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6">

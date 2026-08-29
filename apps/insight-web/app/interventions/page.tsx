@@ -150,6 +150,19 @@ export default function InterventionsPage() {
           ))}
         </div>
       </div>
+
+      {/* Live Core Dispatch Log */}
+      <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 font-mono text-xs text-slate-400 space-y-2">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span className="font-bold text-slate-300">CORE DISPATCH &amp; AUDIT LOG</span>
+          <span className="text-[10px] text-emerald-400">● Live Event Bus Active</span>
+        </div>
+        <div className="space-y-1 text-[11px] pt-1">
+          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Intercepted coda /s/ deletion (Carlos Ramirez) → Enqueued Coach targeted speaking drill</p>
+          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Synthesized /s/-cluster epenthesis review card → Projecting to Learn Spaced Retrieval queue</p>
+          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Dispatched B1 Dialogue Simulation → UASD English Immersion Cohort</p>
+        </div>
+      </div>
     </div>
   );
 }
