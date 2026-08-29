@@ -13,6 +13,7 @@ import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import type { AdminOrgOverview, PlatformAdminSnapshot } from "@lurexa/types";
 import { authenticatedFetch } from "../lib/authenticated-fetch";
+import { Input } from "@lurexa/ui/Input";
 
 const ecosystemUrl = getEcosystemUrl("root");
 
@@ -129,7 +130,7 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)]">
-      <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
+      <section className="border-b border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
             <a href={ecosystemUrl} rel="noreferrer" className="rounded-xl">
@@ -176,17 +177,17 @@ export default function AdminDashboardPage() {
               >
                 Ecosystem <span aria-hidden="true">↗</span>
               </a>
-              <button
+              <Button
                 type="button"
                 onClick={() => void signOut()}
-                className="min-h-10 rounded-xl border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-extrabold text-white transition hover:bg-white hover:text-[#071d67]"
+                className="min-h-10 rounded-xl border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-extrabold text-white transition hover:bg-white hover:text-[var(--color-brand-navy)]"
               >
                 Sign out
-              </button>
+              </Button>
             </div>
           </header>
           <div className="mt-12 max-w-2xl pb-6">
-            <p className="text-[10px] font-extrabold tracking-[.2em] text-[#7ee9ed]">
+            <p className="text-[10px] font-extrabold tracking-[.2em] text-[var(--lx-accent)]">
               PLATFORM OPERATIONS
             </p>
             <h1 className="mt-3 text-4xl font-extrabold tracking-[-.06em] sm:text-5xl">
@@ -287,7 +288,7 @@ export default function AdminDashboardPage() {
         >
           {/* Search & Filter Bar */}
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <input
+            <Input
               type="text"
               placeholder="Search by organization name or plan…"
               value={searchQuery}
@@ -296,7 +297,7 @@ export default function AdminDashboardPage() {
             />
             <div className="flex items-center gap-1.5">
               {(["all", "active", "suspended"] as const).map((st) => (
-                <button
+                <Button
                   key={st}
                   type="button"
                   onClick={() => setStatusFilter(st)}
@@ -307,7 +308,7 @@ export default function AdminDashboardPage() {
                   }`}
                 >
                   {st}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

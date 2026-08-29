@@ -124,7 +124,7 @@ export default function AdminBillingPage() {
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)]">
       {/* Header */}
-      <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
+      <section className="border-b border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
             <Link href="/" className="rounded-xl">
@@ -149,7 +149,7 @@ export default function AdminBillingPage() {
           </header>
 
           <div className="mt-10 max-w-2xl pb-6">
-            <p className="text-[10px] font-extrabold tracking-[.2em] text-[#7ee9ed]">
+            <p className="text-[10px] font-extrabold tracking-[.2em] text-[var(--lx-accent)]">
               ENTERPRISE LICENSING &amp; BILLING
             </p>
             <h1 className="mt-2 text-4xl font-extrabold tracking-[-.05em] sm:text-5xl">
@@ -219,7 +219,7 @@ export default function AdminBillingPage() {
         >
           {/* Filter & Search Bar */}
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <input
+            <Input
               type="text"
               placeholder="Search institution by name or billing email…"
               value={searchQuery}
@@ -229,7 +229,7 @@ export default function AdminBillingPage() {
             <div className="flex flex-wrap items-center gap-1.5">
               {(["all", "free_community", "standard_institutional", "campus_pro", "enterprise"] as const).map(
                 (tier) => (
-                  <button
+                  <Button
                     key={tier}
                     type="button"
                     onClick={() => setPlanFilter(tier)}
@@ -240,7 +240,7 @@ export default function AdminBillingPage() {
                     }`}
                   >
                     {tier.replace("_", " ")}
-                  </button>
+                  </Button>
                 ),
               )}
             </div>

@@ -9,6 +9,8 @@ import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import type { CoachSession, CoachSessionStartResult } from "@lurexa/types";
+import { Button } from "@lurexa/ui/button";
+import { Input } from "@lurexa/ui/Input";
 
 export default function CoachStudioPage() {
   const router = useRouter();
@@ -176,14 +178,14 @@ export default function CoachStudioPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
+            <Button
               type="button"
               disabled={endingSession || sendingTurn}
               onClick={() => void handleFinishSession()}
               className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3.5 py-1.5 text-xs font-bold text-[var(--lx-ink)] hover:bg-[var(--lx-border)]/40 transition active:scale-95 disabled:opacity-50"
             >
               {endingSession ? "Saving…" : "Finish Session"}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -303,7 +305,7 @@ export default function CoachStudioPage() {
               "I work on software development in Santo Domingo.",
               "Could you please repeat that more slowly?",
             ].map((phrase) => (
-              <button
+              <Button
                 key={phrase}
                 type="button"
                 disabled={sendingTurn || isRecording}
@@ -311,7 +313,7 @@ export default function CoachStudioPage() {
                 className="rounded-lg border border-[var(--lx-border)] bg-[var(--lx-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--lx-ink)] hover:border-[var(--lx-primary)] transition disabled:opacity-40"
               >
                 + {phrase}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -327,7 +329,7 @@ export default function CoachStudioPage() {
             )}
 
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 type="text"
                 value={learnerInput}
                 onChange={(e) => setLearnerInput(e.target.value)}
@@ -338,25 +340,25 @@ export default function CoachStudioPage() {
                 placeholder="Type or use microphone to speak…"
                 className="flex-1 min-w-0 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 py-3 text-xs text-[var(--lx-ink)] outline-none focus:border-[var(--lx-primary)] focus:ring-1 focus:ring-[var(--lx-primary)]"
               />
-              <button
+              <Button
                 type="button"
                 disabled={!learnerInput.trim() || isRecording || sendingTurn}
                 onClick={() => void handleSendTurn()}
                 className="rounded-2xl bg-[var(--lx-primary)] px-5 py-3 text-xs font-bold text-white shadow-sm hover:bg-[#4a22b8] transition disabled:opacity-40"
               >
                 Send
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={toggleRecording}
                 disabled={isRecording || sendingTurn}
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition ${
-                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[#12cdd4] text-[#071d67] hover:bg-[#28e1e8]"
+                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-[var(--color-brand-navy)] hover:bg-[#28e1e8]"
                 }`}
                 title="Use Microphone"
               >
                 <span>🎙️</span>
-              </button>
+              </Button>
             </div>
           </footer>
         </article>

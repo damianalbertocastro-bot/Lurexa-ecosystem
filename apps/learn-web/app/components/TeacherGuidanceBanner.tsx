@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
 import type { TeacherInterventionBrief } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
+import { Button } from "@lurexa/ui/button";
 
 function readError(payload: unknown, fallback: string): string {
   if (typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
@@ -87,13 +88,13 @@ export function TeacherGuidanceBanner() {
         </div>
         <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-[220px] sm:justify-end">
           {lessonHref ? (
-            <button type="button" onClick={() => router.push(lessonHref)} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500">
+            <Button type="button" onClick={() => router.push(lessonHref)} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500">
               Open recommended lesson
-            </button>
+            </Button>
           ) : null}
-          <button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-[var(--color-border-default)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-background-secondary)] disabled:opacity-50">
+          <Button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-[var(--color-border-default)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-background-secondary)] disabled:opacity-50">
             {closing ? "Saving…" : "Mark as reviewed"}
-          </button>
+          </Button>
         </div>
       </div>
     </aside>

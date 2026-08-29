@@ -265,9 +265,9 @@ function CourseBuilderContent() {
                   <section key={module.id} className="rounded-xl border border-[#dfe7fb] bg-white p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <span className="text-xs font-semibold uppercase tracking-wider text-[#592bd6]">Module {index + 1}</span>
-                        <h2 className="font-semibold text-[#071d67]">{module.title}</h2>
-                        <p className="text-xs text-[#4d5e8c]">{lessonsByModule[module.id]?.length ?? 0} lesson(s)</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--lx-primary)]">Module {index + 1}</span>
+                        <h2 className="font-semibold text-[var(--color-brand-navy)]">{module.title}</h2>
+                        <p className="text-xs text-[var(--lx-muted)]">{lessonsByModule[module.id]?.length ?? 0} lesson(s)</p>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => openLessonEditor(module)}>+ Add Lesson</Button>
                     </div>
@@ -299,7 +299,7 @@ function CourseBuilderContent() {
           <Input label="Lesson title" value={lessonTitle} onChange={(event) => setLessonTitle(event.target.value)} required />
           <label className="block text-sm font-medium text-[#314b88]">
             Lesson content
-            <textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[#071d67]" value={lessonContent} onChange={(event) => setLessonContent(event.target.value)} rows={8} required />
+            <textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[var(--color-brand-navy)]" value={lessonContent} onChange={(event) => setLessonContent(event.target.value)} rows={8} required />
           </label>
 
           <LearningActivityEditor drafts={activityDrafts} onChange={setActivityDrafts} />

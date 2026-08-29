@@ -78,7 +78,7 @@ export function TeacherWorkspaceBanner({
         {breadcrumbs && breadcrumbs.length > 0 && (
           <nav
             aria-label="Breadcrumbs"
-            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[#4d5e8c]"
+            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[var(--lx-muted)]"
           >
             {breadcrumbs.map((crumb, index) => (
               <span key={crumb.label} className="flex items-center gap-1">
@@ -88,7 +88,7 @@ export function TeacherWorkspaceBanner({
                 {crumb.href ? (
                   <Link
                     href={crumb.href}
-                    className="rounded-md px-1 py-0.5 transition hover:bg-[#eef3ff] hover:text-[#1d5add]"
+                    className="rounded-md px-1 py-0.5 transition hover:bg-[#eef3ff] hover:text-[var(--lx-secondary)]"
                   >
                     {crumb.label}
                   </Link>
@@ -107,15 +107,15 @@ export function TeacherWorkspaceBanner({
           <div className="min-w-0">
             <p
               suppressHydrationWarning
-              className="text-sm font-bold text-[#315fd7]"
+              className="text-sm font-bold text-[var(--lx-secondary)]"
             >
               {greetingText}
             </p>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#071d67] sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-[var(--color-brand-navy)] sm:text-3xl">
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5e8c]">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--lx-muted)]">
                 {subtitle}
               </p>
             )}

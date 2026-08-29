@@ -65,7 +65,7 @@ body {
 }
 
 :where(button, a) { -webkit-tap-highlight-color: transparent; }
-::selection { background: #12cdd4; color: #071d67; }
+::selection { background: var(--lx-accent); color: var(--color-brand-navy); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

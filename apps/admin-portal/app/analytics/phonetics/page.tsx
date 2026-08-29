@@ -18,7 +18,7 @@ export default function AdminPhoneticsAnalyticsPage() {
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] pb-16">
       {/* Header */}
-      <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
+      <section className="border-b border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
             <Link href="/" className="rounded-xl">
@@ -49,7 +49,7 @@ export default function AdminPhoneticsAnalyticsPage() {
           </header>
 
           <div className="mt-10 max-w-3xl pb-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#7ee9ed]/40 bg-[#7ee9ed]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[#7ee9ed]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--lx-accent)]/40 bg-[var(--lx-accent)]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[var(--lx-accent)]">
               <span>📊 Institutional Phonological Intelligence</span>
             </div>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-.05em] sm:text-5xl">

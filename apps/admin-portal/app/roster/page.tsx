@@ -55,7 +55,7 @@ export default function AdminRosterPage() {
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] pb-16">
       {/* Header */}
-      <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
+      <section className="border-b border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
             <Link href="/" className="rounded-xl">
@@ -92,7 +92,7 @@ export default function AdminRosterPage() {
           </header>
 
           <div className="mt-10 max-w-3xl pb-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#7ee9ed]/40 bg-[#7ee9ed]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[#7ee9ed]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--lx-accent)]/40 bg-[var(--lx-accent)]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[var(--lx-accent)]">
               <span>👥 Multi-Tenant Institutional Onboarding</span>
             </div>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-.05em] sm:text-5xl">
@@ -127,7 +127,7 @@ export default function AdminRosterPage() {
             </div>
 
             {parseErrors.length > 0 && (
-              <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800">
+              <div className="mt-4 rounded-xl bg-[var(--lx-destructive-surface)] border border-[var(--lx-destructive)]/30 p-3 text-xs text-[var(--lx-destructive)]">
                 <p className="font-bold mb-1">Validation Issues Found:</p>
                 <ul className="list-disc list-inside space-y-0.5">
                   {parseErrors.map((err, idx) => (
@@ -151,7 +151,7 @@ export default function AdminRosterPage() {
               </div>
               <div className="flex items-center justify-between text-xs font-bold border-b border-[var(--lx-border)] pb-3">
                 <span className="text-[var(--lx-muted)]">Single Learner Model Sync:</span>
-                <span className="text-emerald-600">✓ Enabled across Learn &amp; Coach</span>
+                <span className="text-[var(--lx-success)]">✓ Enabled across Learn &amp; Coach</span>
               </div>
 
               <Button
@@ -164,7 +164,7 @@ export default function AdminRosterPage() {
               </Button>
 
               {importResult && (
-                <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-xs text-emerald-900 mt-4">
+                <div className="rounded-2xl bg-[var(--lx-success-surface)] border border-[var(--lx-success)]/30 p-4 text-xs text-[var(--lx-success)] mt-4">
                   <p className="font-bold text-sm">🎉 Batch Import Successful!</p>
                   <p className="mt-1">
                     Successfully provisioned <strong>{importResult.importedCount}</strong> student accounts with classroom group bindings.
@@ -188,7 +188,7 @@ export default function AdminRosterPage() {
 
             <div className="overflow-x-auto rounded-2xl border border-[var(--lx-border)]">
               <table className="w-full min-w-[650px] text-left text-xs">
-                <thead className="border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
+                <thead className="sticky top-0 border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
                   <tr>
                     <th className="px-4 py-3">Full Name</th>
                     <th className="px-4 py-3">Email</th>
@@ -199,7 +199,7 @@ export default function AdminRosterPage() {
                 </thead>
                 <tbody className="divide-y divide-[var(--lx-border)] bg-[var(--lx-surface)]">
                   {parsedEntries.map((entry, idx) => (
-                    <tr key={idx} className="hover:bg-[var(--lx-canvas)]/50">
+                    <tr key={idx} className="hover:bg-[var(--lx-canvas)] transition-colors">
                       <td className="px-4 py-3 font-bold text-[var(--lx-ink)]">{entry.fullName}</td>
                       <td className="px-4 py-3 text-[var(--lx-muted)]">{entry.email}</td>
                       <td className="px-4 py-3 font-semibold text-[var(--lx-ink)]">{entry.className}</td>

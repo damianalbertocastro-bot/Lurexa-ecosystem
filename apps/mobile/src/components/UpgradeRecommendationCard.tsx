@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   upgradeButton: {
-    backgroundColor: "#0ea5e9",
+    backgroundColor: "var(--lx-info)",
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",

@@ -5,18 +5,18 @@ export default function T1CoherentLessonPage() {
   return (
     <TeachShell active="Learn">
       <main className="mx-auto max-w-[1320px] px-5 py-10 sm:px-8">
-        <a href="/courses" className="text-sm font-extrabold text-[#315fd7]">
+        <a href="/courses" className="text-sm font-extrabold text-[var(--lx-secondary)]">
           ← Back to learning
         </a>
         <section className="mt-6 grid gap-7 lg:grid-cols-[1fr_.38fr]">
-          <div className="rounded-[30px] border border-[#dfe6f8] bg-white p-7 sm:p-9 shadow-sm">
-            <p className="text-[10px] font-extrabold tracking-[.17em] text-[#6b2bd9]">
+          <div className="rounded-[30px] border border-[var(--lx-surface)] bg-white p-7 sm:p-9 shadow-sm">
+            <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
               TEACH T1 PATHWAY · FOUNDATIONAL PEDAGOGY
             </p>
             <h1 className="mt-3 text-4xl font-black tracking-[-.055em] sm:text-5xl">
               The First Coherent Lesson (T1)
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-[#4d5e8c]">
+            <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--lx-muted)]">
               Master lesson coherence, structured objective alignment, balanced Teacher Talk Time (TTT), formative checking, and proactive Dominican Spanish (L1) transfer scaffolding.
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
@@ -29,22 +29,22 @@ export default function T1CoherentLessonPage() {
               ].map((x) => (
                 <span
                   key={x}
-                  className="rounded-full bg-[#f0ecff] px-3 py-2 text-xs font-extrabold text-[#6b2bd9]"
+                  className="rounded-full bg-[#f0ecff] px-3 py-2 text-xs font-extrabold text-[var(--lx-primary)]"
                 >
                   {x}
                 </span>
               ))}
             </div>
             <div className="mt-9 h-3 overflow-hidden rounded-full bg-[#edf1fb]">
-              <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-[#6b2bd9] to-[#12cdd4]" />
+              <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-accent)]" />
             </div>
-            <p className="mt-2 text-xs font-bold text-[#7180a8]">
+            <p className="mt-2 text-xs font-bold text-[var(--lx-muted)]">
               85% complete · Next: Final T1 Capstone Artifact Submission & Rubric Review
             </p>
           </div>
 
-          <aside className="rounded-[30px] bg-gradient-to-br from-[#071d67] to-[#315fd7] p-7 text-white shadow-lg">
-            <p className="text-[10px] font-extrabold tracking-[.17em] text-[#8df4ef]">
+          <aside className="rounded-[30px] bg-gradient-to-br from-[var(--color-brand-navy)] to-[var(--lx-secondary)] p-7 text-white shadow-lg">
+            <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-accent)]">
               CAPSTONE STATUS
             </p>
             <h2 className="mt-3 text-2xl font-black">Ready for Mind Review</h2>
@@ -61,8 +61,8 @@ export default function T1CoherentLessonPage() {
         </section>
 
         <section className="mt-6 grid gap-5 lg:grid-cols-[1fr_.55fr]">
-          <article className="rounded-[28px] border border-[#dfe6f8] bg-white p-7 shadow-sm">
-            <p className="text-[10px] font-extrabold tracking-[.17em] text-[#6b2bd9]">
+          <article className="rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+            <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
               T1 COMPETENCY BLUEPRINT
             </p>
             {[
@@ -80,7 +80,7 @@ export default function T1CoherentLessonPage() {
                 <span
                   className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xs font-black ${
                     s === "Current"
-                      ? "bg-[#6b2bd9] text-white"
+                      ? "bg-[var(--lx-primary)] text-white"
                       : s === "Complete"
                       ? "bg-[#e4f8f2] text-[#137867]"
                       : "bg-[#f2f4f9] text-[#8994b4]"
@@ -89,7 +89,7 @@ export default function T1CoherentLessonPage() {
                   {n}
                 </span>
                 <div className="flex-1">
-                  <b className="text-[#071d67]">{t}</b>
+                  <b className="text-[var(--color-brand-navy)]">{t}</b>
                   <p className="mt-1 text-xs font-bold text-[#8994b4]">{s}</p>
                 </div>
               </div>
@@ -97,11 +97,11 @@ export default function T1CoherentLessonPage() {
           </article>
 
           <aside className="space-y-5">
-            <article className="rounded-[28px] border border-[#dfe6f8] bg-[#fffaf2] p-7 shadow-sm">
+            <article className="rounded-[28px] border border-[var(--lx-surface)] bg-[#fffaf2] p-7 shadow-sm">
               <p className="text-[10px] font-extrabold tracking-[.17em] text-[#a05e20]">
                 EVALUATION CRITERIA
               </p>
-              <h2 className="mt-3 text-xl font-black text-[#071d67]">
+              <h2 className="mt-3 text-xl font-black text-[var(--color-brand-navy)]">
                 T1 Evaluation Rubric (Max 100)
               </h2>
               <ul className="mt-4 space-y-2 text-sm text-[#76664e]">
@@ -115,19 +115,19 @@ export default function T1CoherentLessonPage() {
               </p>
             </article>
 
-            <article className="rounded-[28px] border border-[#dfe6f8] bg-white p-7 shadow-sm">
-              <p className="text-[10px] font-extrabold tracking-[.17em] text-[#6b2bd9]">
+            <article className="rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+              <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
                 COMMUNITY & PEER REVIEW
               </p>
-              <h2 className="mt-3 text-xl font-black text-[#071d67]">
+              <h2 className="mt-3 text-xl font-black text-[var(--color-brand-navy)]">
                 Collaborate with 140+ Educators
               </h2>
-              <p className="mt-2 text-sm text-[#4d5e8c]">
+              <p className="mt-2 text-sm text-[var(--lx-muted)]">
                 Exchange micro-teaching feedback and lesson structure ideas in the community circle.
               </p>
               <a
                 href="/community"
-                className="mt-4 inline-flex min-h-11 items-center text-sm font-extrabold text-[#315fd7]"
+                className="mt-4 inline-flex min-h-11 items-center text-sm font-extrabold text-[var(--lx-secondary)]"
               >
                 Join T1 Educator Circle →
               </a>

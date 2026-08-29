@@ -1,7 +1,7 @@
 @import "../../../packages/tokens/src/theme.css";
 @import "tailwindcss";
 
-:root { --background:#f5f7ff; --foreground:#071d67; --focus:#315fd7; }
+:root { --background:#f5f7ff; --foreground:var(--color-brand-navy); --focus:var(--lx-secondary); }
 @theme inline { --color-background:var(--background); --color-foreground:var(--foreground); --font-sans:var(--font-geist-sans); --font-mono:var(--font-geist-mono); }
 html { min-height:100%; scroll-behavior:smooth; background:var(--background); }
 body { min-height:100%; margin:0; overflow-x:hidden; background:var(--background); color:var(--foreground); font-family:var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
@@ -9,18 +9,18 @@ body { min-height:100%; margin:0; overflow-x:hidden; background:var(--background
 a { color:inherit; text-decoration:none; }
 button,a { -webkit-tap-highlight-color:transparent; }
 :focus-visible { outline:3px solid color-mix(in srgb,var(--focus) 58%,white); outline-offset:3px; }
-::selection { background:#dcd4ff; color:#071d67; }
+::selection { background:#dcd4ff; color:var(--color-brand-navy); }
 
 .markdown-document { color:#243d7b; font-size:1rem; line-height:1.78; }
 .markdown-document > :first-child { margin-top:0; }
-.markdown-document h1,.markdown-document h2,.markdown-document h3,.markdown-document h4,.markdown-document h5,.markdown-document h6 { position:relative; color:#071d67; font-weight:900; letter-spacing:-.04em; scroll-margin-top:7rem; }
+.markdown-document h1,.markdown-document h2,.markdown-document h3,.markdown-document h4,.markdown-document h5,.markdown-document h6 { position:relative; color:var(--color-brand-navy); font-weight:900; letter-spacing:-.04em; scroll-margin-top:7rem; }
 .markdown-document h1 { margin:0 0 1.4rem; font-size:clamp(2.25rem,5vw,3.9rem); line-height:1; letter-spacing:-.065em; }
 .markdown-document h2 { margin:3rem 0 1rem; padding-top:.5rem; border-top:1px solid #e7ecf8; font-size:1.75rem; }
 .markdown-document h3 { margin:2.2rem 0 .8rem; font-size:1.3rem; }
 .markdown-document h4 { margin:1.7rem 0 .7rem; font-size:1.08rem; }
 .markdown-document p { margin:1rem 0; }
 .markdown-document strong { color:#102c71; font-weight:850; }
-.markdown-document a { color:#315fd7; font-weight:750; text-decoration:underline; text-decoration-color:#bfcaf0; text-underline-offset:3px; }
+.markdown-document a { color:var(--lx-secondary); font-weight:750; text-decoration:underline; text-decoration-color:#bfcaf0; text-underline-offset:3px; }
 .markdown-document a:hover { color:#592bd6; text-decoration-color:#592bd6; }
 .markdown-document .heading-anchor { position:absolute; left:-1.2em; width:1em; opacity:0; text-decoration:none; color:#8e78da; }
 .markdown-document h1:hover .heading-anchor,.markdown-document h2:hover .heading-anchor,.markdown-document h3:hover .heading-anchor,.markdown-document .heading-anchor:focus { opacity:1; }
@@ -28,18 +28,18 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .markdown-document ul { list-style:disc; }
 .markdown-document ol { list-style:decimal; }
 .markdown-document li { margin:.45rem 0; padding-left:.2rem; }
-.markdown-document blockquote { margin:1.5rem 0; border-left:4px solid #6b2bd9; border-radius:0 16px 16px 0; background:#f4f0ff; padding:1rem 1.25rem; color:#4c4c83; }
+.markdown-document blockquote { margin:1.5rem 0; border-left:4px solid var(--lx-primary); border-radius:0 16px 16px 0; background:#f4f0ff; padding:1rem 1.25rem; color:#4c4c83; }
 .markdown-document blockquote p { margin:.25rem 0; }
 .markdown-document code { border-radius:.4rem; background:#eff3ff; padding:.16rem .36rem; color:#4a2fa9; font-family:var(--font-geist-mono),ui-monospace,monospace; font-size:.88em; }
-.markdown-document pre { margin:1.5rem 0; overflow:auto; border:1px solid #263a7b; border-radius:18px; background:#071d67; padding:1.2rem; box-shadow:0 14px 30px rgba(7,29,103,.12); }
+.markdown-document pre { margin:1.5rem 0; overflow:auto; border:1px solid #263a7b; border-radius:18px; background:var(--color-brand-navy); padding:1.2rem; box-shadow:0 14px 30px rgba(7,29,103,.12); }
 .markdown-document pre code { display:block; min-width:max-content; background:transparent; padding:0; color:#e8efff; font-size:.84rem; line-height:1.7; }
-.markdown-document hr { margin:2.5rem 0; border:0; border-top:1px solid #dfe6f8; }
-.markdown-document .md-table-wrap { margin:1.5rem 0; overflow-x:auto; border:1px solid #dfe6f8; border-radius:18px; }
+.markdown-document hr { margin:2.5rem 0; border:0; border-top:1px solid var(--lx-surface); }
+.markdown-document .md-table-wrap { margin:1.5rem 0; overflow-x:auto; border:1px solid var(--lx-surface); border-radius:18px; }
 .markdown-document table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
 .markdown-document th { background:#f0ecff; color:#2e277b; font-weight:850; text-align:left; }
 .markdown-document th,.markdown-document td { border-bottom:1px solid #e6ebf7; padding:.8rem 1rem; vertical-align:top; }
 .markdown-document tr:last-child td { border-bottom:0; }
-.markdown-document img { display:block; max-width:100%; height:auto; margin:1.5rem auto; border-radius:18px; border:1px solid #dfe6f8; }
+.markdown-document img { display:block; max-width:100%; height:auto; margin:1.5rem auto; border-radius:18px; border:1px solid var(--lx-surface); }
 .markdown-document .md-image-alt { font-style:italic; color:#7180a8; }
 
 @media (max-width:640px) { .markdown-document { font-size:.96rem; line-height:1.72; } .markdown-document .heading-anchor { display:none; } }

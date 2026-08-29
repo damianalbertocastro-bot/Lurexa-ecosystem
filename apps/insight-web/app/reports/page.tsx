@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Button } from "@lurexa/ui/button";
 
 export default function ReportsPage() {
   return (
@@ -64,12 +65,12 @@ export default function ReportsPage() {
               <h3 className="text-base font-bold text-white">{report.title}</h3>
               <p className="mt-1 text-xs text-slate-400 leading-relaxed">{report.description}</p>
             </div>
-            <button
+            <Button
               onClick={() => alert(`Downloading ${report.title}...`)}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-800 transition"
             >
               Export Report Data ↓
-            </button>
+            </Button>
           </div>
         ))}
       </div>

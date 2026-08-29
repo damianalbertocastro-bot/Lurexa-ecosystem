@@ -17,6 +17,7 @@ import {
   ModelListeningActivity,
   RecordedSpeakingActivity,
 } from "./AdvancedLearningCapabilities";
+import { Button } from "@lurexa/ui/button";
 
 type LessonPayload = {
   lesson: Lesson;
@@ -489,8 +490,8 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           <h1 className="mt-3 text-3xl font-bold text-slate-950">This lesson is not available.</h1>
           <p className="mt-3 text-slate-600">{error ?? "We could not find this lesson in your learning path."}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-500" onClick={() => router.refresh()}>Try again</button>
-            <button className="rounded-xl border border-indigo-200 px-5 py-3 font-semibold text-indigo-700 hover:bg-indigo-50" onClick={() => router.push("/dashboard")}>Back to dashboard</button>
+            <Button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-500" onClick={() => router.refresh()}>Try again</Button>
+            <Button className="rounded-xl border border-indigo-200 px-5 py-3 font-semibold text-indigo-700 hover:bg-indigo-50" onClick={() => router.push("/dashboard")}>Back to dashboard</Button>
           </div>
         </div>
       </div>
@@ -507,13 +508,13 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
         <div className="mx-auto max-w-4xl px-4 py-3 sm:px-8">
           <div className="flex items-center justify-between gap-4">
-            <button
+            <Button
               onClick={() => router.push("/dashboard")}
               className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 transition"
             >
               <span>←</span>
               <span>Dashboard</span>
-            </button>
+            </Button>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700 ring-1 ring-indigo-200">
                 A1 Foundations
@@ -657,7 +658,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                     }
 
                     return (
-                      <button
+                      <Button
                         key={option}
                         type="button"
                         aria-pressed={isSelected}
@@ -666,18 +667,18 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                       >
                         <span>{option}</span>
                         {isSelected ? <span className="text-xs font-bold">✓</span> : null}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
                 <div className="mt-5 flex items-center gap-3">
-                  <button
+                  <Button
                     disabled={submittingId === block.id || !selected.length}
                     onClick={() => void submitBlock(block.id, "quiz")}
                     className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
                   >
                     {submittingId === block.id ? "Checking…" : "Check Answer"}
-                  </button>
+                  </Button>
                 </div>
                 {blockFeedback ? (
                   <div
@@ -782,13 +783,13 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                       <span>{(responses[block.id] ?? "").length} characters written</span>
                       <span>Target: Clear, short A1 sentences</span>
                     </div>
-                    <button
+                    <Button
                       disabled={submittingId === block.id || !(responses[block.id] ?? "").trim()}
                       onClick={() => void submitShortResponse(block.id)}
                       className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
                     >
                       {submittingId === block.id ? "Saving…" : "Save Response"}
-                    </button>
+                    </Button>
                   </div>
                 ) : null}
 
@@ -805,7 +806,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {selected.map((token, index) => (
-                            <button
+                            <Button
                               key={`${token}-${index}`}
                               type="button"
                               onClick={() => removeSentenceToken(block.id, index)}
@@ -813,7 +814,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                             >
                               <span>{token}</span>
                               <span className="text-xs opacity-75">✕</span>
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       )}
@@ -824,34 +825,34 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Available Words:</p>
                       <div className="flex flex-wrap gap-2">
                         {(activity.options ?? []).map((token, index) => (
-                          <button
+                          <Button
                             key={`${token}-${index}`}
                             type="button"
                             onClick={() => addSentenceToken(block.id, token)}
                             className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 transition"
                           >
                             + {token}
-                          </button>
+                          </Button>
                         ))}
                         {selected.length > 0 ? (
-                          <button
+                          <Button
                             type="button"
                             onClick={() => clearSentenceBuilder(block.id)}
                             className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 transition"
                           >
                             Reset
-                          </button>
+                          </Button>
                         ) : null}
                       </div>
                     </div>
 
-                    <button
+                    <Button
                       disabled={submittingId === block.id || selected.length === 0}
                       onClick={() => void submitBlock(block.id, "activity", activity)}
                       className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
                     >
                       {submittingId === block.id ? "Checking…" : "Submit Sentence"}
-                    </button>
+                    </Button>
                   </div>
                 ) : null}
 
@@ -872,7 +873,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                         }
 
                         return (
-                          <button
+                          <Button
                             key={option}
                             type="button"
                             aria-pressed={isSelected}
@@ -885,17 +886,17 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                           >
                             <span>{option}</span>
                             {isSelected ? <span className="text-xs font-bold">✓</span> : null}
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
-                    <button
+                    <Button
                       disabled={submittingId === block.id || selected.length === 0}
                       onClick={() => void submitBlock(block.id, "activity", activity)}
                       className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
                     >
                       {submittingId === block.id ? "Checking…" : "Submit Answer"}
-                    </button>
+                    </Button>
                   </div>
                 ) : null}
 
@@ -950,31 +951,31 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {inRetrievalMode ? (
               !retrievalCompleted ? (
-                <button
+                <Button
                   disabled={completing}
                   onClick={() => void finish()}
                   className="rounded-xl bg-white px-6 py-3 font-bold text-slate-950 hover:bg-slate-100 disabled:opacity-50 transition"
                 >
                   {completing ? "Saving Evidence…" : "Complete Retrieval Check"}
-                </button>
+                </Button>
               ) : null
             ) : !isLessonCompleted ? (
-              <button
+              <Button
                 disabled={completing}
                 onClick={() => void finish()}
                 className="rounded-xl bg-emerald-500 px-6 py-3 font-bold text-slate-950 shadow-md hover:bg-emerald-400 disabled:opacity-50 transition"
               >
                 {completing ? "Saving Progress…" : "Complete Lesson & Save Progress"}
-              </button>
+              </Button>
             ) : null}
 
             {isLessonCompleted && nextLesson ? (
-              <button
+              <Button
                 onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)}
                 className="rounded-xl bg-indigo-500 px-6 py-3 font-bold text-white shadow-md hover:bg-indigo-400 transition"
               >
                 Continue to Next Lesson →
-              </button>
+              </Button>
             ) : null}
 
             {isLessonCompleted ? (
@@ -987,12 +988,12 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             ) : null}
 
             {isLessonCompleted ? (
-              <button
+              <Button
                 onClick={() => router.push("/dashboard")}
                 className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-500 transition"
               >
                 Return to Dashboard
-              </button>
+              </Button>
             ) : null}
           </div>
 
@@ -1017,14 +1018,14 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                   <p className="text-sm leading-relaxed">{feedback.completion.message}</p>
                 </div>
                 {!feedback.completion.passed && incompleteTargetBlockId ? (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => scrollToBlock(incompleteTargetBlockId)}
                     className="shrink-0 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-md hover:bg-amber-300 transition flex items-center gap-1.5"
                   >
                     <span>Jump to {incompleteTargetTitle ?? "Activity"}</span>
                     <span>↑</span>
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             </div>

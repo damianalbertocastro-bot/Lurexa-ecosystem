@@ -99,7 +99,7 @@ export default function StudentAssignmentsPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => setActiveTab("pending")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
@@ -109,8 +109,8 @@ export default function StudentAssignmentsPage() {
                 }`}
               >
                 Due Soon ({pendingItems.length})
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => setActiveTab("completed")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
@@ -120,7 +120,7 @@ export default function StudentAssignmentsPage() {
                 }`}
               >
                 Completed &amp; Graded ({completedItems.length})
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function StudentAssignmentsPage() {
                     {assignment.targetType === "coach_pack" ? (
                       <a
                         href={`${getEcosystemUrl("coach")}/studio`}
-                        className="rounded-xl bg-gradient-to-r from-[#12cdd4] to-[#0ba5a8] px-4 py-2.5 text-xs font-black text-[#071d67] shadow-sm hover:opacity-90 transition active:scale-95"
+                        className="rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-4 py-2.5 text-xs font-black text-[var(--color-brand-navy)] shadow-sm hover:opacity-90 transition active:scale-95"
                       >
                         Launch Coach Studio 🎙️
                       </a>

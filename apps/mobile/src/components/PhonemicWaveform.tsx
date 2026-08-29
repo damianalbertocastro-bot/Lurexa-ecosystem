@@ -16,7 +16,7 @@ export const PhonemicWaveform: React.FC<PhonemicWaveformProps> = ({ segments }) 
           const isHigh = seg.score >= 0.85;
           const isMed = seg.score >= 0.65 && seg.score < 0.85;
 
-          const barColor = isHigh ? "#10b981" : isMed ? "#f59e0b" : "#ef4444";
+          const barColor = isHigh ? "var(--lx-success)" : isMed ? "var(--lx-warning)" : "var(--lx-destructive)";
           const barHeight = Math.max(20, Math.round(seg.score * 55));
 
           return (
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(245, 158, 11, 0.4)",
   },
   transferBadgeText: {
-    color: "#fbbf24",
+    color: "var(--lx-warning)",
     fontSize: 9,
     fontWeight: "800",
   },

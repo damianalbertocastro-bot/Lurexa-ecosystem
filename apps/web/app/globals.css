@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #071d67;
+  --foreground: var(--color-brand-navy);
   --focus-ring: #592bd6;
 }
 
@@ -46,7 +46,7 @@ a {
 
 ::selection {
   background: #dcd4ff;
-  color: #071d67;
+  color: var(--color-brand-navy);
 }
 
 @media (prefers-reduced-motion: reduce) {

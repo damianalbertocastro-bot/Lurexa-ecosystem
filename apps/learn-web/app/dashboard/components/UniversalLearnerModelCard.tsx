@@ -38,7 +38,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">Universal Learner Model</span>
             <Badge variant="info">Tier: {activeTier}</Badge>
           </div>
-          <h2 className="text-xl font-black text-[#071d67] tracking-tight mt-1">
+          <h2 className="text-xl font-black text-[var(--color-brand-navy)] tracking-tight mt-1">
             Single Evolving Profile across Lurexa
           </h2>
           <p className="text-xs text-slate-500">
@@ -48,7 +48,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
 
         <div className="rounded-2xl bg-indigo-50 border border-indigo-200/60 px-4 py-2 text-center">
           <p className="text-[10px] font-bold uppercase text-indigo-700">CEFR Standing</p>
-          <p className="text-2xl font-black text-[#071d67]">{cefrLevel}</p>
+          <p className="text-2xl font-black text-[var(--color-brand-navy)]">{cefrLevel}</p>
         </div>
       </div>
 

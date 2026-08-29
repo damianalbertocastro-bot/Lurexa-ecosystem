@@ -181,6 +181,6 @@ const styles = StyleSheet.create({
   levelCardLevel: { color: "#ffffff", fontSize: 44, fontWeight: "900", marginVertical: 4 },
   levelCardDesc: { color: "#cbd5e1", fontSize: 13, textAlign: "center", lineHeight: 19 },
   transferSummary: { marginTop: 16, alignSelf: "stretch", backgroundColor: "rgba(245, 158, 11, 0.1)", borderWidth: 1, borderColor: "rgba(245, 158, 11, 0.3)", padding: 12, borderRadius: 12 },
-  transferSummaryTitle: { color: "#fbbf24", fontSize: 12, fontWeight: "800", marginBottom: 4 },
+  transferSummaryTitle: { color: "var(--lx-warning)", fontSize: 12, fontWeight: "800", marginBottom: 4 },
   transferBullet: { color: "#fef3c7", fontSize: 12, marginTop: 2 },
 });

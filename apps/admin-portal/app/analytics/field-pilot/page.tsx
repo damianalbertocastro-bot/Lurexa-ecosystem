@@ -16,7 +16,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] pb-16">
       {/* Header */}
-      <section className="border-b border-white/10 bg-gradient-to-br from-[#071d67] via-[#142f85] to-[#2355bf] text-white">
+      <section className="border-b border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
           <header className="flex flex-wrap items-center justify-between gap-5">
             <Link href="/" className="rounded-xl">
@@ -59,7 +59,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
           </header>
 
           <div className="mt-10 max-w-3xl pb-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#7ee9ed]/40 bg-[#7ee9ed]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[#7ee9ed]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--lx-accent)]/40 bg-[var(--lx-accent)]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[var(--lx-accent)]">
               <span>📱 Low-Bandwidth &amp; Regional Dialect Pilot</span>
             </div>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-.05em] sm:text-5xl">
@@ -131,7 +131,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
         >
           <div className="overflow-x-auto rounded-2xl border border-[var(--lx-border)] mt-4">
             <table className="w-full min-w-[700px] text-left text-xs">
-              <thead className="border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
+              <thead className="sticky top-0 border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
                 <tr>
                   <th className="px-4 py-3">Region &amp; Dialect</th>
                   <th className="px-4 py-3">Cohort Share</th>
@@ -142,7 +142,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
               </thead>
               <tbody className="divide-y divide-[var(--lx-border)] bg-[var(--lx-surface)]">
                 {telemetry.dialectCohorts.map((cohort) => (
-                  <tr key={cohort.region} className="hover:bg-[var(--lx-canvas)]/50">
+                  <tr key={cohort.region} className="hover:bg-[var(--lx-canvas)] transition-colors">
                     <td className="px-4 py-3 font-bold text-[var(--lx-ink)]">
                       {cohort.regionName}
                     </td>
@@ -155,7 +155,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
                     <td className="px-4 py-3 text-[var(--lx-muted)] max-w-xs">
                       {cohort.articulatoryRemediationPriority}
                     </td>
-                    <td className="px-4 py-3 text-right font-black text-emerald-600">
+                    <td className="px-4 py-3 text-right font-black text-[var(--lx-success)]">
                       {cohort.averageIntelligibilityScore}%
                     </td>
                   </tr>

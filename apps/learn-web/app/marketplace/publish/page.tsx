@@ -7,16 +7,16 @@ export default function CoursePublishPage() {
         <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
           Publishing disabled · prototype retained
         </span>
-        <h1 className="mt-5 text-4xl font-black tracking-[-.05em] text-[#071d67]">Marketplace publishing is not active yet.</h1>
-        <p className="mt-4 text-sm leading-7 text-[#6074a5]">
+        <h1 className="mt-5 text-4xl font-black tracking-[-.05em] text-[var(--color-brand-navy)]">Marketplace publishing is not active yet.</h1>
+        <p className="mt-4 text-sm leading-7 text-[var(--lx-muted)]">
           Lurexa will not claim that a course is listed for sale, Stripe-connected, licensed, or revenue-generating until the production commerce and entitlement pipeline exists server-side.
         </p>
         <div className="mt-7 rounded-2xl border border-[#e3e9f8] bg-[#f8faff] p-5 text-sm leading-7 text-[#536792]">
           Future publishing must validate educator/publisher identity, governed content provenance, institutional licensing terms, pricing policy, payment settlement, Core entitlements, payout state, refunds, and audit history before a listing can become active.
         </div>
         <div className="mt-8 flex gap-3">
-          <Link href="/marketplace" className="rounded-xl bg-[#071d67] px-5 py-3 text-sm font-black text-white">Marketplace status</Link>
-          <Link href="/teacher/dashboard" className="rounded-xl border border-[#cfd9f0] px-5 py-3 text-sm font-black text-[#071d67]">Teacher Workspace</Link>
+          <Link href="/marketplace" className="rounded-xl bg-[var(--color-brand-navy)] px-5 py-3 text-sm font-black text-white">Marketplace status</Link>
+          <Link href="/teacher/dashboard" className="rounded-xl border border-[#cfd9f0] px-5 py-3 text-sm font-black text-[var(--color-brand-navy)]">Teacher Workspace</Link>
         </div>
       </section>
     </main>

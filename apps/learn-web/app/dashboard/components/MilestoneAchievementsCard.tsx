@@ -117,7 +117,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
                   {milestone.icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-bold text-[#071d67]">
+                  <p className="truncate text-xs font-bold text-[var(--color-brand-navy)]">
                     {milestone.title}
                   </p>
                   <p className="truncate text-[11px] text-slate-500">
@@ -131,7 +131,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
             ))}
 
             <div className="pt-1 text-right">
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   playClick();
@@ -140,7 +140,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
                 className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-1"
               >
                 View all points & achievements →
-              </button>
+              </Button>
             </div>
           </div>
         ) : (

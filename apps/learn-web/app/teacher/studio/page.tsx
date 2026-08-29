@@ -14,6 +14,7 @@ import {
 } from "@lurexa/backend";
 import { auth } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
+import { Input } from "@lurexa/ui/Input";
 
 const ALL_SKILLS: EnglishSkill[] = [
   "listening",
@@ -165,7 +166,7 @@ export default function LurexaStudioPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Knowledge Object Title</label>
-              <input
+              <Input
                 type="text"
                 required
                 placeholder="e.g. Regular Simple Past /-ed/ Coda Articulation"
@@ -241,7 +242,7 @@ export default function LurexaStudioPage() {
               <label className="block text-xs font-bold text-slate-700 mb-2">Preserved English Skills (The 7 Skills)</label>
               <div className="flex flex-wrap gap-2">
                 {ALL_SKILLS.map((skill) => (
-                  <button
+                  <Button
                     key={skill}
                     type="button"
                     onClick={() => toggleSkill(skill)}
@@ -252,7 +253,7 @@ export default function LurexaStudioPage() {
                     }`}
                   >
                     {skill}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -271,7 +272,7 @@ export default function LurexaStudioPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">L1 Interference &amp; Articulatory Rule</label>
-              <input
+              <Input
                 type="text"
                 value={l1Rule}
                 onChange={(e) => setL1Rule(e.target.value)}

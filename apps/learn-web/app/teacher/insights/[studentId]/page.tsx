@@ -104,8 +104,8 @@ export default function StudentInterventionPage() {
         <div className="flex flex-col gap-4 border-b border-[#dfe7fb] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.16em] text-indigo-600">Trusted intervention workflow</p>
-            <h1 className="mt-2 text-2xl font-bold text-[#071d67]">Student support</h1>
-            <p className="text-sm text-[#4d5e8c]">Review authorized learning evidence before deciding on support.</p>
+            <h1 className="mt-2 text-2xl font-bold text-[var(--color-brand-navy)]">Student support</h1>
+            <p className="text-sm text-[var(--lx-muted)]">Review authorized learning evidence before deciding on support.</p>
           </div>
           <Button variant="secondary" onClick={() => router.push("/teacher/insights")}>Back to insights</Button>
         </div>

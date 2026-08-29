@@ -98,7 +98,7 @@ export function CoachShell({
 
             <Link
               href="/practice"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#12cdd4] to-[#0ba5a8] px-4 py-2 text-xs font-black text-[#071d67] shadow-sm transition hover:brightness-105 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-4 py-2 text-xs font-black text-[var(--color-brand-navy)] shadow-sm transition hover:brightness-105 active:scale-95"
             >
               <span>🎙️</span>
               <span className="hidden sm:inline">Quick Practice</span>

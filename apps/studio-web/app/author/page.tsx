@@ -4,6 +4,8 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { StudioAuthoringService } from "@lurexa/backend";
 import type { CefrLevel, EnglishSkill } from "@lurexa/types";
+import { Button } from "@lurexa/ui/button";
+import { Input } from "@lurexa/ui/Input";
 
 const ALL_SKILLS: EnglishSkill[] = [
   "listening",
@@ -141,7 +143,7 @@ export default function StudioAuthorWorkbenchPage() {
               <label htmlFor="ko-name" className="block text-xs font-bold text-slate-700">
                 Knowledge Object Name
               </label>
-              <input
+              <Input
                 id="ko-name"
                 type="text"
                 value={name}
@@ -213,7 +215,7 @@ export default function StudioAuthorWorkbenchPage() {
                 {ALL_SKILLS.map((skill) => {
                   const active = selectedSkills.includes(skill);
                   return (
-                    <button
+                    <Button
                       key={skill}
                       type="button"
                       onClick={() => toggleSkill(skill)}
@@ -224,7 +226,7 @@ export default function StudioAuthorWorkbenchPage() {
                       }`}
                     >
                       {skill}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -285,7 +287,7 @@ export default function StudioAuthorWorkbenchPage() {
                 <label htmlFor="ko-l1-rule" className="block text-xs font-bold text-slate-700">
                   L1 Interference Rule
                 </label>
-                <input
+                <Input
                   id="ko-l1-rule"
                   type="text"
                   value={l1Rule}
@@ -298,7 +300,7 @@ export default function StudioAuthorWorkbenchPage() {
                 <label htmlFor="ko-remedy" className="block text-xs font-bold text-slate-700">
                   Articulatory Remediation
                 </label>
-                <input
+                <Input
                   id="ko-remedy"
                   type="text"
                   value={articulatoryRemediation}
@@ -309,13 +311,13 @@ export default function StudioAuthorWorkbenchPage() {
             </div>
 
             <div className="pt-2">
-              <button
+              <Button
                 type="submit"
                 disabled={saving}
                 className="w-full rounded-xl bg-amber-600 py-3 text-xs font-black text-white shadow-sm transition hover:bg-amber-700 active:scale-95 disabled:opacity-50"
               >
                 {saving ? "Saving to Core..." : "💾 Save Knowledge Object Draft to Core"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

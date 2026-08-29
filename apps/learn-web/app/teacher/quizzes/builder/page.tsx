@@ -74,7 +74,7 @@ export default function QuizBuilderPage() {
               <select
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value as QuestionType)}
-                className="w-full rounded-xl border border-[#d7e0f6] p-2 text-sm text-[#071d67] focus:outline-none focus:ring-2 focus:ring-[#1d5add]"
+                className="w-full rounded-xl border border-[#d7e0f6] p-2 text-sm text-[var(--color-brand-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--lx-secondary)]"
               >
                 <option value="multiple_choice">Multiple Choice</option>
                 <option value="single_choice">Single Choice</option>
@@ -132,16 +132,16 @@ export default function QuizBuilderPage() {
         {/* Quiz Questions List */}
         <Card title={`Questions Pool (${questions.length})`} subtitle="Questions in this assessment draft">
           {questions.length === 0 ? (
-            <p className="text-sm text-[#4d5e8c] py-4 text-center">No questions added yet.</p>
+            <p className="text-sm text-[var(--lx-muted)] py-4 text-center">No questions added yet.</p>
           ) : (
             <div className="space-y-3 pt-2">
               {questions.map((q, idx) => (
                 <div key={q.id} className="rounded-xl border border-[#dfe7fb] p-4 bg-white space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-[#592bd6]">Question {idx + 1}</span>
+                    <span className="text-xs font-bold uppercase text-[var(--lx-primary)]">Question {idx + 1}</span>
                     <Badge variant="info">{q.type}</Badge>
                   </div>
-                  <p className="font-semibold text-[#071d67]">{q.prompt}</p>
+                  <p className="font-semibold text-[var(--color-brand-navy)]">{q.prompt}</p>
                   {q.options && (
                     <ul className="list-disc list-inside text-xs text-[#5d6f9d] space-y-1 pl-2">
                       {q.options.map((opt, oIdx) => (

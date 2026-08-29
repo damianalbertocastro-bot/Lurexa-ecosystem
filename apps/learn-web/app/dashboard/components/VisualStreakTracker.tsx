@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@lurexa/ui/Card";
+import { Button } from "@lurexa/ui/button";
 
 interface VisualStreakTrackerProps {
   streakDays: number;
@@ -79,14 +80,14 @@ export const VisualStreakTracker: React.FC<VisualStreakTrackerProps> = ({
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
             onClick={() => router.push("/dashboard/streak")}
             className="rounded-xl px-3 py-1.5 text-xs font-bold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-500"
             aria-label="View full streak breakdown"
           >
             Details →
-          </button>
+          </Button>
         </div>
 
         {/* Horizontal 7-Day Visual Row */}

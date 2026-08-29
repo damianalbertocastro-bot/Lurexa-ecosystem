@@ -5,6 +5,7 @@ import type { LearnTutorTurn } from "@lurexa/types";
 import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+import { Input } from "@lurexa/ui/Input";
 
 type Judgment = "meets" | "not_yet" | "inconclusive";
 
@@ -234,7 +235,7 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
               </label>
 
               <label className="block text-sm font-semibold text-slate-800">Confidence: {Math.round(confidence * 100)}%
-                <input type="range" min="0.5" max="1" step="0.05" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} className="mt-2 w-full" />
+                <Input type="range" min="0.5" max="1" step="0.05" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} className="mt-2 w-full" />
               </label>
 
               <label className="block text-sm font-semibold text-slate-800">Rationale

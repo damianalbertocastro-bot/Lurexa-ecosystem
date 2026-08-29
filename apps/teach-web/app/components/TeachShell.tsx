@@ -10,6 +10,7 @@ import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import { useTeachAuth } from "./TeachAuthProvider";
+import { Button } from "@lurexa/ui/button";
 
 const ecosystemUrl = getEcosystemUrl("root");
 const nav = [
@@ -51,7 +52,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
           <Link
             href="/"
             aria-label="Lurexa Teach home"
-            className="shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7]"
+            className="shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)]"
           >
             <ProductMark product="teach" className="hidden sm:inline-flex" />
             <ProductMark product="teach" compact className="sm:hidden" />
@@ -78,17 +79,17 @@ export function TeachShell({ active, children }: { active: string; children: Rea
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => setCommandPaletteOpen(true)}
               aria-label="Open search palette"
-              className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-xs transition hover:border-[#b6c8f4] hover:text-[var(--lx-ink)] sm:inline-flex"
+              className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-xs transition hover:border-[var(--lx-border)] hover:text-[var(--lx-ink)] sm:inline-flex"
             >
               <span>Search</span>
               <kbd className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 shadow-xs dark:bg-slate-800">
                 ⌘K
               </kbd>
-            </button>
+            </Button>
 
             <ThemeToggle />
             <EcosystemDropdown currentApp="teach" />
@@ -111,7 +112,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                   <span className="sm:hidden" aria-hidden="true">◉</span>
                   <span className="hidden sm:inline">{profile?.displayName || "My profile"}</span>
                 </Link>
-                <button
+                <Button
                   type="button"
                   onClick={signOut}
                   aria-label="Sign out"
@@ -119,7 +120,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                 >
                   <span className="sm:hidden" aria-hidden="true">↗</span>
                   <span className="hidden sm:inline">Sign out</span>
-                </button>
+                </Button>
               </>
             ) : (
               <Link

@@ -99,7 +99,7 @@ export function EcosystemDropdown({
 
   const buttonStyle = inverse
     ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white"
-    : "border-[#dfe6f8] bg-white text-[#071d67] hover:bg-[#f3f6ff] hover:border-[#b8c7f1] focus-visible:ring-[#315fd7]";
+    : "border-[var(--lx-surface)] bg-white text-[var(--color-brand-navy)] hover:bg-[#f3f6ff] hover:border-[#b8c7f1] focus-visible:ring-[var(--lx-secondary)]";
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`} {...props}>
@@ -134,12 +134,12 @@ export function EcosystemDropdown({
           role="menu"
           aria-orientation="vertical"
           aria-label="Lurexa ecosystem surfaces"
-          className={`absolute z-50 mt-2 w-80 rounded-2xl border border-[#dfe6f8] bg-white p-2 shadow-[0_20px_50px_rgba(7,29,103,0.15)] ring-1 ring-black/5 focus:outline-none ${
+          className={`absolute z-50 mt-2 w-80 rounded-2xl border border-[var(--lx-surface)] bg-white p-2 shadow-[0_20px_50px_rgba(7,29,103,0.15)] ring-1 ring-black/5 focus:outline-none ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
           <div className="border-b border-[#eef2fc] px-3 py-2.5">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#315fd7]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-secondary)]">
               Lurexa Ecosystem
             </p>
             <p className="mt-0.5 text-xs font-medium text-[#4d5e8c]">
@@ -162,8 +162,8 @@ export function EcosystemDropdown({
                   onClick={(event) => navigate(event, url, isCurrent)}
                   className={`group flex items-start gap-3 rounded-xl p-2.5 transition motion-reduce:transition-none ${
                     isCurrent
-                      ? "bg-[#eef2ff] text-[#315fd7]"
-                      : "text-[#071d67] hover:bg-[#f5f8ff] hover:text-[#315fd7]"
+                      ? "bg-[#eef2ff] text-[var(--lx-secondary)]"
+                      : "text-[var(--color-brand-navy)] hover:bg-[#f5f8ff] hover:text-[var(--lx-secondary)]"
                   }`}
                 >
                   <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white shadow-sm ring-1 ring-[#e6ecfb]">
@@ -175,7 +175,7 @@ export function EcosystemDropdown({
                         {app.name}
                       </span>
                       {isCurrent ? (
-                        <span className="rounded-full bg-[#315fd7] px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white">
+                        <span className="rounded-full bg-[var(--lx-secondary)] px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white">
                           Current
                         </span>
                       ) : (

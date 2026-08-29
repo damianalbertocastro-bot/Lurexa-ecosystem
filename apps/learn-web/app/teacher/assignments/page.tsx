@@ -15,6 +15,7 @@ import {
 } from "@lurexa/backend";
 import { auth } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
+import { Input } from "@lurexa/ui/Input";
 
 export default function TeacherAssignmentsPage() {
   const [assignments, setAssignments] = useState<AssignmentV1[]>([]);
@@ -235,13 +236,13 @@ export default function TeacherAssignmentsPage() {
                 <p className="text-[10px] font-black uppercase tracking-wider text-indigo-600">STUDENT SUBMISSIONS</p>
                 <h3 className="text-lg font-bold text-slate-900">{selectedAssignment.title}</h3>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => setSelectedAssignment(null)}
                 className="text-xs font-bold text-slate-500 hover:text-slate-800"
               >
                 Close ✕
-              </button>
+              </Button>
             </div>
 
             {submissions.length === 0 ? (
@@ -305,7 +306,7 @@ export default function TeacherAssignmentsPage() {
         <form onSubmit={handleCreateAssignment} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Assignment Title</label>
-            <input
+            <Input
               type="text"
               required
               placeholder="e.g. Module 2 Speaking Defense"
@@ -373,7 +374,7 @@ export default function TeacherAssignmentsPage() {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Due Date</label>
-            <input
+            <Input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
@@ -409,7 +410,7 @@ export default function TeacherAssignmentsPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Teacher Score (out of 10)</label>
-              <input
+              <Input
                 type="number"
                 min={1}
                 max={10}

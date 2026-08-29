@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { Button } from "@lurexa/ui/button";
 
 type Goal = "daily_life" | "work" | "travel" | "study";
 type StartingPoint = "beginner" | "start_check";
@@ -139,7 +140,7 @@ export default function OnboardingPage() {
         <div className="mt-8 rounded-2xl bg-slate-950 p-6 text-white">
           <p className="font-bold">{startingPoint === "beginner" ? "Your first lesson: Introduce yourself" : "Your next lesson is based on your start check"}</p>
           <p className="mt-2 text-sm leading-6 text-slate-300">{startingPoint === "beginner" ? "You will greet someone, say your name, practise a clear spoken introduction, and create a real two-sentence message." : "Your answers create a provisional recommendation. Future speaking and listening evidence can refine your path."}</p>
-          <button type="button" onClick={startLearning} disabled={submitting || (startingPoint === "start_check" && placementAnswers.length !== startCheck.length)} className="mt-5 rounded-xl bg-teal-400 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-500">{submitting ? "Creating your path…" : startingPoint === "beginner" ? "Start my A1 lesson" : "Get my recommendation"}</button>
+          <Button type="button" onClick={startLearning} disabled={submitting || (startingPoint === "start_check" && placementAnswers.length !== startCheck.length)} className="mt-5 rounded-xl bg-teal-400 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-500">{submitting ? "Creating your path…" : startingPoint === "beginner" ? "Start my A1 lesson" : "Get my recommendation"}</Button>
         </div>
       </section>
     </main>

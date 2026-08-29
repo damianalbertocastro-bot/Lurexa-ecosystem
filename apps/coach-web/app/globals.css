@@ -5,11 +5,11 @@
 :root {
   --background: var(--lx-canvas);
   --foreground: var(--lx-ink);
-  --coach-navy: #071d67;
+  --coach-navy: var(--color-brand-navy);
   --coach-ink: var(--lx-ink);
   --coach-violet: #592bd6;
   --coach-cyan: #0ba5a8;
-  --coach-teal: #12cdd4;
+  --coach-teal: var(--lx-accent);
   --coach-canvas: var(--lx-canvas);
   --coach-surface: var(--lx-surface);
   --coach-border: var(--lx-border);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Button } from "@lurexa/ui/button";
 
 export default function LessonError({
   error,
@@ -20,7 +21,7 @@ export default function LessonError({
         <h1 className="mt-3 text-2xl font-bold text-slate-950">We couldn’t open this lesson.</h1>
         <p className="mt-3 text-slate-600">Try again. If the issue continues, return to your dashboard and reopen the lesson.</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={reset} className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white">Try again</button>
+          <Button type="button" onClick={reset} className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white">Try again</Button>
           <a href="/dashboard" className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-800">Back to dashboard</a>
         </div>
       </section>

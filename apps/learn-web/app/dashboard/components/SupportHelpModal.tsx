@@ -57,7 +57,7 @@ export const SupportHelpModal: React.FC = () => {
     <>
       {/* Floating Bottom-Right Support Button */}
       <aside className="fixed bottom-6 right-6 z-40" aria-label="Support and FAQs">
-        <button
+        <Button
           type="button"
           onClick={() => setIsOpen(true)}
           className="group flex h-13 w-13 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 hover:shadow-indigo-600/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 p-3.5"
@@ -66,7 +66,7 @@ export const SupportHelpModal: React.FC = () => {
         >
           <span className="text-xl leading-none">💬</span>
           <span className="sr-only">Support</span>
-        </button>
+        </Button>
       </aside>
 
       {/* Support & FAQ Dialog */}
@@ -82,7 +82,7 @@ export const SupportHelpModal: React.FC = () => {
                 key={index}
                 className="group p-3.5 text-xs transition-colors hover:bg-slate-50 first:rounded-t-2xl last:rounded-b-2xl"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between font-bold text-[#071d67] focus:outline-none">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-bold text-[var(--color-brand-navy)] focus:outline-none">
                   <span>{faq.question}</span>
                   <span className="ml-2 transition-transform group-open:rotate-180 text-slate-400">
                     ▼

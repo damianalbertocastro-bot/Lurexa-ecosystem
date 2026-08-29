@@ -6,6 +6,7 @@ import { Avatar } from "@lurexa/ui/Avatar";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { useConfetti } from "@lurexa/ui/useConfetti";
 import type { AuthenticatedUser } from "@lurexa/backend";
+import { Button } from "@lurexa/ui/button";
 
 interface DashboardGreetingHeaderProps {
   user: AuthenticatedUser | null;
@@ -77,14 +78,14 @@ export const DashboardGreetingHeader: React.FC<DashboardGreetingHeaderProps> = (
                 {greeting}
               </span>
               {onOpenTour && (
-                <button
+                <Button
                   type="button"
                   onClick={onOpenTour}
                   className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-[var(--lx-primary)] transition hover:bg-indigo-500/20 focus:outline-none"
                   aria-label="Open guided onboarding tour"
                 >
                   ✨ Tour
-                </button>
+                </Button>
               )}
             </div>
             <h1 className="mt-1 truncate text-2xl font-black tracking-tight text-[var(--lx-ink)] sm:text-3xl">
@@ -114,7 +115,7 @@ export const DashboardGreetingHeader: React.FC<DashboardGreetingHeaderProps> = (
 
         {/* Right: Quick Action Badges */}
         <div className="flex flex-wrap items-center gap-3 border-t border-[var(--lx-border)] pt-4 md:border-t-0 md:pt-0">
-          <button
+          <Button
             type="button"
             className="group flex items-center gap-2.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-left transition hover:border-amber-500/50 hover:bg-amber-500/15 focus:outline-none active:scale-95"
             onClick={() => {
@@ -129,9 +130,9 @@ export const DashboardGreetingHeader: React.FC<DashboardGreetingHeaderProps> = (
               <p className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">Streak</p>
               <p className="text-sm font-black text-amber-950 dark:text-amber-100">{streakDays} {streakDays === 1 ? "Day" : "Days"}</p>
             </div>
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             className="group flex items-center gap-2.5 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-left transition hover:border-indigo-500/50 hover:bg-indigo-500/15 focus:outline-none active:scale-95"
             onClick={() => {
@@ -145,7 +146,7 @@ export const DashboardGreetingHeader: React.FC<DashboardGreetingHeaderProps> = (
               <p className="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Points</p>
               <p className="text-sm font-black text-indigo-950 dark:text-indigo-100">{totalPoints} Pts</p>
             </div>
-          </button>
+          </Button>
         </div>
       </div>
     </header>

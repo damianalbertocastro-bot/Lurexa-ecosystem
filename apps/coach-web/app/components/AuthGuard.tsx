@@ -25,10 +25,10 @@ function Guard({ children }: { children: ReactNode }) {
     return () => { active = false; unsubscribe(); };
   }, [pathname, router, searchParams]);
 
-  if (!authorized) return <div className="min-h-screen bg-[#f5fbff] p-8 text-[#6074a5]">Checking your Lurexa identity…</div>;
+  if (!authorized) return <div className="min-h-screen bg-[#f5fbff] p-8 text-[var(--lx-muted)]">Checking your Lurexa identity…</div>;
   return <>{children}</>;
 }
 
 export function AuthGuard({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<div className="min-h-screen bg-[#f5fbff] p-8 text-[#6074a5]">Checking your Lurexa identity…</div>}><Guard>{children}</Guard></Suspense>;
+  return <Suspense fallback={<div className="min-h-screen bg-[#f5fbff] p-8 text-[var(--lx-muted)]">Checking your Lurexa identity…</div>}><Guard>{children}</Guard></Suspense>;
 }

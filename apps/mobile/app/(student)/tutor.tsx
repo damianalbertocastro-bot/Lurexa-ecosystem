@@ -21,7 +21,7 @@ export default function NativeAITutorScreen() {
     {
       id: "m1",
       role: "assistant",
-      content: "Hello! I am your Lurexa Mind AI Tutor. Ask me any English grammar, vocabulary, or Dominican L1 transfer question about your current lesson.",
+      content: "Hello! I am your Lurexa Learn AI Tutor. Ask me any English grammar, vocabulary, or Dominican L1 transfer question about your current lesson.",
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -69,7 +69,7 @@ export default function NativeAITutorScreen() {
         <View style={styles.productGlyph} />
         <View>
           <Text style={styles.productMaster}>Lurexa</Text>
-          <Text style={styles.productName}>Mind Tutor</Text>
+          <Text style={styles.productName}>Learn Tutor</Text>
         </View>
       </View>
 

@@ -27,8 +27,8 @@ export default function DeveloperAPIPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex items-center justify-between border-b border-[#dfe7fb] pb-6">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[#071d67]">Build on Lurexa.</h1>
-            <p className="mt-2 text-[#4d5e8c]">Use authorised contracts to connect your SIS or LMS responsibly.</p>
+            <h1 className="text-4xl font-extrabold tracking-[-.06em] text-[var(--color-brand-navy)]">Build on Lurexa.</h1>
+            <p className="mt-2 text-[var(--lx-muted)]">Use authorised contracts to connect your SIS or LMS responsibly.</p>
           </div>
           <Badge variant="success">v1.0 GraphQL / REST</Badge>
         </div>
@@ -42,7 +42,7 @@ export default function DeveloperAPIPage() {
             ) : (
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-500 uppercase">Your New API Token (Save immediately):</p>
-                <div className="rounded-xl bg-[#071d67] p-4 font-mono text-sm text-[#8ff2ed] overflow-x-auto">
+                <div className="rounded-xl bg-[var(--color-brand-navy)] p-4 font-mono text-sm text-[#8ff2ed] overflow-x-auto">
                   {issuedKey}
                 </div>
               </div>

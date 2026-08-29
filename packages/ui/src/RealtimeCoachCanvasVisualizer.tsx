@@ -58,7 +58,7 @@ export const RealtimeCoachCanvasVisualizer: React.FC<RealtimeCoachCanvasVisualiz
 
       const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
       if (isSpeaking) {
-        gradient.addColorStop(0, "#10b981"); // emerald
+        gradient.addColorStop(0, "var(--lx-success)"); // emerald
         gradient.addColorStop(0.5, "#38bdf8"); // sky
         gradient.addColorStop(1, "#6366f1"); // indigo
       } else {
@@ -81,7 +81,7 @@ export const RealtimeCoachCanvasVisualizer: React.FC<RealtimeCoachCanvasVisualiz
 
       ctx.beginPath();
       ctx.arc(width - 24, 24, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "#10b981";
+      ctx.fillStyle = "var(--lx-success)";
       ctx.fill();
     }
   }, [frequencies, volume, isSpeaking, isStreaming, width, height]);

@@ -7,26 +7,37 @@
   --color-border-default: rgba(12, 42, 108, 0.13);
   --color-border-focus: #592bd6;
 
-  --color-brand-navy: #071d67;
+  --color-brand-navy: var(--color-brand-navy);
   --color-brand-primary: #592bd6;
   --color-brand-secondary: #1d5add;
-  --color-brand-accent-cyan: #12cdd4;
-  --color-brand-accent-violet-deep: #6f28cd;
-  --color-brand-accent-blue-deep: #3853a4;
-  --color-brand-accent-violet-bright: #6734dd;
+  --color-brand-accent-cyan: var(--lx-accent);
+  --color-brand-accent-violet-deep: var(--color-brand-accent-violet-deep);
+  --color-brand-accent-blue-deep: var(--color-brand-accent-blue-deep);
+  --color-brand-accent-violet-bright: var(--color-brand-accent-violet-bright);
 
   /* Semantic UI Tokens */
-  --lx-ink: #071d67;
+  --lx-ink: var(--color-brand-navy);
   --lx-canvas: #f6f8ff;
   --lx-surface: #ffffff;
   --lx-primary: #592bd6;
   --lx-secondary: #1d5add;
-  --lx-accent: #12cdd4;
+  --lx-accent: var(--lx-accent);
   --lx-border: #dfe7fb;
   --lx-muted: #4d5e8c;
   --lx-card-shadow: 0 12px 30px rgba(32, 52, 128, 0.07);
   --lx-card-hover-shadow: 0 18px 38px rgba(32, 52, 128, 0.11);
   --lx-focus-ring: #1d5add;
+
+  /* Semantic Status Tokens (Light) */
+  --lx-success: var(--lx-success);
+  --lx-success-surface: rgba(16, 185, 129, 0.12);
+  --lx-warning: var(--lx-warning);
+  --lx-warning-surface: rgba(245, 158, 11, 0.12);
+  --lx-destructive: var(--lx-destructive);
+  --lx-destructive-hover: #dc2626;
+  --lx-destructive-surface: rgba(239, 68, 68, 0.12);
+  --lx-info: var(--lx-info);
+  --lx-info-surface: rgba(14, 165, 233, 0.12);
 
   --font-family-sans: var(--font-geist-sans, 'Inter', system-ui, -apple-system, sans-serif);
   --font-family-mono: monospace;
@@ -70,7 +81,8 @@
   --spacing-32: 8rem;
 }
 
-[data-theme="dark"] {
+[data-theme="dark"],
+.dark {
   --color-background-primary: #0a1128;
   --color-background-secondary: #0f1938;
   --color-text-primary: #f0f4ff;
@@ -90,6 +102,17 @@
   --lx-card-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
   --lx-card-hover-shadow: 0 20px 42px rgba(0, 0, 0, 0.55);
   --lx-focus-ring: #3b82f6;
+
+  /* Semantic Status Tokens (Dark) */
+  --lx-success: #34d399;
+  --lx-success-surface: rgba(52, 211, 153, 0.16);
+  --lx-warning: var(--lx-warning);
+  --lx-warning-surface: rgba(251, 191, 36, 0.16);
+  --lx-destructive: #f87171;
+  --lx-destructive-hover: var(--lx-destructive);
+  --lx-destructive-surface: rgba(248, 113, 113, 0.18);
+  --lx-info: #38bdf8;
+  --lx-info-surface: rgba(56, 189, 248, 0.16);
 }
 
 @theme inline {
@@ -107,6 +130,17 @@
   --color-lurexa-violet-deep: var(--color-brand-accent-violet-deep);
   --color-lurexa-blue-deep: var(--color-brand-accent-blue-deep);
   --color-lurexa-violet-bright: var(--color-brand-accent-violet-bright);
+
+  /* Semantic Status Mappings */
+  --color-lurexa-success: var(--lx-success);
+  --color-lurexa-success-surface: var(--lx-success-surface);
+  --color-lurexa-warning: var(--lx-warning);
+  --color-lurexa-warning-surface: var(--lx-warning-surface);
+  --color-lurexa-destructive: var(--lx-destructive);
+  --color-lurexa-destructive-hover: var(--lx-destructive-hover);
+  --color-lurexa-destructive-surface: var(--lx-destructive-surface);
+  --color-lurexa-info: var(--lx-info);
+  --color-lurexa-info-surface: var(--lx-info-surface);
 
   --font-lurexa-sans: var(--font-family-sans);
   --font-lurexa-mono: var(--font-family-mono);

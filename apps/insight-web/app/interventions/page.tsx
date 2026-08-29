@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Button } from "@lurexa/ui/button";
 
 interface Intervention {
   id: string;
@@ -91,12 +92,12 @@ export default function InterventionsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={dispatchAll}
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-indigo-500 transition"
           >
             Dispatch All Pending
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -138,12 +139,12 @@ export default function InterventionsPage() {
                     ✓ Dispatched
                   </span>
                 ) : (
-                  <button
+                  <Button
                     onClick={() => dispatchIntervention(item.id)}
                     className="rounded-lg bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 text-xs font-bold text-slate-100 transition"
                   >
                     Dispatch Action
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

@@ -86,7 +86,7 @@ export const StreamingVoiceStudio: React.FC<StreamingVoiceStudioProps> = ({
           <button
             type="button"
             onClick={() => void startStreaming()}
-            className="rounded-2xl bg-gradient-to-r from-[#12cdd4] to-[#0ba5a8] px-6 py-3 text-xs font-black uppercase tracking-wider text-[#071d67] shadow-sm hover:opacity-90 transition active:scale-95 flex items-center gap-2"
+            className="rounded-2xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-6 py-3 text-xs font-black uppercase tracking-wider text-[var(--color-brand-navy)] shadow-sm hover:opacity-90 transition active:scale-95 flex items-center gap-2"
           >
             <span>🎙️</span>
             <span>Start Live Streaming</span>

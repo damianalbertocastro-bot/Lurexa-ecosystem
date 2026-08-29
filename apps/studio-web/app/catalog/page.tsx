@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { StudioAuthoringService } from "@lurexa/backend";
 import type { CefrLevel, StudioKnowledgeObjectDraftV1 } from "@lurexa/types";
+import { Button } from "@lurexa/ui/button";
+import { Input } from "@lurexa/ui/Input";
 
 const CEFR_FILTER_OPTIONS: (CefrLevel | "ALL")[] = ["ALL", "PRE_A1", "A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -108,7 +110,7 @@ export default function StudioCatalogPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="space-y-1">
             <span className="block text-[10px] font-bold text-slate-500 uppercase">Search</span>
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -237,13 +239,13 @@ export default function StudioCatalogPage() {
 
               <div className="flex items-center gap-2 shrink-0">
                 {ko.status === "draft" && (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => void handlePublish(ko.id)}
                     className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 active:scale-95"
                   >
                     Approve &amp; Publish →
-                  </button>
+                  </Button>
                 )}
                 {ko.status === "published" && (
                   <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">

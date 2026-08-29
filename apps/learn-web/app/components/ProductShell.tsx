@@ -10,6 +10,7 @@ import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { useToast } from "@lurexa/ui/Toast";
+import { Button } from "@lurexa/ui/button";
 
 interface ProductShellProps { children: ReactNode; area: "Learner space" | "Educator space" | "Practice space" | "Creator space"; homeHref: string; product?: LurexaProduct; }
 
@@ -47,20 +48,20 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
       <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3"><Link href={homeHref} aria-label={`${product === "learn" ? "Lurexa Learn" : `Lurexa ${product[0].toUpperCase()}${product.slice(1)}`} home`} className="rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--lx-focus-ring)] focus:ring-offset-2"><ProductMark product={product}/></Link><span className="hidden h-6 w-px bg-[var(--lx-border)] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-muted)] sm:block">{area}</span></div>
         <nav aria-label="Account controls" className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={() => setCommandPaletteOpen(true)}
             aria-label="Open command search palette"
-            className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-sm transition hover:border-[#b6c8f4] hover:text-[var(--lx-ink)] sm:inline-flex"
+            className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-sm transition hover:border-[var(--lx-border)] hover:text-[var(--lx-ink)] sm:inline-flex"
           >
             <span>Search</span>
             <kbd className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 shadow-xs dark:bg-slate-800">
               ⌘K
             </kbd>
-          </button>
+          </Button>
           <ThemeToggle />
           <EcosystemDropdown currentApp="learn" />
-          <button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b6c8f4] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm">Sign out</button>
+          <Button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm">Sign out</Button>
         </nav>
       </div>
     </header>

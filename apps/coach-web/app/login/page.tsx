@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AuthService } from "@lurexa/backend";
+import { Button } from "@lurexa/ui/button";
+import { Input } from "@lurexa/ui/Input";
 
 function readSafeContinueTo(value: string | null): string | null {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
@@ -65,7 +67,7 @@ function CoachLoginForm() {
         <Link href="/" className="inline-block transition-transform hover:scale-105">
           <ProductMark product="coach" size="lg" />
         </Link>
-        <p className="mt-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#6b2bd9]">
+        <p className="mt-4 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--lx-primary)]">
           One Lurexa Identity
         </p>
         <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] text-slate-900">
@@ -95,14 +97,14 @@ function CoachLoginForm() {
               <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Email address
               </label>
-              <input
+              <Input
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#6b2bd9] focus:bg-white focus:ring-4 focus:ring-[#6b2bd9]/10"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[var(--lx-primary)] focus:bg-white focus:ring-4 focus:ring-[var(--lx-primary)]/10"
               />
             </div>
 
@@ -110,7 +112,7 @@ function CoachLoginForm() {
               <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 required
                 minLength={6}
@@ -118,52 +120,52 @@ function CoachLoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#6b2bd9] focus:bg-white focus:ring-4 focus:ring-[#6b2bd9]/10"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[var(--lx-primary)] focus:bg-white focus:ring-4 focus:ring-[var(--lx-primary)]/10"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-gradient-to-r from-[#6b2bd9] to-[#315fd7] py-3 text-xs font-extrabold uppercase tracking-wider text-white shadow-md shadow-purple-500/20 transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+              className="w-full rounded-xl bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)] py-3 text-xs font-extrabold uppercase tracking-wider text-white shadow-md shadow-purple-500/20 transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
             >
               {loading
                 ? "Working…"
                 : mode === "login"
                 ? "Sign In to Coach"
                 : "Create Lurexa Account"}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-4 text-center">
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setError(null);
                 setMode(mode === "login" ? "register" : "login");
               }}
-              className="text-xs font-bold text-[#315fd7] hover:underline"
+              className="text-xs font-bold text-[var(--lx-secondary)] hover:underline"
             >
               {mode === "login"
                 ? "New to Lurexa? Create an account"
                 : "Already have a Learn, Teach, or Coach account? Sign in"}
-            </button>
+            </Button>
           </div>
 
           <div className="mt-6 border-t border-slate-100 pt-6">
-            <button
+            <Button
               type="button"
               onClick={handleDemoAccess}
               disabled={loading}
               className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 active:scale-[0.98]"
             >
               🚀 Quick Demo Access (Guest Learner)
-            </button>
+            </Button>
           </div>
 
           <div className="mt-6 text-center text-xs text-slate-500">
             <span>Want to test your English speaking level first? </span>
-            <Link href="/placement" className="font-bold text-[#6b2bd9] hover:underline">
+            <Link href="/placement" className="font-bold text-[var(--lx-primary)] hover:underline">
               Take Free Speaking Placement
             </Link>
           </div>

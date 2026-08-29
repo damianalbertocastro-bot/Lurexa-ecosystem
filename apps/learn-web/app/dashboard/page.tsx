@@ -172,7 +172,7 @@ export default function StudentDashboardPage() {
               >
                 <div className="space-y-4 pt-2">
                   <div>
-                    <p className="text-base font-bold text-[#071d67]">
+                    <p className="text-base font-bold text-[var(--color-brand-navy)]">
                       {recommendation.label}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -210,7 +210,7 @@ export default function StudentDashboardPage() {
                 <div>
                   <h2
                     id="enrolled-courses-heading"
-                    className="text-xl font-black tracking-tight text-[#071d67]"
+                    className="text-xl font-black tracking-tight text-[var(--color-brand-navy)]"
                   >
                     Your Courses
                   </h2>

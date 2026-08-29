@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   sectionMargin: { marginBottom: 16 },
   evalBtn: { backgroundColor: "#6366f1", minHeight: 50, paddingVertical: 14, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   evalBtnText: { color: "#ffffff", fontSize: 15, fontWeight: "bold" },
-  feedbackCard: { backgroundColor: "#0f2338", borderRadius: 18, padding: 18, borderWidth: 1, borderColor: "#0ea5e9", marginTop: 12, marginBottom: 30 },
+  feedbackCard: { backgroundColor: "#0f2338", borderRadius: 18, padding: 18, borderWidth: 1, borderColor: "var(--lx-info)", marginTop: 12, marginBottom: 30 },
   feedbackHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   scoreText: { fontSize: 16, fontWeight: "900", color: "#38bdf8" },
   phonemeBadge: { fontSize: 11, fontWeight: "800", color: "#0284c7", backgroundColor: "#e0f2fe", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },

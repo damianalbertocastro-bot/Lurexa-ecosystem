@@ -42,10 +42,10 @@ const surfaces = [
 
 export default function CampusWorkspacePage() {
   return (
-    <main className="min-h-screen bg-[#f8faff] px-5 py-10 text-[#071d67] sm:px-10">
+    <main className="min-h-screen bg-[#f8faff] px-5 py-10 text-[var(--color-brand-navy)] sm:px-10">
       <section className="mx-auto max-w-6xl">
-        <div className="rounded-[34px] bg-gradient-to-br from-[#071d67] via-[#162f85] to-[#315fd7] p-8 text-white shadow-xl sm:p-12">
-          <span className="inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[.14em] text-[#8df4ef]">
+        <div className="rounded-[34px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[#162f85] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
+          <span className="inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[.14em] text-[var(--lx-accent)]">
             Representative institutional shell prototype
           </span>
           <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-.055em] sm:text-6xl">
@@ -64,20 +64,20 @@ export default function CampusWorkspacePage() {
         </div>
 
         <section className="mt-10">
-          <p className="text-xs font-black uppercase tracking-[.15em] text-[#6b2bd9]">Intended orchestration model</p>
+          <p className="text-xs font-black uppercase tracking-[.15em] text-[var(--lx-primary)]">Intended orchestration model</p>
           <h2 className="mt-2 text-3xl font-black tracking-[-.04em]">One institutional entry point, specialized product ownership.</h2>
           <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {surfaces.map((surface) => {
               const external = surface.href.startsWith("http");
-              const classes = "flex h-full flex-col rounded-3xl border border-[#dfe6f8] bg-white p-6 shadow-sm";
+              const classes = "flex h-full flex-col rounded-3xl border border-[var(--lx-surface)] bg-white p-6 shadow-sm";
               const body = (
                 <>
                   <span className="w-fit rounded-full bg-[#f2efff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[#6540bb]">
                     {surface.status}
                   </span>
                   <h3 className="mt-4 text-xl font-black">{surface.name}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-[#6074a5]">{surface.role}</p>
-                  <span className="mt-5 text-sm font-black text-[#315fd7]">View ecosystem status →</span>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-[var(--lx-muted)]">{surface.role}</p>
+                  <span className="mt-5 text-sm font-black text-[var(--lx-secondary)]">View ecosystem status →</span>
                 </>
               );
               return external ? (
