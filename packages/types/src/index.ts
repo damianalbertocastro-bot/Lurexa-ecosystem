@@ -22,4 +22,5 @@ export * from "./assignment";
 export * from "./studio";
 export * from "./subscription";
 export * from "./placement";
+export * from "./storage";
 

@@ -136,4 +136,59 @@ export class MindRecommendationService {
 
     return prescriptions;
   }
+
+  /**
+   * Synthesizes cross-product spaced retrieval review cards for Ultra tier subscribers.
+   * Transforms Coach spoken phonetic & grammatical observations into personalized Learn review cards.
+   */
+  public static generateCrossProductReviewCards(context: LearnerMindStateContext): {
+    cardId: string;
+    sourceProduct: "coach";
+    targetProduct: "learn";
+    prompt: string;
+    answer: string;
+    phoneticTarget?: string;
+    explanation: string;
+  }[] {
+    // Only available for Ultra & Enterprise subscribers with Universal Learner Model sync
+    if (context.activeTier !== "ULTRA" && context.activeTier !== "ENTERPRISE") {
+      return [];
+    }
+
+    const reviewCards: {
+      cardId: string;
+      sourceProduct: "coach";
+      targetProduct: "learn";
+      prompt: string;
+      answer: string;
+      phoneticTarget?: string;
+      explanation: string;
+    }[] = [];
+
+    if (context.identifiedDominicanTransfers.includes("s_cluster_epenthesis")) {
+      reviewCards.push({
+        cardId: `rc_coach_sync_${context.userId}_s_cluster`,
+        sourceProduct: "coach",
+        targetProduct: "learn",
+        prompt: "Say the word: 'student'",
+        answer: "student [ˈstjuːdnt]",
+        phoneticTarget: "Start directly with the sibilant /s/ without an introductory 'e' sound.",
+        explanation: "Synchronized from your recent Coach speaking session where initial /s/-cluster epenthesis was observed.",
+      });
+    }
+
+    if (context.identifiedDominicanTransfers.includes("coda_weakening")) {
+      reviewCards.push({
+        cardId: `rc_coach_sync_${context.userId}_coda_weakening`,
+        sourceProduct: "coach",
+        targetProduct: "learn",
+        prompt: "Say the sentence: 'These students speak English.'",
+        answer: "These students speak English. [ðiːz ˈstjuːdnts spiːk ˈɪŋɡlɪʃ]",
+        phoneticTarget: "Articulate the final /s/ in 'these' and 'students'.",
+        explanation: "Synchronized from your recent Coach speaking session where final consonant weakening was detected.",
+      });
+    }
+
+    return reviewCards;
+  }
 }
