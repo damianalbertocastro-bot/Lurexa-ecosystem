@@ -30,8 +30,7 @@ export class BatchProvisioningServerService {
    */
   public static async provisionInstitutionalRoster(
     organizationId: string,
-    rows: EnterpriseRosterRow[],
-    _tier: SubscriptionTier = "ENTERPRISE"
+    rows: EnterpriseRosterRow[]
   ): Promise<BatchProvisioningResult> {
     let successCount = 0;
     const errors: { row: number; email: string; message: string }[] = [];
