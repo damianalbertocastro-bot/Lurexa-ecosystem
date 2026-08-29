@@ -12,6 +12,32 @@ export interface PhonemeStruggleEntry {
   recommendedIntervention: string;
 }
 
+export interface CefrVelocityMetric {
+  fromLevel: CefrLevel;
+  toLevel: CefrLevel;
+  averageWeeksToComplete: number;
+  benchmarkWeeks: number;
+  completionRate: number; // 0 to 1
+  trend: "accelerating" | "stable" | "lagging";
+}
+
+export interface EarlyWarningLearnerRisk {
+  learnerId: string;
+  learnerName: string;
+  currentCefr: CefrLevel;
+  riskFactor: "dropout_inactivity" | "phonological_stagnation" | "assignment_overdue";
+  riskScore: number; // 0 to 100
+  daysInactive: number;
+  recommendedAction: string;
+}
+
+export interface AssignmentSlaMetric {
+  totalSubmitted: number;
+  gradedWithin24Hours: number;
+  averageGradingHours: number;
+  aiSuggestedGradesAcceptedPercent: number;
+}
+
 export interface InstitutionalCohortAnalytics {
   organizationId: string;
   organizationName: string;
@@ -20,18 +46,26 @@ export interface InstitutionalCohortAnalytics {
   l1ProfileDistribution: Record<string, number>;
   averageSpeakingMinutesPerLearner: number;
   phonemeStruggleMatrix: PhonemeStruggleEntry[];
+  cefrVelocity: CefrVelocityMetric[];
+  earlyWarningRisks: EarlyWarningLearnerRisk[];
+  assignmentSla: AssignmentSlaMetric;
   generatedAt: string;
 }
 
 export class InstitutionalAnalyticsService {
   /**
-   * Generates aggregated cohort speaking and phonological health analytics
-   * for an institution or school.
+   * Generates aggregated cohort speaking, CEFR velocity, and institutional early-warning analytics.
    */
   public static getCohortAnalytics(organizationId: string = "org-demo"): InstitutionalCohortAnalytics {
     return {
       organizationId,
-      organizationName: "Dominican Language Institute",
+      organizationName: organizationId.includes("uasd")
+        ? "Universidad Autónoma de Santo Domingo (UASD)"
+        : organizationId.includes("pucmm")
+        ? "Pontificia Universidad Católica Madre y Maestra (PUCMM)"
+        : organizationId.includes("intec")
+        ? "Instituto Tecnológico de Santo Domingo (INTEC)"
+        : "Dominican Language Institute",
       activeLearnersCount: 420,
       cefrDistribution: {
         PRE_A1: 20,
@@ -106,6 +140,58 @@ export class InstitutionalAnalyticsService {
           recommendedIntervention: "Low-front open vowel jaw drop drills (contrast with /e/).",
         },
       ],
+      cefrVelocity: [
+        {
+          fromLevel: "PRE_A1",
+          toLevel: "A1",
+          averageWeeksToComplete: 6.2,
+          benchmarkWeeks: 8.0,
+          completionRate: 0.94,
+          trend: "accelerating",
+        },
+        {
+          fromLevel: "A1",
+          toLevel: "A2",
+          averageWeeksToComplete: 11.4,
+          benchmarkWeeks: 12.0,
+          completionRate: 0.88,
+          trend: "accelerating",
+        },
+        {
+          fromLevel: "A2",
+          toLevel: "B1",
+          averageWeeksToComplete: 16.1,
+          benchmarkWeeks: 16.0,
+          completionRate: 0.82,
+          trend: "stable",
+        },
+      ],
+      earlyWarningRisks: [
+        {
+          learnerId: "std_401",
+          learnerName: "Carlos Santana",
+          currentCefr: "A1",
+          riskFactor: "phonological_stagnation",
+          riskScore: 78,
+          daysInactive: 2,
+          recommendedAction: "Schedule targeted 10-minute Coach session on coda consonants.",
+        },
+        {
+          learnerId: "std_402",
+          learnerName: "Rosaura Minaya",
+          currentCefr: "A2",
+          riskFactor: "dropout_inactivity",
+          riskScore: 85,
+          daysInactive: 9,
+          recommendedAction: "Send automated WhatsApp re-engagement nudge with next recommended lesson.",
+        },
+      ],
+      assignmentSla: {
+        totalSubmitted: 340,
+        gradedWithin24Hours: 312,
+        averageGradingHours: 8.4,
+        aiSuggestedGradesAcceptedPercent: 91.5,
+      },
       generatedAt: new Date().toISOString(),
     };
   }
