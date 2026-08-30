@@ -120,7 +120,7 @@ export default function OnboardingPage() {
 
         {/* Dialect Profile Selection */}
         <div className="mt-8 space-y-3">
-          <p className="text-sm font-bold text-[var(--learn-ink)]">1. What Spanish variety do you speak?</p>
+          <h2 className="text-sm font-bold text-[var(--learn-ink)]">1. What Spanish variety do you speak?</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {dialectOptions.map((opt) => (
               <label
@@ -152,7 +152,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="mt-8 space-y-3">
-          <p className="text-sm font-bold text-[var(--learn-ink)]">2. What do you want English to help you do?</p>
+          <h2 className="text-sm font-bold text-[var(--learn-ink)]">2. What do you want English to help you do?</h2>
           <div className="grid gap-3">
             {goalOptions.map((option) => (
               <label key={option.value} className={`cursor-pointer rounded-2xl border bg-white p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
