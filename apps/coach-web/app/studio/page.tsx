@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
-import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import type { CoachSession, CoachSessionStartResult } from "@lurexa/types";

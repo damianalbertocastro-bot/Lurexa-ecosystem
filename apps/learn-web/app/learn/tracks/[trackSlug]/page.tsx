@@ -162,7 +162,7 @@ export default function TrackDetailPage() {
                       {activeModule.grammarStructures.map((struct, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="text-[var(--lx-secondary)] font-bold">›</span>
-                          <span className="font-medium italic">"{struct}"</span>
+                          <span className="font-medium italic">&ldquo;{struct}&rdquo;</span>
                         </li>
                       ))}
                     </ul>

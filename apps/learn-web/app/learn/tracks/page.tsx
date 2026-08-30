@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { SPECIALIZED_INDUSTRY_TRACKS, type SpecializedIndustryTrack } from "@lurexa/backend";
+import { SPECIALIZED_INDUSTRY_TRACKS } from "@lurexa/backend";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/button";
