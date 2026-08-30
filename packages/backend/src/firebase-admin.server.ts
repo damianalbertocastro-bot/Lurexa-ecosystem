@@ -59,7 +59,9 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
 function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): string | undefined {
   return serviceAccount?.project_id
     ?? process.env.FIREBASE_PROJECT_ID
-    ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    ?? process.env.GCLOUD_PROJECT
+    ?? "lurexa-app";
 }
 
 /**

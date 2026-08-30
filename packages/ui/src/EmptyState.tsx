@@ -19,7 +19,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <div
       className={`flex flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--lx-border)] bg-[var(--lx-surface)] px-6 py-12 text-center ${className}`}
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef3ff] text-2xl shadow-sm">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] text-2xl shadow-sm">
         {icon}
       </div>
       <h3 className="text-lg font-bold text-[var(--lx-ink)]">{title}</h3>

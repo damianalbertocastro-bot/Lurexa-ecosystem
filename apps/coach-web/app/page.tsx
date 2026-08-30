@@ -6,6 +6,7 @@ import { CoachShell } from "./components/CoachShell";
 import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
+import { Button } from "@lurexa/ui/button";
 
 const corePillars = [
   {
@@ -202,7 +203,7 @@ export default function CoachHomePage() {
               {/* Level Filter Tabs */}
               <div className="flex flex-wrap gap-1.5 rounded-2xl bg-[var(--lx-canvas)] p-1.5 border border-[var(--lx-border)]">
                 {(["A1", "A2", "B1", "B2", "C1", "C2"] as const).map((lvl) => (
-                  <button
+                  <Button
                     key={lvl}
                     type="button"
                     onClick={() => setActiveTab(lvl)}
@@ -213,7 +214,7 @@ export default function CoachHomePage() {
                     }`}
                   >
                     {lvl}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -261,7 +262,7 @@ export default function CoachHomePage() {
 
         {/* Connected Ecosystem Banner */}
         <section className="mx-auto my-16 max-w-7xl px-5 sm:px-8">
-          <div className="rounded-[32px] bg-gradient-to-br from-[#071d67] via-[#1f1966] to-[#592bd6] p-8 text-white sm:p-12 shadow-2xl">
+          <div className="rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-8 text-white sm:p-12 shadow-2xl">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_auto] lg:items-center">
               <div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/20 border border-cyan-400/30 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-300">

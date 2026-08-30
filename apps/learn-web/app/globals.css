@@ -45,7 +45,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-::selection { background: #dcd4ff; color: #071d67; }
+::selection { background: #dcd4ff; color: var(--color-brand-navy); }
 
 /* ------------------------------------------------------------------ */
 /*  Keyframes                                                          */

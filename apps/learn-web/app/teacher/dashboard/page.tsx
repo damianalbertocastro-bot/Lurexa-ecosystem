@@ -148,22 +148,22 @@ export default function TeacherDashboard() {
         {/* Workspace navigation */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Active Students" subtitle="View roster and manage invitations">
-            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/students")}>
+            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/students")}>
               <span className="text-3xl font-bold text-indigo-600">{invitations.filter((invite) => getInvitationStatus(invite).label === "Active").length}</span>
               <span className="mt-2 block text-sm font-medium text-indigo-600">Manage students →</span>
-            </button>
+            </Button>
           </Card>
           <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Active Courses" subtitle="Create and manage courses and lessons">
-            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/courses")}>
+            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/courses")}>
               <span className="text-3xl font-bold text-emerald-600">{courses.filter(({ course }) => course.status === "published").length}</span>
               <span className="mt-2 block text-sm font-medium text-emerald-600">Manage courses →</span>
-            </button>
+            </Button>
           </Card>
           <Card className="border-0 bg-[var(--learn-mint)] shadow-lg shadow-emerald-950/5" title="Current Plan" subtitle="Organization tier and billing">
-            <button type="button" className="w-full text-left" onClick={() => router.push("/teacher/billing")}>
+            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/billing")}>
               <Badge variant="info">Free Tier</Badge>
               <span className="mt-2 block text-sm font-medium text-indigo-600">View plan →</span>
-            </button>
+            </Button>
           </Card>
         </div>
 

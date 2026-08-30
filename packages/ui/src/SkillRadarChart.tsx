@@ -65,7 +65,7 @@ export const SkillRadarChart: React.FC<SkillRadarChartProps> = ({
           <linearGradient id="radarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="var(--lx-primary, #592bd6)" stopOpacity="0.45" />
             <stop offset="50%" stopColor="var(--lx-secondary, #1d5add)" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="var(--lx-accent, #12cdd4)" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="var(--lx-accent, var(--lx-accent))" stopOpacity="0.25" />
           </linearGradient>
           <filter id="radarGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="3" result="blur" />
@@ -135,7 +135,7 @@ export const SkillRadarChart: React.FC<SkillRadarChartProps> = ({
               y={labelCoord.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              className="fill-[var(--lx-ink,#071d67)] text-[10px] font-black uppercase tracking-wider"
+              className="fill-[var(--lx-ink,var(--color-brand-navy))] text-[10px] font-black uppercase tracking-wider"
             >
               {item.skill}
             </text>

@@ -31,7 +31,7 @@ export const Tabs: React.FC<TabsProps> = ({
     <nav
       role="tablist"
       aria-label="Tabs"
-      className={`inline-flex flex-wrap items-center gap-1.5 rounded-2xl bg-[#edf1fb] p-1.5 ${className}`}
+      className={`inline-flex flex-wrap items-center gap-1.5 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1.5 ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
@@ -44,19 +44,19 @@ export const Tabs: React.FC<TabsProps> = ({
             aria-controls={`tabpanel-${tab.id}`}
             disabled={tab.disabled}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center gap-2 rounded-xl font-extrabold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none ${
+            className={`flex items-center gap-2 rounded-xl font-extrabold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none ${
               sizeClasses[size]
             } ${
               isActive
-                ? "bg-[var(--lx-ink)] text-white shadow-sm"
-                : "text-[var(--lx-muted)] hover:bg-[#dfe6f8] hover:text-[var(--lx-ink)]"
+                ? "bg-[var(--lx-primary)] text-white shadow-sm"
+                : "text-[var(--lx-muted)] hover:bg-[var(--lx-surface)] hover:text-[var(--lx-ink)]"
             }`}
           >
             <span>{tab.label}</span>
             {typeof tab.count === "number" && (
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                  isActive ? "bg-white/20 text-white" : "bg-white text-[var(--lx-ink)]"
+                  isActive ? "bg-white/20 text-white" : "bg-[var(--lx-surface)] text-[var(--lx-ink)] shadow-xs"
                 }`}
               >
                 {tab.count}

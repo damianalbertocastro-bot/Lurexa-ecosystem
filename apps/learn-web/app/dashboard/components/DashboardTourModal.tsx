@@ -136,14 +136,14 @@ export const DashboardTourModal: React.FC<DashboardTourModalProps> = ({
             </span>
           </div>
 
-          <button
+          <Button
             type="button"
             onClick={handleFinish}
             className="grid h-8 w-8 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Skip tour and close"
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Center Content */}
@@ -154,7 +154,7 @@ export const DashboardTourModal: React.FC<DashboardTourModalProps> = ({
 
           <h2
             id="tour-dialog-title"
-            className="mt-5 text-2xl font-black tracking-tight text-[#071d67]"
+            className="mt-5 text-2xl font-black tracking-tight text-[var(--color-brand-navy)]"
           >
             {step.title}
           </h2>
@@ -171,7 +171,7 @@ export const DashboardTourModal: React.FC<DashboardTourModalProps> = ({
         {/* Step Dots Indicator */}
         <div className="mt-6 flex justify-center gap-2" aria-hidden="true">
           {TOUR_STEPS.map((_, index) => (
-            <button
+            <Button
               key={index}
               type="button"
               onClick={() => setCurrentStep(index)}
@@ -187,13 +187,13 @@ export const DashboardTourModal: React.FC<DashboardTourModalProps> = ({
 
         {/* Bottom Actions */}
         <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
-          <button
+          <Button
             type="button"
             onClick={handleFinish}
             className="text-xs font-bold text-slate-400 transition hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 py-1"
           >
             Skip tour
-          </button>
+          </Button>
 
           <div className="flex items-center gap-2">
             {!isFirstStep && (

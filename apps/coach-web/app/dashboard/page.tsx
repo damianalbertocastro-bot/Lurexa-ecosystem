@@ -36,7 +36,7 @@ export default function CoachDashboardPage() {
     <CoachShell active="Dashboard">
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 space-y-8">
         {/* Top Greeting Header */}
-        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#071d67] via-[#1d1b64] to-[#592bd6] p-7 sm:p-10 text-white shadow-xl">
+        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
@@ -120,7 +120,7 @@ export default function CoachDashboardPage() {
                   <Button
                     variant="primary"
                     onClick={() => router.push("/practice")}
-                    className="bg-[var(--lx-primary)] hover:bg-[#4a22b8]"
+                    className="bg-[var(--lx-primary)] hover:bg-[var(--lx-primary)]"
                   >
                     Start Today&apos;s Speaking Session 🎙️
                   </Button>
@@ -138,7 +138,7 @@ export default function CoachDashboardPage() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-black tracking-tight text-[#071d67]">
+                  <h2 className="text-xl font-black tracking-tight text-[var(--color-brand-navy)]">
                     Speaking Practice Packs
                   </h2>
                   <p className="text-xs font-medium text-slate-500">
@@ -149,7 +149,7 @@ export default function CoachDashboardPage() {
                 {/* Level Filter Tabs */}
                 <div className="flex flex-wrap gap-1.5">
                   {(["ALL", "A1", "A2", "B1", "B2", "C1", "C2"] as const).map((lvl) => (
-                    <button
+                    <Button
                       key={lvl}
                       type="button"
                       onClick={() => setSelectedLevel(lvl)}
@@ -160,7 +160,7 @@ export default function CoachDashboardPage() {
                       }`}
                     >
                       {lvl}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -275,21 +275,21 @@ export default function CoachDashboardPage() {
                   href={urls.learn}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#071d67]">Open Learn ↗</p>
+                  <p className="text-xs font-black text-[var(--color-brand-navy)]">Open Learn ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Resume course lessons, curriculum pathways, and assignments.</p>
                 </a>
                 <a
                   href={urls.teach}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#6b2bd9]">Open Teach ↗</p>
+                  <p className="text-xs font-black text-[var(--lx-primary)]">Open Teach ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Educator training, CEFR proficiency growth, and credentials.</p>
                 </a>
                 <a
                   href={urls.ecosystem}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#0ba5a8]">All Lurexa products ↗</p>
+                  <p className="text-xs font-black text-[var(--lx-accent)]">All Lurexa products ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Explore platform tools, documentation, and campus services.</p>
                 </a>
               </div>

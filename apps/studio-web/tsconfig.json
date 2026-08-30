@@ -1,0 +1,78 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@lurexa/config": [
+        "../../packages/config/src/index.ts"
+      ],
+      "@lurexa/config/*": [
+        "../../packages/config/src/*"
+      ],
+      "@lurexa/tokens": [
+        "../../packages/tokens/src/index.ts"
+      ],
+      "@lurexa/tokens/*": [
+        "../../packages/tokens/src/*"
+      ],
+      "@lurexa/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@lurexa/backend": [
+        "../../packages/backend/src/index.ts"
+      ],
+      "@lurexa/ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@lurexa/ui/Button": [
+        "../../packages/ui/src/button.tsx"
+      ],
+      "@lurexa/ui/Card": [
+        "../../packages/ui/src/card.tsx"
+      ],
+      "@lurexa/ui/Code": [
+        "../../packages/ui/src/code.tsx"
+      ],
+      "@lurexa/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@lurexa/utils": [
+        "../../packages/utils/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

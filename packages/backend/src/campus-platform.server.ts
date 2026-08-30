@@ -79,7 +79,7 @@ export async function getInstitutionWorkspaceContext(
     organizationId: input.organizationId,
     displayName: (orgData.displayName as string | undefined) ?? (orgData.name as string) ?? "Lurexa Campus",
     logoUrl: (orgData.logoUrl as string | undefined) ?? null,
-    accentColor: (orgData.accentColor as string | undefined) ?? "#6b2bd9",
+    accentColor: (orgData.accentColor as string | undefined) ?? "var(--lx-primary)",
   };
 
   return {

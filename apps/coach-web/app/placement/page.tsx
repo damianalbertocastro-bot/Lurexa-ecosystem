@@ -7,6 +7,7 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import type { CefrLevel } from "@lurexa/types";
+import { Button } from "@lurexa/ui/button";
 
 const DIAGNOSTIC_PROMPTS = [
   {
@@ -129,7 +130,7 @@ export default function CoachPlacementPage() {
 
             <div className="h-2 w-full bg-[var(--lx-canvas)] rounded-full overflow-hidden mb-6">
               <div
-                className="h-full bg-gradient-to-r from-[#12cdd4] to-[#592bd6] transition-all duration-300"
+                className="h-full bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-primary)] transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / DIAGNOSTIC_PROMPTS.length) * 100}%` }}
               />
             </div>
@@ -168,34 +169,34 @@ export default function CoachPlacementPage() {
             {/* Actions */}
             <div className="flex items-center justify-between gap-4">
               {!isRecording ? (
-                <button
+                <Button
                   type="button"
                   onClick={startRecording}
-                  className="rounded-xl bg-[#592bd6] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#4a22b8] transition active:scale-95 flex items-center gap-2"
+                  className="rounded-xl bg-[var(--lx-primary)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--lx-primary)] transition active:scale-95 flex items-center gap-2"
                 >
                   <span>🎙️</span>
                   <span>{recordedBlobs[currentStep] ? "Record Again" : "Start Speaking"}</span>
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
                   type="button"
                   onClick={stopRecording}
                   className="rounded-xl bg-rose-600 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-rose-500 transition active:scale-95 flex items-center gap-2"
                 >
                   <span>⏹</span>
                   <span>Stop Recording</span>
-                </button>
+                </Button>
               )}
 
               {recordedBlobs[currentStep] && !isRecording && (
-                <button
+                <Button
                   type="button"
                   onClick={handleNextStep}
                   disabled={analyzing}
-                  className="rounded-xl bg-[#12cdd4] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[#071d67] shadow-sm hover:bg-[#28e1e8] transition active:scale-95"
+                  className="rounded-xl bg-[var(--lx-accent)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)] shadow-sm hover:bg-[var(--lx-accent)] transition active:scale-95"
                 >
                   {analyzing ? "Analyzing…" : currentStep < DIAGNOSTIC_PROMPTS.length - 1 ? "Next Task →" : "View Placement Results →"}
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -207,8 +208,8 @@ export default function CoachPlacementPage() {
               Your initial speaking profile has been calibrated into your Learner Model.
             </p>
 
-            <div className="my-6 inline-flex flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-[#071d67] to-[#43149c] p-6 text-white shadow-lg">
-              <span className="text-xs font-black uppercase tracking-widest text-[#12cdd4]">RECOMMENDED BENCHMARK</span>
+            <div className="my-6 inline-flex flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--color-brand-navy)] to-[var(--lx-primary)] p-6 text-white shadow-lg">
+              <span className="text-xs font-black uppercase tracking-widest text-[var(--lx-accent)]">RECOMMENDED BENCHMARK</span>
               <span className="mt-2 text-5xl font-black">{result.level}</span>
               <span className="mt-1 text-xs text-indigo-200">Intelligibility Score: {result.score}%</span>
             </div>
@@ -219,13 +220,13 @@ export default function CoachPlacementPage() {
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <button
+              <Button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="rounded-2xl bg-[#592bd6] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-[#4a22b8] active:scale-95"
+                className="rounded-2xl bg-[var(--lx-primary)] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-[var(--lx-primary)] active:scale-95"
               >
                 Go to Coach Dashboard →
-              </button>
+              </Button>
             </div>
           </div>
         )}

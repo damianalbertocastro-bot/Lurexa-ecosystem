@@ -4,6 +4,7 @@ import type {
   CoachSessionStartResult,
   LinguisticEvidencePayload,
   PhonemeEvaluation,
+  CascadedDialogueTurn,
 } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 import { getScopedLearnerContext } from "./learner-context.server";
@@ -12,6 +13,8 @@ import { CoachA1Service } from "./coach-a1.service";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { LinguisticIntelligenceService } from "./linguistic-intelligence.service";
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
+import { CoachCascadedRuntimeService } from "./coach-cascaded-runtime.service";
+import { QuotaEnforcementServerService } from "./core/quota-enforcement.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -132,6 +135,16 @@ export const CoachPlatformService = {
     const updatedSession: CoachSession = { ...session, transcript: updatedTranscript, updatedAt: now };
     await database.collection("coach-sessions").doc(session.id).set(updatedSession, { merge: true });
 
+    // Enforce AI turns quota
+    const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
+      actorId: actor.uid,
+      usageType: "ai_turns",
+      unitsToConsume: 1,
+    });
+    if (!quotaCheck.allowed) {
+      throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
+    }
+
     // Educator-professional Coach is intentionally excluded from the ordinary
     // learner evidence/intelligence pipeline. Live feedback still uses the
     // local linguistic decision above, but persistent evidence is minimized at
@@ -193,5 +206,80 @@ export const CoachPlatformService = {
     }
 
     return { session: updatedSession, coachingCue, intelligibilityScore };
+  },
+
+  async sendCascadedTurn(
+    actor: AuthenticatedActor,
+    input: {
+      sessionId: string;
+      message: string;
+      audioBase64?: string;
+      audioDurationMs?: number;
+    }
+  ): Promise<{ session: CoachSession; cascadedTurn: CascadedDialogueTurn }> {
+    const message = input.message.trim();
+    if (!message) throw new Error("A message is required to continue the Coach conversation.");
+
+    const database = getServerFirestore();
+    const sessionDoc = await database.collection("coach-sessions").doc(input.sessionId).get();
+    if (!sessionDoc.exists) throw new Error("Coach session not found.");
+    const session = sessionDoc.data() as CoachSession;
+    if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
+
+    // Enforce AI turns and voice minutes quota
+    const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
+      actorId: actor.uid,
+      usageType: "ai_turns",
+      unitsToConsume: 1,
+    });
+    if (!quotaCheck.allowed) {
+      throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
+    }
+
+    if (input.audioDurationMs && input.audioDurationMs > 0) {
+      const minutes = Math.ceil(input.audioDurationMs / 60000);
+      await QuotaEnforcementServerService.assertAndConsumeQuota({
+        actorId: actor.uid,
+        usageType: "voice_minutes",
+        unitsToConsume: minutes,
+      });
+    }
+
+    // 1. Stage 1: Fast Turn loop (<800ms)
+    const fastTurn = await CoachCascadedRuntimeService.executeFastTurn({
+      sessionId: session.id,
+      learnerId: actor.uid,
+      transcriptText: message,
+      activeScenarioPrompt: "A1 speaking practice",
+      turnIndex: session.transcript.length,
+    });
+
+    // 2. Stage 2: Deep Turn Acoustic & Phonemic Alignment
+    const deepDiagnostic = CoachCascadedRuntimeService.analyzeDeepTurnDiagnostics(
+      fastTurn.turnId,
+      message
+    );
+
+    const now = new Date().toISOString();
+    const cascadedTurn = CoachCascadedRuntimeService.createTurnRecord(
+      fastTurn.turnId,
+      session.id,
+      message,
+      fastTurn.replyText,
+      fastTurn.latencyMs,
+      "en-US-Neural2-F",
+      deepDiagnostic,
+      fastTurn.audioUrl
+    );
+
+    const updatedTranscript = [
+      ...session.transcript,
+      { sender: "learner" as const, text: message, timestamp: now },
+      { sender: "coach" as const, text: fastTurn.replyText, timestamp: new Date(Date.now() + 200).toISOString() },
+    ];
+    const updatedSession: CoachSession = { ...session, transcript: updatedTranscript, updatedAt: now };
+    await database.collection("coach-sessions").doc(session.id).set(updatedSession, { merge: true });
+
+    return { session: updatedSession, cascadedTurn };
   },
 };

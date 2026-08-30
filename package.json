@@ -3,7 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "packageManager": "pnpm@10.3.0",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "build": "pnpm -r --if-present build",
     "dev": "pnpm --filter learn-web dev",
@@ -12,7 +14,7 @@
     "check-types": "pnpm -r --if-present check-types",
     "test": "pnpm test:security && pnpm test:integration && pnpm test:e2e",
     "test:security": "pnpm test:learn-rules",
-    "test:integration": "pnpm test:learn-mvp-journey && FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:signature-delegation\" && FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:educator-growth-integration\"",
+    "test:integration": "pnpm test:learn-mvp-journey && firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:signature-delegation\" && firebase emulators:exec --only firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:educator-growth-integration\"",
     "test:e2e": "pnpm --filter learn-web test:e2e",
     "test:learn-rules": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-rules\"",
     "test:learn-mvp-journey": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-mvp-journey\"",
@@ -35,10 +37,24 @@
     "verify:signature-contracts": "node scripts/verify-signature-contracts-and-governance.mjs",
     "verify:curriculum-runner": "node scripts/verify-full-curriculum-runner.mjs",
     "verify:coach": "node scripts/verify-coach-product.mjs",
+    "verify:assignments": "node scripts/verify-assignment-engine.mjs",
+    "verify:studio": "node scripts/verify-studio-authoring.mjs",
+    "verify:insight": "node scripts/verify-insight-analytics.mjs",
+    "verify:field-pilot": "node scripts/verify-field-pilot-pwa.mjs",
+    "verify:specialized-tracks": "node scripts/verify-specialized-tracks.mjs",
+    "verify:multi-l1-profiles": "node scripts/verify-multi-l1-profiles.mjs",
+    "verify:r2-storage": "node scripts/verify-r2-firestore-storage.mjs",
+    "verify:optimizations": "node scripts/verify-optimization-improvements.mjs",
+    "verify:tier1-design": "node scripts/verify-tier1-design-tokens.mjs",
+    "verify:tier2-migration": "node scripts/verify-tier2-migration.mjs",
+    "verify:tier3-ux": "node scripts/verify-tier3-ux.mjs",
+    "verify:specialized-tracks-integration": "node scripts/verify-specialized-tracks-integration.mjs",
+    "verify:a11y-wcag": "node scripts/verify-a11y-wcag.mjs",
+    "verify:ui-ux-design": "node scripts/verify-tier1-design-tokens.mjs && node scripts/verify-tier2-migration.mjs && node scripts/verify-tier3-ux.mjs && node scripts/verify-specialized-tracks-integration.mjs && node scripts/verify-a11y-wcag.mjs",
     "verify:governance": "node scripts/verify-governance-and-quality.mjs",
     "simulate:lifecycle": "node scripts/simulate-complete-learner-lifecycle.mjs",
     "simulate:a1-pilot": "node scripts/simulate-a1-pilot-cohort.mjs",
-    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:observability && pnpm verify:speech-runtime && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:coach && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "verify:local": "pnpm verify:repository-hygiene && pnpm verify:brand-system && pnpm verify:product-registry && pnpm verify:prototype-containment && pnpm verify:documentation-truth && pnpm verify:platform-package-boundaries && pnpm verify:environment-contracts && pnpm verify:observability && pnpm verify:speech-runtime && pnpm verify:curriculum-portfolio && pnpm verify:curriculum-runner && pnpm verify:coach && pnpm verify:assignments && pnpm verify:studio && pnpm verify:insight && pnpm verify:field-pilot && pnpm verify:specialized-tracks && pnpm verify:multi-l1-profiles && pnpm verify:specialized-tracks-integration && pnpm verify:r2-storage && pnpm verify:optimizations && pnpm verify:tier1-design && pnpm verify:tier2-migration && pnpm verify:tier3-ux && pnpm verify:a11y-wcag && pnpm verify:governance && pnpm simulate:lifecycle && pnpm simulate:a1-pilot && pnpm verify:tokens && pnpm verify:core-mind-boundary && pnpm verify:mind-contract && pnpm verify:core-analytics && pnpm verify:superadmin-bootstrap && pnpm verify:vercel-release && pnpm verify:signature-experience && pnpm verify:signature-contracts && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "phase0:lint": "pnpm --filter learn-web... lint",
     "phase0:check-types": "pnpm --filter learn-web... check-types",
     "phase0:build": "pnpm --filter learn-web... build",
@@ -55,11 +71,21 @@
     "env:learn:preview": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target preview",
     "env:learn:production": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target production"
   },
-  "pnpm": { "onlyBuiltDependencies": ["esbuild", "protobufjs", "sharp", "unrs-resolver"] },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "protobufjs",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
   "devDependencies": {
     "firebase-tools": "^15.27.0",
+    "globby": "^16.2.4",
     "tsx": "4.23.11",
     "typescript": "^5.9.2"
   },
-  "dependencies": { "firebase": "^10.12.0" }
+  "dependencies": {
+    "firebase": "^10.12.0"
+  }
 }

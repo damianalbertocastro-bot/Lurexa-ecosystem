@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CoachActionBody = {
-  action?: "sendTurn" | "endSession" | "resumeSession" | "startSession";
+  action?: "sendTurn" | "sendCascadedTurn" | "endSession" | "resumeSession" | "startSession";
   mode?: "learner" | "educator_professional";
   sessionId?: string;
   message?: string;
@@ -53,6 +53,24 @@ export async function POST(request: Request): Promise<Response> {
         throw new Error("sessionId and message are required for sending a Coach turn.");
       }
       const result = await CoachPlatformService.sendTurn(actor, {
+        sessionId: body.sessionId,
+        message: body.message,
+        ...(body.audioDurationMs !== undefined ? { audioDurationMs: body.audioDurationMs } : {}),
+      });
+      operation.complete(telemetryContext);
+      return Response.json(result, {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0",
+          "X-Request-Id": operation.requestId,
+        },
+      });
+    }
+
+    if (body.action === "sendCascadedTurn") {
+      if (!body.sessionId || !body.message) {
+        throw new Error("sessionId and message are required for sending a cascaded Coach turn.");
+      }
+      const result = await CoachPlatformService.sendCascadedTurn(actor, {
         sessionId: body.sessionId,
         message: body.message,
         ...(body.audioDurationMs !== undefined ? { audioDurationMs: body.audioDurationMs } : {}),

@@ -7,12 +7,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 export const Button: React.FC<ButtonProps> = ({ children, variant = "primary", size = "md", isLoading = false, disabled, className = "", ...props }) => {
-  const baseStyles = "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl font-bold tracking-[-.01em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none";
+  const baseStyles = "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl font-bold tracking-[-.01em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none";
   const variants = {
-    primary: "bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white shadow-[0_12px_24px_rgba(50,63,184,.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(50,63,184,.3)] active:translate-y-0",
-    secondary: "border border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] shadow-sm hover:-translate-y-0.5 hover:border-[#9fb1ef] hover:shadow-md active:translate-y-0",
-    ghost: "bg-transparent text-[var(--lx-secondary)] hover:bg-[var(--lx-canvas)] active:bg-[#e2eaff]",
-    destructive: "bg-[#c62d48] text-white shadow-[0_10px_22px_rgba(198,45,72,.2)] hover:-translate-y-0.5 hover:bg-[#a91f39] active:translate-y-0",
+    primary: "bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white shadow-[0_12px_24px_rgba(50,63,184,.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(50,63,184,.3)] active:translate-y-0 active:scale-[0.98]",
+    secondary: "border border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] shadow-sm hover:-translate-y-0.5 hover:border-[var(--lx-secondary)]/50 hover:shadow-md active:translate-y-0 active:scale-[0.98]",
+    ghost: "bg-transparent text-[var(--lx-secondary)] hover:bg-[var(--lx-canvas)] active:bg-[var(--lx-canvas)]/80 active:scale-[0.98]",
+    destructive: "bg-[var(--lx-destructive)] text-white shadow-sm hover:-translate-y-0.5 hover:bg-[var(--lx-destructive-hover)] hover:shadow-md active:translate-y-0 active:scale-[0.98]",
   };
   const sizes = { sm: "px-3.5 py-2 text-sm", md: "px-4.5 py-2.5 text-sm", lg: "px-6 py-3.5 text-base" };
 

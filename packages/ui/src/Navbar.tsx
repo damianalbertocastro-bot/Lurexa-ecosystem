@@ -38,8 +38,8 @@ export function Navbar({
   const resolvedBrandHref = brandHref ?? (currentApp && currentApp !== "root" ? "/" : rootUrl);
 
   const containerClasses = inverse
-    ? "border-white/10 bg-[#071d67]/90 text-white"
-    : "border-[#dfe6f8]/90 bg-white/90 text-[#071d67]";
+    ? "border-white/10 bg-[var(--color-brand-navy)]/90 text-white"
+    : "border-[var(--lx-surface)]/90 bg-white/90 text-[var(--color-brand-navy)]";
 
   return (
     <header className={`sticky top-0 z-40 border-b backdrop-blur-xl ${containerClasses} ${className}`}>
@@ -47,7 +47,7 @@ export function Navbar({
         <div className="flex items-center gap-4">
           <a
             href={resolvedBrandHref}
-            className="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315fd7] focus-visible:ring-offset-2"
+            className="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)] focus-visible:ring-offset-2"
             aria-label={`${brandTitle} home`}
           >
             {brandMark ?? <MasterMark compact size="md" inverse={inverse} />}
@@ -73,10 +73,10 @@ export function Navbar({
                   link.active
                     ? inverse
                       ? "bg-white/20 text-white"
-                      : "bg-[#eef2ff] text-[#315fd7]"
+                      : "bg-[#eef2ff] text-[var(--lx-secondary)]"
                     : inverse
                     ? "text-indigo-100 hover:bg-white/10 hover:text-white"
-                    : "text-[#5d6f9d] hover:bg-[#f3f6ff] hover:text-[#071d67]"
+                    : "text-[#5d6f9d] hover:bg-[#f3f6ff] hover:text-[var(--color-brand-navy)]"
                 }`}
               >
                 {link.label}

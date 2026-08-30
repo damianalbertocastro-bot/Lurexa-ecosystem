@@ -1,0 +1,21 @@
+{
+  "name": "Lurexa Coach - English Speaking & Pronunciation",
+  "short_name": "Lurexa Coach",
+  "description": "AI-powered English speaking and pronunciation studio for Dominican and multi-L1 learners",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#071d67",
+  "theme_color": "#071d67",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

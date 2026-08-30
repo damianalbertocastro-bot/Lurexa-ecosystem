@@ -17,9 +17,9 @@ interface Particle {
 const COLORS = [
   "#592bd6", // Lurexa primary
   "#1d5add", // Lurexa secondary
-  "#12cdd4", // Lurexa cyan
-  "#f59e0b", // Amber gold
-  "#10b981", // Emerald
+  "var(--lx-accent)", // Lurexa cyan
+  "var(--lx-warning)", // Amber gold
+  "var(--lx-success)", // Emerald
   "#ec4899", // Pink
 ];
 

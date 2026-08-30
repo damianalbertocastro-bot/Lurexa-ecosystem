@@ -25,14 +25,7 @@ const proof = [
 
 export default function HomePage() {
   return (
-    <>
-      <a
-        href="#main-content"
-        className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-white px-4 py-2 text-sm font-bold text-slate-950 shadow-lg transition-transform focus:translate-y-0"
-      >
-        Skip to main content
-      </a>
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-slate-950 text-white">
           {/* Multi-layered ambient lighting */}
@@ -188,6 +181,5 @@ export default function HomePage() {
           </div>
         </footer>
       </main>
-    </>
   );
 }

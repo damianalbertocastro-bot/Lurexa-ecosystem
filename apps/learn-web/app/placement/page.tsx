@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthService } from "@lurexa/backend";
+import { AuthService, MindRecommendationService } from "@lurexa/backend";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import type { CefrLevel } from "@lurexa/types";
+import type { CefrLevel, PlanRecommendation } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
+import { Button } from "@lurexa/ui/button";
 
 type PlacementSkill = "listening" | "grammar" | "vocabulary" | "reading" | "phonetics";
 
@@ -216,7 +217,7 @@ export default function PlacementPage() {
                   { id: "travel", label: "Travel & Culture", icon: "✈️" },
                   { id: "study", label: "Academic / Exam", icon: "🎓" },
                 ].map((item) => (
-                  <button
+                  <Button
                     key={item.id}
                     type="button"
                     onClick={() => setGoal(item.id)}
@@ -228,7 +229,7 @@ export default function PlacementPage() {
                   >
                     <span className="text-2xl mb-1">{item.icon}</span>
                     <span className="text-xs font-bold">{item.label}</span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -259,14 +260,14 @@ export default function PlacementPage() {
             ) : null}
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button
+              <Button
                 type="button"
                 disabled={loading}
                 onClick={() => void startPlacement()}
                 className="rounded-2xl bg-indigo-600 px-8 py-4 text-base font-bold text-white shadow-md hover:bg-indigo-500 disabled:opacity-50 transition"
               >
                 {loading ? "Starting Assessment…" : "Begin Diagnostic Test →"}
-              </button>
+              </Button>
               <span className="text-xs text-slate-500">Takes ~4–6 minutes • No penalty for errors</span>
             </div>
           </section>
@@ -324,7 +325,7 @@ export default function PlacementPage() {
                       <p className="text-xs font-bold text-sky-900">Audio Comprehension Sample</p>
                       <p className="text-xs text-sky-700">Listen carefully to the spoken excerpt:</p>
                     </div>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => {
                         playClick();
@@ -333,7 +334,7 @@ export default function PlacementPage() {
                       className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1.5"
                     >
                       <span>{audioPlaying ? "🔊 Playing…" : "▶ Play Audio"}</span>
-                    </button>
+                    </Button>
                   </div>
                   {audioPlaying && (
                     <div className="rounded-xl bg-white/70 p-2">
@@ -353,7 +354,7 @@ export default function PlacementPage() {
                 {currentItem.options.map((option) => {
                   const isSelected = selectedOption === option;
                   return (
-                    <button
+                    <Button
                       key={option}
                       type="button"
                       role="radio"
@@ -367,7 +368,7 @@ export default function PlacementPage() {
                     >
                       <span>{option}</span>
                       {isSelected ? <span className="text-xs font-bold text-indigo-600">✓ Selected</span> : null}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -375,7 +376,7 @@ export default function PlacementPage() {
               {/* Next Action */}
               <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-100 pt-6">
                 <span className="text-xs text-slate-400">Select an answer to proceed.</span>
-                <button
+                <Button
                   type="button"
                   disabled={!selectedOption || loading}
                   onClick={() => void handleNextQuestion()}
@@ -386,7 +387,7 @@ export default function PlacementPage() {
                     : currentIndex + 1 < items.length
                     ? "Next Question →"
                     : "Finish & Evaluate →"}
-                </button>
+                </Button>
               </div>
             </section>
           </div>
@@ -441,7 +442,7 @@ export default function PlacementPage() {
               </h3>
               <div className="grid gap-8 lg:grid-cols-[1.1fr_1.3fr] lg:items-center">
                 {/* Radar Chart Visualizer */}
-                <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-100 bg-[#f8faff] p-6 shadow-inner">
+                <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-100 bg-[var(--lx-canvas)] p-6 shadow-inner">
                   <SkillRadarChart
                     skills={[
                       { skill: "Listening", score: result.skillBreakdown.listening ? Math.round((result.skillBreakdown.listening.score / result.skillBreakdown.listening.maxScore) * 100) : 60 },
@@ -511,28 +512,66 @@ export default function PlacementPage() {
               </div>
             ) : null}
 
+            {/* Mind Recommended Ecosystem Plan */}
+            {(() => {
+              const recommendation: PlanRecommendation | null = MindRecommendationService.evaluatePlanSynergy({
+                userId: "learner_self",
+                cefrLevel: result.estimatedLevel,
+                activeTier: "BASIC",
+                completedLessonCount: 0,
+                coachMinutesUsedThisMonth: 12,
+                identifiedDominicanTransfers: ["coda_weakening", "s_cluster_epenthesis"],
+                enrolledProductCount: 2,
+              });
+
+              if (!recommendation) return null;
+
+              return (
+                <div className="mt-8 rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 p-6 text-white border border-indigo-500/30 shadow-lg">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="rounded-full bg-cyan-400/20 border border-cyan-400/50 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                      Recommended Plan: {recommendation.recommendedTier}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">Current Tier: BASIC</span>
+                  </div>
+
+                  <h4 className="mt-3 text-lg font-black text-white">Universal Learner Model Synergy</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">{recommendation.reason}</p>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {recommendation.synergyBenefits.map((benefit, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-cyan-200">
+                        <span>✓</span>
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Action CTAs */}
             <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6">
-              <button
+              <Button
                 type="button"
                 onClick={() => router.push(`/learn/${result.recommendedCourseId}/${result.recommendedLessonId}`)}
                 className="rounded-2xl bg-emerald-500 px-8 py-4 text-base font-bold text-slate-950 shadow-md hover:bg-emerald-400 transition"
               >
                 Start Your Recommended Path →
-              </button>
+              </Button>
               <Link
                 href="/coach"
                 className="rounded-2xl border border-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
               >
                 Practice Spoken English in Coach 🗣️
               </Link>
-              <button
+              <Button
                 type="button"
                 onClick={() => router.push("/dashboard")}
                 className="rounded-2xl px-5 py-4 text-xs font-bold text-slate-500 hover:text-slate-900 transition"
               >
                 Go to Dashboard
-              </button>
+              </Button>
             </div>
           </section>
         ) : null}

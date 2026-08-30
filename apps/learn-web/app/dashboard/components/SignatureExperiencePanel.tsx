@@ -13,6 +13,7 @@ import type {
   SignatureProjectionKind,
 } from "@lurexa/types";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { Button } from "@lurexa/ui/button";
 
 export interface SignatureExperiencePanelProps {
   enabled: boolean;
@@ -108,7 +109,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
       <section role="status" aria-live="polite" className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
         <p className="font-bold text-slate-900">Your evolving learning view is temporarily unavailable.</p>
         <p className="mt-1">{error}</p>
-        <button type="button" onClick={retry} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</button>
+        <Button type="button" onClick={retry} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</Button>
       </section>
     );
   }
@@ -118,7 +119,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Your Lurexa learning model</p>
-          <h2 id="signature-learning-heading" className="mt-1 text-2xl font-black tracking-[-.04em] text-[#071d67]">One learning history, adapting with you</h2>
+          <h2 id="signature-learning-heading" className="mt-1 text-2xl font-black tracking-[-.04em] text-[var(--color-brand-navy)]">One learning history, adapting with you</h2>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">See what Lurexa currently understands, what it recommends next, and the evidence-aware story behind that guidance.</p>
         </div>
         <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">Signature experience · v1</span>

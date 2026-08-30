@@ -128,7 +128,7 @@ export default function SignatureExperiencePrototypePage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <header className="max-w-3xl">
           <p className="text-xs font-black uppercase tracking-[.18em] text-indigo-600">Developer prototype · S2</p>
-          <h1 className="mt-2 text-4xl font-black tracking-[-.05em] text-[#071d67]">Lurexa Signature Experience System</h1>
+          <h1 className="mt-2 text-4xl font-black tracking-[-.05em] text-[var(--color-brand-navy)]">Lurexa Signature Experience System</h1>
           <p className="mt-3 text-base leading-7 text-slate-600">Deterministic fixture gallery for reviewing all six signature patterns together. This route contains no production learner data and is not a source of learner truth.</p>
         </header>
 

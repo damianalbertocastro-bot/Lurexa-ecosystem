@@ -14,6 +14,8 @@ import type {
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
+import { Button } from "@lurexa/ui/button";
+import { Input } from "@lurexa/ui/Input";
 
 type CapabilityContext = {
   courseId: string;
@@ -155,7 +157,7 @@ export function ModelListeningActivity({
           </audio>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
           onClick={() => void generateModelAudio()}
           disabled={loading}
@@ -163,32 +165,32 @@ export function ModelListeningActivity({
         >
           <span>▶</span>
           <span>{loading ? "Generating Model Audio…" : "Generate & play model audio"}</span>
-        </button>
+        </Button>
       )}
 
       {error ? (
         <div className="mt-4 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-sm text-rose-900" role="alert">
           <p className="font-semibold">Listening evidence could not be recorded.</p>
           <p className="mt-1">{error}</p>
-          <button
+          <Button
             type="button"
             className="mt-3 rounded-xl border border-rose-300 bg-white px-4 py-2 text-xs font-bold text-rose-900 shadow-sm"
             onClick={() => (audioSource ? void completeListening() : void generateModelAudio())}
           >
             {audioSource ? "Retry Recording Listening Completion" : "Retry Generating Audio"}
-          </button>
+          </Button>
         </div>
       ) : null}
 
       {/* Transcript Collapsible */}
       <div className="mt-5">
-        <button
+        <Button
           type="button"
           onClick={() => setShowTranscript((current) => !current)}
           className="text-xs font-bold text-indigo-700 hover:text-indigo-900 underline flex items-center gap-1"
         >
           <span>{showTranscript ? "Hide Transcript" : "Show Audio Script (Optional)"}</span>
-        </button>
+        </Button>
         {showTranscript ? (
           <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-100 p-4 animate-in fade-in duration-200">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Audio Script:</p>
@@ -398,7 +400,7 @@ export function RecordedSpeakingActivity({
       {capability.targetText ? (
         <div className="mt-4">
           {!modelAudioSource ? (
-            <button
+            <Button
               type="button"
               disabled={modelAudioLoading}
               onClick={() => void loadSpeakingModelAudio()}
@@ -406,7 +408,7 @@ export function RecordedSpeakingActivity({
             >
               <span>🔊</span>
               <span>{modelAudioLoading ? "Loading model audio…" : "Hear model pronunciation"}</span>
-            </button>
+            </Button>
           ) : (
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4">
               <p className="text-xs font-bold text-indigo-950 mb-2">Native Model Audio:</p>
@@ -436,7 +438,7 @@ export function RecordedSpeakingActivity({
       {/* Recording Actions */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!recording ? (
-          <button
+          <Button
             type="button"
             onClick={() => {
               playClick();
@@ -446,9 +448,9 @@ export function RecordedSpeakingActivity({
           >
             <span className="h-3 w-3 rounded-full bg-rose-400 animate-pulse" />
             <span>Start Recording</span>
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
             onClick={() => {
               playClick();
@@ -458,11 +460,11 @@ export function RecordedSpeakingActivity({
           >
             <span className="h-3 w-3 rounded-sm bg-white" />
             <span>Stop Recording ({elapsedSeconds}s)</span>
-          </button>
+          </Button>
         )}
 
         {previewUrl ? (
-          <button
+          <Button
             type="button"
             disabled={!meetsDuration || status === "uploading" || status === "saved"}
             onClick={() => {
@@ -472,7 +474,7 @@ export function RecordedSpeakingActivity({
             className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40 transition active:scale-95"
           >
             {status === "uploading" ? "Saving Evidence…" : status === "saved" ? "Saved ✓" : "Save Spoken Evidence"}
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -721,7 +723,7 @@ export function AIRoleplayActivity({
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Useful A1 Phrases:</p>
         <div className="flex flex-wrap gap-2">
           {quickScaffoldingChips.map((phrase) => (
-            <button
+            <Button
               key={phrase}
               type="button"
               onClick={() => void sendTurn(phrase)}
@@ -729,14 +731,14 @@ export function AIRoleplayActivity({
               className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15 transition disabled:opacity-40"
             >
               + {phrase}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       {/* Chat Input Bar */}
       <div className="mt-4 flex gap-2">
-        <input
+        <Input
           value={learnerMessage}
           onChange={(event) => setLearnerMessage(event.target.value)}
           onKeyDown={(event) => {
@@ -746,14 +748,14 @@ export function AIRoleplayActivity({
           placeholder="Type your response in English…"
           className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400 disabled:opacity-50"
         />
-        <button
+        <Button
           type="button"
           disabled={!learnerMessage.trim() || sending || initialLoading || learnerTurns >= capability.scenario.maximumTurns}
           onClick={() => void sendTurn()}
           className="rounded-2xl bg-teal-400 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-teal-300 disabled:opacity-40 transition"
         >
           {sending ? "…" : "Send"}
-        </button>
+        </Button>
       </div>
 
       {/* Turn Progress & Guidance */}

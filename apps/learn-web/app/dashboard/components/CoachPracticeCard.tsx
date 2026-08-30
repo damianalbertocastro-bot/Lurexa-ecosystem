@@ -41,7 +41,7 @@ export const CoachPracticeCard: React.FC = () => {
   };
 
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-violet-200/70 bg-gradient-to-br from-[#180e3d] via-[#24175b] to-[#122868] p-6 text-white shadow-xl shadow-indigo-950/15 sm:p-8">
+    <article className="relative overflow-hidden rounded-3xl border border-violet-200/70 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--color-brand-navy)] p-6 text-white shadow-xl shadow-indigo-950/15 sm:p-8">
       <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" aria-hidden="true" />
       <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl" aria-hidden="true" />
 

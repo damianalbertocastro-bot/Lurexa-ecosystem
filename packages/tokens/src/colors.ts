@@ -22,4 +22,15 @@ export const colors = {
       violetBright: "var(--color-brand-accent-violet-bright)",
     },
   },
+  status: {
+    success: "var(--lx-success)",
+    successSurface: "var(--lx-success-surface)",
+    warning: "var(--lx-warning)",
+    warningSurface: "var(--lx-warning-surface)",
+    destructive: "var(--lx-destructive)",
+    destructiveHover: "var(--lx-destructive-hover)",
+    destructiveSurface: "var(--lx-destructive-surface)",
+    info: "var(--lx-info)",
+    infoSurface: "var(--lx-info-surface)",
+  },
 } as const;

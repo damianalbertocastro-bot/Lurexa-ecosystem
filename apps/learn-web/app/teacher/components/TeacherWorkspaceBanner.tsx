@@ -71,29 +71,29 @@ export function TeacherWorkspaceBanner({
   return (
     <section
       aria-label="Page header"
-      className="border-b border-[#dfe7fb] bg-gradient-to-br from-white via-white to-[#f0f3ff]"
+      className="border-b border-[var(--lx-border)] bg-gradient-to-br from-white via-white to-[var(--lx-surface)]"
     >
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (
           <nav
             aria-label="Breadcrumbs"
-            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[#4d5e8c]"
+            className="mb-3 flex flex-wrap items-center gap-1 text-xs font-bold text-[var(--lx-muted)]"
           >
             {breadcrumbs.map((crumb, index) => (
               <span key={crumb.label} className="flex items-center gap-1">
                 {index > 0 && (
-                  <span aria-hidden="true" className="text-[#b9c5ea]">/</span>
+                  <span aria-hidden="true" className="text-[var(--lx-border)]">/</span>
                 )}
                 {crumb.href ? (
                   <Link
                     href={crumb.href}
-                    className="rounded-md px-1 py-0.5 transition hover:bg-[#eef3ff] hover:text-[#1d5add]"
+                    className="rounded-md px-1 py-0.5 transition hover:bg-[var(--lx-surface)] hover:text-[var(--lx-secondary)]"
                   >
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className="px-1 py-0.5 text-[#334b87]">
+                  <span className="px-1 py-0.5 text-[var(--lx-muted)]">
                     {crumb.label}
                   </span>
                 )}
@@ -107,15 +107,15 @@ export function TeacherWorkspaceBanner({
           <div className="min-w-0">
             <p
               suppressHydrationWarning
-              className="text-sm font-bold text-[#315fd7]"
+              className="text-sm font-bold text-[var(--lx-secondary)]"
             >
               {greetingText}
             </p>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#071d67] sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-[var(--color-brand-navy)] sm:text-3xl">
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5e8c]">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--lx-muted)]">
                 {subtitle}
               </p>
             )}

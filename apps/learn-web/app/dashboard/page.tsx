@@ -16,6 +16,8 @@ import { MilestoneAchievementsCard } from "./components/MilestoneAchievementsCar
 import { CoachPracticeCard } from "./components/CoachPracticeCard";
 import { SupportHelpModal } from "./components/SupportHelpModal";
 import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
+import { UniversalLearnerModelCard } from "./components/UniversalLearnerModelCard";
+import { SpecializedTracksCard } from "./components/SpecializedTracksCard";
 
 interface LearnerCourseSummary {
   course: Course;
@@ -171,7 +173,7 @@ export default function StudentDashboardPage() {
               >
                 <div className="space-y-4 pt-2">
                   <div>
-                    <p className="text-base font-bold text-[#071d67]">
+                    <p className="text-base font-bold text-[var(--color-brand-navy)]">
                       {recommendation.label}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -202,12 +204,14 @@ export default function StudentDashboardPage() {
               </Card>
             )}
 
+            <UniversalLearnerModelCard />
+
             <section className="space-y-4" aria-labelledby="enrolled-courses-heading">
               <div className="flex items-center justify-between">
                 <div>
                   <h2
                     id="enrolled-courses-heading"
-                    className="text-xl font-black tracking-tight text-[#071d67]"
+                    className="text-xl font-black tracking-tight text-[var(--color-brand-navy)]"
                   >
                     Your Courses
                   </h2>
@@ -290,6 +294,7 @@ export default function StudentDashboardPage() {
             </section>
 
             <CoachPracticeCard />
+            <SpecializedTracksCard />
           </main>
 
           <aside className="space-y-8 lg:col-span-1" aria-label="Learning momentum and rewards">

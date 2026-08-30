@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SkipToContent targetId="main-content" />
+        {children}
+      </body>
     </html>
   );
 }
