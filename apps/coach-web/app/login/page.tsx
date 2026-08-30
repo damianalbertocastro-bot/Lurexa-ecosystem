@@ -62,7 +62,7 @@ function CoachLoginForm() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#eefbff] via-[#f5f2ff] to-[#eef3ff] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-surface)] to-[var(--lx-surface)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="inline-block transition-transform hover:scale-105">
           <ProductMark product="coach" size="lg" />
@@ -82,7 +82,7 @@ function CoachLoginForm() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="rounded-3xl border border-[#dce8f5] bg-white p-7 sm:p-9 shadow-[0_24px_70px_rgba(31,50,120,0.1)]">
+        <div className="rounded-3xl border border-[var(--lx-border)] bg-white p-7 sm:p-9 shadow-[0_24px_70px_rgba(31,50,120,0.1)]">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div
@@ -179,7 +179,7 @@ export default function CoachLoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-8 text-sm text-slate-600">
+        <div className="min-h-screen bg-[var(--lx-surface)] flex items-center justify-center p-8 text-sm text-slate-600">
           Loading Coach sign in…
         </div>
       }

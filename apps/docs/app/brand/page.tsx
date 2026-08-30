@@ -22,13 +22,13 @@ export default function BrandIdentityPage() {
       <section className="mt-6 rounded-[28px] border border-[var(--lx-surface)] bg-white p-6 sm:p-8">
         <h2 className="text-xl font-black text-[var(--color-brand-navy)]">Current product family</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => <div key={product} className="rounded-2xl border border-[#e4e9f5] bg-[#fbfcff] p-5"><ProductMark product={product} size="lg" /><div className="mt-5 flex items-end gap-4"><ProductMark product={product} size="sm" compact /><ProductMark product={product} size="md" compact /><ProductMark product={product} size="lg" compact /></div></div>)}
+          {products.map((product) => <div key={product} className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5"><ProductMark product={product} size="lg" /><div className="mt-5 flex items-end gap-4"><ProductMark product={product} size="sm" compact /><ProductMark product={product} size="md" compact /><ProductMark product={product} size="lg" compact /></div></div>)}
         </div>
       </section>
 
       <section className="mt-6 rounded-[28px] border border-[var(--lx-surface)] bg-white p-6 sm:p-8">
         <h2 className="text-xl font-black text-[var(--color-brand-navy)]">Shared layers and Docs</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-[#e4e9f5] p-5"><EcosystemLayerMark layer="core" size="lg" /></div><div className="rounded-2xl border border-[#e4e9f5] p-5"><EcosystemLayerMark layer="mind" size="lg" /></div><div className="rounded-2xl border border-[#e4e9f5] p-5"><DocsMark size="lg" /></div></div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-[var(--lx-border)] p-5"><EcosystemLayerMark layer="core" size="lg" /></div><div className="rounded-2xl border border-[var(--lx-border)] p-5"><EcosystemLayerMark layer="mind" size="lg" /></div><div className="rounded-2xl border border-[var(--lx-border)] p-5"><DocsMark size="lg" /></div></div>
       </section>
 
       <section className="mt-6 rounded-[28px] bg-[var(--color-brand-navy)] p-6 sm:p-8">
@@ -38,7 +38,7 @@ export default function BrandIdentityPage() {
 
       <div className="mt-6"><RelatedExperiences items={[{ kind: "learn", title: "Lurexa Learn", description: "Current learner experience.", href: "#" }, { kind: "teach-community", title: "Teach Community", description: "Educator-only professional collaboration inside Lurexa Teach.", href: "#" }, { kind: "docs", title: "Lurexa Docs", description: "Canonical ecosystem documentation.", href: "#" }]} /></div>
 
-      <section className="mt-6 rounded-[28px] border border-dashed border-[#c9d4ee] bg-[#f8faff] p-6 sm:p-8">
+      <section className="mt-6 rounded-[28px] border border-dashed border-[var(--lx-border)] bg-[var(--lx-canvas)] p-6 sm:p-8">
         <h2 className="text-xl font-black text-[var(--color-brand-navy)]">Future concepts</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--lx-muted)]">Lurexa Community and other future-concept marks remain source assets under <code>packages/ui/brand/concepts</code>. They are intentionally not rendered through current-product runtime types until activation.</p>
       </section>

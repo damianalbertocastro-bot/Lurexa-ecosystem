@@ -29,13 +29,13 @@ export default function T1CoherentLessonPage() {
               ].map((x) => (
                 <span
                   key={x}
-                  className="rounded-full bg-[#f0ecff] px-3 py-2 text-xs font-extrabold text-[var(--lx-primary)]"
+                  className="rounded-full bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-primary)]"
                 >
                   {x}
                 </span>
               ))}
             </div>
-            <div className="mt-9 h-3 overflow-hidden rounded-full bg-[#edf1fb]">
+            <div className="mt-9 h-3 overflow-hidden rounded-full bg-[var(--lx-surface)]">
               <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-accent)]" />
             </div>
             <p className="mt-2 text-xs font-bold text-[var(--lx-muted)]">
@@ -53,7 +53,7 @@ export default function T1CoherentLessonPage() {
             </p>
             <a
               href="/growth"
-              className="mt-7 block text-center min-h-12 w-full rounded-xl bg-white px-4 py-3 text-sm font-extrabold text-[#26358c] hover:bg-indigo-50 transition"
+              className="mt-7 block text-center min-h-12 w-full rounded-xl bg-white px-4 py-3 text-sm font-extrabold text-[var(--color-brand-navy)] hover:bg-indigo-50 transition"
             >
               Review Rubric & Submit →
             </a>
@@ -75,42 +75,42 @@ export default function T1CoherentLessonPage() {
             ].map(([n, t, s]) => (
               <div
                 key={n}
-                className="mt-5 flex items-center gap-4 border-t border-[#edf1fb] pt-5"
+                className="mt-5 flex items-center gap-4 border-t border-[var(--lx-surface)] pt-5"
               >
                 <span
                   className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xs font-black ${
                     s === "Current"
                       ? "bg-[var(--lx-primary)] text-white"
                       : s === "Complete"
-                      ? "bg-[#e4f8f2] text-[#137867]"
-                      : "bg-[#f2f4f9] text-[#8994b4]"
+                      ? "bg-[var(--lx-surface)] text-[var(--lx-success)]"
+                      : "bg-[var(--lx-surface)] text-[var(--lx-muted)]"
                   }`}
                 >
                   {n}
                 </span>
                 <div className="flex-1">
                   <b className="text-[var(--color-brand-navy)]">{t}</b>
-                  <p className="mt-1 text-xs font-bold text-[#8994b4]">{s}</p>
+                  <p className="mt-1 text-xs font-bold text-[var(--lx-muted)]">{s}</p>
                 </div>
               </div>
             ))}
           </article>
 
           <aside className="space-y-5">
-            <article className="rounded-[28px] border border-[var(--lx-surface)] bg-[#fffaf2] p-7 shadow-sm">
-              <p className="text-[10px] font-extrabold tracking-[.17em] text-[#a05e20]">
+            <article className="rounded-[28px] border border-[var(--lx-surface)] bg-[var(--lx-warning)] p-7 shadow-sm">
+              <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-warning)]">
                 EVALUATION CRITERIA
               </p>
               <h2 className="mt-3 text-xl font-black text-[var(--color-brand-navy)]">
                 T1 Evaluation Rubric (Max 100)
               </h2>
-              <ul className="mt-4 space-y-2 text-sm text-[#76664e]">
+              <ul className="mt-4 space-y-2 text-sm text-[var(--lx-muted)]">
                 <li>• Coherence & Stage Sequence: 25 pts</li>
                 <li>• Measurable Objective Alignment: 25 pts</li>
                 <li>• Student Practice Ratio (≥65%): 25 pts</li>
                 <li>• L1 Scaffolding & Formative Checks: 25 pts</li>
               </ul>
-              <p className="mt-3 text-xs font-bold text-[#a05e20]">
+              <p className="mt-3 text-xs font-bold text-[var(--lx-warning)]">
                 Passing threshold: 80/100 points
               </p>
             </article>

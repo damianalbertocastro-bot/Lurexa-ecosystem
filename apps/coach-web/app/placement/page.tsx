@@ -172,7 +172,7 @@ export default function CoachPlacementPage() {
                 <Button
                   type="button"
                   onClick={startRecording}
-                  className="rounded-xl bg-[var(--lx-primary)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#4a22b8] transition active:scale-95 flex items-center gap-2"
+                  className="rounded-xl bg-[var(--lx-primary)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--lx-primary)] transition active:scale-95 flex items-center gap-2"
                 >
                   <span>🎙️</span>
                   <span>{recordedBlobs[currentStep] ? "Record Again" : "Start Speaking"}</span>
@@ -193,7 +193,7 @@ export default function CoachPlacementPage() {
                   type="button"
                   onClick={handleNextStep}
                   disabled={analyzing}
-                  className="rounded-xl bg-[var(--lx-accent)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)] shadow-sm hover:bg-[#28e1e8] transition active:scale-95"
+                  className="rounded-xl bg-[var(--lx-accent)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)] shadow-sm hover:bg-[var(--lx-accent)] transition active:scale-95"
                 >
                   {analyzing ? "Analyzing…" : currentStep < DIAGNOSTIC_PROMPTS.length - 1 ? "Next Task →" : "View Placement Results →"}
                 </Button>
@@ -208,7 +208,7 @@ export default function CoachPlacementPage() {
               Your initial speaking profile has been calibrated into your Learner Model.
             </p>
 
-            <div className="my-6 inline-flex flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--color-brand-navy)] to-[#43149c] p-6 text-white shadow-lg">
+            <div className="my-6 inline-flex flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--color-brand-navy)] to-[var(--lx-primary)] p-6 text-white shadow-lg">
               <span className="text-xs font-black uppercase tracking-widest text-[var(--lx-accent)]">RECOMMENDED BENCHMARK</span>
               <span className="mt-2 text-5xl font-black">{result.level}</span>
               <span className="mt-1 text-xs text-indigo-200">Intelligibility Score: {result.score}%</span>
@@ -223,7 +223,7 @@ export default function CoachPlacementPage() {
               <Button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="rounded-2xl bg-[var(--lx-primary)] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-[#4a22b8] active:scale-95"
+                className="rounded-2xl bg-[var(--lx-primary)] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-[var(--lx-primary)] active:scale-95"
               >
                 Go to Coach Dashboard →
               </Button>

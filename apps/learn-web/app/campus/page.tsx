@@ -42,9 +42,9 @@ const surfaces = [
 
 export default function CampusWorkspacePage() {
   return (
-    <main className="min-h-screen bg-[#f8faff] px-5 py-10 text-[var(--color-brand-navy)] sm:px-10">
+    <main className="min-h-screen bg-[var(--lx-canvas)] px-5 py-10 text-[var(--color-brand-navy)] sm:px-10">
       <section className="mx-auto max-w-6xl">
-        <div className="rounded-[34px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[#162f85] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
+        <div className="rounded-[34px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
           <span className="inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[.14em] text-[var(--lx-accent)]">
             Representative institutional shell prototype
           </span>
@@ -72,7 +72,7 @@ export default function CampusWorkspacePage() {
               const classes = "flex h-full flex-col rounded-3xl border border-[var(--lx-surface)] bg-white p-6 shadow-sm";
               const body = (
                 <>
-                  <span className="w-fit rounded-full bg-[#f2efff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[#6540bb]">
+                  <span className="w-fit rounded-full bg-[var(--lx-surface)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[var(--lx-primary)]">
                     {surface.status}
                   </span>
                   <h3 className="mt-4 text-xl font-black">{surface.name}</h3>

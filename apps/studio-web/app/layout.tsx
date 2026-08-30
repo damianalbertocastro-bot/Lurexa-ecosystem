@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-slate-50 text-slate-900 antialiased">
+        <SkipToContent targetId="main-content" />
         <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
             <div className="flex items-center gap-6">
@@ -77,7 +79,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        <div className="flex-1">{children}</div>
+        <main id="main-content" className="flex-1">{children}</main>
 
         <footer className="border-t border-slate-200 bg-white py-8 text-slate-600">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

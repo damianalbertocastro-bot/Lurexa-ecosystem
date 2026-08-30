@@ -13,7 +13,7 @@ export function TeachPrivate({ children }: { children: React.ReactNode }) {
   }, [loading, user, router]);
 
   if (loading || !user) {
-    return <div className="grid min-h-[55vh] place-items-center px-5 text-sm font-bold text-[#6273a3]" role="status" aria-live="polite">Loading your educator workspace…</div>;
+    return <div className="grid min-h-[55vh] place-items-center px-5 text-sm font-bold text-[var(--lx-muted)]" role="status" aria-live="polite">Loading your educator workspace…</div>;
   }
 
   return <>{children}</>;

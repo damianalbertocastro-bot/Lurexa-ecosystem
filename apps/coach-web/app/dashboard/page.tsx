@@ -36,7 +36,7 @@ export default function CoachDashboardPage() {
     <CoachShell active="Dashboard">
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 space-y-8">
         {/* Top Greeting Header */}
-        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[#1d1b64] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
+        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
@@ -120,7 +120,7 @@ export default function CoachDashboardPage() {
                   <Button
                     variant="primary"
                     onClick={() => router.push("/practice")}
-                    className="bg-[var(--lx-primary)] hover:bg-[#4a22b8]"
+                    className="bg-[var(--lx-primary)] hover:bg-[var(--lx-primary)]"
                   >
                     Start Today&apos;s Speaking Session 🎙️
                   </Button>
@@ -289,7 +289,7 @@ export default function CoachDashboardPage() {
                   href={urls.ecosystem}
                   className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
                 >
-                  <p className="text-xs font-black text-[#0ba5a8]">All Lurexa products ↗</p>
+                  <p className="text-xs font-black text-[var(--lx-accent)]">All Lurexa products ↗</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">Explore platform tools, documentation, and campus services.</p>
                 </a>
               </div>

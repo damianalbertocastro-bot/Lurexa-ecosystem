@@ -114,7 +114,7 @@ export default async function CoachPackRunnerPage({
           <div className="mt-8 pt-4 flex items-center justify-between">
             <Link
               href="/studio"
-              className="rounded-2xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-[var(--color-brand-navy)] shadow-md hover:opacity-90 transition active:scale-95 flex items-center gap-2"
+              className="rounded-2xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-[var(--color-brand-navy)] shadow-md hover:opacity-90 transition active:scale-95 flex items-center gap-2"
             >
               <span>🎙️</span>
               <span>Launch Practice Studio</span>

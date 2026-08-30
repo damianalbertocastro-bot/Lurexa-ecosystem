@@ -138,32 +138,32 @@ function updateDraft(drafts: ActivityDraft[], id: string, patch: Partial<Activit
 
 export function LearningActivityEditor({ drafts, onChange }: Props) {
   return (
-    <div className="space-y-3 rounded-xl border border-[#dfe7fb] bg-[var(--learn-canvas)] p-4">
+    <div className="space-y-3 rounded-xl border border-[var(--lx-border)] bg-[var(--learn-canvas)] p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-[var(--color-brand-navy)]">Learning activities</p>
-          <p className="text-xs text-[#5d6f9d]">Add scored practice or learner-created responses. Core scores objective work server-side and preserves open responses as evidence.</p>
+          <p className="text-xs text-[var(--lx-muted)]">Add scored practice or learner-created responses. Core scores objective work server-side and preserves open responses as evidence.</p>
         </div>
         <Button type="button" size="sm" variant="secondary" onClick={() => onChange([...drafts, createActivityDraft()])}>+ Add activity</Button>
       </div>
 
       {drafts.map((draft, index) => (
-        <div key={draft.id} className="space-y-3 rounded-xl border border-[#dfe7fb] bg-white p-3">
+        <div key={draft.id} className="space-y-3 rounded-xl border border-[var(--lx-border)] bg-white p-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-[var(--color-brand-navy)]">Activity {index + 1}</p>
             <Button type="button" size="sm" variant="destructive" onClick={() => onChange(drafts.filter((activity) => activity.id !== draft.id))}>Remove</Button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="text-sm font-medium text-[#314b88]">Activity type
-              <select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[var(--color-brand-navy)]" value={draft.type} onChange={(event) => onChange(updateDraft(drafts, draft.id, { type: event.target.value as LearningActivityType }))}>
+            <label className="text-sm font-medium text-[var(--lx-muted)]">Activity type
+              <select className="mt-1 w-full rounded-xl border border-[var(--lx-border)] p-2 text-[var(--color-brand-navy)]" value={draft.type} onChange={(event) => onChange(updateDraft(drafts, draft.id, { type: event.target.value as LearningActivityType }))}>
                 <option value="single_choice">Single-choice question</option>
                 <option value="multiple_selection">Multiple selection</option>
                 <option value="sentence_builder">Sentence builder</option>
                 <option value="short_response">Short response / Create & Apply</option>
               </select>
             </label>
-            <label className="text-sm font-medium text-[#314b88]">Lesson stage
-              <select className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-2 text-[var(--color-brand-navy)]" value={draft.stage} onChange={(event) => onChange(updateDraft(drafts, draft.id, { stage: event.target.value as LessonStage }))}>
+            <label className="text-sm font-medium text-[var(--lx-muted)]">Lesson stage
+              <select className="mt-1 w-full rounded-xl border border-[var(--lx-border)] p-2 text-[var(--color-brand-navy)]" value={draft.stage} onChange={(event) => onChange(updateDraft(drafts, draft.id, { stage: event.target.value as LessonStage }))}>
                 {lessonStages.map((stage) => <option key={stage} value={stage}>{stage.replaceAll("_", " ")}</option>)}
               </select>
             </label>
@@ -173,11 +173,11 @@ export function LearningActivityEditor({ drafts, onChange }: Props) {
           <Input label="Prompt" value={draft.prompt} onChange={(event) => onChange(updateDraft(drafts, draft.id, { prompt: event.target.value }))} />
 
           {draft.type !== "short_response" ? <>
-            <label className="block text-sm font-medium text-[#314b88]">Options, one per line
-              <textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[var(--color-brand-navy)]" value={draft.options} onChange={(event) => onChange(updateDraft(drafts, draft.id, { options: event.target.value }))} rows={4} />
+            <label className="block text-sm font-medium text-[var(--lx-muted)]">Options, one per line
+              <textarea className="mt-1 w-full rounded-xl border border-[var(--lx-border)] p-3 text-[var(--color-brand-navy)]" value={draft.options} onChange={(event) => onChange(updateDraft(drafts, draft.id, { options: event.target.value }))} rows={4} />
             </label>
-            <label className="block text-sm font-medium text-[#314b88]">Correct answer{draft.type === "multiple_selection" ? "s, one per line" : ""}
-              <textarea className="mt-1 w-full rounded-xl border border-[#d7e0f6] p-3 text-[var(--color-brand-navy)]" value={draft.correctAnswers} onChange={(event) => onChange(updateDraft(drafts, draft.id, { correctAnswers: event.target.value }))} rows={draft.type === "multiple_selection" ? 3 : 1} />
+            <label className="block text-sm font-medium text-[var(--lx-muted)]">Correct answer{draft.type === "multiple_selection" ? "s, one per line" : ""}
+              <textarea className="mt-1 w-full rounded-xl border border-[var(--lx-border)] p-3 text-[var(--color-brand-navy)]" value={draft.correctAnswers} onChange={(event) => onChange(updateDraft(drafts, draft.id, { correctAnswers: event.target.value }))} rows={draft.type === "multiple_selection" ? 3 : 1} />
             </label>
           </> : null}
 

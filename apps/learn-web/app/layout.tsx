@@ -5,6 +5,7 @@ import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
 import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import { OfflineIndicator } from "@lurexa/ui/OfflineIndicator";
 import { ToastProvider } from "@lurexa/ui/Toast";
+import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased bg-slate-50 text-slate-900">
+        <SkipToContent targetId="main-content" />
         <ToastProvider>
           {children}
           <TeacherGuidanceBanner />

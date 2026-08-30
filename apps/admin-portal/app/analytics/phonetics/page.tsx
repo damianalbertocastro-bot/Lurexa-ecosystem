@@ -94,7 +94,7 @@ export default function AdminPhoneticsAnalyticsPage() {
             <p className="text-[10px] font-black uppercase tracking-[.15em] text-[var(--lx-muted)]">
               Dominant L1 Profile
             </p>
-            <b className="mt-3 block text-3xl tracking-[-.06em] text-[#0ba5a8]">
+            <b className="mt-3 block text-3xl tracking-[-.06em] text-[var(--lx-accent)]">
               es-DO (74%)
             </b>
             <p className="mt-2 text-xs font-medium text-[var(--lx-muted)]">

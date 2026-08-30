@@ -262,7 +262,7 @@ export default function CoachHomePage() {
 
         {/* Connected Ecosystem Banner */}
         <section className="mx-auto my-16 max-w-7xl px-5 sm:px-8">
-          <div className="rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[#1f1966] to-[var(--lx-primary)] p-8 text-white sm:p-12 shadow-2xl">
+          <div className="rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-8 text-white sm:p-12 shadow-2xl">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_auto] lg:items-center">
               <div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/20 border border-cyan-400/30 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-300">

@@ -148,8 +148,8 @@ export default function QualificationReviewPage() {
     finally { setSaving(false); }
   }
 
-  return <main className="min-h-screen bg-[#f7f8fe] text-[var(--color-brand-navy)]">
-    <header className="bg-gradient-to-br from-[var(--color-brand-navy)] via-[#341680] to-[var(--lx-primary)] text-white">
+  return <main className="min-h-screen bg-[var(--lx-surface)] text-[var(--color-brand-navy)]">
+    <header className="bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] text-white">
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
         <ProductMark product="admin" inverse />
         <p className="mt-10 text-[10px] font-black uppercase tracking-[.18em] text-violet-200">QUALIFICATION REVIEW</p>
@@ -172,7 +172,7 @@ export default function QualificationReviewPage() {
           <select value={userId} onChange={(event) => { const next = event.target.value; setUserId(next); const person = snapshot.educators.find((item) => item.userId === next); setQualificationId(person?.qualifications[0]?.id ?? ""); setEvents([]); }} className="mt-3 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-white px-4 text-sm font-bold">
             {snapshot.educators.map((person) => <option key={person.userId} value={person.userId}>{person.displayName ?? person.email ?? person.userId}</option>)}
           </select>
-          <div className="mt-5 space-y-2">{selectedPerson?.qualifications.map((item) => <Button key={item.id} type="button" onClick={() => { setQualificationId(item.id); setEvents([]); const next = transitionMap[item.status][0]; if (next && next !== "candidate") setToStatus(next); }} className={`w-full rounded-2xl border p-4 text-left ${qualificationId === item.id ? "border-[var(--lx-primary)] bg-[#f2edff]" : "border-[var(--lx-border)]"}`}><b className="text-sm capitalize">{item.subject} · {item.levels.join("–")}</b><span className="mt-1 block text-xs font-bold capitalize text-[var(--lx-muted)]">{item.status.replaceAll("_", " ")}</span></Button>)}</div>
+          <div className="mt-5 space-y-2">{selectedPerson?.qualifications.map((item) => <Button key={item.id} type="button" onClick={() => { setQualificationId(item.id); setEvents([]); const next = transitionMap[item.status][0]; if (next && next !== "candidate") setToStatus(next); }} className={`w-full rounded-2xl border p-4 text-left ${qualificationId === item.id ? "border-[var(--lx-primary)] bg-[var(--lx-surface)]" : "border-[var(--lx-border)]"}`}><b className="text-sm capitalize">{item.subject} · {item.levels.join("–")}</b><span className="mt-1 block text-xs font-bold capitalize text-[var(--lx-muted)]">{item.status.replaceAll("_", " ")}</span></Button>)}</div>
         </section>
 
         <section className="space-y-6">
@@ -191,7 +191,7 @@ export default function QualificationReviewPage() {
             <Button type="button" onClick={() => void loadEvents()} className="mt-4 min-h-10 rounded-xl border border-[var(--lx-border)] px-4 text-xs font-black text-[var(--lx-secondary)]">Load audit history</Button>
           </form> : null}
 
-          {events.length ? <section className="rounded-3xl border border-[var(--lx-surface)] bg-white p-6"><p className="text-[10px] font-black uppercase tracking-[.15em] text-[var(--lx-secondary)]">AUDIT HISTORY</p><div className="mt-4 space-y-3">{events.map((item) => <article key={item.id} className="rounded-2xl border border-[var(--lx-border)] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm capitalize">{item.fromStatus ? `${item.fromStatus.replaceAll("_", " ")} → ` : ""}{item.toStatus.replaceAll("_", " ")}</b><time className="text-xs font-bold text-[var(--lx-muted)]">{new Date(item.occurredAt).toLocaleString()}</time></div><p className="mt-2 text-sm text-[#44537b]">{item.reason}</p><p className="mt-2 text-xs font-bold text-[var(--lx-muted)]">Evidence refs: {item.evidenceRefs.length} · Policy: {item.policyVersion}</p></article>)}</div></section> : null}
+          {events.length ? <section className="rounded-3xl border border-[var(--lx-surface)] bg-white p-6"><p className="text-[10px] font-black uppercase tracking-[.15em] text-[var(--lx-secondary)]">AUDIT HISTORY</p><div className="mt-4 space-y-3">{events.map((item) => <article key={item.id} className="rounded-2xl border border-[var(--lx-border)] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm capitalize">{item.fromStatus ? `${item.fromStatus.replaceAll("_", " ")} → ` : ""}{item.toStatus.replaceAll("_", " ")}</b><time className="text-xs font-bold text-[var(--lx-muted)]">{new Date(item.occurredAt).toLocaleString()}</time></div><p className="mt-2 text-sm text-[var(--lx-muted)]">{item.reason}</p><p className="mt-2 text-xs font-bold text-[var(--lx-muted)]">Evidence refs: {item.evidenceRefs.length} · Policy: {item.policyVersion}</p></article>)}</div></section> : null}
         </section>
       </div> : null}
     </div>

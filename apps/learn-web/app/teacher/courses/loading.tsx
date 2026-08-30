@@ -4,7 +4,7 @@ import { Skeleton } from "@lurexa/ui/Skeleton";
 export default function TeacherCoursesLoading() {
   return (
     <div>
-      <section className="border-b border-[#dfe7fb] bg-gradient-to-br from-white via-white to-[#f0f3ff] p-6 sm:p-8">
+      <section className="border-b border-[var(--lx-border)] bg-gradient-to-br from-white via-white to-[var(--lx-surface)] p-6 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="space-y-2">
             <Skeleton variant="line" className="!h-3.5 !w-24" />

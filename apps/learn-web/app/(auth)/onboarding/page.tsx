@@ -8,8 +8,16 @@ import { Button } from "@lurexa/ui/button";
 
 type Goal = "daily_life" | "work" | "travel" | "study";
 type StartingPoint = "beginner" | "start_check";
+type Dialect = "es-DO" | "es-PR" | "es-MX" | "es-CO";
 type PlacementAnswer = "nice_to_meet_you" | "fine_thanks" | "i_live_in" | "i_live" | "are" | "is" | "going_to" | "go";
 const onboardingIntentKey = "lurexa_onboarding_intent";
+
+const dialectOptions: Array<{ value: Dialect; label: string; description: string; flag: string }> = [
+  { value: "es-DO", label: "Dominican Republic", description: "Tailors phonetics to Caribbean rhythm, coda /s/ clarity, and rhotic pronunciation.", flag: "🇩🇴" },
+  { value: "es-PR", label: "Puerto Rico", description: "Adapts to Caribbean cadence, lateralization patterns, and syllable timing.", flag: "🇵🇷" },
+  { value: "es-MX", label: "Mexico", description: "Optimizes for continental vowel reduction, consonant retention, and /v/ vs /b/ clarity.", flag: "🇲🇽" },
+  { value: "es-CO", label: "Colombia", description: "Calibrated for clear consonant articulation, /z/ voicing, and intonation control.", flag: "🇨🇴" },
+];
 
 const goalOptions: Array<{ value: Goal; label: string; description: string }> = [
   { value: "daily_life", label: "Daily life", description: "Talk with people, manage everyday situations, and feel more independent." },
@@ -47,6 +55,7 @@ function readOnboardingIntent(value: string | null): { goal: Goal; startingPoint
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const [dialect, setDialect] = useState<Dialect>("es-DO");
   const [goal, setGoal] = useState<Goal>("daily_life");
   const [startingPoint, setStartingPoint] = useState<StartingPoint>("beginner");
   const [placementAnswers, setPlacementAnswers] = useState<PlacementAnswer[]>([]);
@@ -106,17 +115,53 @@ export default function OnboardingPage() {
     <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-10 sm:px-8">
       <section className="mx-auto max-w-2xl">
         <p className="text-xs font-bold tracking-[.16em] text-indigo-700">YOUR STARTING POINT</p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--learn-ink)]">What do you want English to help you do?</h1>
-        <p className="mt-4 max-w-xl text-lg leading-8 text-slate-600">Choose the goal that matters most right now, then choose a starting route. A short check can recommend the available early A2 path, but it does not certify a CEFR level.</p>
+        <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--learn-ink)]">Personalize your learning path.</h1>
+        <p className="mt-4 max-w-xl text-lg leading-8 text-slate-600">Lurexa adapts phonetics, vocabulary transfer, and coaching to your native Spanish variety and personal goals.</p>
 
-        <div className="mt-8 grid gap-3">
-          {goalOptions.map((option) => (
-            <label key={option.value} className={`cursor-pointer rounded-2xl border bg-white p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
-              <input className="sr-only" type="radio" name="goal" value={option.value} checked={goal === option.value} onChange={() => setGoal(option.value)} />
-              <span className="block text-lg font-bold text-slate-900">{option.label}</span>
-              <span className="mt-1 block text-sm leading-6 text-slate-600">{option.description}</span>
-            </label>
-          ))}
+        {/* Dialect Profile Selection */}
+        <div className="mt-8 space-y-3">
+          <p className="text-sm font-bold text-[var(--learn-ink)]">1. What Spanish variety do you speak?</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {dialectOptions.map((opt) => (
+              <label
+                key={opt.value}
+                className={`flex cursor-pointer flex-col justify-between rounded-2xl border p-4 transition ${
+                  dialect === opt.value
+                    ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-md ring-2 ring-[var(--lx-primary)]/20"
+                    : "border-slate-200 bg-white hover:border-[var(--lx-primary)]/40"
+                }`}
+              >
+                <input
+                  className="sr-only"
+                  type="radio"
+                  name="dialect"
+                  value={opt.value}
+                  checked={dialect === opt.value}
+                  onChange={() => setDialect(opt.value)}
+                />
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{opt.flag}</span>
+                  <span className="font-bold text-slate-900">{opt.label}</span>
+                </div>
+                <span className="mt-2 block text-xs leading-5 text-slate-500">
+                  {opt.description}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 space-y-3">
+          <p className="text-sm font-bold text-[var(--learn-ink)]">2. What do you want English to help you do?</p>
+          <div className="grid gap-3">
+            {goalOptions.map((option) => (
+              <label key={option.value} className={`cursor-pointer rounded-2xl border bg-white p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
+                <input className="sr-only" type="radio" name="goal" value={option.value} checked={goal === option.value} onChange={() => setGoal(option.value)} />
+                <span className="block text-lg font-bold text-slate-900">{option.label}</span>
+                <span className="mt-1 block text-sm leading-6 text-slate-600">{option.description}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <fieldset className="mt-8 space-y-3">

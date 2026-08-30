@@ -313,9 +313,9 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-[var(--lx-border)]">
+          <div className="max-h-[580px] overflow-x-auto overflow-y-auto rounded-2xl border border-[var(--lx-border)] shadow-inner">
             <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
+              <thead className="sticky top-0 z-10 border-b border-[var(--lx-border)] bg-[var(--lx-canvas)]/95 backdrop-blur-md text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)] shadow-xs">
                 <tr>
                   <th scope="col" className="px-4 py-3">Organization</th>
                   <th scope="col" className="px-4 py-3">Plan</th>

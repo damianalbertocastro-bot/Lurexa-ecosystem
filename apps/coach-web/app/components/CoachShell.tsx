@@ -51,7 +51,7 @@ export function CoachShell({
                     className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${
                       isActive
                         ? inverse
-                          ? "bg-white/15 text-[#9dfbf9]"
+                          ? "bg-white/15 text-[var(--lx-accent)]"
                           : "bg-[var(--lx-primary)]/10 text-[var(--lx-primary)]"
                         : inverse
                         ? "text-slate-300 hover:bg-white/10 hover:text-white"
@@ -98,7 +98,7 @@ export function CoachShell({
 
             <Link
               href="/practice"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-4 py-2 text-xs font-black text-[var(--color-brand-navy)] shadow-sm transition hover:brightness-105 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-4 py-2 text-xs font-black text-[var(--color-brand-navy)] shadow-sm transition hover:brightness-105 active:scale-95"
             >
               <span>🎙️</span>
               <span className="hidden sm:inline">Quick Practice</span>
@@ -121,7 +121,7 @@ export function CoachShell({
                 className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                   isActive
                     ? inverse
-                      ? "bg-white/20 text-[#9dfbf9]"
+                      ? "bg-white/20 text-[var(--lx-accent)]"
                       : "bg-[var(--lx-primary)]/10 text-[var(--lx-primary)]"
                     : inverse
                     ? "text-slate-300"

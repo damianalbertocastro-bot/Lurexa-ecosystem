@@ -158,7 +158,7 @@ export default function StudentAssignmentsPage() {
                     {assignment.targetType === "coach_pack" ? (
                       <a
                         href={`${getEcosystemUrl("coach")}/studio`}
-                        className="rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[#0ba5a8] px-4 py-2.5 text-xs font-black text-[var(--color-brand-navy)] shadow-sm hover:opacity-90 transition active:scale-95"
+                        className="rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-4 py-2.5 text-xs font-black text-[var(--color-brand-navy)] shadow-sm hover:opacity-90 transition active:scale-95"
                       >
                         Launch Coach Studio 🎙️
                       </a>

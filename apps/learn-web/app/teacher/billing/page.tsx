@@ -10,7 +10,7 @@ export default function TeacherBillingPage() {
         breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Billing" }]}
       />
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-[30px] border border-[#dfe7fb] bg-white p-8 shadow-sm">
+        <section className="rounded-[30px] border border-[var(--lx-border)] bg-white p-8 shadow-sm">
           <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
             Billing preview · no payment processing
           </span>
@@ -25,15 +25,15 @@ export default function TeacherBillingPage() {
               ["Institution", "Managed seats, courses and governance"],
               ["Enterprise", "Contracted scale and advanced controls"],
             ].map(([name, description]) => (
-              <article key={name} className="rounded-2xl border border-[#e3e9f8] bg-[#f8faff] p-5">
+              <article key={name} className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-5">
                 <h2 className="font-black text-[var(--color-brand-navy)]">{name}</h2>
                 <p className="mt-2 text-sm leading-6 text-[var(--lx-muted)]">{description}</p>
-                <p className="mt-4 text-xs font-black uppercase tracking-[.12em] text-[#7b88a9]">Pricing not finalized</p>
+                <p className="mt-4 text-xs font-black uppercase tracking-[.12em] text-[var(--lx-muted)]">Pricing not finalized</p>
               </article>
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl border border-[#dfe7fb] p-5">
+          <div className="mt-8 rounded-2xl border border-[var(--lx-border)] p-5">
             <h2 className="font-black text-[var(--color-brand-navy)]">Activation requirements</h2>
             <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--lx-muted)]">
               <li>• Authenticated organization and authorized billing administrator.</li>

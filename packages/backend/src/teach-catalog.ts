@@ -96,6 +96,53 @@ export const TEACH_MVP_COURSES: TeachCourse[] = [
     createdAt: timestamp,
     updatedAt: timestamp,
   },
+  {
+    id: "teaching-specialized-industry-english",
+    title: "Teaching specialized industry English (BPO, Tourism & Tech)",
+    description: "Master pedagogy and curriculum adaptation for specialized workplace domains including BPO customer service, Caribbean hospitality, and software engineering teams.",
+    track: "teaching-practice",
+    competencyIds: ["industry-pedagogy", "curriculum-adaptation", "task-based-learning"],
+    modules: [
+      { id: "bpo-pedagogy", title: "BPO English: Scripts, tone, and verification", order: 1, competencyIds: ["industry-pedagogy"] },
+      { id: "tourism-pedagogy", title: "Tourism & Hospitality: Authentic situational dialogues", order: 2, competencyIds: ["industry-pedagogy"] },
+      { id: "tech-pedagogy", title: "Software Engineering: Agile ceremonies & technical discourse", order: 3, competencyIds: ["industry-pedagogy"] },
+      { id: "industry-capstone", title: "Designing an industry-specific lesson unit", order: 4, competencyIds: ["industry-pedagogy", "curriculum-adaptation"], evidenceRequired: true },
+    ],
+    published: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  },
+  {
+    id: "contrastive-phonology-multi-l1-pedagogy",
+    title: "Contrastive phonology & multi-L1 pronunciation pedagogy",
+    description: "Diagnose and remediate Spanish-to-English phonological transfer across Dominican, Puerto Rican, Mexican, and Colombian learner profiles with an intelligibility-first methodology.",
+    track: "teaching-practice",
+    competencyIds: ["contrastive-phonology", "pronunciation-pedagogy", "l1-transfer-remediation"],
+    modules: [
+      { id: "contrastive-foundations", title: "Principles of contrastive phonological analysis", order: 1, competencyIds: ["contrastive-phonology"] },
+      { id: "caribbean-dialects", title: "Dominican & Puerto Rican transfer: Coda /s/, lateralization & tap neutralization", order: 2, competencyIds: ["contrastive-phonology"] },
+      { id: "continental-dialects", title: "Mexican & Colombian transfer: Consonant retention, /v/ vs /b/, and vowel reduction", order: 3, competencyIds: ["contrastive-phonology"] },
+      { id: "remediation-design", title: "Formulating targeted minimal-pair and articulatory drills", order: 4, competencyIds: ["contrastive-phonology", "l1-transfer-remediation"], evidenceRequired: true },
+    ],
+    published: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  },
+  {
+    id: "formative-assessment-rubrics-speaking",
+    title: "Formative assessment & speaking rubrics design",
+    description: "Design transparent, CEFR-calibrated speaking rubrics and diagnostic frameworks for task-based and role-play evaluation.",
+    track: "assessment",
+    competencyIds: ["assessment-for-learning", "rubric-design", "speaking-evaluation"],
+    modules: [
+      { id: "rubric-calibration", title: "CEFR-aligned diagnostic descriptors", order: 1, competencyIds: ["rubric-design"] },
+      { id: "roleplay-evaluation", title: "Evaluating live spoken interaction and repair strategies", order: 2, competencyIds: ["speaking-evaluation"] },
+      { id: "formative-feedback", title: "Actionable feedback delivery that drives immediate improvement", order: 3, competencyIds: ["assessment-for-learning"], evidenceRequired: true },
+    ],
+    published: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  },
 ];
 
 export const TEACH_MVP_CREDENTIALS: TeachCredentialDefinition[] = [
@@ -148,6 +195,26 @@ export const TEACH_MVP_CREDENTIALS: TeachCredentialDefinition[] = [
       { id: "course", type: "course-completion", courseId: "ai-literacy-language-teachers" },
       { id: "cefr", type: "cefr-level", cefrLevel: "C1" },
       { id: "evidence", type: "verified-evidence", competencyId: "ai-literacy", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "credential-specialized-industry-instructor",
+    name: "Specialized Industry English Instructor",
+    description: "Demonstrates pedagogical mastery in delivering targeted, career-accelerating English training for BPO, Tourism, and Software Engineering professionals.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "teaching-specialized-industry-english" },
+      { id: "evidence", type: "verified-evidence", competencyId: "industry-pedagogy", minimumCount: 1 },
+    ],
+  },
+  {
+    id: "credential-contrastive-phonology-specialist",
+    name: "Contrastive Phonology & Pronunciation Specialist",
+    description: "Demonstrates mastery of cross-dialect Spanish-to-English contrastive phonology and precision articulatory remediation.",
+    active: true,
+    requirements: [
+      { id: "course", type: "course-completion", courseId: "contrastive-phonology-multi-l1-pedagogy" },
+      { id: "evidence", type: "verified-evidence", competencyId: "contrastive-phonology", minimumCount: 1 },
     ],
   },
   {

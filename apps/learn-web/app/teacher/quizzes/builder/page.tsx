@@ -70,11 +70,11 @@ export default function QuizBuilderPage() {
         <Card title="Add Question" subtitle="Define prompt, options, and correct answers">
           <form onSubmit={handleAddQuestion} className="space-y-4 pt-2">
             <div>
-              <label className="text-sm font-medium text-[#314b88] mb-1 block">Question Type</label>
+              <label className="text-sm font-medium text-[var(--lx-muted)] mb-1 block">Question Type</label>
               <select
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value as QuestionType)}
-                className="w-full rounded-xl border border-[#d7e0f6] p-2 text-sm text-[var(--color-brand-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--lx-secondary)]"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2 text-sm text-[var(--color-brand-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--lx-secondary)]"
               >
                 <option value="multiple_choice">Multiple Choice</option>
                 <option value="single_choice">Single Choice</option>
@@ -92,7 +92,7 @@ export default function QuizBuilderPage() {
 
             {questionType.includes("choice") && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#314b88]">Answer Options</label>
+                <label className="text-sm font-medium text-[var(--lx-muted)]">Answer Options</label>
                 {options.map((opt, idx) => (
                   <Input
                     key={idx}
@@ -136,16 +136,16 @@ export default function QuizBuilderPage() {
           ) : (
             <div className="space-y-3 pt-2">
               {questions.map((q, idx) => (
-                <div key={q.id} className="rounded-xl border border-[#dfe7fb] p-4 bg-white space-y-2">
+                <div key={q.id} className="rounded-xl border border-[var(--lx-border)] p-4 bg-white space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase text-[var(--lx-primary)]">Question {idx + 1}</span>
                     <Badge variant="info">{q.type}</Badge>
                   </div>
                   <p className="font-semibold text-[var(--color-brand-navy)]">{q.prompt}</p>
                   {q.options && (
-                    <ul className="list-disc list-inside text-xs text-[#5d6f9d] space-y-1 pl-2">
+                    <ul className="list-disc list-inside text-xs text-[var(--lx-muted)] space-y-1 pl-2">
                       {q.options.map((opt, oIdx) => (
-                        <li key={oIdx} className={opt === q.correctAnswer ? "font-bold text-[#137867]" : ""}>
+                        <li key={oIdx} className={opt === q.correctAnswer ? "font-bold text-[var(--lx-success)]" : ""}>
                           {opt} {opt === q.correctAnswer && "✓"}
                         </li>
                       ))}

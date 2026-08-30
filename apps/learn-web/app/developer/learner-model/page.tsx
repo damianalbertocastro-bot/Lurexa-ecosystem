@@ -63,7 +63,7 @@ export default function LearnerModelInspectorPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f8faff] text-[var(--color-brand-navy)]">
+    <div className="min-h-screen bg-[var(--lx-canvas)] text-[var(--color-brand-navy)]">
       {/* Top Inspector Header */}
       <header className="border-b border-[var(--lx-surface)] bg-white px-6 py-4 shadow-sm sm:px-10">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -76,7 +76,7 @@ export default function LearnerModelInspectorPage() {
                 <span className="text-xs font-black uppercase tracking-widest text-[var(--lx-primary)]">
                   Lurexa Mind & Core
                 </span>
-                <span className="rounded-full bg-[#e4f8f2] px-2 py-0.5 text-[10px] font-extrabold text-[#137867]">
+                <span className="rounded-full bg-[var(--lx-surface)] px-2 py-0.5 text-[10px] font-extrabold text-[var(--lx-success)]">
                   Single Learner Model
                 </span>
               </div>
@@ -87,7 +87,7 @@ export default function LearnerModelInspectorPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="rounded-xl border border-[var(--lx-surface)] bg-white px-4 py-2 text-xs font-bold text-[#536ba5] hover:bg-[var(--lx-surface)]"
+              className="rounded-xl border border-[var(--lx-surface)] bg-white px-4 py-2 text-xs font-bold text-[var(--lx-muted)] hover:bg-[var(--lx-surface)]"
             >
               ← Back to Learner Dashboard
             </Link>
@@ -98,7 +98,7 @@ export default function LearnerModelInspectorPage() {
       {/* Main Body */}
       <main className="mx-auto max-w-7xl px-6 py-10 sm:px-10">
         {/* Banner Section */}
-        <section className="mb-10 rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[#162f85] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
+        <section className="mb-10 rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy-light)] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-extrabold text-[var(--lx-accent)] backdrop-blur-md">
@@ -141,21 +141,21 @@ export default function LearnerModelInspectorPage() {
                 </p>
                 <h3 className="text-xl font-black">7-Skill Competency Continuum</h3>
               </div>
-              <span className="rounded-full bg-[#eee9ff] px-3 py-1 text-xs font-black text-[var(--lx-primary)]">
+              <span className="rounded-full bg-[var(--lx-surface)] px-3 py-1 text-xs font-black text-[var(--lx-primary)]">
                 CEFR A1–C2
               </span>
             </div>
 
             <div className="space-y-4">
               {SKILL_DATA.map((item) => (
-                <div key={item.skill} className="rounded-2xl border border-[#edf1fb] bg-[var(--lx-surface)] p-4">
+                <div key={item.skill} className="rounded-2xl border border-[var(--lx-surface)] bg-[var(--lx-surface)] p-4">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-sm font-black text-[var(--color-brand-navy)]">{item.skill}</span>
-                    <span className="rounded-md bg-[#eee9ff] px-2 py-0.5 font-mono font-black text-[var(--lx-primary)]">
+                    <span className="rounded-md bg-[var(--lx-surface)] px-2 py-0.5 font-mono font-black text-[var(--lx-primary)]">
                       {item.cefr} ({item.scorePercent}%)
                     </span>
                   </div>
-                  <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-[#edf1fb]">
+                  <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-[var(--lx-surface)]">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)]"
                       style={{ width: `${item.scorePercent}%` }}
@@ -170,12 +170,12 @@ export default function LearnerModelInspectorPage() {
           <section className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-extrabold tracking-widest text-[#d9480f]">
+                <p className="text-[11px] font-extrabold tracking-widest text-[var(--lx-warning)]">
                   PHONETICS & PRONUNCIATION
                 </p>
                 <h3 className="text-xl font-black">L1 Transfer & Spaced Repetition Queue</h3>
               </div>
-              <span className="rounded-full bg-[#fff0eb] px-3 py-1 text-xs font-black text-[#d9480f]">
+              <span className="rounded-full bg-[var(--lx-warning)] px-3 py-1 text-xs font-black text-[var(--lx-warning)]">
                 Lurexa Coach
               </span>
             </div>
@@ -184,7 +184,7 @@ export default function LearnerModelInspectorPage() {
               {PHONEME_TARGETS.map((target) => (
                 <div
                   key={target.phoneme}
-                  className="flex items-center justify-between rounded-2xl border border-[#edf1fb] bg-[var(--lx-surface)] p-4"
+                  className="flex items-center justify-between rounded-2xl border border-[var(--lx-surface)] bg-[var(--lx-surface)] p-4"
                 >
                   <div>
                     <span className="font-mono text-xs font-bold text-[var(--lx-muted)]">
@@ -196,10 +196,10 @@ export default function LearnerModelInspectorPage() {
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-black ${
                       target.status === "struggling"
-                        ? "bg-[#fff0eb] text-[#d9480f]"
+                        ? "bg-[var(--lx-warning)] text-[var(--lx-warning)]"
                         : target.status === "emerging"
-                          ? "bg-[#edf5ff] text-[#2275d7]"
-                          : "bg-[#e4f8f2] text-[#137867]"
+                          ? "bg-[var(--lx-surface)] text-[var(--lx-secondary)]"
+                          : "bg-[var(--lx-surface)] text-[var(--lx-success)]"
                     }`}
                   >
                     {target.status.toUpperCase()}

@@ -20,5 +20,5 @@ export function DocsRelatedExperiences() {
     { kind: "admin", title: "Lurexa Admin", description: "See trust, access, institutional operations, and ecosystem governance represented in the administrative experience.", href: adminUrl, cta: "Open Admin" },
   ];
 
-  return <div className="bg-[#f5f7ff] px-5 pb-16 sm:px-8"><div className="mx-auto max-w-[1480px]"><RelatedExperiences items={items} eyebrow="FROM DOCUMENTATION TO EXPERIENCE" title="See where Lurexa decisions become real product behavior." description="Docs explains the system. The connected products show how those architecture, curriculum, design, and governance decisions appear in practice." /></div></div>;
+  return <div className="bg-[var(--lx-surface)] px-5 pb-16 sm:px-8"><div className="mx-auto max-w-[1480px]"><RelatedExperiences items={items} eyebrow="FROM DOCUMENTATION TO EXPERIENCE" title="See where Lurexa decisions become real product behavior." description="Docs explains the system. The connected products show how those architecture, curriculum, design, and governance decisions appear in practice." /></div></div>;
 }

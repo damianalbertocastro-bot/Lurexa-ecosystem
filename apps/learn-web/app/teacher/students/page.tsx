@@ -148,19 +148,19 @@ export default function TeacherStudentsPage() {
                 type="button"
                 onClick={() => selectLearner(learner)}
                 aria-pressed={selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId}
-                className={`w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)] ${selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId ? "border-[var(--lx-secondary)] bg-[#eef3ff]" : "border-[#e3e9f7] bg-[#fbfcff] hover:border-[#b9c5ea]"}`}
+                className={`w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)] ${selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId ? "border-[var(--lx-secondary)] bg-[var(--lx-surface)]" : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-border)]"}`}
               >
-                <div className="flex items-center justify-between gap-4"><div><b className="text-[#132a72]">{learner.displayName}</b><p className="mt-1 text-xs text-[var(--lx-muted)]">{learner.completedLessons}/{learner.totalLessons} lessons completed</p></div><span className="text-sm font-black text-[var(--lx-secondary)]">{learner.progressPercent}%</span></div>
+                <div className="flex items-center justify-between gap-4"><div><b className="text-[var(--color-brand-navy)]">{learner.displayName}</b><p className="mt-1 text-xs text-[var(--lx-muted)]">{learner.completedLessons}/{learner.totalLessons} lessons completed</p></div><span className="text-sm font-black text-[var(--lx-secondary)]">{learner.progressPercent}%</span></div>
               </Button>) : <p className="rounded-2xl bg-[var(--lx-surface)] p-4 text-sm text-[var(--lx-muted)]">No participating learners yet.</p>}</div>
             </div>) : <p className="text-sm text-[var(--lx-muted)]">No authorized course participation is available yet.</p>}
           </div>
         </section>
 
         <section aria-label="Learner instructional support" className="min-w-0">
-          {!selected ? <div className="rounded-3xl border border-dashed border-[#cbd6f1] bg-white p-8 text-sm text-[var(--lx-muted)]">Select a learner from an authorized Learn course roster to review instructional support.</div> : <>
+          {!selected ? <div className="rounded-3xl border border-dashed border-[var(--lx-border)] bg-white p-8 text-sm text-[var(--lx-muted)]">Select a learner from an authorized Learn course roster to review instructional support.</div> : <>
             <article className="mb-5 rounded-3xl border border-[var(--lx-surface)] bg-white p-5 shadow-sm">
               <p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">SELECTED LEARNER</p>
-              <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-black text-[var(--color-brand-navy)]">{selected.displayName}</h2><p className="mt-1 text-sm text-[var(--lx-muted)]">{selected.courseTitle} · {selected.progressPercent}% course progress</p></div><span className="rounded-full bg-[#eef3ff] px-3 py-1.5 text-xs font-bold text-[var(--lx-secondary)]">Learn instructional support</span></div>
+              <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-black text-[var(--color-brand-navy)]">{selected.displayName}</h2><p className="mt-1 text-sm text-[var(--lx-muted)]">{selected.courseTitle} · {selected.progressPercent}% course progress</p></div><span className="rounded-full bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-bold text-[var(--lx-secondary)]">Learn instructional support</span></div>
             </article>
             {!signatureEnabled ? <div className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7"><p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">SIGNATURE EXPERIENCE</p><h3 className="mt-2 text-xl font-black text-[var(--color-brand-navy)]">Learner Pulse rollout is currently off.</h3><p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">Enable <code className="rounded bg-[var(--lx-surface)] px-1.5 py-1">NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1=on</code> in a controlled environment to expose the purpose-scoped projection to authorized Learn educators.</p></div> : loadingPulse ? <div role="status" aria-live="polite" className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 text-sm text-[var(--lx-muted)]">Loading evidence-aware learner support…</div> : pulse ? <LearnerPulse pulse={pulse} /> : <div className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 text-sm text-[var(--lx-muted)]">No learner projection is available for this selection.</div>}
           </>}
@@ -172,10 +172,10 @@ export default function TeacherStudentsPage() {
       </Card>
 
       <Card title="Student invitations" subtitle="A student becomes active after accepting an invitation">
-        {loading ? <p className="text-[var(--lx-muted)]">Loading invitations...</p> : invitations.length === 0 ? <p className="text-[var(--lx-muted)]">No active invitations yet.</p> : <div className="divide-y divide-[#edf1fb]">{invitations.map((invitation) => <div key={invitation.id} className="flex items-center justify-between py-3"><div><p className="font-medium text-[var(--color-brand-navy)]">{invitation.email}</p><p className="text-xs text-[var(--lx-muted)]">Code: {invitation.code}</p></div><Badge variant={invitation.usedAt ? "success" : "info"}>{invitation.usedAt ? "Active" : "Invited"}</Badge></div>)}</div>}
+        {loading ? <p className="text-[var(--lx-muted)]">Loading invitations...</p> : invitations.length === 0 ? <p className="text-[var(--lx-muted)]">No active invitations yet.</p> : <div className="divide-y divide-[var(--lx-surface)]">{invitations.map((invitation) => <div key={invitation.id} className="flex items-center justify-between py-3"><div><p className="font-medium text-[var(--color-brand-navy)]">{invitation.email}</p><p className="text-xs text-[var(--lx-muted)]">Code: {invitation.code}</p></div><Badge variant={invitation.usedAt ? "success" : "info"}>{invitation.usedAt ? "Active" : "Invited"}</Badge></div>)}</div>}
       </Card>
 
-      {roster?.limitations?.length ? <aside className="rounded-2xl bg-[var(--lx-surface)] px-5 py-4 text-xs leading-5 text-[var(--lx-muted)]"><b className="text-[#30457f]">Roster limitations:</b> {roster.limitations.join(" ")}</aside> : null}
+      {roster?.limitations?.length ? <aside className="rounded-2xl bg-[var(--lx-surface)] px-5 py-4 text-xs leading-5 text-[var(--lx-muted)]"><b className="text-[var(--lx-muted)]">Roster limitations:</b> {roster.limitations.join(" ")}</aside> : null}
     </div>
   </>;
 }

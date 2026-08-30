@@ -131,7 +131,7 @@ export default function DominicanFieldPilotAnalyticsPage() {
         >
           <div className="overflow-x-auto rounded-2xl border border-[var(--lx-border)] mt-4">
             <table className="w-full min-w-[700px] text-left text-xs">
-              <thead className="sticky top-0 border-b border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
+              <thead className="sticky top-0 z-10 border-b border-[var(--lx-border)] bg-[var(--lx-canvas)]/95 backdrop-blur-md shadow-xs text-[10px] font-black uppercase tracking-[.13em] text-[var(--lx-muted)]">
                 <tr>
                   <th className="px-4 py-3">Region &amp; Dialect</th>
                   <th className="px-4 py-3">Cohort Share</th>

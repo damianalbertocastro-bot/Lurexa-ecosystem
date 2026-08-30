@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
-import { Button } from "@lurexa/ui/Button";
+import { Button } from "@lurexa/ui/button";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { useConfetti } from "@lurexa/ui/useConfetti";
 
@@ -89,7 +89,7 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
 
   return (
     <Card
-      className="border-0 bg-white shadow-lg shadow-slate-200/60"
+      className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60 dark:shadow-none"
       title="Recent milestones"
       subtitle="Authentic learning achievements"
       action={
@@ -111,20 +111,20 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
                 role="button"
                 tabIndex={0}
                 aria-label={`Milestone: ${milestone.title}`}
-                className="flex cursor-pointer items-center gap-3.5 rounded-2xl border border-slate-100 bg-slate-50/70 p-3 transition hover:bg-slate-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="group flex cursor-pointer items-center gap-3.5 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/60 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--lx-primary)]/40 hover:bg-[var(--lx-canvas)] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] active:scale-[0.99] motion-reduce:transform-none"
               >
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white text-xl shadow-sm border border-slate-100">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] text-xl shadow-xs transition-transform duration-200 group-hover:scale-110 motion-reduce:transform-none">
                   {milestone.icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-bold text-[var(--color-brand-navy)]">
+                  <p className="truncate text-xs font-bold text-[var(--lx-ink)]">
                     {milestone.title}
                   </p>
-                  <p className="truncate text-[11px] text-slate-500">
+                  <p className="truncate text-[11px] text-[var(--lx-muted)]">
                     {milestone.description}
                   </p>
                 </div>
-                <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                <span className="rounded-full bg-[var(--lx-primary)]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[var(--lx-primary)]">
                   {milestone.earnedDate}
                 </span>
               </div>
@@ -133,11 +133,13 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
             <div className="pt-1 text-right">
               <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   playClick();
                   router.push("/dashboard/points");
                 }}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-1"
+                className="rounded-xl px-2 text-xs font-bold text-[var(--lx-primary)] hover:text-[var(--lx-primary)]/80"
               >
                 View all points & achievements →
               </Button>
@@ -145,14 +147,14 @@ export const MilestoneAchievementsCard: React.FC<MilestoneAchievementsCardProps>
           </div>
         ) : (
           /* Clean motivating empty state */
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 p-5 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm border border-slate-100">
+          <div className="rounded-2xl border border-dashed border-[var(--lx-border)] bg-[var(--lx-canvas)]/50 p-5 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] text-2xl shadow-xs">
               🎯
             </div>
-            <p className="mt-3 text-xs font-bold text-slate-700">
+            <p className="mt-3 text-xs font-bold text-[var(--lx-ink)]">
               No milestones unlocked yet
             </p>
-            <p className="mt-1 text-[11px] leading-5 text-slate-500">
+            <p className="mt-1 text-[11px] leading-5 text-[var(--lx-muted)]">
               Complete your first interactive lesson or Coach session to earn your first milestone badge.
             </p>
             {onStartLesson && (

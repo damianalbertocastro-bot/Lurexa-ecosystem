@@ -17,6 +17,7 @@ import { CoachPracticeCard } from "./components/CoachPracticeCard";
 import { SupportHelpModal } from "./components/SupportHelpModal";
 import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
 import { UniversalLearnerModelCard } from "./components/UniversalLearnerModelCard";
+import { SpecializedTracksCard } from "./components/SpecializedTracksCard";
 
 interface LearnerCourseSummary {
   course: Course;
@@ -293,6 +294,7 @@ export default function StudentDashboardPage() {
             </section>
 
             <CoachPracticeCard />
+            <SpecializedTracksCard />
           </main>
 
           <aside className="space-y-8 lg:col-span-1" aria-label="Learning momentum and rewards">

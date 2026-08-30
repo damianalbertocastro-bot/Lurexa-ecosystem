@@ -52,12 +52,12 @@ export default function SignupPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mb-7"><LurexaLearnLogo href={ecosystemUrl} /></div>
-      <Card title="Start your Lurexa path." subtitle="Join a class or create your educator space." className="w-full max-w-md border-[#dfe7fb] p-7 sm:p-8">
-        <div className="mb-7 flex rounded-xl bg-[#eef3ff] p-1.5">
+      <Card title="Start your Lurexa path." subtitle="Join a class or create your educator space." className="w-full max-w-md border-[var(--lx-border)] p-7 sm:p-8">
+        <div className="mb-7 flex rounded-xl bg-[var(--lx-surface)] p-1.5">
           <Button
             type="button"
             className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "student" ? "bg-white text-[var(--color-brand-navy)] shadow-sm" : "text-[#6b7aa4]"
+              mode === "student" ? "bg-white text-[var(--color-brand-navy)] shadow-sm" : "text-[var(--lx-muted)]"
             }`}
             onClick={() => setMode("student")}
           >

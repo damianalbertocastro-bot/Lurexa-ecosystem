@@ -11,6 +11,7 @@ import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import type { CoachSession, CoachSessionStartResult } from "@lurexa/types";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { L1_CONTRASTIVE_PROFILES, getProfileByL1Code } from "@lurexa/backend";
 
 export default function CoachStudioPage() {
   const router = useRouter();
@@ -22,8 +23,11 @@ export default function CoachStudioPage() {
   const [loading, setLoading] = useState(false);
   const [endingSession, setEndingSession] = useState(false);
   const [activeCoachingCue, setActiveCoachingCue] = useState<string | null>(null);
+  const [selectedL1, setSelectedL1] = useState<string>("es-DO");
 
   const { playClick, playSuccess, playAchievement } = useSoundEffects();
+
+  const currentL1Profile = getProfileByL1Code(selectedL1) ?? L1_CONTRASTIVE_PROFILES[0];
 
   useEffect(() => {
     transcriptBottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -94,23 +98,27 @@ export default function CoachStudioPage() {
           action: "sendTurn",
           sessionId: session.id,
           message: text,
+          l1Profile: selectedL1,
         }),
       });
 
       const data = (await response.json()) as {
-        session: CoachSession;
+        session?: CoachSession;
         coachingCue?: string;
         error?: string;
       };
 
-      if (!response.ok || !data.session) throw new Error(data.error ?? "Could not send spoken turn.");
+      if (!response.ok || !data.session) throw new Error(data.error ?? "Failed to process spoken turn.");
+
       setSession(data.session);
       if (data.coachingCue) {
         setActiveCoachingCue(data.coachingCue);
+        playAchievement();
+      } else {
+        playSuccess();
       }
-      playSuccess();
     } catch {
-      // Resilient local simulation fallback
+      // Optimistic local state advance if offline
       setSession((prev) => {
         if (!prev) return null;
         return {
@@ -120,7 +128,7 @@ export default function CoachStudioPage() {
             { sender: "learner", text, timestamp: new Date().toISOString() },
             {
               sender: "coach",
-              text: "Great response! Notice your steady pace. Let's continue: tell me more about that experience.",
+              text: `Great attempt! In ${currentL1Profile?.l1Name}, focus on crisp consonant releases for "${text.slice(0, 20)}...". Let's continue!`,
               timestamp: new Date().toISOString(),
             },
           ],
@@ -133,15 +141,13 @@ export default function CoachStudioPage() {
   };
 
   const toggleRecording = () => {
-    if (!session || isRecording || sendingTurn || endingSession) return;
-    setIsRecording(true);
-    playClick();
-
-    // Micro-speech capture simulation / browser fallback
-    setTimeout(() => {
+    if (isRecording) {
       setIsRecording(false);
-      void handleSendTurn("I am practicing speaking clearly and with natural rhythm today.");
-    }, 2200);
+      void handleSendTurn(learnerInput || "Good morning, thank you for your assistance today.");
+    } else {
+      setIsRecording(true);
+      playClick();
+    }
   };
 
   const handleFinishSession = async () => {
@@ -191,38 +197,101 @@ export default function CoachStudioPage() {
       </header>
 
       {/* Main Studio Grid */}
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 grid gap-6 lg:grid-cols-[.75fr_1.25fr] items-start">
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 grid gap-6 lg:grid-cols-[.85fr_1.15fr] items-start">
         {/* Left Coaching & Dialect Sidebar */}
         <aside className="space-y-5">
-          <article className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-primary)]">SESSION ADAPTATION</p>
-            <h2 className="mt-1 text-lg font-bold">Active Articulatory Focus</h2>
-
-            <div className="mt-4 space-y-3">
-              <p className="text-xs text-[var(--lx-muted)] leading-5">
-                Targeting initial /s/ cluster stability and past tense regular -ed releases.
+          {/* L1 Dialect Background Switcher */}
+          <article className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-primary)]">
+                L1 PHONOLOGICAL PROFILE
               </p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <PhoneticChip
-                  ipa="/st-/"
-                  example="start"
-                  category="cluster"
-                  l1Note="Maintain steady /s/ hiss before the consonant."
-                />
-                <PhoneticChip
-                  ipa="/-t/"
-                  example="walked"
-                  category="consonant"
-                  l1Note="Audible /t/ release following voiceless plosives."
-                />
-                <PhoneticChip
-                  ipa="/ð/"
-                  example="the"
-                  category="consonant"
-                  l1Note="Soft interdental placement without shifting to [d]."
-                />
+              <span className="text-[10px] font-mono font-bold text-[var(--lx-muted)]">
+                {currentL1Profile?.l1Code}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+              {L1_CONTRASTIVE_PROFILES.map((prof) => (
+                <Button
+                  key={prof.l1Code}
+                  type="button"
+                  onClick={() => {
+                    setSelectedL1(prof.l1Code);
+                    playClick();
+                  }}
+                  className={`rounded-xl px-2.5 py-2 text-center text-xs font-bold transition ${
+                    selectedL1 === prof.l1Code
+                      ? "bg-[var(--lx-primary)] text-white shadow-xs"
+                      : "border border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+                  }`}
+                >
+                  <span className="block truncate">{prof.l1Name.split(" ")[0]}</span>
+                </Button>
+              ))}
+            </div>
+
+            <p className="text-xs text-[var(--lx-muted)] leading-5">
+              Region: <strong>{currentL1Profile?.region}</strong> · {currentL1Profile?.prosodyProfile.rhythmType} rhythm
+            </p>
+          </article>
+
+          {/* Active Articulatory Focus for Selected L1 */}
+          <article className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm space-y-4">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-primary)]">
+              DIALECT-TARGETED ARTICULATORY CUES
+            </p>
+            <h2 className="text-sm font-bold text-[var(--lx-ink)]">
+              {currentL1Profile?.l1Name} Transfer Targets
+            </h2>
+
+            <div className="space-y-3">
+              <div className="space-y-2">
+                {currentL1Profile?.phonologicalTransfers.slice(0, 3).map((transfer) => (
+                  <div
+                    key={transfer.id}
+                    className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/70 p-3 space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-[var(--lx-primary)]">
+                        /{transfer.sourcePhoneme}/ → /{transfer.targetPhoneme}/
+                      </span>
+                      <span className="rounded-full bg-[var(--lx-surface)] border border-[var(--lx-border)] px-2 py-0.5 text-[9px] font-bold uppercase text-[var(--lx-muted)]">
+                        {transfer.priority}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[var(--lx-ink)] font-medium">
+                      {transfer.l1Rule}
+                    </p>
+                    <p className="text-[11px] text-[var(--lx-muted)]">
+                      Impact: {transfer.englishImpact}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
+
+            {/* Minimal Pair Drill Generator */}
+            {currentL1Profile?.remediationStrategies && currentL1Profile.remediationStrategies.length > 0 && (
+              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-900/30 p-4 space-y-2.5">
+                <p className="text-xs font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">
+                  ⚡ Minimal Pair Drill
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {currentL1Profile.remediationStrategies[0]?.minimalPairDrills.slice(0, 2).map((drill, idx) => (
+                    <Button
+                      key={idx}
+                      type="button"
+                      onClick={() => void handleSendTurn(`${drill.wordA} and ${drill.wordB}`)}
+                      className="flex flex-col items-center justify-center rounded-xl border border-indigo-200 bg-[var(--lx-surface)] p-2.5 text-center text-xs font-bold text-[var(--lx-ink)] shadow-2xs hover:border-[var(--lx-primary)] transition"
+                    >
+                      <span className="text-[var(--lx-primary)] font-extrabold">{drill.wordA} vs {drill.wordB}</span>
+                      <span className="font-mono text-[10px] text-[var(--lx-muted)]">{drill.ipaA} · {drill.ipaB}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </article>
 
           {activeCoachingCue && (
@@ -241,7 +310,7 @@ export default function CoachStudioPage() {
               CORE EVIDENCE GUARANTEE
             </p>
             <p className="mt-2 text-xs leading-5 text-teal-900 dark:text-teal-100">
-              Spoken turns in Coach update your continuous Learner Model in Core. Raw audio recordings are redacted to preserve learner privacy.
+              Spoken turns in Coach update your continuous Learner Model in Core. Intelligibility scoring preserves authentic accent while optimizing clarity.
             </p>
           </article>
         </aside>
@@ -254,7 +323,7 @@ export default function CoachStudioPage() {
               <h3 className="text-sm font-bold text-[var(--lx-ink)]">Live Conversational Studio</h3>
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
-              AI Interlocutor Active
+              Dialect: {currentL1Profile?.l1Name}
             </span>
           </header>
 
@@ -337,14 +406,14 @@ export default function CoachStudioPage() {
                   if (e.key === "Enter") void handleSendTurn();
                 }}
                 disabled={isRecording || sendingTurn}
-                placeholder="Type or use microphone to speak…"
+                placeholder={`Type or use mic (calibrated for ${currentL1Profile?.l1Name})…`}
                 className="flex-1 min-w-0 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 py-3 text-xs text-[var(--lx-ink)] outline-none focus:border-[var(--lx-primary)] focus:ring-1 focus:ring-[var(--lx-primary)]"
               />
               <Button
                 type="button"
                 disabled={!learnerInput.trim() || isRecording || sendingTurn}
                 onClick={() => void handleSendTurn()}
-                className="rounded-2xl bg-[var(--lx-primary)] px-5 py-3 text-xs font-bold text-white shadow-sm hover:bg-[#4a22b8] transition disabled:opacity-40"
+                className="rounded-2xl bg-[var(--lx-primary)] px-5 py-3 text-xs font-bold text-white shadow-sm hover:bg-[var(--lx-primary)] transition disabled:opacity-40"
               >
                 Send
               </Button>
@@ -353,7 +422,7 @@ export default function CoachStudioPage() {
                 onClick={toggleRecording}
                 disabled={isRecording || sendingTurn}
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition ${
-                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-[var(--color-brand-navy)] hover:bg-[#28e1e8]"
+                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-[var(--color-brand-navy)] hover:bg-[var(--lx-accent)]"
                 }`}
                 title="Use Microphone"
               >

@@ -442,7 +442,7 @@ export default function PlacementPage() {
               </h3>
               <div className="grid gap-8 lg:grid-cols-[1.1fr_1.3fr] lg:items-center">
                 {/* Radar Chart Visualizer */}
-                <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-100 bg-[#f8faff] p-6 shadow-inner">
+                <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-100 bg-[var(--lx-canvas)] p-6 shadow-inner">
                   <SkillRadarChart
                     skills={[
                       { skill: "Listening", score: result.skillBreakdown.listening ? Math.round((result.skillBreakdown.listening.score / result.skillBreakdown.listening.maxScore) * 100) : 60 },

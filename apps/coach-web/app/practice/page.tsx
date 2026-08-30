@@ -10,7 +10,7 @@ const ACTIVE_SESSION_KEY = "lurexa.coach.active-session";
 
 function Bubble({ sender, text }: { sender: "coach" | "learner"; text: string }) {
   const coach = sender === "coach";
-  return <div className={`flex ${coach ? "justify-start" : "justify-end"}`}><article className={`max-w-[86%] rounded-[22px] px-5 py-4 text-sm leading-6 shadow-sm sm:max-w-[74%] ${coach ? "rounded-tl-md border border-violet-100 bg-white text-[#18306f]" : "rounded-tr-md bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white"}`}><p className={`mb-1 text-[10px] font-black uppercase tracking-[.16em] ${coach ? "text-[var(--lx-primary)]" : "text-cyan-100"}`}>{coach ? "Lurexa Coach" : "You"}</p><p className="whitespace-pre-wrap">{text}</p></article></div>;
+  return <div className={`flex ${coach ? "justify-start" : "justify-end"}`}><article className={`max-w-[86%] rounded-[22px] px-5 py-4 text-sm leading-6 shadow-sm sm:max-w-[74%] ${coach ? "rounded-tl-md border border-violet-100 bg-white text-[var(--color-brand-navy)]" : "rounded-tr-md bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white"}`}><p className={`mb-1 text-[10px] font-black uppercase tracking-[.16em] ${coach ? "text-[var(--lx-primary)]" : "text-cyan-100"}`}>{coach ? "Lurexa Coach" : "You"}</p><p className="whitespace-pre-wrap">{text}</p></article></div>;
 }
 
 function goTo(ref: string) {

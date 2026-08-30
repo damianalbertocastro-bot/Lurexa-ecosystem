@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function InsightLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+        <SkipToContent targetId="main-content" />
         <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
             <div className="flex items-center gap-6">
@@ -77,7 +79,7 @@ export default function InsightLayout({
           </div>
         </header>
 
-        <main className="flex-1">
+        <main id="main-content" className="flex-1">
           {children}
         </main>
 
