@@ -7,9 +7,11 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
+import { getEcosystemUrl } from "@lurexa/config/domains";
 import { useTeachAuth } from "./TeachAuthProvider";
 import { Button } from "@lurexa/ui/button";
 
+const ecosystemUrl = getEcosystemUrl("root");
 const nav = [
   ["Home", "/"],
   ["Dashboard", "/dashboard"],
