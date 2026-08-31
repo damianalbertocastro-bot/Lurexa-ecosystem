@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { DocsMark } from "@lurexa/ui/DocsMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
-import { getEcosystemUrl } from "@lurexa/config/domains";
 
-const ecosystemUrl = getEcosystemUrl("root");
 const sections = [
   ["Architecture", "/architecture"],
   ["Product", "/product"],

@@ -60,19 +60,17 @@ export default function DashboardPage() {
   const [evidence, setEvidence] = useState<TeachEvidenceSubmission[]>([]);
   const [recommendations, setRecommendations] = useState<TeachRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return !localStorage.getItem(TEACH_TOUR_STORAGE_KEY);
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if (!user) return;
-
-    try {
-      const hasSeenTour = localStorage.getItem(TEACH_TOUR_STORAGE_KEY);
-      if (!hasSeenTour) {
-        setIsTourOpen(true);
-      }
-    } catch {
-      // Ignore localStorage errors
-    }
 
     (async () => {
       try {
@@ -146,7 +144,7 @@ export default function DashboardPage() {
               ["Active learning", activeEnrollment ? `${activeEnrollment.progressPercent}%` : "Not enrolled", activeEnrollment ? "Current course progress" : "Choose a professional course"],
               ["Evidence", String(evidence.length), `${verifiedEvidence} verified · ${submittedEvidence} awaiting review`],
               ["Community", String(profile?.communityContributionScore ?? 0), "Contribution score"],
-            ].map(([label, value, detail], i) => (
+            ].map(([label, value, detail]) => (
               <article
                 key={label}
                 className="rounded-[24px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-[var(--lx-card-shadow)]"
