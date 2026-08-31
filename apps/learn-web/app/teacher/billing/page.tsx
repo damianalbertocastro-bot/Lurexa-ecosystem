@@ -10,7 +10,7 @@ export default function TeacherBillingPage() {
         breadcrumbs={[{ label: "Dashboard", href: "/teacher/dashboard" }, { label: "Billing" }]}
       />
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-[30px] border border-[var(--lx-border)] bg-white p-8 shadow-sm">
+        <section className="rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-8 shadow-sm">
           <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
             Billing preview · no payment processing
           </span>

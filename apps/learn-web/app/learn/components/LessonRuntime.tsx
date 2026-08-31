@@ -99,19 +99,19 @@ function readCapability(data: Record<string, unknown>): LearningCapability | nul
 function getStageBadge(stage?: string): { label: string; color: string; icon: string } {
   switch (stage) {
     case "CONTEXTUAL_INPUT":
-      return { label: "Contextual Input", color: "bg-sky-50 text-sky-700 border-sky-200", icon: "🎧" };
+      return { label: "Contextual Input", color: "bg-[var(--lx-info-surface)] text-[var(--lx-info)] border-[var(--lx-info)]/30", icon: "🎧" };
     case "COMPREHENSION":
-      return { label: "Comprehension Check", color: "bg-violet-50 text-violet-700 border-violet-200", icon: "🎯" };
+      return { label: "Comprehension Check", color: "bg-[var(--lx-canvas)] text-[var(--lx-primary)] border-[var(--lx-primary)]/30", icon: "🎯" };
     case "GUIDED_PRACTICE":
-      return { label: "Guided Practice", color: "bg-indigo-50 text-indigo-700 border-indigo-200", icon: "🧩" };
+      return { label: "Guided Practice", color: "bg-[var(--lx-canvas)] text-[var(--lx-secondary)] border-[var(--lx-secondary)]/30", icon: "🧩" };
     case "PHONETICS_FOCUS":
-      return { label: "Phonetics & Pronunciation", color: "bg-amber-50 text-amber-700 border-amber-200", icon: "🗣️" };
+      return { label: "Phonetics & Pronunciation", color: "bg-[var(--lx-warning-surface)] text-[var(--lx-warning)] border-[var(--lx-warning)]/30", icon: "🗣️" };
     case "CONVERSATION":
-      return { label: "AI Conversation", color: "bg-teal-50 text-teal-700 border-teal-200", icon: "💬" };
+      return { label: "AI Conversation", color: "bg-[var(--lx-canvas)] text-[var(--lx-accent)] border-[var(--lx-accent)]/30", icon: "💬" };
     case "CREATE_APPLY":
-      return { label: "Create & Apply", color: "bg-rose-50 text-rose-700 border-rose-200", icon: "✍️" };
+      return { label: "Create & Apply", color: "bg-[var(--lx-destructive-surface)] text-[var(--lx-destructive)] border-[var(--lx-destructive)]/30", icon: "✍️" };
     default:
-      return { label: "Interactive Practice", color: "bg-slate-50 text-slate-700 border-slate-200", icon: "⚡" };
+      return { label: "Interactive Practice", color: "bg-[var(--lx-canvas)] text-[var(--lx-muted)] border-[var(--lx-border)]", icon: "⚡" };
   }
 }
 
@@ -199,7 +199,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
     }, 4500);
   }
 
-  function handleCapabilityCompleted(activityId: string) {
+  function handleCapabilityCompleted(activityId: string, score: number = 100) {
     setPayload((current) => {
       if (!current) return current;
       const existingAttempts = current.progress?.attempts ?? [];
@@ -207,11 +207,11 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
         ...existingAttempts.filter((a) => a.quizId !== activityId),
         {
           quizId: activityId,
-          score: 100,
+          score: Math.max(0, Math.min(100, Math.round(score))),
           maxScore: 100,
-          passed: true,
+          passed: score >= 60,
           completedAt: new Date().toISOString(),
-          firstAttemptPassed: true,
+          firstAttemptPassed: score >= 60,
           timeSpentSeconds: 15,
         },
       ];
@@ -477,7 +477,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center" role="status" aria-live="polite" aria-busy="true">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-        <p className="mt-4 text-sm font-semibold text-slate-600">Loading interactive lesson…</p>
+        <p className="mt-4 text-sm font-semibold text-[var(--lx-muted)]">Loading interactive lesson…</p>
       </div>
     );
   }
@@ -485,10 +485,10 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
   if (error || !payload) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-8 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">Lurexa Learn</p>
           <h1 className="mt-3 text-3xl font-bold text-slate-950">This lesson is not available.</h1>
-          <p className="mt-3 text-slate-600">{error ?? "We could not find this lesson in your learning path."}</p>
+          <p className="mt-3 text-[var(--lx-muted)]">{error ?? "We could not find this lesson in your learning path."}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-500" onClick={() => router.refresh()}>Try again</Button>
             <Button className="rounded-xl border border-indigo-200 px-5 py-3 font-semibold text-indigo-700 hover:bg-indigo-50" onClick={() => router.push("/dashboard")}>Back to dashboard</Button>
@@ -505,12 +505,12 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
   return (
     <main className="min-h-screen bg-[var(--learn-canvas)] pb-16">
       {/* Sticky Top Header & Progress */}
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-[var(--lx-border)]/80 bg-white/95 backdrop-blur-md">
         <div className="mx-auto max-w-4xl px-4 py-3 sm:px-8">
           <div className="flex items-center justify-between gap-4">
             <Button
               onClick={() => router.push("/dashboard")}
-              className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 transition"
+              className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] hover:text-indigo-600 transition"
             >
               <span>←</span>
               <span>Dashboard</span>
@@ -527,13 +527,13 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
           {/* Progress Bar */}
           <div className="mt-3 flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--lx-canvas)]">
               <div
                 className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="text-xs font-bold text-slate-500">
+            <span className="text-xs font-bold text-[var(--lx-muted)]">
               {completedInteractiveBlocks}/{totalInteractiveBlocks} done ({progressPercent}%)
             </span>
           </div>
@@ -543,13 +543,13 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       {/* Lesson Content Body */}
       <div className="mx-auto max-w-4xl space-y-6 px-4 pt-6 sm:px-8">
         {/* Title Hero */}
-        <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+        <section className="rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
           <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">English A1 Core Lesson</p>
           <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
             {lesson.title}
           </h1>
-          {lesson.summary ? <p className="mt-3 max-w-2xl text-base text-slate-600 leading-relaxed">{lesson.summary}</p> : null}
-          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500">
+          {lesson.summary ? <p className="mt-3 max-w-2xl text-base text-[var(--lx-muted)] leading-relaxed">{lesson.summary}</p> : null}
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-medium text-[var(--lx-muted)]">
             <span className="flex items-center gap-1.5">
               <span>⏱️</span>
               <span>~{lesson.estimatedMinutes} minutes</span>
@@ -569,7 +569,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[.16em] text-amber-800">Spaced Retrieval Session</p>
             <h2 className="mt-2 text-xl font-bold text-slate-950">Recall before reviewing solutions.</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-700">
+            <p className="mt-2 text-sm leading-6 text-[var(--lx-muted)]">
               Complete at least one activity from memory now. Lurexa records retention evidence without lowering your existing level.
             </p>
           </section>
@@ -590,14 +590,14 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               <section
                 key={block.id}
                 id={`block-${block.id}`}
-                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+                className={`rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <span className="rounded-full bg-[var(--lx-canvas)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)]">
                     📖 Lesson Dialogue &amp; Goal
                   </span>
                 </div>
-                <div className="whitespace-pre-wrap leading-7 text-slate-800 font-medium">
+                <div className="whitespace-pre-wrap leading-7 text-[var(--lx-ink)] font-medium">
                   {text}
                 </div>
               </section>
@@ -610,16 +610,16 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               <section
                 key={block.id}
                 id={`block-${block.id}`}
-                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+                className={`rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
               >
-                <p className="text-sm font-semibold text-slate-900">Learning Media</p>
+                <p className="text-sm font-semibold text-[var(--lx-ink)]">Learning Media</p>
                 {url ? (
                   <a className="mt-3 inline-flex items-center gap-1 font-semibold text-indigo-700 underline hover:text-indigo-900" href={url} target="_blank" rel="noreferrer">
                     <span>Open resource</span>
                     <span>↗</span>
                   </a>
                 ) : (
-                  <p className="mt-2 text-sm text-slate-500">This media resource is unavailable.</p>
+                  <p className="mt-2 text-sm text-[var(--lx-muted)]">This media resource is unavailable.</p>
                 )}
               </section>
             );
@@ -636,7 +636,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               <section
                 key={block.id}
                 id={`block-${block.id}`}
-                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+                className={`rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
               >
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-bold text-indigo-700">
@@ -647,7 +647,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                 <div className="mt-5 grid gap-3" role="group" aria-label={quiz.prompt}>
                   {quiz.options.map((option) => {
                     const isSelected = selected.includes(option);
-                    let optionStyle = "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-slate-50";
+                    let optionStyle = "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:border-indigo-300 hover:bg-[var(--lx-canvas)]";
                     if (isSelected) {
                       optionStyle = "border-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
                     }
@@ -747,21 +747,21 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               <section
                 key={block.id}
                 id={`block-${block.id}`}
-                className={`rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
+                className={`rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8 ${blockWrapperClass}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${stageBadge.color}`}>
                     {stageBadge.icon} {stageBadge.label}
                   </span>
                   {activity.required ? (
-                    <span className="text-xs font-bold text-slate-400">Required Activity</span>
+                    <span className="text-xs font-bold text-[var(--lx-muted)]">Required Activity</span>
                   ) : null}
                 </div>
 
                 <h2 className="mt-4 text-xl font-bold text-slate-950">{activity.title}</h2>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{activity.instructions}</p>
-                <div className="mt-4 rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                  <p className="text-sm font-semibold text-slate-900">{activity.prompt}</p>
+                <p className="mt-2 text-sm text-[var(--lx-muted)] leading-relaxed">{activity.instructions}</p>
+                <div className="mt-4 rounded-2xl bg-[var(--lx-canvas)] p-4 border border-[var(--lx-border)]">
+                  <p className="text-sm font-semibold text-[var(--lx-ink)]">{activity.prompt}</p>
                 </div>
 
                 {/* Short Response Type */}
@@ -776,10 +776,10 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                       onChange={(event) =>
                         setResponses((current) => ({ ...current, [block.id]: event.target.value }))
                       }
-                      className="min-h-32 w-full rounded-2xl border border-slate-200 p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                      className="min-h-32 w-full rounded-2xl border border-[var(--lx-border)] p-4 text-sm text-[var(--lx-ink)] placeholder:text-[var(--lx-muted)] outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                       placeholder="Write your response in English…"
                     />
-                    <div className="flex items-center justify-between text-xs text-slate-400">
+                    <div className="flex items-center justify-between text-xs text-[var(--lx-muted)]">
                       <span>{(responses[block.id] ?? "").length} characters written</span>
                       <span>Target: Clear, short A1 sentences</span>
                     </div>
@@ -802,7 +802,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                         Your Built Sentence (Tap a word to remove):
                       </p>
                       {selected.length === 0 ? (
-                        <p className="text-sm italic text-slate-400">Tap the word chips below to build your sentence in order.</p>
+                        <p className="text-sm italic text-[var(--lx-muted)]">Tap the word chips below to build your sentence in order.</p>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {selected.map((token, index) => (
@@ -822,14 +822,14 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
                     {/* Word Bank */}
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Available Words:</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] mb-2">Available Words:</p>
                       <div className="flex flex-wrap gap-2">
                         {(activity.options ?? []).map((token, index) => (
                           <Button
                             key={`${token}-${index}`}
                             type="button"
                             onClick={() => addSentenceToken(block.id, token)}
-                            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 transition"
+                            className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2.5 text-sm font-semibold text-[var(--lx-ink)] shadow-sm hover:border-indigo-500 hover:bg-indigo-50 transition"
                           >
                             + {token}
                           </Button>
@@ -838,7 +838,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                           <Button
                             type="button"
                             onClick={() => clearSentenceBuilder(block.id)}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 transition"
+                            className="rounded-xl border border-[var(--lx-border)] px-3 py-2 text-xs font-bold text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] transition"
                           >
                             Reset
                           </Button>
@@ -862,7 +862,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                     <div className="grid gap-3" role="group" aria-label={activity.prompt}>
                       {(activity.options ?? []).map((option) => {
                         const isSelected = selected.includes(option);
-                        let optionStyle = "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-slate-50";
+                        let optionStyle = "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:border-indigo-300 hover:bg-[var(--lx-canvas)]";
                         if (isSelected) {
                           optionStyle = "border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
                         }
@@ -954,7 +954,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                 <Button
                   disabled={completing}
                   onClick={() => void finish()}
-                  className="rounded-xl bg-white px-6 py-3 font-bold text-slate-950 hover:bg-slate-100 disabled:opacity-50 transition"
+                  className="rounded-xl bg-[var(--lx-surface)] px-6 py-3 font-bold text-slate-950 hover:bg-[var(--lx-canvas)] disabled:opacity-50 transition"
                 >
                   {completing ? "Saving Evidence…" : "Complete Retrieval Check"}
                 </Button>

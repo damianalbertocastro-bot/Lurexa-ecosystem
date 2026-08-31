@@ -26,3 +26,7 @@ firestore-debug.log
 
 # Local tool configuration that may contain credentials
 .config/*.json
+
+# Test outputs
+test-results/
+playwright-report/

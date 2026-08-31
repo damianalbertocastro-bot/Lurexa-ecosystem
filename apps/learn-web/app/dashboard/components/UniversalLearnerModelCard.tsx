@@ -31,8 +31,8 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
   }, [userId, cefrLevel, activeTier]);
 
   return (
-    <article className="rounded-3xl border border-indigo-100 bg-white p-6 sm:p-8 shadow-lg shadow-indigo-100/50 space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+    <article className="rounded-3xl border border-indigo-100 bg-[var(--lx-surface)] p-6 sm:p-8 shadow-lg shadow-indigo-100/50 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--lx-border)] pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">Universal Learner Model</span>
@@ -41,7 +41,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
           <h2 className="text-xl font-black text-[var(--color-brand-navy)] tracking-tight mt-1">
             Single Evolving Profile across Lurexa
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-[var(--lx-muted)]">
             One learner. One persistent representation adapting across Learn, Coach, and Teach.
           </p>
         </div>
@@ -53,7 +53,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 items-center">
-        <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-slate-50 border border-slate-100">
+        <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-[var(--lx-canvas)] border border-[var(--lx-border)]">
           <SkillRadarChart
             skills={[
               { skill: "Listening", score: 65 },
@@ -66,12 +66,12 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
             ]}
             size={240}
           />
-          <p className="mt-1 text-[11px] font-bold text-slate-500">7-Skill Competency Balance</p>
+          <p className="mt-1 text-[11px] font-bold text-[var(--lx-muted)]">7-Skill Competency Balance</p>
         </div>
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Dominican L1 Transfer Diagnostics:</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)]">Dominican L1 Transfer Diagnostics:</h3>
             <div className="mt-2 space-y-2">
               <div className="flex items-center justify-between rounded-xl bg-amber-50/80 border border-amber-200/80 p-2.5 text-xs text-amber-900">
                 <span className="font-semibold">Coda /s/ &amp; /t/ Weakening</span>

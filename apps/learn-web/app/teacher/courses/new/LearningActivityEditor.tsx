@@ -148,7 +148,7 @@ export function LearningActivityEditor({ drafts, onChange }: Props) {
       </div>
 
       {drafts.map((draft, index) => (
-        <div key={draft.id} className="space-y-3 rounded-xl border border-[var(--lx-border)] bg-white p-3">
+        <div key={draft.id} className="space-y-3 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-[var(--color-brand-navy)]">Activity {index + 1}</p>
             <Button type="button" size="sm" variant="destructive" onClick={() => onChange(drafts.filter((activity) => activity.id !== draft.id))}>Remove</Button>

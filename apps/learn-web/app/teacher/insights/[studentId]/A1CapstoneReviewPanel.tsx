@@ -176,13 +176,13 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
       <div className="space-y-5 pt-2">
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" isLoading={loading} onClick={() => void loadCandidates()}>Load A1 capstone evidence</Button>
-          <span className="text-xs text-slate-500">Only teacher-authorized A1 evidence is returned.</span>
+          <span className="text-xs text-[var(--lx-muted)]">Only teacher-authorized A1 evidence is returned.</span>
         </div>
 
         {candidates.length ? (
           <>
-            <label className="block text-sm font-semibold text-slate-800">Evidence artifact
-              <select value={selectedEvidenceId} onChange={(event) => selectCandidate(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm">
+            <label className="block text-sm font-semibold text-[var(--lx-ink)]">Evidence artifact
+              <select value={selectedEvidenceId} onChange={(event) => selectCandidate(event.target.value)} className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm">
                 {candidates.map((candidate) => (
                   <option key={candidate.evidenceId} value={candidate.evidenceId}>
                     {evidenceLabel(candidate)} · {candidate.lessonId ?? "A1"} · {new Date(candidate.observedAt).toLocaleString()}
@@ -192,11 +192,11 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
             </label>
 
             {selectedCandidate ? (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-[.12em] text-slate-500">Artifact context</p>
-                <p className="mt-2 text-sm font-semibold text-slate-900">{evidenceLabel(selectedCandidate)}</p>
-                <p className="mt-1 text-xs text-slate-600">Competencies: {selectedCandidate.competencyIds.join(", ")}</p>
-                {selectedCandidate.textPreview ? <div className="mt-3 rounded-xl bg-white p-3 text-sm leading-6 text-slate-800 ring-1 ring-slate-200">{selectedCandidate.textPreview}</div> : null}
+              <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-4">
+                <p className="text-xs font-bold uppercase tracking-[.12em] text-[var(--lx-muted)]">Artifact context</p>
+                <p className="mt-2 text-sm font-semibold text-[var(--lx-ink)]">{evidenceLabel(selectedCandidate)}</p>
+                <p className="mt-1 text-xs text-[var(--lx-muted)]">Competencies: {selectedCandidate.competencyIds.join(", ")}</p>
+                {selectedCandidate.textPreview ? <div className="mt-3 rounded-xl bg-[var(--lx-surface)] p-3 text-sm leading-6 text-[var(--lx-ink)] ring-1 ring-slate-200">{selectedCandidate.textPreview}</div> : null}
                 {selectedCandidate.recordingId || selectedCandidate.sessionId ? (
                   <Button variant="ghost" size="sm" isLoading={artifactLoading} onClick={() => void loadArtifact()}>
                     {selectedCandidate.recordingId ? "Load private recording" : "Load private roleplay transcript"}
@@ -204,9 +204,9 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
                 ) : null}
                 {audioUrl ? <audio className="mt-3 w-full" controls preload="metadata" src={audioUrl}>Your browser does not support audio playback.</audio> : null}
                 {transcript ? (
-                  <div className="mt-3 max-h-80 space-y-2 overflow-y-auto rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                  <div className="mt-3 max-h-80 space-y-2 overflow-y-auto rounded-xl bg-[var(--lx-surface)] p-3 ring-1 ring-slate-200">
                     {transcript.map((turn, index) => (
-                      <p key={`${turn.timestamp}-${index}`} className={`rounded-xl px-3 py-2 text-sm ${turn.sender === "learner" ? "ml-8 bg-indigo-50 text-indigo-950" : "mr-8 bg-slate-100 text-slate-800"}`}>
+                      <p key={`${turn.timestamp}-${index}`} className={`rounded-xl px-3 py-2 text-sm ${turn.sender === "learner" ? "ml-8 bg-indigo-50 text-indigo-950" : "mr-8 bg-[var(--lx-canvas)] text-[var(--lx-ink)]"}`}>
                         <strong>{turn.sender === "learner" ? "Learner" : "Tutor"}:</strong> {turn.text}
                       </p>
                     ))}
@@ -216,8 +216,8 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
             ) : null}
 
             <form onSubmit={saveJudgment} className="space-y-4">
-              <label className="block text-sm font-semibold text-slate-800">Capstone requirement
-                <select value={selectedRequirementId} onChange={(event) => setSelectedRequirementId(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm">
+              <label className="block text-sm font-semibold text-[var(--lx-ink)]">Capstone requirement
+                <select value={selectedRequirementId} onChange={(event) => setSelectedRequirementId(event.target.value)} className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm">
                   {selectedCandidate?.requirementIds.map((requirementId) => (
                     <option key={requirementId} value={requirementId}>
                       {requirementId}{selectedCandidate.validatedRequirementIds.includes(requirementId) ? " · already reviewed" : ""}
@@ -226,20 +226,20 @@ export function A1CapstoneReviewPanel({ studentId }: { studentId: string }) {
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-slate-800">Performance judgment
-                <select value={judgment} onChange={(event) => setJudgment(event.target.value as Judgment)} className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm">
+              <label className="block text-sm font-semibold text-[var(--lx-ink)]">Performance judgment
+                <select value={judgment} onChange={(event) => setJudgment(event.target.value as Judgment)} className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm">
                   <option value="meets">Meets the A1 requirement</option>
                   <option value="not_yet">Not yet</option>
                   <option value="inconclusive">Inconclusive / more evidence needed</option>
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-slate-800">Confidence: {Math.round(confidence * 100)}%
+              <label className="block text-sm font-semibold text-[var(--lx-ink)]">Confidence: {Math.round(confidence * 100)}%
                 <Input type="range" min="0.5" max="1" step="0.05" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} className="mt-2 w-full" />
               </label>
 
-              <label className="block text-sm font-semibold text-slate-800">Rationale
-                <textarea value={rationale} onChange={(event) => setRationale(event.target.value)} required rows={4} placeholder="Describe what the learner demonstrated, what was still supported, and why this judgment is defensible." className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm" />
+              <label className="block text-sm font-semibold text-[var(--lx-ink)]">Rationale
+                <textarea value={rationale} onChange={(event) => setRationale(event.target.value)} required rows={4} placeholder="Describe what the learner demonstrated, what was still supported, and why this judgment is defensible." className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm" />
               </label>
 
               {requirementAlreadyValidated ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">This artifact has already been reviewed for the selected requirement. Choose another requirement or artifact.</p> : null}

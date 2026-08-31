@@ -67,34 +67,17 @@ export function CoachShell({
 
           {/* Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <a
-              href={urls.ecosystem}
-              className={`hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                inverse ? "text-slate-300 hover:text-white" : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
-              }`}
-            >
-              Lurexa ↗
-            </a>
-            <a
-              href={urls.learn}
-              className={`hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                inverse ? "text-slate-300 hover:text-white" : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
-              }`}
-            >
-              Learn ↗
-            </a>
-            <a
-              href={urls.teach}
-              className={`hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                inverse ? "text-slate-300 hover:text-white" : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
-              }`}
-            >
-              Teach ↗
-            </a>
-
-
             <ThemeToggle />
             <EcosystemDropdown currentApp="coach" inverse={inverse} />
+
+            <Link
+              href="/login"
+              className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
+                inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
+              }`}
+            >
+              Sign in
+            </Link>
 
             <Link
               href="/practice"
@@ -151,6 +134,9 @@ export function CoachShell({
             <Link href="/practice" className="hover:text-[var(--lx-primary)] transition">
               Speaking Studio
             </Link>
+            <a href={urls.ecosystem} className="hover:text-[var(--lx-primary)] transition">
+              Ecosystem
+            </a>
             <a href={urls.learn} className="hover:text-[var(--lx-primary)] transition">
               Lurexa Learn
             </a>

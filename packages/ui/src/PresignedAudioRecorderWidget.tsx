@@ -112,16 +112,16 @@ export const PresignedAudioRecorderWidget: React.FC<PresignedAudioRecorderWidget
           <button
             type="button"
             onClick={stopRecording}
-            className="flex items-center gap-2 rounded-xl bg-[var(--lx-destructive)] px-5 py-2.5 font-medium text-white shadow hover:bg-[var(--lx-destructive-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-2 active:scale-95 transition-all"
+            className="flex items-center gap-2 rounded-xl bg-[var(--lx-destructive)] px-5 py-2.5 font-medium text-white shadow hover:bg-[var(--lx-destructive-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] focus-visible:ring-offset-2 active:scale-95 transition-all"
           >
-            <span className="h-3 w-3 rounded-full bg-white animate-pulse" />
+            <span className="h-3 w-3 rounded-full bg-white animate-ping" />
             Stop Recording
           </button>
         ) : !audioUrl ? (
           <button
             type="button"
             onClick={startRecording}
-            className="flex items-center gap-2 rounded-xl bg-[var(--lx-primary,#592bd6)] px-5 py-2.5 font-medium text-white shadow hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-2 active:scale-95 transition-all"
+            className="flex items-center gap-2 rounded-xl bg-[var(--lx-primary)] px-5 py-2.5 font-medium text-white shadow hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] focus-visible:ring-offset-2 active:scale-95 transition-all"
           >
             🎤 Start Recording
           </button>
@@ -131,7 +131,7 @@ export const PresignedAudioRecorderWidget: React.FC<PresignedAudioRecorderWidget
               type="button"
               onClick={reset}
               disabled={isUploading}
-              className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2 text-sm font-medium text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-2 disabled:opacity-50 transition-all"
+              className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2 text-sm font-medium text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] focus-visible:ring-offset-2 disabled:opacity-50 transition-all"
             >
               Re-record
             </button>
@@ -139,9 +139,9 @@ export const PresignedAudioRecorderWidget: React.FC<PresignedAudioRecorderWidget
               type="button"
               onClick={uploadAudio}
               disabled={isUploading || Boolean(evidenceRecord)}
-              className="rounded-xl bg-[var(--lx-success)] px-5 py-2.5 font-medium text-white shadow hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring,#1d5add)] focus-visible:ring-offset-2 disabled:opacity-50 active:scale-95 transition-all"
+              className="rounded-xl bg-[var(--lx-success)] px-5 py-2.5 font-medium text-white shadow hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] focus-visible:ring-offset-2 disabled:opacity-50 active:scale-95 transition-all"
             >
-              {isUploading ? "Uploading..." : evidenceRecord ? "Submitted" : "Submit Recording"}
+              {isUploading ? "Uploading..." : evidenceRecord ? "Submitted ✓" : "Submit Recording"}
             </button>
           </>
         )}

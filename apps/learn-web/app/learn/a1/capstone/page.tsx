@@ -54,7 +54,7 @@ export default function A1CapstonePage() {
     return unsubscribe;
   }, []);
 
-  if (loading) return <main className="mx-auto max-w-5xl px-6 py-16 text-slate-600">Loading your A1 project…</main>;
+  if (loading) return <main className="mx-auto max-w-5xl px-6 py-16 text-[var(--lx-muted)]">Loading your A1 project…</main>;
   if (error || !payload) return <main className="mx-auto max-w-3xl px-6 py-16"><div className="rounded-3xl bg-rose-50 p-6 text-rose-900">{error ?? "Capstone unavailable."}</div></main>;
 
   const { definition, result } = payload;
@@ -73,10 +73,10 @@ export default function A1CapstonePage() {
 
       <section className="mt-8 grid gap-4 lg:grid-cols-3">
         {definition.sections.map((section, index) => (
-          <article key={section.id} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <article key={section.id} className="rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200">
             <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-emerald-700">Part {index + 1}</p>
             <h2 className="mt-2 text-xl font-bold text-slate-950">{section.title}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{section.mission}</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">{section.mission}</p>
             <Link href={`/learn/english-a1-foundations/${section.lessonId}`} className="mt-5 inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800">
               Open this project part
             </Link>
@@ -87,10 +87,10 @@ export default function A1CapstonePage() {
       <section className="mt-10">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Evidence profile</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--lx-muted)]">Evidence profile</p>
             <h2 className="mt-1 text-2xl font-black text-slate-950">What your A1 evidence currently shows</h2>
           </div>
-          <p className="max-w-xl text-sm leading-6 text-slate-600">A requirement needs independent evidence. Supported retries still matter, but they are kept separate so Lurexa does not mistake assisted completion for independent performance.</p>
+          <p className="max-w-xl text-sm leading-6 text-[var(--lx-muted)]">A requirement needs independent evidence. Supported retries still matter, but they are kept separate so Lurexa does not mistake assisted completion for independent performance.</p>
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -98,19 +98,19 @@ export default function A1CapstonePage() {
             const evidence = resultById.get(requirement.id);
             const satisfied = evidence?.satisfied ?? false;
             return (
-              <article key={requirement.id} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+              <article key={requirement.id} className="rounded-3xl bg-[var(--lx-surface)] p-5 shadow-sm ring-1 ring-slate-200">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-bold text-slate-950">{requirement.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{requirement.criticalForExit ? "Critical A1 exit evidence" : "Supporting A1 exit evidence"}</p>
+                    <p className="mt-1 text-xs text-[var(--lx-muted)]">{requirement.criticalForExit ? "Critical A1 exit evidence" : "Supporting A1 exit evidence"}</p>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${satisfied ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
                     {satisfied ? "Evidence present" : "Needs evidence"}
                   </span>
                 </div>
-                <div className="mt-4 flex gap-4 text-sm text-slate-600">
-                  <span>Independent: <strong className="text-slate-900">{evidence?.independentEvidenceCount ?? 0}</strong></span>
-                  <span>Supported: <strong className="text-slate-900">{evidence?.supportedEvidenceCount ?? 0}</strong></span>
+                <div className="mt-4 flex gap-4 text-sm text-[var(--lx-muted)]">
+                  <span>Independent: <strong className="text-[var(--lx-ink)]">{evidence?.independentEvidenceCount ?? 0}</strong></span>
+                  <span>Supported: <strong className="text-[var(--lx-ink)]">{evidence?.supportedEvidenceCount ?? 0}</strong></span>
                 </div>
               </article>
             );
@@ -122,14 +122,14 @@ export default function A1CapstonePage() {
         <section className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">Next targets</p>
           <h2 className="mt-2 text-xl font-bold text-slate-950">You do not need to repeat all of A1.</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700">Lurexa can target the competencies that still need independent evidence or revalidation.</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--lx-muted)]">Lurexa can target the competencies that still need independent evidence or revalidation.</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {result.targetedCompetencyIds.map((id) => <span key={id} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-amber-200">{id}</span>)}
+            {result.targetedCompetencyIds.map((id) => <span key={id} className="rounded-full bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] ring-1 ring-amber-200">{id}</span>)}
           </div>
         </section>
       ) : null}
 
-      <p className="mt-8 text-sm leading-6 text-slate-600">{result.rationale}</p>
+      <p className="mt-8 text-sm leading-6 text-[var(--lx-muted)]">{result.rationale}</p>
     </main>
   );
 }

@@ -88,7 +88,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <p className="mt-4 text-xs font-medium text-slate-400">
+              <p className="mt-4 text-xs font-medium text-[var(--lx-muted)]">
                 ✓ No credit card required &nbsp;·&nbsp; ✓ Free placement check &nbsp;·&nbsp; ✓ CEFR A1–C2
               </p>
             </div>
@@ -107,10 +107,10 @@ export default function HomePage() {
                 </div>
 
                 <h2 className="mt-5 text-2xl font-bold tracking-tight text-white">Speak naturally: making plans</h2>
-                <p className="mt-1.5 text-sm text-slate-400">Conversational foundations · CEFR A2</p>
+                <p className="mt-1.5 text-sm text-[var(--lx-muted)]">Conversational foundations · CEFR A2</p>
 
                 <div className="mt-7 space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-slate-400">
+                  <div className="flex justify-between text-xs font-bold text-[var(--lx-muted)]">
                     <span>Weekly mastery milestone</span>
                     <span className="text-cyan-300">68%</span>
                   </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-[var(--lx-border)] bg-white py-12 text-slate-600">
+        <footer className="border-t border-[var(--lx-border)] bg-[var(--lx-surface)] py-12 text-[var(--lx-muted)]">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 sm:flex-row sm:px-8">
             <div className="flex items-center gap-3">
               <LurexaLearnLogo />

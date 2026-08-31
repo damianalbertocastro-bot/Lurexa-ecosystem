@@ -4,7 +4,7 @@ import {
   type LurexaEnvironment,
 } from "./environment";
 
-export type EcosystemAppKey = "root" | "learn" | "coach" | "teach" | "admin" | "docs";
+export type EcosystemAppKey = "root" | "learn" | "coach" | "teach" | "admin" | "insight" | "studio" | "docs";
 
 export interface EcosystemAppMeta {
   key: EcosystemAppKey;
@@ -62,6 +62,24 @@ export const ECOSYSTEM_APP_REGISTRY: Record<EcosystemAppKey, EcosystemAppMeta> =
     developmentUrl: "http://localhost:3003",
     devPort: 3003,
   },
+  insight: {
+    key: "insight",
+    name: "Lurexa Insight",
+    shortName: "Insight",
+    description: "Institutional analytics, learner intelligence, and cohort progress",
+    productionUrl: "https://insight.lurexa.org",
+    developmentUrl: "http://localhost:3006",
+    devPort: 3006,
+  },
+  studio: {
+    key: "studio",
+    name: "Lurexa Studio",
+    shortName: "Studio",
+    description: "Curriculum authoring, knowledge objects, and competency design",
+    productionUrl: "https://studio.lurexa.org",
+    developmentUrl: "http://localhost:3007",
+    devPort: 3007,
+  },
   docs: {
     key: "docs",
     name: "Lurexa Docs",
@@ -79,6 +97,8 @@ const ENV_VAR_OVERRIDES: Record<EcosystemAppKey, string> = {
   coach: lurexaPublicUrlEnv.coach,
   teach: lurexaPublicUrlEnv.teach,
   admin: lurexaPublicUrlEnv.admin,
+  insight: lurexaPublicUrlEnv.insight,
+  studio: lurexaPublicUrlEnv.studio,
   docs: lurexaPublicUrlEnv.docs,
 };
 

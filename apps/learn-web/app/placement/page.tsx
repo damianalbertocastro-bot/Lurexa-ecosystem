@@ -7,11 +7,9 @@ import { AuthService, MindRecommendationService } from "@lurexa/backend";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import type { CefrLevel, PlanRecommendation } from "@lurexa/types";
+import type { CefrLevel, DiagnosticTransferHighlight, PlacementSkill, PlanRecommendation } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
-
-type PlacementSkill = "listening" | "grammar" | "vocabulary" | "reading" | "phonetics";
 
 interface PlacementProbeItem {
   id: string;
@@ -30,20 +28,24 @@ interface PlacementProbeItem {
 interface PlacementDiagnosticResult {
   estimatedLevel: CefrLevel;
   confidence: "low" | "medium" | "high";
+  isProvisional?: boolean;
   recommendedCourseId: string;
   recommendedLessonId: string;
   recommendedStartingPoint: string;
   overallScorePercent: number;
   skillBreakdown: Record<PlacementSkill, { score: number; maxScore: number; level: CefrLevel }>;
   priorityReinforcements: string[];
+  transferHighlights?: DiagnosticTransferHighlight[];
   rationale: string;
 }
 
 const skillConfig: Record<PlacementSkill, { label: string; icon: string; badgeColor: string }> = {
   listening: { label: "Listening Comprehension", icon: "🎧", badgeColor: "bg-sky-50 text-sky-800 border-sky-200" },
+  speaking: { label: "Spoken Interaction & Fluency", icon: "🎙️", badgeColor: "bg-teal-50 text-teal-800 border-teal-200" },
   grammar: { label: "Grammar & Structure", icon: "🧩", badgeColor: "bg-indigo-50 text-indigo-800 border-indigo-200" },
   vocabulary: { label: "Vocabulary in Context", icon: "📚", badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-200" },
   reading: { label: "Reading & Discourse", icon: "📖", badgeColor: "bg-violet-50 text-violet-800 border-violet-200" },
+  writing: { label: "Written Communication", icon: "✍️", badgeColor: "bg-rose-50 text-rose-800 border-rose-200" },
   phonetics: { label: "Phonetics & Pronunciation", icon: "🗣️", badgeColor: "bg-amber-50 text-amber-800 border-amber-200" },
 };
 
@@ -167,7 +169,7 @@ export default function PlacementPage() {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-        <p className="mt-4 text-sm font-semibold text-slate-600">Verifying session…</p>
+        <p className="mt-4 text-sm font-semibold text-[var(--lx-muted)]">Verifying session…</p>
       </div>
     );
   }
@@ -182,7 +184,7 @@ export default function PlacementPage() {
         <div className="flex items-center justify-between gap-4 mb-8">
           <Link
             href="/dashboard"
-            className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 transition flex items-center gap-1"
+            className="text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] hover:text-indigo-600 transition flex items-center gap-1"
           >
             <span>←</span>
             <span>Dashboard</span>
@@ -194,20 +196,20 @@ export default function PlacementPage() {
 
         {/* STAGE 1: INTRO */}
         {stage === "intro" ? (
-          <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-10">
+          <section className="rounded-3xl border border-[var(--lx-border)]/80 bg-[var(--lx-surface)] p-6 shadow-sm sm:p-10">
             <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
               🎯 Adaptive Placement
             </span>
             <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
               Find Your Optimal Starting Level
             </h1>
-            <p className="mt-3 text-base leading-relaxed text-slate-600">
+            <p className="mt-3 text-base leading-relaxed text-[var(--lx-muted)]">
               Lurexa adapts to what you already know. This short multi-skill diagnostic evaluates your listening, grammar, reading, and pronunciation readiness to place you directly into the most relevant curriculum module.
             </p>
 
             {/* Communicative Goal Selection */}
             <div className="mt-8">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] mb-3">
                 Select Your Primary English Goal:
               </label>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -224,7 +226,7 @@ export default function PlacementPage() {
                     className={`flex flex-col items-center justify-center rounded-2xl border p-4 text-center transition ${
                       goal === item.id
                         ? "border-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold ring-2 ring-indigo-500/20"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-muted)] hover:border-[var(--lx-border)]"
                     }`}
                   >
                     <span className="text-2xl mb-1">{item.icon}</span>
@@ -236,20 +238,20 @@ export default function PlacementPage() {
 
             {/* Diagnostic Feature Callouts */}
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <div className="rounded-2xl bg-[var(--lx-canvas)] border border-[var(--lx-border)] p-4">
                 <span className="text-lg">⚡</span>
-                <h3 className="mt-1 text-xs font-bold text-slate-900">Adaptive Routing</h3>
-                <p className="mt-1 text-[11px] text-slate-500">Probes escalate or descend based on your answers.</p>
+                <h3 className="mt-1 text-xs font-bold text-[var(--lx-ink)]">Adaptive Routing</h3>
+                <p className="mt-1 text-[11px] text-[var(--lx-muted)]">Probes escalate or descend based on your answers.</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <div className="rounded-2xl bg-[var(--lx-canvas)] border border-[var(--lx-border)] p-4">
                 <span className="text-lg">🎧</span>
-                <h3 className="mt-1 text-xs font-bold text-slate-900">Multi-Skill Check</h3>
-                <p className="mt-1 text-[11px] text-slate-500">Evaluates listening, grammar, and phonetics in context.</p>
+                <h3 className="mt-1 text-xs font-bold text-[var(--lx-ink)]">Multi-Skill Check</h3>
+                <p className="mt-1 text-[11px] text-[var(--lx-muted)]">Evaluates listening, grammar, and phonetics in context.</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <div className="rounded-2xl bg-[var(--lx-canvas)] border border-[var(--lx-border)] p-4">
                 <span className="text-lg">📈</span>
-                <h3 className="mt-1 text-xs font-bold text-slate-900">Learner Model Synced</h3>
-                <p className="mt-1 text-[11px] text-slate-500">Immediately saves your CEFR baseline to Lurexa Core.</p>
+                <h3 className="mt-1 text-xs font-bold text-[var(--lx-ink)]">Learner Model Synced</h3>
+                <p className="mt-1 text-[11px] text-[var(--lx-muted)]">Immediately saves your CEFR baseline to Lurexa Core.</p>
               </div>
             </div>
 
@@ -268,7 +270,7 @@ export default function PlacementPage() {
               >
                 {loading ? "Starting Assessment…" : "Begin Diagnostic Test →"}
               </Button>
-              <span className="text-xs text-slate-500">Takes ~4–6 minutes • No penalty for errors</span>
+              <span className="text-xs text-[var(--lx-muted)]">Takes ~4–6 minutes • No penalty for errors</span>
             </div>
           </section>
         ) : null}
@@ -277,7 +279,7 @@ export default function PlacementPage() {
         {stage === "testing" && currentItem ? (
           <div className="space-y-6">
             {/* Header & Progress */}
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div className="rounded-3xl border border-[var(--lx-border)]/80 bg-[var(--lx-surface)] p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <span
@@ -287,15 +289,15 @@ export default function PlacementPage() {
                   >
                     {skillConfig[currentItem.skill].icon} {skillConfig[currentItem.skill].label}
                   </span>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 font-bold text-slate-600">
+                  <span className="rounded-full bg-[var(--lx-canvas)] px-2.5 py-1 font-bold text-[var(--lx-muted)]">
                     Target: {currentItem.cefr}
                   </span>
                 </div>
-                <span className="font-bold text-slate-500">
+                <span className="font-bold text-[var(--lx-muted)]">
                   Question {currentIndex + 1} of {items.length}
                 </span>
               </div>
-              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--lx-canvas)]">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 to-teal-500 transition-all duration-300 ease-out"
                   style={{ width: `${progressPercent}%` }}
@@ -304,14 +306,14 @@ export default function PlacementPage() {
             </div>
 
             {/* Probe Content Card */}
-            <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+            <section className="rounded-3xl border border-[var(--lx-border)]/80 bg-[var(--lx-surface)] p-6 shadow-sm sm:p-8">
               <h2 className="text-lg font-bold text-slate-950">{currentItem.title}</h2>
 
               {/* Context Text for Reading */}
               {currentItem.contextText ? (
-                <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200/80 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Passage Context:</p>
-                  <p className="text-sm font-medium text-slate-800 leading-relaxed italic">
+                <div className="mt-4 rounded-2xl bg-[var(--lx-canvas)] border border-[var(--lx-border)]/80 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] mb-1">Passage Context:</p>
+                  <p className="text-sm font-medium text-[var(--lx-ink)] leading-relaxed italic">
                     “{currentItem.contextText}”
                   </p>
                 </div>
@@ -346,7 +348,7 @@ export default function PlacementPage() {
 
               {/* Question Prompt */}
               <div className="mt-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 p-4">
-                <p className="text-base font-bold text-slate-900">{currentItem.prompt}</p>
+                <p className="text-base font-bold text-[var(--lx-ink)]">{currentItem.prompt}</p>
               </div>
 
               {/* Options */}
@@ -363,7 +365,7 @@ export default function PlacementPage() {
                       className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left text-sm font-semibold transition ${
                         isSelected
                           ? "border-indigo-600 bg-indigo-50 text-indigo-950 ring-2 ring-indigo-500/20"
-                          : "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-slate-50"
+                          : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:border-indigo-300 hover:bg-[var(--lx-canvas)]"
                       }`}
                     >
                       <span>{option}</span>
@@ -374,8 +376,8 @@ export default function PlacementPage() {
               </div>
 
               {/* Next Action */}
-              <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                <span className="text-xs text-slate-400">Select an answer to proceed.</span>
+              <div className="mt-8 flex items-center justify-between gap-4 border-t border-[var(--lx-border)] pt-6">
+                <span className="text-xs text-[var(--lx-muted)]">Select an answer to proceed.</span>
                 <Button
                   type="button"
                   disabled={!selectedOption || loading}
@@ -395,10 +397,10 @@ export default function PlacementPage() {
 
         {/* STAGE 3: EVALUATING */}
         {stage === "evaluating" ? (
-          <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center rounded-3xl bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center rounded-3xl bg-[var(--lx-surface)] p-8 text-center shadow-sm">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-teal-200 border-t-teal-600" />
             <h2 className="mt-6 text-xl font-bold text-slate-950">Synthesizing Diagnostic Model</h2>
-            <p className="mt-2 text-xs leading-relaxed text-slate-500">
+            <p className="mt-2 text-xs leading-relaxed text-[var(--lx-muted)]">
               Evaluating multi-skill accuracies, mapping CEFR competencies, and recording initial Learner Model baseline in Lurexa Core…
             </p>
           </div>
@@ -406,12 +408,12 @@ export default function PlacementPage() {
 
         {/* STAGE 4: RESULTS */}
         {stage === "results" && result ? (
-          <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-10 animate-in fade-in duration-300">
+          <section className="rounded-3xl border border-[var(--lx-border)]/80 bg-[var(--lx-surface)] p-6 shadow-sm sm:p-10 animate-in fade-in duration-300">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
                 ✓ Diagnostic Placement Complete
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+              <span className="rounded-full bg-[var(--lx-canvas)] px-3 py-1 text-xs font-bold text-[var(--lx-muted)]">
                 Confidence: {result.confidence.toUpperCase()}
               </span>
             </div>
@@ -437,7 +439,7 @@ export default function PlacementPage() {
 
             {/* Skill Breakdown & Radar Map */}
             <div className="mt-10">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-6">
+              <h3 className="text-sm font-black uppercase tracking-wider text-[var(--lx-ink)] mb-6">
                 Learner Competency Radar & Multi-Skill Breakdown:
               </h3>
               <div className="grid gap-8 lg:grid-cols-[1.1fr_1.3fr] lg:items-center">
@@ -455,7 +457,7 @@ export default function PlacementPage() {
                     ]}
                     size={300}
                   />
-                  <p className="mt-3 text-center text-[11px] font-bold text-slate-500">
+                  <p className="mt-3 text-center text-[11px] font-bold text-[var(--lx-muted)]">
                     Continuous 7-Skill CEFR Mapping ({result.estimatedLevel})
                   </p>
                 </div>
@@ -466,24 +468,24 @@ export default function PlacementPage() {
                     ([skill, data]) => {
                       const pct = data.maxScore > 0 ? Math.round((data.score / data.maxScore) * 100) : 0;
                       return (
-                        <div key={skill} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+                        <div key={skill} className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/80 p-3.5">
                           <div className="flex items-center justify-between text-xs mb-1.5">
-                            <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                            <span className="font-bold text-[var(--lx-ink)] flex items-center gap-1.5">
                               <span>{skillConfig[skill].icon}</span>
                               <span>{skillConfig[skill].label}</span>
                             </span>
-                            <span className="rounded-full bg-white border border-slate-200 px-2 py-0.5 font-bold text-indigo-700 text-[11px]">
+                            <span className="rounded-full bg-[var(--lx-surface)] border border-[var(--lx-border)] px-2 py-0.5 font-bold text-indigo-700 text-[11px]">
                               {data.level}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--lx-canvas)]">
                               <div
                                 className="h-full bg-indigo-600 rounded-full transition-all duration-500"
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
-                            <span className="text-[11px] font-bold text-slate-500">{pct}%</span>
+                            <span className="text-[11px] font-bold text-[var(--lx-muted)]">{pct}%</span>
                           </div>
                         </div>
                       );
@@ -503,10 +505,37 @@ export default function PlacementPage() {
                   {result.priorityReinforcements.map((focus) => (
                     <span
                       key={focus}
-                      className="rounded-xl bg-white border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-900 shadow-sm"
+                      className="rounded-xl bg-[var(--lx-surface)] border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-900 shadow-sm"
                     >
                       • {focus}
                     </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Dominican Spanish Linguistic Transfer Highlights */}
+            {result.transferHighlights && result.transferHighlights.length > 0 ? (
+              <div className="mt-8 rounded-3xl bg-teal-950 p-6 text-white border border-teal-500/30 shadow-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🇩🇴 ➡️ 🇺🇸</span>
+                  <p className="text-xs font-black uppercase tracking-widest text-teal-300">
+                    Linguistic Transfer Intelligence (Lurexa Mind)
+                  </p>
+                </div>
+                <h4 className="text-base font-bold text-white mb-3">Dominican Spanish to English Focus Patterns</h4>
+                <div className="space-y-3">
+                  {result.transferHighlights.map((highlight, idx) => (
+                    <div key={idx} className="rounded-2xl bg-white/10 p-4 border border-white/10 text-xs">
+                      <div className="flex items-center justify-between text-teal-200 font-bold mb-1">
+                        <span>{highlight.detectedPattern}</span>
+                        <span className="rounded-md bg-teal-400/20 px-2 py-0.5 text-[10px] text-teal-300">
+                          Focus: {highlight.suggestedFocusModule}
+                        </span>
+                      </div>
+                      <p className="text-slate-300 leading-relaxed">{highlight.pedagogicalNote}</p>
+                      <p className="mt-2 text-teal-100 font-semibold">Target pattern: {highlight.expectedPattern}</p>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -532,7 +561,7 @@ export default function PlacementPage() {
                     <span className="rounded-full bg-cyan-400/20 border border-cyan-400/50 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
                       Recommended Plan: {recommendation.recommendedTier}
                     </span>
-                    <span className="text-xs font-bold text-slate-400">Current Tier: BASIC</span>
+                    <span className="text-xs font-bold text-[var(--lx-muted)]">Current Tier: BASIC</span>
                   </div>
 
                   <h4 className="mt-3 text-lg font-black text-white">Universal Learner Model Synergy</h4>
@@ -551,7 +580,7 @@ export default function PlacementPage() {
             })()}
 
             {/* Action CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6">
+            <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-[var(--lx-border)] pt-6">
               <Button
                 type="button"
                 onClick={() => router.push(`/learn/${result.recommendedCourseId}/${result.recommendedLessonId}`)}
@@ -561,14 +590,14 @@ export default function PlacementPage() {
               </Button>
               <Link
                 href="/coach"
-                className="rounded-2xl border border-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+                className="rounded-2xl border border-[var(--lx-border)] px-6 py-4 text-sm font-bold text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] transition"
               >
                 Practice Spoken English in Coach 🗣️
               </Link>
               <Button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="rounded-2xl px-5 py-4 text-xs font-bold text-slate-500 hover:text-slate-900 transition"
+                className="rounded-2xl px-5 py-4 text-xs font-bold text-[var(--lx-muted)] hover:text-[var(--lx-ink)] transition"
               >
                 Go to Dashboard
               </Button>

@@ -4,6 +4,9 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { StudioAuthoringService } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
+import { Card } from "@lurexa/ui/Card";
+import { Badge } from "@lurexa/ui/Badge";
+import { StudioShell } from "../components/StudioShell";
 
 const CEFR_LEVELS: CefrLevel[] = ["PRE_A1", "A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -18,165 +21,138 @@ export default function CefrLinterToolPage() {
   }, [inputText, targetCefr]);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="text-xs font-bold text-amber-600 hover:underline">
-              ← Studio Dashboard
-            </Link>
+    <StudioShell active="CEFR Linter">
+      <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
+        {/* Header */}
+        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--lx-border)] pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Link href="/" className="text-xs font-bold text-[var(--lx-primary)] hover:underline">
+                ← Studio Dashboard
+              </Link>
+              <span className="text-[var(--lx-muted)]">/</span>
+              <span className="text-xs text-[var(--lx-muted)]">CEFR Linter</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+              CEFR Linguistic Diagnostic Linter
+            </h1>
+            <p className="text-xs sm:text-sm text-[var(--lx-muted)]">
+              Paste any English lesson prompt, dialogue, or assessment script to evaluate CEFR band alignment, syntactic density, and out-of-level vocabulary.
+            </p>
           </div>
-          <h1 className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">
-            CEFR Linguistic Diagnostic Linter
-          </h1>
-          <p className="mt-1 text-xs text-slate-500">
-            Paste any English lesson prompt, dialogue, or assessment script to evaluate CEFR band alignment, syntactic density, and out-of-level vocabulary.
-          </p>
-        </div>
-      </div>
+        </section>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        {/* Left Column: Text Input & Target CEFR */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <label htmlFor="diagnostic-target" className="text-xs font-bold text-slate-700">
-                Target Benchmark CEFR Level
-              </label>
-              <select
-                id="diagnostic-target"
-                value={targetCefr}
-                onChange={(e) => setTargetCefr(e.target.value as CefrLevel)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-900"
-              >
-                {CEFR_LEVELS.map((lvl) => (
-                  <option key={lvl} value={lvl}>
-                    {lvl}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="diagnostic-text" className="text-xs font-bold text-slate-700">
-                Input Text for Analysis
-              </label>
-              <textarea
-                id="diagnostic-text"
-                rows={8}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Paste lesson sentences, listening passages, or oral exam prompts here..."
-                className="w-full rounded-2xl border border-slate-200 p-4 text-xs font-mono text-slate-900 leading-relaxed focus:border-amber-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex items-center justify-between pt-2 text-[11px] text-slate-500 font-medium">
-              <span>Characters: {inputText.length}</span>
-              <span>Words: {report.totalWords}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Diagnostic Report */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-slate-900">Diagnostic Verdict</h2>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-black uppercase ${
-                  report.isApproved
-                    ? "bg-emerald-100 text-emerald-800"
-                    : "bg-amber-100 text-amber-900"
-                }`}
-              >
-                {report.isApproved ? "Aligned ✓" : "Review Level ⚠"}
-              </span>
-            </div>
-
-            {/* Score Grid */}
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-                <span className="block text-[10px] font-bold text-slate-500 uppercase">Target CEFR</span>
-                <span className="text-2xl font-black text-slate-900">{report.targetCefr}</span>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* Left Column: Text Input & Target CEFR */}
+          <div className="lg:col-span-7 space-y-6">
+            <Card className="p-6 sm:p-8 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] space-y-5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="diagnostic-target" className="text-xs font-bold text-[var(--lx-ink)]">
+                  Target Benchmark CEFR Level
+                </label>
+                <select
+                  id="diagnostic-target"
+                  value={targetCefr}
+                  onChange={(e) => setTargetCefr(e.target.value as CefrLevel)}
+                  className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-bold text-[var(--lx-ink)]"
+                >
+                  {CEFR_LEVELS.map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      {lvl}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-                <span className="block text-[10px] font-bold text-slate-500 uppercase">Calculated CEFR</span>
-                <span className="text-2xl font-black text-amber-600">{report.calculatedCefrScore}</span>
-              </div>
-            </div>
 
-            {/* Vocabulary Breakdown */}
-            <div className="space-y-2">
-              <span className="block text-xs font-bold text-slate-700">Vocabulary Frequency Bands</span>
               <div className="space-y-2">
-                {Object.entries(report.vocabularyBandPercentages).map(([band, pct]) => (
-                  <div key={band} className="space-y-1">
-                    <div className="flex justify-between text-xs font-semibold text-slate-600">
-                      <span>Band {band}</span>
-                      <span>{pct}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-amber-500 transition-all duration-300"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Syntactic Complexity */}
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-1.5">
-              <div className="flex justify-between text-xs font-bold text-slate-700">
-                <span>Syntactic Complexity Ratio</span>
-                <span>{(report.syntacticComplexityScore * 100).toFixed(0)}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-                <div
-                  className="h-full bg-indigo-500 transition-all duration-300"
-                  style={{ width: `${report.syntacticComplexityScore * 100}%` }}
+                <label htmlFor="diagnostic-text" className="text-xs font-bold text-[var(--lx-ink)]">
+                  Input Text for Analysis
+                </label>
+                <textarea
+                  id="diagnostic-text"
+                  rows={8}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Paste lesson sentences, listening passages, or oral exam prompts here..."
+                  className="w-full rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-4 text-xs font-mono text-[var(--lx-ink)] leading-relaxed focus:border-[var(--lx-primary)] focus:outline-none"
                 />
               </div>
-            </div>
 
-            {/* Out of Level Words */}
-            {report.outOfLevelWords.length > 0 ? (
-              <div className="space-y-2">
-                <span className="block text-xs font-bold text-rose-700">
-                  Out-of-Level Vocabulary Flags ({report.outOfLevelWords.length})
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {report.outOfLevelWords.map((word) => (
-                    <span
-                      key={word}
-                      className="rounded-md bg-rose-50 border border-rose-200 px-2 py-0.5 text-xs font-bold text-rose-800"
-                    >
-                      {word}
-                    </span>
+              <div className="flex items-center justify-between pt-2 text-[11px] text-[var(--lx-muted)] font-medium border-t border-[var(--lx-border)]">
+                <span>Characters: {inputText.length}</span>
+                <span>Words: {report.totalWords}</span>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right Column: Diagnostic Report */}
+          <div className="lg:col-span-5 space-y-6">
+            <Card className="p-6 sm:p-8 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] space-y-6">
+              <div className="flex items-center justify-between border-b border-[var(--lx-border)] pb-4">
+                <h2 className="text-base font-black text-[var(--lx-ink)]">Diagnostic Verdict</h2>
+                <Badge
+                  variant={report.isApproved ? "success" : "warning"}
+                  className="text-xs font-bold uppercase"
+                >
+                  {report.isApproved ? "Aligned ✓" : "Review Level ⚠"}
+                </Badge>
+              </div>
+
+              {/* Score Grid */}
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
+                    Complexity Index
+                  </span>
+                  <p className="mt-1 text-2xl font-black text-[var(--lx-ink)]">
+                    {Math.round(report.syntacticComplexityScore * 100)}/100
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
+                    CEFR Alignment
+                  </span>
+                  <p className="mt-1 text-2xl font-black text-[var(--lx-primary)]">{targetCefr}</p>
+                </div>
+              </div>
+
+              {/* Vocabulary Frequency Breakdown */}
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-[var(--lx-ink)]">Vocabulary Level Distribution</span>
+                <div className="space-y-2">
+                  {Object.entries(report.vocabularyBandPercentages).map(([lvl, pct]) => (
+                    <div key={lvl} className="flex items-center justify-between text-xs">
+                      <span className="font-mono text-[var(--lx-muted)]">{lvl.replace("_", "/")}:</span>
+                      <span className="font-bold text-[var(--lx-ink)]">{pct}%</span>
+                    </div>
                   ))}
                 </div>
               </div>
-            ) : (
-              <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-bold text-emerald-800">
-                No out-of-level vocabulary detected for {report.targetCefr}.
-              </div>
-            )}
 
-            {/* Recommendations */}
-            <div className="space-y-1.5 border-t border-slate-100 pt-3">
-              <span className="block text-xs font-bold text-slate-700">Pedagogical Guidance</span>
-              <ul className="space-y-1 text-xs text-slate-600 list-disc pl-4">
-                {report.recommendations.map((rec, idx) => (
-                  <li key={idx}>{rec}</li>
-                ))}
-              </ul>
-            </div>
+              {/* Out-of-Level Warnings */}
+              {report.outOfLevelWords.length > 0 ? (
+                <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-4 space-y-2">
+                  <span className="text-xs font-bold text-[var(--lx-warning)]">
+                    ⚠ Detected Words Above {targetCefr}:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {report.outOfLevelWords.map((w, idx) => (
+                      <Badge key={idx} variant="warning" className="font-mono text-[10px]">
+                        {w}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-4 text-xs font-semibold text-[var(--lx-primary)]">
+                  ✓ 100% of vocabulary words fall within or below {targetCefr}.
+                </div>
+              )}
+            </Card>
           </div>
         </div>
       </div>
-    </main>
+    </StudioShell>
   );
 }

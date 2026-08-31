@@ -69,7 +69,7 @@ export default function CampusWorkspacePage() {
           <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {surfaces.map((surface) => {
               const external = surface.href.startsWith("http");
-              const classes = "flex h-full flex-col rounded-3xl border border-[var(--lx-surface)] bg-white p-6 shadow-sm";
+              const classes = "flex h-full flex-col rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm";
               const body = (
                 <>
                   <span className="w-fit rounded-full bg-[var(--lx-surface)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[var(--lx-primary)]">

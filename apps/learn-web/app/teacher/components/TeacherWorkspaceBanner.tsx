@@ -71,7 +71,7 @@ export function TeacherWorkspaceBanner({
   return (
     <section
       aria-label="Page header"
-      className="border-b border-[var(--lx-border)] bg-gradient-to-br from-white via-white to-[var(--lx-surface)]"
+      className="border-b border-[var(--lx-border)] bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-surface)] to-[var(--lx-canvas)]"
     >
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Breadcrumbs */}

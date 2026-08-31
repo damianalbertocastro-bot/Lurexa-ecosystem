@@ -5,7 +5,7 @@ export default function TeacherDashboardLoading() {
   return (
     <div>
       {/* Banner Skeleton */}
-      <section className="border-b border-[var(--lx-border)] bg-gradient-to-br from-white via-white to-[var(--lx-surface)] p-6 sm:p-8">
+      <section className="border-b border-[var(--lx-border)] bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-surface)] to-[var(--lx-canvas)] p-6 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="space-y-2">
             <Skeleton variant="line" className="!h-3.5 !w-36" />

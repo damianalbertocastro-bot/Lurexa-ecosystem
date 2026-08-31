@@ -9,7 +9,7 @@ export default function T1CoherentLessonPage() {
           ← Back to learning
         </a>
         <section className="mt-6 grid gap-7 lg:grid-cols-[1fr_.38fr]">
-          <div className="rounded-[30px] border border-[var(--lx-surface)] bg-white p-7 sm:p-9 shadow-sm">
+          <div className="rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 sm:p-9 shadow-sm">
             <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
               TEACH T1 PATHWAY · FOUNDATIONAL PEDAGOGY
             </p>
@@ -61,7 +61,7 @@ export default function T1CoherentLessonPage() {
         </section>
 
         <section className="mt-6 grid gap-5 lg:grid-cols-[1fr_.55fr]">
-          <article className="rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+          <article className="rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm">
             <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
               T1 COMPETENCY BLUEPRINT
             </p>
@@ -115,7 +115,7 @@ export default function T1CoherentLessonPage() {
               </p>
             </article>
 
-            <article className="rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+            <article className="rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm">
               <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">
                 COMMUNITY & PEER REVIEW
               </p>

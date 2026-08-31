@@ -97,17 +97,32 @@ export default function TeacherStudentsPage() {
     return () => { active = false; };
   }, [user, selected]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   function selectLearner(learner: LearnTeacherRosterLearnerV1): void {
     setPulse(null);
     setError(null);
     if (signatureEnabled) setLoadingPulse(true);
     setSelected(learner);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      document.getElementById("learner-projection-section")?.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   const learnerCount = useMemo(
     () => roster?.courses.reduce((total, course) => total + course.learners.length, 0) ?? 0,
     [roster],
   );
+
+  const filteredCourses = useMemo(() => {
+    if (!roster?.courses) return [];
+    if (!searchQuery.trim()) return roster.courses;
+    const query = searchQuery.toLowerCase().trim();
+    return roster.courses.map((c) => ({
+      ...c,
+      learners: c.learners.filter((l) => l.displayName.toLowerCase().includes(query)),
+    })).filter((c) => c.learners.length > 0);
+  }, [roster, searchQuery]);
 
   const createInvitation = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -134,35 +149,95 @@ export default function TeacherStudentsPage() {
 
       {error ? <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-800">{error}</div> : null}
 
-      <div className="grid gap-6 lg:grid-cols-[.72fr_1.28fr]">
-        <section aria-label="Authorized course rosters" className="rounded-3xl border border-[var(--lx-surface)] bg-white p-5 shadow-sm sm:p-6">
+      <div className="grid gap-6 lg:grid-cols-[.75fr_1.25fr]">
+        <section aria-label="Authorized course rosters" className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5 shadow-sm sm:p-6">
           <div className="flex items-end justify-between gap-4">
             <div><p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">COURSE ROSTERS</p><h2 className="mt-2 text-xl font-black text-[var(--color-brand-navy)]">Choose a learner</h2></div>
             <div className="text-right text-xs font-bold text-[var(--lx-muted)]"><b className="block text-2xl text-[var(--color-brand-navy)]">{loading ? "—" : learnerCount}</b>participating</div>
           </div>
+
+          <div className="mt-4">
+            <input
+              type="search"
+              placeholder="Search students by name…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3.5 py-2.5 text-xs text-[var(--color-brand-navy)] placeholder:text-[var(--lx-muted)] focus:border-[var(--lx-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--lx-secondary)]"
+            />
+          </div>
+
           <div className="mt-5 space-y-5">
-            {loading ? <p aria-live="polite" className="text-sm text-[var(--lx-muted)]">Loading authorized roster…</p> : roster?.courses.length ? roster.courses.map((course) => <div key={course.courseId}>
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-[.12em] text-[var(--lx-muted)]">{course.courseTitle}</p>
-              <div className="space-y-2">{course.learners.length ? course.learners.map((learner) => <Button
-                key={`${course.courseId}:${learner.learnerId}`}
-                type="button"
-                onClick={() => selectLearner(learner)}
-                aria-pressed={selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId}
-                className={`w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)] ${selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId ? "border-[var(--lx-secondary)] bg-[var(--lx-surface)]" : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-border)]"}`}
-              >
-                <div className="flex items-center justify-between gap-4"><div><b className="text-[var(--color-brand-navy)]">{learner.displayName}</b><p className="mt-1 text-xs text-[var(--lx-muted)]">{learner.completedLessons}/{learner.totalLessons} lessons completed</p></div><span className="text-sm font-black text-[var(--lx-secondary)]">{learner.progressPercent}%</span></div>
-              </Button>) : <p className="rounded-2xl bg-[var(--lx-surface)] p-4 text-sm text-[var(--lx-muted)]">No participating learners yet.</p>}</div>
-            </div>) : <p className="text-sm text-[var(--lx-muted)]">No authorized course participation is available yet.</p>}
+            {loading ? (
+              <p aria-live="polite" className="text-sm text-[var(--lx-muted)]">Loading authorized roster…</p>
+            ) : filteredCourses.length ? (
+              filteredCourses.map((course) => (
+                <div key={course.courseId}>
+                  <p className="mb-2 text-xs font-extrabold uppercase tracking-[.12em] text-[var(--lx-muted)]">{course.courseTitle}</p>
+                  <div className="space-y-2.5">
+                    {course.learners.length ? (
+                      course.learners.map((learner) => {
+                        const isSelected = selected?.learnerId === learner.learnerId && selected.courseId === learner.courseId;
+                        const initials = learner.displayName.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+                        return (
+                          <Button
+                            key={`${course.courseId}:${learner.learnerId}`}
+                            type="button"
+                            onClick={() => selectLearner(learner)}
+                            aria-pressed={isSelected}
+                            className={`w-full rounded-2xl border p-3.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-secondary)] ${
+                              isSelected
+                                ? "border-[var(--lx-secondary)] bg-[var(--lx-surface)] shadow-md ring-1 ring-[var(--lx-secondary)]"
+                                : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)]"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3.5">
+                              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl text-xs font-black ${
+                                isSelected
+                                  ? "bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white shadow-sm"
+                                  : "bg-[var(--lx-canvas)] text-[var(--lx-primary)] border border-[var(--lx-border)]"
+                              }`}>
+                                {initials || "S"}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <b className="truncate text-sm text-[var(--color-brand-navy)]">{learner.displayName}</b>
+                                  <span className="shrink-0 text-xs font-black text-[var(--lx-secondary)]">{learner.progressPercent}%</span>
+                                </div>
+                                <div className="mt-1 flex items-center justify-between text-xs text-[var(--lx-muted)]">
+                                  <span>{learner.completedLessons}/{learner.totalLessons} lessons</span>
+                                </div>
+                                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--lx-canvas)]">
+                                  <div
+                                    className="h-full rounded-full bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)] transition-all duration-300"
+                                    style={{ width: `${Math.max(4, learner.progressPercent)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Button>
+                        );
+                      })
+                    ) : (
+                      <p className="rounded-2xl bg-[var(--lx-surface)] p-4 text-sm text-[var(--lx-muted)]">No participating learners match the search.</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-[var(--lx-muted)]">
+                {searchQuery ? "No learners found matching your search." : "No authorized course participation is available yet."}
+              </p>
+            )}
           </div>
         </section>
 
-        <section aria-label="Learner instructional support" className="min-w-0">
-          {!selected ? <div className="rounded-3xl border border-dashed border-[var(--lx-border)] bg-white p-8 text-sm text-[var(--lx-muted)]">Select a learner from an authorized Learn course roster to review instructional support.</div> : <>
-            <article className="mb-5 rounded-3xl border border-[var(--lx-surface)] bg-white p-5 shadow-sm">
+        <section id="learner-projection-section" aria-label="Learner instructional support" className="min-w-0">
+          {!selected ? <div className="rounded-3xl border border-dashed border-[var(--lx-border)] bg-[var(--lx-surface)] p-8 text-sm text-[var(--lx-muted)]">Select a learner from an authorized Learn course roster to review instructional support.</div> : <>
+            <article className="mb-5 rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5 shadow-sm">
               <p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">SELECTED LEARNER</p>
-              <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-black text-[var(--color-brand-navy)]">{selected.displayName}</h2><p className="mt-1 text-sm text-[var(--lx-muted)]">{selected.courseTitle} · {selected.progressPercent}% course progress</p></div><span className="rounded-full bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-bold text-[var(--lx-secondary)]">Learn instructional support</span></div>
+              <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-black text-[var(--color-brand-navy)]">{selected.displayName}</h2><p className="mt-1 text-sm text-[var(--lx-muted)]">{selected.courseTitle} · {selected.progressPercent}% course progress</p></div><span className="rounded-full bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-bold text-[var(--lx-secondary)] border border-[var(--lx-border)]">Learn instructional support</span></div>
             </article>
-            {!signatureEnabled ? <div className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7"><p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">SIGNATURE EXPERIENCE</p><h3 className="mt-2 text-xl font-black text-[var(--color-brand-navy)]">Learner Pulse rollout is currently off.</h3><p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">Enable <code className="rounded bg-[var(--lx-surface)] px-1.5 py-1">NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1=on</code> in a controlled environment to expose the purpose-scoped projection to authorized Learn educators.</p></div> : loadingPulse ? <div role="status" aria-live="polite" className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 text-sm text-[var(--lx-muted)]">Loading evidence-aware learner support…</div> : pulse ? <LearnerPulse pulse={pulse} /> : <div className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 text-sm text-[var(--lx-muted)]">No learner projection is available for this selection.</div>}
+            {!signatureEnabled ? <div className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7"><p className="text-[10px] font-extrabold tracking-[.16em] text-[var(--lx-secondary)]">SIGNATURE EXPERIENCE</p><h3 className="mt-2 text-xl font-black text-[var(--color-brand-navy)]">Learner Pulse rollout is currently off.</h3><p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">Enable <code className="rounded bg-[var(--lx-surface)] px-1.5 py-1">NEXT_PUBLIC_LEARN_TEACHER_SIGNATURE_V1=on</code> in a controlled environment to expose the purpose-scoped projection to authorized Learn educators.</p></div> : loadingPulse ? <div role="status" aria-live="polite" className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 text-sm text-[var(--lx-muted)]">Loading evidence-aware learner support…</div> : pulse ? <LearnerPulse pulse={pulse} /> : <div className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 text-sm text-[var(--lx-muted)]">No learner projection is available for this selection.</div>}
           </>}
         </section>
       </div>

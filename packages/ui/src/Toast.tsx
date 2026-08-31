@@ -38,9 +38,9 @@ export function useToast(): ToastContextValue {
 /* ------------------------------------------------------------------ */
 
 const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: string; iconColor: string; progress: string }> = {
-  success: { bg: "bg-white", border: "border-emerald-200", icon: "✓", iconColor: "bg-emerald-500 text-white", progress: "bg-emerald-500" },
-  error:   { bg: "bg-white", border: "border-rose-200",    icon: "✕", iconColor: "bg-rose-500 text-white",    progress: "bg-rose-500" },
-  info:    { bg: "bg-white", border: "border-indigo-200",   icon: "i", iconColor: "bg-indigo-500 text-white",  progress: "bg-indigo-500" },
+  success: { bg: "bg-[var(--lx-surface)]", border: "border-[var(--lx-success)]/40", icon: "✓", iconColor: "bg-[var(--lx-success)] text-white", progress: "bg-[var(--lx-success)]" },
+  error:   { bg: "bg-[var(--lx-surface)]", border: "border-[var(--lx-destructive)]/40", icon: "✕", iconColor: "bg-[var(--lx-destructive)] text-white", progress: "bg-[var(--lx-destructive)]" },
+  info:    { bg: "bg-[var(--lx-surface)]", border: "border-[var(--lx-info)]/40", icon: "i", iconColor: "bg-[var(--lx-info)] text-white", progress: "bg-[var(--lx-info)]" },
 };
 
 function ToastItem({ message, onDismiss }: { message: ToastMessage; onDismiss: (id: string) => void }) {
@@ -68,16 +68,16 @@ function ToastItem({ message, onDismiss }: { message: ToastMessage; onDismiss: (
         {style.icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-slate-900">{message.title}</p>
-        {message.description && <p className="mt-0.5 text-xs text-slate-500">{message.description}</p>}
-        <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-100">
+        <p className="text-sm font-bold text-[var(--lx-ink)]">{message.title}</p>
+        {message.description && <p className="mt-0.5 text-xs text-[var(--lx-muted)]">{message.description}</p>}
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--lx-canvas)]">
           <div className={`h-full rounded-full ${style.progress} animate-toast-progress`} style={{ animationDuration: `${duration}ms` }} />
         </div>
       </div>
       <button
         type="button"
         onClick={handleDismiss}
-        className="mt-0.5 flex-shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+        className="mt-0.5 flex-shrink-0 rounded-lg p-1 text-[var(--lx-muted)] transition hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-muted)]"
         aria-label="Dismiss notification"
       >
         <span aria-hidden="true" className="text-xs">✕</span>

@@ -7,13 +7,13 @@
   --color-border-default: rgba(12, 42, 108, 0.13);
   --color-border-focus: #592bd6;
 
-  --color-brand-navy: var(--color-brand-navy);
+  --color-brand-navy: #0a1c55;
   --color-brand-primary: #592bd6;
   --color-brand-secondary: #1d5add;
-  --color-brand-accent-cyan: var(--lx-accent);
-  --color-brand-accent-violet-deep: var(--color-brand-accent-violet-deep);
-  --color-brand-accent-blue-deep: var(--color-brand-accent-blue-deep);
-  --color-brand-accent-violet-bright: var(--color-brand-accent-violet-bright);
+  --color-brand-accent-cyan: #06b6d4;
+  --color-brand-accent-violet-deep: #3a0ca3;
+  --color-brand-accent-blue-deep: #0c3080;
+  --color-brand-accent-violet-bright: #a855f7;
 
   /* Semantic UI Tokens */
   --lx-ink: var(--color-brand-navy);
@@ -21,7 +21,7 @@
   --lx-surface: #ffffff;
   --lx-primary: #592bd6;
   --lx-secondary: #1d5add;
-  --lx-accent: var(--lx-accent);
+  --lx-accent: #06b6d4;
   --lx-border: #dfe7fb;
   --lx-muted: #4d5e8c;
   --lx-card-shadow: 0 12px 30px rgba(32, 52, 128, 0.07);
@@ -29,14 +29,14 @@
   --lx-focus-ring: #1d5add;
 
   /* Semantic Status Tokens (Light) */
-  --lx-success: var(--lx-success);
+  --lx-success: #10b981;
   --lx-success-surface: rgba(16, 185, 129, 0.12);
-  --lx-warning: var(--lx-warning);
+  --lx-warning: #f59e0b;
   --lx-warning-surface: rgba(245, 158, 11, 0.12);
-  --lx-destructive: var(--lx-destructive);
+  --lx-destructive: #ef4444;
   --lx-destructive-hover: #dc2626;
   --lx-destructive-surface: rgba(239, 68, 68, 0.12);
-  --lx-info: var(--lx-info);
+  --lx-info: #0ea5e9;
   --lx-info-surface: rgba(14, 165, 233, 0.12);
 
   --font-family-sans: var(--font-geist-sans, 'Inter', system-ui, -apple-system, sans-serif);
@@ -91,6 +91,12 @@
   --color-border-default: rgba(255, 255, 255, 0.12);
   --color-border-focus: #7c4dff;
 
+  --color-brand-navy: #f0f4ff;
+  --color-brand-accent-cyan: #22d3ee;
+  --color-brand-accent-violet-deep: #b388ff;
+  --color-brand-accent-blue-deep: #5c9aff;
+  --color-brand-accent-violet-bright: #c084fc;
+
   --lx-ink: #f0f4ff;
   --lx-canvas: #060d21;
   --lx-surface: #0d1836;
@@ -106,10 +112,10 @@
   /* Semantic Status Tokens (Dark) */
   --lx-success: #34d399;
   --lx-success-surface: rgba(52, 211, 153, 0.16);
-  --lx-warning: var(--lx-warning);
+  --lx-warning: #fbbf24;
   --lx-warning-surface: rgba(251, 191, 36, 0.16);
   --lx-destructive: #f87171;
-  --lx-destructive-hover: var(--lx-destructive);
+  --lx-destructive-hover: #fb923c;
   --lx-destructive-surface: rgba(248, 113, 113, 0.18);
   --lx-info: #38bdf8;
   --lx-info-surface: rgba(56, 189, 248, 0.16);

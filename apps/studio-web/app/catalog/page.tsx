@@ -4,8 +4,11 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { StudioAuthoringService } from "@lurexa/backend";
 import type { CefrLevel, StudioKnowledgeObjectDraftV1 } from "@lurexa/types";
+import { Card } from "@lurexa/ui/Card";
+import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { StudioShell } from "../components/StudioShell";
 
 const CEFR_FILTER_OPTIONS: (CefrLevel | "ALL")[] = ["ALL", "PRE_A1", "A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -20,17 +23,19 @@ export default function StudioCatalogPage() {
 
   const fetchObjects = () => {
     let ignore = false;
-    void StudioAuthoringService.listKnowledgeObjects().then((list) => {
-      if (!ignore) {
-        setObjects(list);
-        setLoading(false);
-      }
-    }).catch((err) => {
-      if (!ignore) {
-        console.error(err);
-        setLoading(false);
-      }
-    });
+    void StudioAuthoringService.listKnowledgeObjects()
+      .then((list) => {
+        if (!ignore) {
+          setObjects(list);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.error(err);
+          setLoading(false);
+        }
+      });
     return () => {
       ignore = true;
     };
@@ -72,191 +77,188 @@ export default function StudioCatalogPage() {
   });
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
-        <div>
+    <StudioShell active="Governed Catalog">
+      <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
+        {/* Header */}
+        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--lx-border)] pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Link href="/" className="text-xs font-bold text-[var(--lx-primary)] hover:underline">
+                ← Studio Dashboard
+              </Link>
+              <span className="text-[var(--lx-muted)]">/</span>
+              <span className="text-xs text-[var(--lx-muted)]">Governed Catalog</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+              Governed Knowledge Object Catalog
+            </h1>
+            <p className="text-xs sm:text-sm text-[var(--lx-muted)]">
+              Authoritative, immutable learning assets governed in Lurexa Core and dynamically linked to Learn, Coach, and Teach.
+            </p>
+          </div>
+
           <div className="flex items-center gap-2">
-            <Link href="/" className="text-xs font-bold text-amber-600 hover:underline">
-              ← Studio Dashboard
+            <Link href="/author">
+              <Button className="rounded-xl bg-[var(--lx-primary)] px-4 py-2 text-xs font-black text-white shadow-xs hover:opacity-95 transition">
+                + Author New Object
+              </Button>
             </Link>
           </div>
-          <h1 className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">
-            Governed Knowledge Object Catalog
-          </h1>
-          <p className="mt-1 text-xs text-slate-500">
-            Authoritative, immutable learning assets governed in Lurexa Core and dynamically linked to Learn, Coach, and Teach.
-          </p>
-        </div>
+        </section>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/author"
-            className="rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-amber-700 active:scale-95"
-          >
-            + Author New Object
-          </Link>
-        </div>
-      </div>
-
-      {statusMessage && (
-        <div role="alert" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-900">
-          {statusMessage}
-        </div>
-      )}
-
-      {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="space-y-1">
-            <span className="block text-[10px] font-bold text-slate-500 uppercase">Search</span>
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter by keyword..."
-              className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-800 focus:border-amber-500 focus:outline-none"
-            />
+        {statusMessage && (
+          <div className="animate-spring-pop rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 text-xs font-bold text-[var(--lx-primary)] shadow-sm">
+            ✓ {statusMessage}
           </div>
+        )}
 
-          <div className="space-y-1">
-            <span className="block text-[10px] font-bold text-slate-500 uppercase">CEFR Level</span>
-            <select
-              value={selectedCefr}
-              onChange={(e) => setSelectedCefr(e.target.value as never)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800"
-            >
-              {CEFR_FILTER_OPTIONS.map((lvl) => (
-                <option key={lvl} value={lvl}>
-                  {lvl}
-                </option>
-              ))}
-            </select>
+        {/* Filter Controls Bar */}
+        <Card className="p-4 sm:p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)]">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label htmlFor="search-catalog" className="text-[11px] font-bold text-[var(--lx-muted)] uppercase tracking-wider">
+                Search Assets
+              </label>
+              <Input
+                id="search-catalog"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search name, prompt, or objective…"
+                className="mt-1 text-xs"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="filter-cefr" className="text-[11px] font-bold text-[var(--lx-muted)] uppercase tracking-wider">
+                CEFR Level
+              </label>
+              <select
+                id="filter-cefr"
+                value={selectedCefr}
+                onChange={(e) => setSelectedCefr(e.target.value as never)}
+                className="mt-1 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-bold text-[var(--lx-ink)]"
+              >
+                {CEFR_FILTER_OPTIONS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {lvl === "ALL" ? "All Levels" : lvl}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="filter-domain" className="text-[11px] font-bold text-[var(--lx-muted)] uppercase tracking-wider">
+                Domain
+              </label>
+              <select
+                id="filter-domain"
+                value={selectedDomain}
+                onChange={(e) => setSelectedDomain(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-bold text-[var(--lx-ink)]"
+              >
+                <option value="ALL">All Domains</option>
+                <option value="phonology">Phonology</option>
+                <option value="grammar">Grammar</option>
+                <option value="lexicon">Lexicon</option>
+                <option value="pragmatics">Pragmatics</option>
+                <option value="discourse">Discourse</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="filter-status" className="text-[11px] font-bold text-[var(--lx-muted)] uppercase tracking-wider">
+                Status
+              </label>
+              <select
+                id="filter-status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-bold text-[var(--lx-ink)]"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="draft">Draft</option>
+                <option value="in_review">In Review</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
           </div>
+        </Card>
 
-          <div className="space-y-1">
-            <span className="block text-[10px] font-bold text-slate-500 uppercase">Domain</span>
-            <select
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800"
-            >
-              <option value="ALL">All Domains</option>
-              <option value="phonology">Phonology</option>
-              <option value="grammar">Grammar</option>
-              <option value="lexicon">Lexicon</option>
-              <option value="pragmatics">Pragmatics</option>
-              <option value="discourse">Discourse</option>
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <span className="block text-[10px] font-bold text-slate-500 uppercase">Status</span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="draft">Drafts</option>
-              <option value="in_review">In Review</option>
-              <option value="published">Published</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="text-xs font-semibold text-slate-500">
-          Showing {filtered.length} of {objects.length} Knowledge Objects
-        </div>
-      </div>
-
-      {/* Catalog List */}
-      {loading ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center text-sm font-semibold text-slate-500">
-          Loading catalog from Lurexa Core...
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center text-slate-500 space-y-3">
-          <p className="text-sm font-bold text-slate-800">No Knowledge Objects match the selected filters.</p>
-          <Link
-            href="/author"
-            className="inline-block rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs"
-          >
-            Create First Object in this Category →
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filtered.map((ko) => (
-            <div
-              key={ko.id}
-              className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-slate-300 flex flex-col justify-between gap-4 md:flex-row md:items-center"
-            >
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-black text-slate-900">{ko.name}</span>
-                  <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-black text-amber-800">
-                    {ko.cefrLevel}
-                  </span>
-                  <span
-                    className={`rounded-md px-2 py-0.5 text-[11px] font-black ${
-                      ko.status === "published"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : ko.status === "in_review"
-                        ? "bg-indigo-100 text-indigo-800"
-                        : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    v{ko.version} · {ko.status}
-                  </span>
-                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600 capitalize">
-                    {ko.domain}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">{ko.pedagogicalObjective}</p>
-
-                <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-xs text-slate-700 font-mono">
-                  &ldquo;{ko.activityConfig.promptText}&rdquo;
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  {ko.skills.map((s) => (
-                    <span
-                      key={s}
-                      className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 capitalize"
+        {/* Knowledge Objects Grid */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            <div className="col-span-full py-12 text-center text-xs font-bold text-[var(--lx-muted)]">
+              Loading Knowledge Objects from Core repository…
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-xs font-bold text-[var(--lx-muted)]">
+              No Knowledge Objects match the selected filters.
+            </div>
+          ) : (
+            filtered.map((ko) => (
+              <Card
+                key={ko.id}
+                className="p-6 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-primary)] transition-all flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-lg bg-[var(--lx-canvas)] px-2 py-0.5 font-mono text-xs font-bold text-[var(--lx-primary)] border border-[var(--lx-border)]">
+                      {ko.cefrLevel} · {ko.domain}
+                    </span>
+                    <Badge
+                      variant={
+                        ko.status === "published"
+                          ? "success"
+                          : ko.status === "in_review"
+                          ? "info"
+                          : "default"
+                      }
+                      className="text-[10px] uppercase font-bold"
                     >
-                      {s}
-                    </span>
-                  ))}
-                  {ko.culturalContext && (
-                    <span className="rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                      Context: {ko.culturalContext}
-                    </span>
+                      {ko.status}
+                    </Badge>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--lx-ink)]">{ko.name}</h3>
+                    <p className="mt-1 text-xs text-[var(--lx-muted)] leading-relaxed line-clamp-2">
+                      {ko.pedagogicalObjective}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3 text-xs font-mono text-[var(--lx-ink)]">
+                    &quot;{ko.activityConfig.promptText}&quot;
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {ko.skills.map((s) => (
+                      <span
+                        key={s}
+                        className="rounded-md bg-[var(--lx-canvas)] px-2 py-0.5 text-[10px] font-bold text-[var(--lx-muted)] uppercase border border-[var(--lx-border)]"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-[var(--lx-border)]">
+                  <span className="font-mono text-[10px] text-[var(--lx-muted)]">v{ko.version}</span>
+                  {ko.status !== "published" && (
+                    <Button
+                      size="sm"
+                      onClick={() => handlePublish(ko.id)}
+                      className="rounded-lg bg-[var(--lx-primary)] text-white text-[11px] font-bold"
+                    >
+                      Approve &amp; Publish →
+                    </Button>
                   )}
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {ko.status === "draft" && (
-                  <Button
-                    type="button"
-                    onClick={() => void handlePublish(ko.id)}
-                    className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 active:scale-95"
-                  >
-                    Approve &amp; Publish →
-                  </Button>
-                )}
-                {ko.status === "published" && (
-                  <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                    Live in Catalog ✓
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
+              </Card>
+            ))
+          )}
+        </section>
+      </div>
+    </StudioShell>
   );
 }

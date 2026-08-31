@@ -209,14 +209,14 @@ function GrowthContent() {
                 Lurexa Teach empowers your career progression through verified competency pathways, authentic evidence reflections, and institutional credentials.
               </p>
               {/* Clean Single-Identity Bridge to Learn Classroom */}
-              <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 text-xs text-indigo-900 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-4 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-4 text-xs text-[var(--lx-ink)] flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <b className="font-bold text-[var(--color-brand-navy)]">Need to manage your student classes?</b>
-                  <p className="mt-0.5 text-indigo-700">Classrooms, assignments, and learner analytics belong to Lurexa Learn.</p>
+                  <p className="mt-0.5 text-[var(--lx-muted)]">Classrooms, assignments, and learner analytics belong to Lurexa Learn.</p>
                 </div>
                 <a
                   href="/teacher/dashboard"
-                  className="rounded-xl bg-[var(--color-brand-navy)] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[var(--color-brand-navy)] transition"
+                  className="rounded-xl bg-[var(--lx-primary)] px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition"
                 >
                   Open Learn Classroom →
                 </a>
@@ -227,7 +227,7 @@ function GrowthContent() {
           {/* Quick Metrics */}
           <section className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {dimensions.map(([name, value, detail]) => (
-              <article key={name} className="rounded-[26px] border border-[var(--lx-surface)] bg-white p-6 shadow-sm">
+              <article key={name} className="rounded-[26px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm">
                 <p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-[var(--lx-muted)]">{name}</p>
                 <b className="mt-3 block text-2xl tracking-[-.04em] text-[var(--color-brand-navy)]">{value}</b>
                 <p className="mt-2 text-sm leading-6 text-[var(--lx-muted)]">{detail}</p>
@@ -242,9 +242,9 @@ function GrowthContent() {
                 <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)]">COMPETENCY PROGRESSION</p>
                 <h2 className="mt-1 text-2xl font-black text-[var(--color-brand-navy)]">T1–T5 Educator Growth Tracks</h2>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs font-bold text-slate-600">
+              <div className="flex flex-wrap gap-2 text-xs font-bold text-[var(--lx-muted)]">
                 {[1, 2, 3, 4, 5].map((lvl) => (
-                  <span key={lvl} className="rounded-lg bg-white border border-slate-200 px-2.5 py-1">
+                  <span key={lvl} className="rounded-lg bg-[var(--lx-surface)] border border-[var(--lx-border)] px-2.5 py-1">
                     <strong className="text-[var(--lx-primary)]">{T_LEVEL_LABELS[lvl].code}</strong>: {T_LEVEL_LABELS[lvl].title}
                   </span>
                 ))}
@@ -258,7 +258,7 @@ function GrowthContent() {
                 return (
                   <article
                     key={track.id}
-                    className="flex flex-col justify-between rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm hover:shadow-md transition"
+                    className="flex flex-col justify-between rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm hover:shadow-md transition"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
@@ -275,7 +275,7 @@ function GrowthContent() {
 
                       {/* Level Step Bar */}
                       <div className="mt-5">
-                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-[var(--lx-muted)] mb-1.5">
                           <span>Stage: <strong>{currentInfo.code}</strong></span>
                           <span>Target: <strong className="text-[var(--lx-primary)]">{targetInfo.code}</strong></span>
                         </div>
@@ -288,7 +288,7 @@ function GrowthContent() {
                                   ? "bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)]"
                                   : step <= track.targetLevel
                                   ? "bg-indigo-100"
-                                  : "bg-slate-100"
+                                  : "bg-[var(--lx-canvas)]"
                               }`}
                             />
                           ))}
@@ -296,15 +296,15 @@ function GrowthContent() {
                       </div>
 
                       {/* Next Milestone Box */}
-                      <div className="mt-5 rounded-2xl bg-[var(--lx-surface)] border border-slate-100 p-3.5">
-                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Next Action:</p>
+                      <div className="mt-5 rounded-2xl bg-[var(--lx-surface)] border border-[var(--lx-border)] p-3.5">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-[var(--lx-muted)]">Next Action:</p>
                         <p className="mt-1 text-xs font-semibold text-[var(--color-brand-navy)] leading-relaxed">
                           {track.nextMilestone}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between gap-3">
+                    <div className="mt-6 border-t border-[var(--lx-border)] pt-4 flex items-center justify-between gap-3">
                       {track.recommendedCourseId ? (
                         <Link
                           href={`/courses/${track.recommendedCourseId}`}
@@ -341,7 +341,7 @@ function GrowthContent() {
               <Button
                 type="button"
                 onClick={() => setShowForm((value) => !value)}
-                className="min-h-11 rounded-xl bg-[var(--color-brand-navy)] px-6 text-sm font-extrabold text-white shadow-sm hover:bg-[var(--color-brand-navy)] transition"
+                className="min-h-11 rounded-xl bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)] px-6 text-sm font-extrabold text-white shadow-md hover:opacity-90 transition"
               >
                 {showForm ? "Close Form" : "+ Submit Evidence"}
               </Button>
@@ -354,10 +354,15 @@ function GrowthContent() {
             ) : null}
 
             {showForm && (
-              <form onSubmit={submit} className="mt-6 rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-md animate-in fade-in duration-200">
+              <form onSubmit={submit} className="mt-6 rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-md animate-in fade-in duration-200">
                 <div className="grid gap-4 md:grid-cols-3">
                   <label className="text-sm font-extrabold text-[var(--lx-muted)]">
-                    Evidence Title
+                    <div className="flex items-center justify-between">
+                      <span>Evidence Title</span>
+                      <span className={`text-[10px] font-bold ${title.trim().length >= 5 ? "text-[var(--lx-success)]" : "text-[var(--lx-muted)]"}`}>
+                        {title.trim().length >= 5 ? "✓ Ready" : `${Math.max(0, 5 - title.trim().length)} more chars`}
+                      </span>
+                    </div>
                     <Input
                       required
                       value={title}
@@ -372,7 +377,7 @@ function GrowthContent() {
                     <select
                       value={selectedCompetency}
                       onChange={(e) => setSelectedCompetency(e.target.value)}
-                      className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-white px-4 text-sm"
+                      className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 text-sm text-[var(--color-brand-navy)]"
                     >
                       <option value="speaking-instruction">Speaking Instruction</option>
                       <option value="pronunciation-pedagogy">Pronunciation Pedagogy</option>
@@ -388,7 +393,7 @@ function GrowthContent() {
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value as TeachEvidenceSubmission["type"])}
-                      className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-white px-4 text-sm"
+                      className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 text-sm text-[var(--color-brand-navy)]"
                     >
                       <option value="reflection">Pedagogical Reflection</option>
                       <option value="artifact">Lesson Artifact / Rubric</option>
@@ -398,13 +403,29 @@ function GrowthContent() {
                   </label>
                 </div>
 
+                {/* Contextual Guidance Banner */}
+                <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-3.5 text-xs text-indigo-950 dark:border-indigo-900/40 dark:bg-indigo-950/30 dark:text-indigo-200">
+                  <span className="font-extrabold text-[var(--lx-primary)]">💡 Quality Guidance: </span>
+                  {selectedCompetency === "pronunciation-pedagogy" && "Highlight L1-transfer diagnostic identification (e.g. Dominican Spanish vowel shifts, consonant cluster epenthesis) and corrective recast feedback."}
+                  {selectedCompetency === "speaking-instruction" && "Focus on communicative fluency, scaffolded turn-taking, and active student retrieval time over passive listening."}
+                  {selectedCompetency === "professional-english" && "Demonstrate workplace communicative readiness, executive register shifting, and professional feedback delivery."}
+                  {selectedCompetency === "assessment-for-learning" && "Showcase formative exit tickets, rubric alignment, and actionable feedback loops."}
+                  {selectedCompetency === "ai-literacy" && "Highlight purposeful integration of AI tools for lesson enrichment, speech practice, or differentiated scaffolds."}
+                  {selectedCompetency === "asynchronous-design" && "Demonstrate structured modular activities, multimodal instructions, and clear evidence submission milestones."}
+                </div>
+
                 <label className="mt-4 block text-sm font-extrabold text-[var(--lx-muted)]">
-                  Pedagogical Context &amp; Reflection
+                  <div className="flex items-center justify-between">
+                    <span>Pedagogical Context &amp; Reflection</span>
+                    <span className={`text-[10px] font-bold ${description.trim().length >= 20 ? "text-[var(--lx-success)]" : "text-[var(--lx-muted)]"}`}>
+                      {description.trim().length}/20 min chars {description.trim().length >= 20 ? "✓" : ""}
+                    </span>
+                  </div>
                   <textarea
                     required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="mt-2 min-h-32 w-full rounded-xl border border-[var(--lx-border)] p-4 text-sm"
+                    className="mt-2 min-h-32 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 text-sm text-[var(--color-brand-navy)] placeholder:text-[var(--lx-muted)]"
                     placeholder="Describe the instructional setting, what pedagogical decision you made, and what verified capability this demonstrates."
                   />
                 </label>
@@ -420,13 +441,13 @@ function GrowthContent() {
                   />
                 </label>
 
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--lx-border)] pt-4">
                   <p className="text-xs font-bold text-[var(--lx-muted)]">
                     Submissions are logged into your persistent educator record and evaluated against standard rubrics.
                   </p>
                   <Button
-                    disabled={busy}
-                    className="min-h-11 rounded-xl bg-[var(--lx-primary)] px-6 text-sm font-extrabold text-white disabled:opacity-60 hover:bg-[var(--lx-primary)] transition"
+                    disabled={busy || title.trim().length < 5 || description.trim().length < 20}
+                    className="min-h-11 rounded-xl bg-[var(--lx-primary)] px-6 text-sm font-extrabold text-white disabled:opacity-50 hover:bg-[var(--lx-primary)] transition"
                   >
                     {busy ? "Submitting…" : "Submit for Professional Review"}
                   </Button>
@@ -441,13 +462,13 @@ function GrowthContent() {
             )}
 
             <section className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_.7fr]">
-              <article className="rounded-[28px] border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+              <article className="rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm">
                 <h3 className="text-base font-extrabold text-[var(--color-brand-navy)] mb-4">Submitted Evidence Records</h3>
                 {evidence.length ? (
                   evidence.map((item) => (
                     <div
                       key={item.id}
-                      className="mt-4 first:mt-0 border-t first:border-t-0 border-[var(--lx-surface)] pt-4 first:pt-0"
+                      className="mt-4 first:mt-0 border-t first:border-t-0 border-[var(--lx-border)] pt-4 first:pt-0"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>

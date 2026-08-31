@@ -44,9 +44,9 @@ export function RelatedExperiences({
         <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--color-text-muted)]">{description}</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        {items.map((item, index) => <a key={`${item.kind}-${item.title}`} href={item.href} className={`group relative overflow-hidden rounded-[22px] border p-5 transition motion-reduce:transition-none ${index===0?"border-[var(--color-border-default)] bg-gradient-to-br from-[var(--color-background-secondary)] to-white md:col-span-2":"border-[var(--color-border-default)] bg-white"} hover:-translate-y-0.5 hover:border-[var(--color-border-focus)] hover:shadow-[0_16px_34px_rgba(32,52,128,.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2 motion-reduce:transform-none`}>
+        {items.map((item, index) => <a key={`${item.kind}-${item.title}`} href={item.href} className={`group relative overflow-hidden rounded-[22px] border p-5 transition motion-reduce:transition-none ${index===0?"border-[var(--color-border-default)] bg-gradient-to-br from-[var(--color-background-secondary)] to-white md:col-span-2":"border-[var(--color-border-default)] bg-[var(--lx-surface)]"} hover:-translate-y-0.5 hover:border-[var(--color-border-focus)] hover:shadow-[0_16px_34px_rgba(32,52,128,.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2 motion-reduce:transform-none`}>
           <div className="flex items-start justify-between gap-4">
-            <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${index===0?"bg-white shadow-sm":"bg-[var(--color-background-secondary)]"}`}><Mark kind={item.kind} /></span>
+            <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${index===0?"bg-[var(--lx-surface)] shadow-sm":"bg-[var(--color-background-secondary)]"}`}><Mark kind={item.kind} /></span>
             {item.badge && <span className="rounded-full bg-[var(--color-background-secondary)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em] text-[var(--color-brand-primary)]">{item.badge}</span>}
           </div>
           <h3 className="mt-5 text-lg font-black tracking-[-.035em] text-[var(--color-text-primary)]">{item.title}</h3>
