@@ -2,7 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Card } from "@lurexa/ui/Card";
+import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/button";
+import { InsightShell } from "../components/InsightShell";
 
 interface Intervention {
   id: string;
@@ -72,98 +75,104 @@ export default function InterventionsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="text-xs font-bold text-indigo-400 hover:underline">
-              ← Overview
-            </Link>
-            <span className="text-slate-600">/</span>
-            <span className="text-xs text-slate-400">Intervention Routing</span>
+    <InsightShell active="Intervention Routing">
+      <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
+        {/* Header */}
+        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--lx-border)] pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Link href="/" className="text-xs font-bold text-[var(--lx-secondary)] hover:underline">
+                ← Overview
+              </Link>
+              <span className="text-[var(--lx-muted)]">/</span>
+              <span className="text-xs text-[var(--lx-muted)]">Intervention Routing</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+              Automated Instructional Interventions
+            </h1>
+            <p className="text-xs sm:text-sm text-[var(--lx-muted)]">
+              Real-time pedagogical intervention triggers connecting Mind diagnostics with Learn &amp; Coach assignments.
+            </p>
           </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Automated Instructional Interventions
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Real-time pedagogical intervention triggers connecting Mind diagnostics with Learn &amp; Coach assignments.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={dispatchAll}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-indigo-500 transition"
-          >
-            Dispatch All Pending
-          </Button>
-        </div>
-      </div>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={dispatchAll}
+              className="rounded-xl bg-[var(--lx-primary)] px-4 py-2 text-xs font-black text-white shadow-xs hover:opacity-95 transition"
+            >
+              Dispatch All Pending
+            </Button>
+          </div>
+        </section>
 
-      {statusMessage && (
-        <div className="rounded-lg bg-emerald-950/40 border border-emerald-500/30 p-4 text-xs font-semibold text-emerald-300">
-          ✓ {statusMessage}
-        </div>
-      )}
+        {statusMessage && (
+          <div className="animate-spring-pop rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 text-xs font-bold text-[var(--lx-secondary)] shadow-sm">
+            ✓ {statusMessage}
+          </div>
+        )}
 
-      {/* Interventions List */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
-        <div className="divide-y divide-slate-800">
+        {/* Interventions Grid */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {interventions.map((item) => (
-            <div key={item.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
+            <Card
+              key={item.id}
+              className="p-6 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all space-y-4"
+            >
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-slate-400">{item.id}</span>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                    item.severity === "high"
-                      ? "bg-rose-500/20 text-rose-400"
-                      : "bg-amber-500/20 text-amber-400"
-                  }`}>
-                    {item.severity} Priority
-                  </span>
-                  <span className="text-xs text-slate-400">• {item.cohort}</span>
+                  <span className="font-mono text-xs font-bold text-[var(--lx-muted)]">{item.id}</span>
+                  <Badge
+                    variant={item.severity === "high" ? "warning" : "info"}
+                    className="text-[10px] font-bold uppercase"
+                  >
+                    {item.severity} severity
+                  </Badge>
                 </div>
-                <p className="text-sm font-bold text-white">{item.studentName}</p>
-                <p className="text-xs text-slate-300">
-                  <span className="text-slate-500">Trigger:</span> {item.detectedPattern}
-                </p>
-                <p className="text-xs text-indigo-400 font-medium">
-                  <span className="text-slate-500">Action:</span> {item.suggestedAction}
-                </p>
+                {item.dispatched ? (
+                  <Badge variant="success" className="text-[10px]">
+                    ✓ Dispatched
+                  </Badge>
+                ) : (
+                  <Badge variant="default" className="text-[10px]">
+                    Pending
+                  </Badge>
+                )}
               </div>
 
               <div>
-                {item.dispatched ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 ring-1 ring-emerald-500/30">
-                    ✓ Dispatched
-                  </span>
-                ) : (
-                  <Button
-                    onClick={() => dispatchIntervention(item.id)}
-                    className="rounded-lg bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 text-xs font-bold text-slate-100 transition"
-                  >
-                    Dispatch Action
-                  </Button>
-                )}
+                <h3 className="text-base font-bold text-[var(--lx-ink)]">{item.studentName}</h3>
+                <p className="text-xs text-[var(--lx-muted)]">{item.cohort}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Live Core Dispatch Log */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 font-mono text-xs text-slate-400 space-y-2">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <span className="font-bold text-slate-300">CORE DISPATCH &amp; AUDIT LOG</span>
-          <span className="text-[10px] text-emerald-400">● Live Event Bus Active</span>
-        </div>
-        <div className="space-y-1 text-[11px] pt-1">
-          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Intercepted coda /s/ deletion (Carlos Ramirez) → Enqueued Coach targeted speaking drill</p>
-          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Synthesized /s/-cluster epenthesis review card → Projecting to Learn Spaced Retrieval queue</p>
-          <p className="text-slate-400"><span className="text-slate-600">[SYS-EVENT]</span> Dispatched B1 Dialogue Simulation → UASD English Immersion Cohort</p>
-        </div>
+              <div className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5 space-y-1 text-xs">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
+                  Detected Pattern:
+                </p>
+                <p className="font-semibold text-[var(--lx-ink)]">{item.detectedPattern}</p>
+                <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
+                  Action Recommendation:
+                </p>
+                <p className="text-[var(--lx-secondary)] font-medium">{item.suggestedAction}</p>
+              </div>
+
+              <div className="flex items-center justify-end pt-2">
+                <Button
+                  disabled={item.dispatched}
+                  onClick={() => dispatchIntervention(item.id)}
+                  size="sm"
+                  className={`rounded-xl text-xs font-bold ${
+                    item.dispatched
+                      ? "opacity-60"
+                      : "bg-[var(--lx-secondary)] text-white hover:opacity-95"
+                  }`}
+                >
+                  {item.dispatched ? "Dispatched" : "Dispatch Intervention →"}
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </section>
       </div>
-    </div>
+    </InsightShell>
   );
 }

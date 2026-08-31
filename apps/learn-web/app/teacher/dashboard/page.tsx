@@ -147,13 +147,13 @@ export default function TeacherDashboard() {
 
         {/* Workspace navigation */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Active Students" subtitle="View roster and manage invitations">
+          <Card className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60" title="Active Students" subtitle="View roster and manage invitations">
             <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/students")}>
               <span className="text-3xl font-bold text-indigo-600">{invitations.filter((invite) => getInvitationStatus(invite).label === "Active").length}</span>
               <span className="mt-2 block text-sm font-medium text-indigo-600">Manage students →</span>
             </Button>
           </Card>
-          <Card className="border-0 bg-white shadow-lg shadow-slate-200/60" title="Active Courses" subtitle="Create and manage courses and lessons">
+          <Card className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60" title="Active Courses" subtitle="Create and manage courses and lessons">
             <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/courses")}>
               <span className="text-3xl font-bold text-emerald-600">{courses.filter(({ course }) => course.status === "published").length}</span>
               <span className="mt-2 block text-sm font-medium text-emerald-600">Manage courses →</span>
@@ -169,10 +169,10 @@ export default function TeacherDashboard() {
 
         <Card className="border-0 shadow-lg shadow-slate-200/60" title="Courses & lessons" subtitle="Recent activity across your teaching workspace">
           {isLoadingCourses ? (
-            <p className="py-3 text-sm text-slate-500">Loading courses...</p>
+            <p className="py-3 text-sm text-[var(--lx-muted)]">Loading courses...</p>
           ) : courses.length === 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3 py-3">
-              <p className="text-sm text-slate-500">No courses yet. Create a course to start adding lessons.</p>
+              <p className="text-sm text-[var(--lx-muted)]">No courses yet. Create a course to start adding lessons.</p>
               <Button variant="secondary" onClick={() => router.push("/teacher/courses/new")}>Create course</Button>
             </div>
           ) : (
@@ -181,12 +181,12 @@ export default function TeacherDashboard() {
                 <div key={course.id} className="flex flex-col gap-3 py-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-slate-900">{course.title}</p>
+                      <p className="font-medium text-[var(--lx-ink)]">{course.title}</p>
                       <Badge variant={course.status === "published" ? "success" : "warning"}>{course.status}</Badge>
                     </div>
-                    <p className="mt-1 text-sm text-slate-500">{course.description}</p>
-                    <p className="mt-2 text-xs text-slate-500">Last updated {new Date(course.updatedAt).toLocaleString()}</p>
-                    <p className="mt-2 text-sm text-slate-700">
+                    <p className="mt-1 text-sm text-[var(--lx-muted)]">{course.description}</p>
+                    <p className="mt-2 text-xs text-[var(--lx-muted)]">Last updated {new Date(course.updatedAt).toLocaleString()}</p>
+                    <p className="mt-2 text-sm text-[var(--lx-muted)]">
                       {lessons.length === 0 ? "No lessons yet" : lessons.map(({ moduleTitle, lesson }) => `${moduleTitle}: ${lesson.title}`).join(" · ")}
                     </p>
                   </div>
@@ -202,8 +202,8 @@ export default function TeacherDashboard() {
           <div className="divide-y divide-slate-100 pt-2">
             <div className="flex items-center justify-between py-3">
               <div>
-                <p className="font-medium text-slate-900">Student Account</p>
-                <p className="text-xs text-slate-500">Joined via Class Code</p>
+                <p className="font-medium text-[var(--lx-ink)]">Student Account</p>
+                <p className="text-xs text-[var(--lx-muted)]">Joined via Class Code</p>
               </div>
               <Badge variant="success">Active</Badge>
             </div>
@@ -212,9 +212,9 @@ export default function TeacherDashboard() {
 
         <Card title="Student Invitations" subtitle="Share access codes manually until email delivery is configured">
           {isLoadingInvitations ? (
-            <p className="py-3 text-sm text-slate-500">Loading invitations...</p>
+            <p className="py-3 text-sm text-[var(--lx-muted)]">Loading invitations...</p>
           ) : invitations.length === 0 ? (
-            <p className="py-3 text-sm text-slate-500">No invitations have been created yet.</p>
+            <p className="py-3 text-sm text-[var(--lx-muted)]">No invitations have been created yet.</p>
           ) : (
             <div className="divide-y divide-slate-100 pt-2">
               {invitations.map((invite) => {
@@ -224,8 +224,8 @@ export default function TeacherDashboard() {
                 return (
                   <div key={invite.id} className="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="font-medium text-slate-900">{invite.email}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="font-medium text-[var(--lx-ink)]">{invite.email}</p>
+                      <p className="text-xs text-[var(--lx-muted)]">
                         Code: <span className="font-semibold tracking-wider">{invite.code}</span> · Expires {new Date(invite.expiresAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -279,10 +279,10 @@ export default function TeacherDashboard() {
           </form>
         ) : (
           <div className="space-y-4 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[var(--lx-muted)]">
               Share this 6-character code with your student to let them join:
             </p>
-            <div className="rounded-lg bg-slate-100 py-3 text-2xl font-bold tracking-widest text-indigo-600">
+            <div className="rounded-lg bg-[var(--lx-canvas)] py-3 text-2xl font-bold tracking-widest text-indigo-600">
               {generatedInvite.code}
             </div>
             <Button variant="primary" className="w-full" onClick={() => handleCopyInviteCode(generatedInvite)}>

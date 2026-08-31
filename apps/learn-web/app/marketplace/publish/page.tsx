@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function CoursePublishPage() {
   return (
     <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-10 sm:px-8">
-      <section className="mx-auto max-w-3xl rounded-[30px] border border-[var(--lx-border)] bg-white p-8 shadow-[0_18px_50px_rgba(32,52,128,.08)] sm:p-10">
+      <section className="mx-auto max-w-3xl rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-8 shadow-[0_18px_50px_rgba(32,52,128,.08)] sm:p-10">
         <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-amber-800">
           Publishing disabled · prototype retained
         </span>

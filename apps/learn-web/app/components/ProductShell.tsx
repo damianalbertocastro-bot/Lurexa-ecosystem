@@ -55,7 +55,7 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
             className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-sm transition hover:border-[var(--lx-border)] hover:text-[var(--lx-ink)] sm:inline-flex"
           >
             <span>Search</span>
-            <kbd className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 shadow-xs dark:bg-slate-800">
+            <kbd className="rounded bg-[var(--lx-canvas)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--lx-muted)] shadow-xs">
               ⌘K
             </kbd>
           </Button>

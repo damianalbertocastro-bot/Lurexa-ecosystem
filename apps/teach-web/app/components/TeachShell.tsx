@@ -86,21 +86,13 @@ export function TeachShell({ active, children }: { active: string; children: Rea
               className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-xs transition hover:border-[var(--lx-border)] hover:text-[var(--lx-ink)] sm:inline-flex"
             >
               <span>Search</span>
-              <kbd className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 shadow-xs dark:bg-slate-800">
+              <kbd className="rounded bg-[var(--lx-canvas)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--lx-muted)] shadow-xs">
                 ⌘K
               </kbd>
             </Button>
 
             <ThemeToggle />
             <EcosystemDropdown currentApp="teach" />
-            <a
-              href={ecosystemUrl}
-              rel="noreferrer"
-              aria-label="Lurexa ecosystem"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-primary)] shadow-xs transition hover:-translate-y-0.5"
-            >
-              <MasterMark compact />
-            </a>
 
             {!loading && user ? (
               <>
@@ -116,7 +108,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                   type="button"
                   onClick={signOut}
                   aria-label="Sign out"
-                  className="min-h-10 rounded-xl bg-[var(--lx-ink)] px-3 text-xs font-extrabold text-white sm:px-4 transition hover:opacity-90"
+                  className="min-h-10 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 text-xs font-extrabold text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] sm:px-4 transition"
                 >
                   <span className="sm:hidden" aria-hidden="true">↗</span>
                   <span className="hidden sm:inline">Sign out</span>

@@ -166,7 +166,7 @@ export default function StudentDashboardPage() {
           <main className="space-y-8 lg:col-span-2">
             {nextAction && recommendation && (
               <Card
-                className="border-0 bg-white shadow-lg shadow-indigo-100/70"
+                className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-indigo-100/70"
                 title="Recommended next step"
                 subtitle={`${nextActionSource(nextAction)} · evidence-informed guidance`}
                 action={<Badge variant="info">{nextStepBadge(recommendation.outcome)}</Badge>}
@@ -176,7 +176,7 @@ export default function StudentDashboardPage() {
                     <p className="text-base font-bold text-[var(--color-brand-navy)]">
                       {recommendation.label}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                    <p className="mt-1 text-sm leading-6 text-[var(--lx-muted)]">
                       {recommendation.reason}
                     </p>
                   </div>
@@ -196,7 +196,7 @@ export default function StudentDashboardPage() {
                           : "Use this next step"}
                       </Button>
                     ) : null}
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-[var(--lx-muted)]">
                       This is guidance, not a mastery or proficiency decision.
                     </span>
                   </div>
@@ -215,7 +215,7 @@ export default function StudentDashboardPage() {
                   >
                     Your Courses
                   </h2>
-                  <p className="text-xs font-medium text-slate-500">
+                  <p className="text-xs font-medium text-[var(--lx-muted)]">
                     Structured CEFR English pathways
                   </p>
                 </div>
@@ -223,22 +223,27 @@ export default function StudentDashboardPage() {
               </div>
 
               {loading ? (
-                <div className="rounded-3xl border border-slate-100 bg-white p-8 text-center text-sm text-slate-500 shadow-sm">
+                <div className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-8 text-center text-sm text-[var(--lx-muted)] shadow-sm">
                   <p role="status" aria-live="polite" aria-busy="true">
                     Loading your learning paths...
                   </p>
                 </div>
               ) : courses.length === 0 ? (
                 <Card
-                  className="border-0 bg-white shadow-lg shadow-slate-200/60"
-                  title="No Courses Enrolled"
+                  className="border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)]"
+                  title="Ready to begin your English journey?"
                 >
-                  <p className="mb-4 text-sm text-slate-500">
-                    Start a self-paced A1 English path, or ask your teacher for a class code.
+                  <p className="mb-5 text-sm leading-relaxed text-[var(--lx-muted)]">
+                    Take the 3-minute diagnostic placement to discover your starting CEFR level, or begin immediately with English A1 Foundations.
                   </p>
-                  <Button variant="primary" onClick={() => router.push("/onboarding")}>
-                    Start my A1 path
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="primary" onClick={() => router.push("/placement")}>
+                      🎯 Take 3-Min Placement Test
+                    </Button>
+                    <Button variant="secondary" onClick={() => router.push("/onboarding")}>
+                      Start A1 Foundations →
+                    </Button>
+                  </div>
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -251,7 +256,7 @@ export default function StudentDashboardPage() {
                       nextLesson,
                     }) => (
                       <Card
-                        className="border-0 bg-white shadow-lg shadow-slate-200/60 transition-all hover:shadow-xl hover:shadow-indigo-950/5 flex flex-col justify-between"
+                        className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60 transition-all hover:shadow-xl hover:shadow-indigo-950/5 flex flex-col justify-between"
                         key={course.id}
                         title={course.title}
                         subtitle={course.description}
@@ -259,12 +264,12 @@ export default function StudentDashboardPage() {
                       >
                         <div className="space-y-4 pt-4 flex-1 flex flex-col justify-between">
                           <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold text-slate-600">
+                            <div className="flex justify-between text-xs font-bold text-[var(--lx-muted)]">
                               <span>Progress</span>
                               <span>{progressPercent}%</span>
                             </div>
                             <ProgressBar value={progressPercent} />
-                            <div className="flex justify-between text-[11px] text-slate-400 pt-1">
+                            <div className="flex justify-between text-[11px] text-[var(--lx-muted)] pt-1">
                               <span>
                                 {completedLessons} of {totalLessons} lessons
                               </span>
@@ -312,12 +317,12 @@ export default function StudentDashboardPage() {
             />
 
             <Card
-              className="border-0 bg-white shadow-lg shadow-slate-200/60"
+              className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"
               title="Placement Diagnostic"
               subtitle="Calibrate your CEFR proficiency level"
             >
               <div className="space-y-3 pt-2">
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-[var(--lx-muted)] leading-relaxed">
                   Take the adaptive multi-skill diagnostic to evaluate your listening, grammar, and pronunciation readiness across A1–C1.
                 </p>
                 <Button
@@ -332,7 +337,7 @@ export default function StudentDashboardPage() {
             </Card>
 
             <Card
-              className="border-0 bg-white shadow-lg shadow-slate-200/60"
+              className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"
               title="Points & Rewards"
               subtitle="Earn 10 points per completed lesson"
             >
@@ -344,7 +349,7 @@ export default function StudentDashboardPage() {
                       <p className="text-2xl font-black text-indigo-600">
                         {gamification?.totalPoints ?? 0}
                       </p>
-                      <p className="text-xs font-semibold text-slate-500">
+                      <p className="text-xs font-semibold text-[var(--lx-muted)]">
                         Cumulative points balance
                       </p>
                     </div>
@@ -360,7 +365,7 @@ export default function StudentDashboardPage() {
 
                 <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-3.5 text-xs text-indigo-950">
                   <p className="font-bold">✦ Momentum Reward</p>
-                  <p className="mt-1 text-slate-600 leading-relaxed">
+                  <p className="mt-1 text-[var(--lx-muted)] leading-relaxed">
                     Complete upcoming lessons to unlock badges and advance along your CEFR proficiency path.
                   </p>
                 </div>

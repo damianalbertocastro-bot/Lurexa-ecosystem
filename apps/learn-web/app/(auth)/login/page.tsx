@@ -76,7 +76,7 @@ function LoginForm() {
             Every practice turn, conversational session, and assessment strengthens your personal path across the Lurexa ecosystem.
           </p>
 
-          <div className="flex items-center gap-4 pt-4 border-t border-white/10 text-xs text-slate-400">
+          <div className="flex items-center gap-4 pt-4 border-t border-white/10 text-xs text-[var(--lx-muted)]">
             <div>
               <p className="font-bold text-white">CEFR Aligned</p>
               <p>Levels A1 through C2</p>
@@ -89,7 +89,7 @@ function LoginForm() {
           </div>
         </div>
 
-        <div className="relative z-10 text-xs text-slate-500">
+        <div className="relative z-10 text-xs text-[var(--lx-muted)]">
           © {new Date().getFullYear()} Lurexa Learning Technologies
         </div>
       </div>
@@ -161,7 +161,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[var(--lx-canvas)] p-8 text-sm text-slate-600">Loading sign in…</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--lx-canvas)] p-8 text-sm text-[var(--lx-muted)]">Loading sign in…</div>}>
       <LoginForm />
     </Suspense>
   );

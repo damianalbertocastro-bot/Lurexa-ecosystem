@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-gradient-to-br from-[var(--lx-surface)] via-white to-[var(--lx-surface)] px-5 py-10 text-[var(--color-brand-navy)]">
+    <main className="grid min-h-screen place-items-center bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-canvas)] to-[var(--lx-surface)] px-5 py-10 text-[var(--color-brand-navy)]">
       <div className="w-full max-w-md">
         <div className="mb-7 flex justify-center">
           <ProductMark product="admin" />

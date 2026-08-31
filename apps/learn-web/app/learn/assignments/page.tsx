@@ -78,7 +78,7 @@ export default function StudentAssignmentsPage() {
   return (
     <main className="min-h-screen bg-[var(--learn-canvas)] pb-16">
       {/* Header */}
-      <section className="border-b border-slate-200 bg-white py-8">
+      <section className="border-b border-[var(--lx-border)] bg-[var(--lx-surface)] py-8">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           {errorMessage && (
             <div role="alert" className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-bold text-rose-800">
@@ -92,8 +92,8 @@ export default function StudentAssignmentsPage() {
                   ← Back to Dashboard
                 </Link>
               </div>
-              <h1 className="mt-2 text-3xl font-black text-slate-900">Your Assignments &amp; Homework</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="mt-2 text-3xl font-black text-[var(--lx-ink)]">Your Assignments &amp; Homework</h1>
+              <p className="mt-1 text-sm text-[var(--lx-muted)]">
                 Tasks assigned by your teacher. Complete spoken defenses, lessons, or Coach practice packs.
               </p>
             </div>
@@ -105,7 +105,7 @@ export default function StudentAssignmentsPage() {
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
                   activeTab === "pending"
                     ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
+                    : "bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
                 }`}
               >
                 Due Soon ({pendingItems.length})
@@ -116,7 +116,7 @@ export default function StudentAssignmentsPage() {
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
                   activeTab === "completed"
                     ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
+                    : "bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
                 }`}
               >
                 Completed &amp; Graded ({completedItems.length})
@@ -129,26 +129,26 @@ export default function StudentAssignmentsPage() {
       {/* Main Content */}
       <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 space-y-6">
         {loading ? (
-          <p className="py-12 text-center text-sm font-bold text-slate-400">Loading assignments…</p>
+          <p className="py-12 text-center text-sm font-bold text-[var(--lx-muted)]">Loading assignments…</p>
         ) : activeTab === "pending" ? (
           pendingItems.length === 0 ? (
             <Card title="All caught up! 🎉" subtitle="You have no pending assignments right now.">
-              <p className="text-xs text-slate-500 mt-2">Check back when your teacher schedules your next task.</p>
+              <p className="text-xs text-[var(--lx-muted)] mt-2">Check back when your teacher schedules your next task.</p>
             </Card>
           ) : (
             <div className="space-y-4">
               {pendingItems.map(({ assignment }) => (
                 <div
                   key={assignment.id}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                  className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-base font-bold text-slate-900">{assignment.title}</h2>
+                      <h2 className="text-base font-bold text-[var(--lx-ink)]">{assignment.title}</h2>
                       <Badge variant="info">{assignment.targetLevel}</Badge>
                       <Badge variant="success">{assignment.targetType.replace("_", " ")}</Badge>
                     </div>
-                    <p className="text-xs text-slate-600 mt-1 max-w-xl">{assignment.description}</p>
+                    <p className="text-xs text-[var(--lx-muted)] mt-1 max-w-xl">{assignment.description}</p>
                     <p className="text-[11px] text-amber-700 font-bold mt-2">
                       ⏰ Due: {new Date(assignment.dueDate).toLocaleDateString()}
                     </p>
@@ -178,27 +178,27 @@ export default function StudentAssignmentsPage() {
         ) : (
           completedItems.length === 0 ? (
             <Card title="No completed assignments yet" subtitle="Assignments you complete and submit will appear here.">
-              <p className="text-xs text-slate-500 mt-2">Submit your pending tasks to receive teacher and AI Mind feedback.</p>
+              <p className="text-xs text-[var(--lx-muted)] mt-2">Submit your pending tasks to receive teacher and AI Mind feedback.</p>
             </Card>
           ) : (
             <div className="space-y-4">
               {completedItems.map(({ assignment, submission }) => (
                 <div
                   key={assignment.id}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
+                  className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm space-y-4"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--lx-border)] pb-3">
                     <div>
-                      <h2 className="text-base font-bold text-slate-900">{assignment.title}</h2>
-                      <p className="text-xs text-slate-500">Submitted {new Date(submission!.submittedAt).toLocaleDateString()}</p>
+                      <h2 className="text-base font-bold text-[var(--lx-ink)]">{assignment.title}</h2>
+                      <p className="text-xs text-[var(--lx-muted)]">Submitted {new Date(submission!.submittedAt).toLocaleDateString()}</p>
                     </div>
                     <Badge variant={submission?.status === "graded" ? "success" : "info"}>
                       {submission?.status === "graded" ? "✓ Graded by Teacher" : "Evaluated by Mind AI"}
                     </Badge>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 p-4 text-xs text-slate-700">
-                    <p className="font-bold text-slate-500 mb-1">Your Submission:</p>
+                  <div className="rounded-2xl bg-[var(--lx-canvas)] p-4 text-xs text-[var(--lx-muted)]">
+                    <p className="font-bold text-[var(--lx-muted)] mb-1">Your Submission:</p>
                     <p className="italic">&ldquo;{submission?.payload.textResponse}&rdquo;</p>
                   </div>
 
@@ -250,14 +250,14 @@ export default function StudentAssignmentsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Your Spoken / Written Response</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Your Spoken / Written Response</label>
               <textarea
                 rows={4}
                 required
                 placeholder="Type or transcribe your spoken answer in English…"
                 value={responseText}
                 onChange={(e) => setResponseText(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-indigo-600"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-3 text-xs outline-none focus:border-indigo-600"
               />
             </div>
 

@@ -39,7 +39,7 @@ export function Navbar({
 
   const containerClasses = inverse
     ? "border-white/10 bg-[var(--color-brand-navy)]/90 text-white"
-    : "border-[var(--lx-surface)]/90 bg-white/90 text-[var(--color-brand-navy)]";
+    : "border-[var(--lx-border)]/90 bg-white/90 text-[var(--color-brand-navy)]";
 
   return (
     <header className={`sticky top-0 z-40 border-b backdrop-blur-xl ${containerClasses} ${className}`}>

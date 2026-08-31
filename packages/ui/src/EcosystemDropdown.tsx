@@ -26,6 +26,12 @@ const APPS_CONFIG: Array<{
     description: "Student & educator operational learning space",
   },
   {
+    key: "coach",
+    name: "Lurexa Coach",
+    shortName: "Coach",
+    description: "Adaptive speaking, pronunciation & fluency practice",
+  },
+  {
     key: "teach",
     name: "Lurexa Teach",
     shortName: "Teach",
@@ -36,6 +42,18 @@ const APPS_CONFIG: Array<{
     name: "Lurexa Admin",
     shortName: "Admin",
     description: "Institutional governance & platform operations",
+  },
+  {
+    key: "insight",
+    name: "Lurexa Insight",
+    shortName: "Insight",
+    description: "Institutional analytics & cohort intelligence",
+  },
+  {
+    key: "studio",
+    name: "Lurexa Studio",
+    shortName: "Studio",
+    description: "Curriculum authoring & knowledge design",
   },
   {
     key: "docs",
@@ -49,8 +67,11 @@ function AppMark({ appKey }: { appKey: EcosystemAppKey }) {
   if (appKey === "root") return <MasterMark compact size="sm" />;
   if (appKey === "docs") return <DocsMark compact size="sm" />;
   if (appKey === "learn") return <ProductMark product="learn" compact size="sm" />;
+  if (appKey === "coach") return <ProductMark product="coach" compact size="sm" />;
   if (appKey === "teach") return <ProductMark product="teach" compact size="sm" />;
   if (appKey === "admin") return <ProductMark product="admin" compact size="sm" />;
+  if (appKey === "insight") return <ProductMark product="insight" compact size="sm" />;
+  if (appKey === "studio") return <ProductMark product="studio" compact size="sm" />;
   return <MasterMark compact size="sm" />;
 }
 
@@ -99,7 +120,7 @@ export function EcosystemDropdown({
 
   const buttonStyle = inverse
     ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white"
-    : "border-[var(--lx-surface)] bg-white text-[var(--color-brand-navy)] hover:bg-[#f3f6ff] hover:border-[#b8c7f1] focus-visible:ring-[var(--lx-secondary)]";
+    : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] hover:border-[var(--lx-border)] focus-visible:ring-[var(--lx-secondary)]";
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`} {...props}>
@@ -134,15 +155,15 @@ export function EcosystemDropdown({
           role="menu"
           aria-orientation="vertical"
           aria-label="Lurexa ecosystem surfaces"
-          className={`absolute z-50 mt-2 w-80 rounded-2xl border border-[var(--lx-surface)] bg-white p-2 shadow-[0_20px_50px_rgba(7,29,103,0.15)] ring-1 ring-black/5 focus:outline-none ${
+          className={`absolute z-50 mt-2 w-80 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-2 shadow-[var(--lx-card-shadow)] focus:outline-none ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
-          <div className="border-b border-[#eef2fc] px-3 py-2.5">
+          <div className="border-b border-[var(--lx-border)] px-3 py-2.5">
             <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-secondary)]">
               Lurexa Ecosystem
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[#4d5e8c]">
+            <p className="mt-0.5 text-xs font-medium text-[var(--lx-muted)]">
               One learner model across all connected surfaces.
             </p>
           </div>
@@ -162,11 +183,11 @@ export function EcosystemDropdown({
                   onClick={(event) => navigate(event, url, isCurrent)}
                   className={`group flex items-start gap-3 rounded-xl p-2.5 transition motion-reduce:transition-none ${
                     isCurrent
-                      ? "bg-[#eef2ff] text-[var(--lx-secondary)]"
-                      : "text-[var(--color-brand-navy)] hover:bg-[#f5f8ff] hover:text-[var(--lx-secondary)]"
+                      ? "bg-[var(--lx-canvas)] text-[var(--lx-secondary)]"
+                      : "text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-secondary)]"
                   }`}
                 >
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white shadow-sm ring-1 ring-[#e6ecfb]">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--lx-canvas)] shadow-sm ring-1 ring-[var(--lx-border)]">
                     <AppMark appKey={app.key} />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -184,7 +205,7 @@ export function EcosystemDropdown({
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[11px] leading-4 text-[#4d5e8c]">
+                    <p className="mt-0.5 text-[11px] leading-4 text-[var(--lx-muted)]">
                       {app.description}
                     </p>
                   </div>

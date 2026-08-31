@@ -41,7 +41,7 @@ export default function DeveloperAPIPage() {
               </Button>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase">Your New API Token (Save immediately):</p>
+                <p className="text-xs font-bold text-[var(--lx-muted)] uppercase">Your New API Token (Save immediately):</p>
                 <div className="rounded-xl bg-[var(--color-brand-navy)] p-4 font-mono text-sm text-[var(--lx-accent)] overflow-x-auto">
                   {issuedKey}
                 </div>
@@ -52,13 +52,13 @@ export default function DeveloperAPIPage() {
 
         <Card title="API Endpoints Reference">
           <div className="space-y-3 font-mono text-xs text-[var(--lx-muted)]">
-            <div className="flex justify-between rounded-xl border border-[var(--lx-border)] bg-white p-4">
+            <div className="flex justify-between rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4">
               <span><strong className="text-indigo-600">POST</strong> /api/v1/students/sync</span>
-              <span className="text-slate-400">Sync SIS Rosters</span>
+              <span className="text-[var(--lx-muted)]">Sync SIS Rosters</span>
             </div>
-            <div className="p-3 bg-white border border-slate-200 rounded-lg flex justify-between">
+            <div className="p-3 bg-[var(--lx-surface)] border border-[var(--lx-border)] rounded-lg flex justify-between">
               <span><strong className="text-emerald-600">GET</strong> /api/v1/analytics/scores</span>
-              <span className="text-slate-400">Fetch Grades & AI Insights</span>
+              <span className="text-[var(--lx-muted)]">Fetch Grades & AI Insights</span>
             </div>
           </div>
         </Card>

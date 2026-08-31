@@ -57,7 +57,7 @@ export default function SignupPage() {
           <Button
             type="button"
             className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "student" ? "bg-white text-[var(--color-brand-navy)] shadow-sm" : "text-[var(--lx-muted)]"
+              mode === "student" ? "bg-[var(--lx-surface)] text-[var(--color-brand-navy)] shadow-sm" : "text-[var(--lx-muted)]"
             }`}
             onClick={() => setMode("student")}
           >
@@ -66,7 +66,7 @@ export default function SignupPage() {
           <Button
             type="button"
             className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-              mode === "teacher" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+              mode === "teacher" ? "bg-[var(--lx-surface)] text-[var(--lx-ink)] shadow-sm" : "text-[var(--lx-muted)]"
             }`}
             onClick={() => setMode("teacher")}
           >
@@ -103,16 +103,16 @@ export default function SignupPage() {
             />
           ) : (
             <div className="space-y-3">
-              <p className="text-sm font-semibold text-slate-800">How are you starting?</p>
-              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "self-paced" ? "border-indigo-500 bg-indigo-50" : "border-slate-200"}`}>
+              <p className="text-sm font-semibold text-[var(--lx-ink)]">How are you starting?</p>
+              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "self-paced" ? "border-indigo-500 bg-indigo-50" : "border-[var(--lx-border)]"}`}>
                 <input type="radio" name="student-path" className="mr-2" checked={studentPath === "self-paced"} onChange={() => setStudentPath("self-paced")} />
-                <span className="font-semibold text-slate-900">Learn independently</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-600">Start a self-paced English path with no class code.</span>
+                <span className="font-semibold text-[var(--lx-ink)]">Learn independently</span>
+                <span className="mt-1 block text-xs leading-5 text-[var(--lx-muted)]">Start a self-paced English path with no class code.</span>
               </label>
-              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "class" ? "border-indigo-500 bg-indigo-50" : "border-slate-200"}`}>
+              <label className={`block cursor-pointer rounded-xl border p-4 ${studentPath === "class" ? "border-indigo-500 bg-indigo-50" : "border-[var(--lx-border)]"}`}>
                 <input type="radio" name="student-path" className="mr-2" checked={studentPath === "class"} onChange={() => setStudentPath("class")} />
-                <span className="font-semibold text-slate-900">Join a teacher&apos;s class</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-600">Use the invitation code your teacher gave you.</span>
+                <span className="font-semibold text-[var(--lx-ink)]">Join a teacher&apos;s class</span>
+                <span className="mt-1 block text-xs leading-5 text-[var(--lx-muted)]">Use the invitation code your teacher gave you.</span>
               </label>
               {studentPath === "class" && <Input
                 id="invite-code"

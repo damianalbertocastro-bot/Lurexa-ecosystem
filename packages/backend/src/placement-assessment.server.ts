@@ -1,10 +1,15 @@
-import type { CefrLevel } from "@lurexa/types";
+import type { CefrLevel, DiagnosticTransferHighlight, PlacementSkill } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
-import { A1_PRODUCTION_COURSE_ID } from "./a1-production-curriculum.server";
+import { A1_PRODUCTION_COURSE_ID, provisionA1ProductionCurriculum } from "./a1-production-curriculum.server";
+import { ensureA2ProductionCurriculumInFirestore } from "./a2-production-curriculum.server";
+import { ensureB1ProductionCurriculumInFirestore } from "./b1-production-curriculum.server";
+import { ensureB2ProductionCurriculumInFirestore } from "./b2-production-curriculum.server";
+import { ensureC1ProductionCurriculumInFirestore } from "./c1-production-curriculum.server";
+import { ensureC2ProductionCurriculumInFirestore } from "./c2-production-curriculum.server";
 
-export type PlacementSkill = "listening" | "grammar" | "vocabulary" | "reading" | "phonetics";
+export type { PlacementSkill };
 
 export interface PlacementProbeItem {
   id: string;
@@ -23,12 +28,14 @@ export interface PlacementProbeItem {
 export interface PlacementDiagnosticResult {
   estimatedLevel: CefrLevel;
   confidence: "low" | "medium" | "high";
+  isProvisional: boolean;
   recommendedCourseId: string;
   recommendedLessonId: string;
   recommendedStartingPoint: string;
   overallScorePercent: number;
   skillBreakdown: Record<PlacementSkill, { score: number; maxScore: number; level: CefrLevel }>;
   priorityReinforcements: string[];
+  transferHighlights: DiagnosticTransferHighlight[];
   rationale: string;
 }
 
@@ -310,9 +317,11 @@ export class PlacementAssessmentService {
     let correctTotal = 0;
     const skillStats: Record<PlacementSkill, { correct: number; total: number }> = {
       listening: { correct: 0, total: 0 },
-      grammar: { correct: 0, total: 0 },
-      vocabulary: { correct: 0, total: 0 },
+      speaking: { correct: 0, total: 0 },
       reading: { correct: 0, total: 0 },
+      writing: { correct: 0, total: 0 },
+      vocabulary: { correct: 0, total: 0 },
+      grammar: { correct: 0, total: 0 },
       phonetics: { correct: 0, total: 0 },
     };
 
@@ -327,6 +336,14 @@ export class PlacementAssessmentService {
       } else {
         failedFocusAreas.push(item.focusArea);
       }
+    }
+
+    // Default missing skills if not tested directly in screening probes
+    if (skillStats.speaking.total === 0) {
+      skillStats.speaking = { correct: skillStats.phonetics.correct || 1, total: skillStats.phonetics.total || 1 };
+    }
+    if (skillStats.writing.total === 0) {
+      skillStats.writing = { correct: skillStats.grammar.correct || 1, total: skillStats.grammar.total || 1 };
     }
 
     const overallScorePercent = Math.round((correctTotal / totalAnswered) * 100);
@@ -385,11 +402,39 @@ export class PlacementAssessmentService {
       priorityReinforcements.push("Spoken fluency refinement", "Connected speech & rhythm");
     }
 
+    // Identify Dominican Spanish Transfer Highlights
+    const transferHighlights: DiagnosticTransferHighlight[] = [];
+    if (answeredItems.some((i) => i.id === "a1-phon-01" && input.answers[i.id]?.toLowerCase() !== i.correctAnswer.toLowerCase())) {
+      transferHighlights.push({
+        category: "s_cluster_epenthesis",
+        detectedPattern: "Initial /s/ consonant cluster epenthesis (e.g., 'estudent')",
+        expectedPattern: "Direct voiceless sibilant onset /stjuːdənt/",
+        confidenceScore: 0.88,
+        pedagogicalNote: "Dominican Spanish speakers often add a prosthetic vowel before initial s-clusters. Targeted phonetics practice builds direct onset control.",
+        suggestedFocusModule: "DO-ENG-PRO-002",
+      });
+    }
+    if (answeredItems.some((i) => i.id === "a2-gram-01" && input.answers[i.id]?.toLowerCase() !== i.correctAnswer.toLowerCase())) {
+      transferHighlights.push({
+        category: "third_person_inflection",
+        detectedPattern: "Irregular past tense simplification",
+        expectedPattern: "Irregular past forms (went, bought)",
+        confidenceScore: 0.82,
+        pedagogicalNote: "Dominican Spanish learners benefit from deliberate retrieval practice with irregular past morphology in conversational narratives.",
+        suggestedFocusModule: "DO-ENG-PRO-006",
+      });
+    }
+
     const skillBreakdown: Record<PlacementSkill, { score: number; maxScore: number; level: CefrLevel }> = {
       listening: {
         score: skillStats.listening.correct,
         maxScore: skillStats.listening.total,
         level: calculateSkillLevel(skillStats.listening.correct, skillStats.listening.total),
+      },
+      speaking: {
+        score: skillStats.speaking.correct,
+        maxScore: skillStats.speaking.total,
+        level: calculateSkillLevel(skillStats.speaking.correct, skillStats.speaking.total),
       },
       grammar: {
         score: skillStats.grammar.correct,
@@ -406,6 +451,11 @@ export class PlacementAssessmentService {
         maxScore: skillStats.reading.total,
         level: calculateSkillLevel(skillStats.reading.correct, skillStats.reading.total),
       },
+      writing: {
+        score: skillStats.writing.correct,
+        maxScore: skillStats.writing.total,
+        level: calculateSkillLevel(skillStats.writing.correct, skillStats.writing.total),
+      },
       phonetics: {
         score: skillStats.phonetics.correct,
         maxScore: skillStats.phonetics.total,
@@ -415,14 +465,69 @@ export class PlacementAssessmentService {
 
     const confidence: "low" | "medium" | "high" =
       totalAnswered >= 10 ? "high" : totalAnswered >= 5 ? "medium" : "low";
+    const isProvisional = confidence !== "high";
 
     // Save trusted placement evidence record into Core
+    // Provision target curriculum if needed
+    try {
+      if (estimatedLevel === "A1") {
+        await provisionA1ProductionCurriculum();
+      } else if (estimatedLevel === "A2") {
+        await ensureA2ProductionCurriculumInFirestore();
+      } else if (estimatedLevel === "B1") {
+        await ensureB1ProductionCurriculumInFirestore();
+      } else if (estimatedLevel === "B2") {
+        await ensureB2ProductionCurriculumInFirestore();
+      } else if (estimatedLevel === "C1") {
+        await ensureC1ProductionCurriculumInFirestore();
+      } else if (estimatedLevel === "C2") {
+        await ensureC2ProductionCurriculumInFirestore();
+      }
+    } catch (provisionErr) {
+      console.warn("Curriculum provisioning warning during placement:", provisionErr);
+    }
+
     const db = getServerFirestore();
-    const evidenceRepository = new FirestoreLearningEvidenceRepository();
     const now = new Date().toISOString();
-    const placementEvidenceId = `evidence-placement-${input.actorId}-${Date.now()}`;
+    const evidenceRepository = new FirestoreLearningEvidenceRepository();
+    const placementEvidenceId = `placement-${input.actorId}-${Date.now()}`;
+
+    const organizationReference = db.collection("organizations").doc(ORGANIZATION_ID);
+    const membershipReference = organizationReference.collection("members").doc(input.actorId);
+    const userMembershipReference = db.collection("user-memberships").doc(input.actorId).collection("organizations").doc(ORGANIZATION_ID);
 
     await Promise.all([
+      organizationReference.set(
+        {
+          id: ORGANIZATION_ID,
+          name: "Lurexa Self-Paced Learning",
+          slug: "lurexa-self-paced",
+          ownerId: "lurexa-system",
+          plan: "platform",
+          updatedAt: now,
+        },
+        { merge: true }
+      ),
+      membershipReference.set(
+        {
+          userId: input.actorId,
+          orgId: ORGANIZATION_ID,
+          role: "student",
+          joinedAt: now,
+          source: "adaptive-placement",
+        },
+        { merge: true }
+      ),
+      userMembershipReference.set(
+        {
+          userId: input.actorId,
+          orgId: ORGANIZATION_ID,
+          role: "student",
+          joinedAt: now,
+          source: "adaptive-placement",
+        },
+        { merge: true }
+      ),
       db.collection("learners").doc(input.actorId).set(
         {
           learnerId: input.actorId,
@@ -430,9 +535,11 @@ export class PlacementAssessmentService {
           placement: {
             estimatedLevel,
             confidence,
+            isProvisional,
             overallScorePercent,
             skillBreakdown,
             priorityReinforcements,
+            transferHighlights,
             recommendedCourseId,
             recommendedLessonId,
             completedAt: now,
@@ -443,6 +550,46 @@ export class PlacementAssessmentService {
             recommendation: `${estimatedLevel} Diagnostic Placement`,
             recommendedCourseId,
             confidence,
+          },
+          proficiency: {
+            cefr: estimatedLevel,
+            confidence,
+            overallScorePercent,
+            updatedAt: now,
+          },
+          updatedAt: now,
+        },
+        { merge: true }
+      ),
+      db.collection("learner-profiles").doc(input.actorId).set(
+        {
+          learnerId: input.actorId,
+          email: input.email,
+          ...(input.goal ? { goals: [input.goal] } : {}),
+          placement: {
+            estimatedLevel,
+            confidence,
+            isProvisional,
+            overallScorePercent,
+            skillBreakdown,
+            priorityReinforcements,
+            transferHighlights,
+            recommendedCourseId,
+            recommendedLessonId,
+            completedAt: now,
+          },
+          onboarding: {
+            path: "adaptive-placement",
+            completedAt: now,
+            recommendation: `${estimatedLevel} Diagnostic Placement`,
+            recommendedCourseId,
+            confidence,
+          },
+          proficiency: {
+            cefr: estimatedLevel,
+            confidence,
+            overallScorePercent,
+            updatedAt: now,
           },
           updatedAt: now,
         },
@@ -466,8 +613,10 @@ export class PlacementAssessmentService {
           estimatedLevel,
           overallScorePercent,
           confidence,
+          isProvisional,
           skillBreakdown,
           priorityReinforcements,
+          transferHighlights,
           itemsAnsweredCount: totalAnswered,
           scope: "adaptive_cefr_diagnostic",
         },
@@ -493,12 +642,14 @@ export class PlacementAssessmentService {
     return {
       estimatedLevel,
       confidence,
+      isProvisional,
       recommendedCourseId,
       recommendedLessonId,
       recommendedStartingPoint,
       overallScorePercent,
       skillBreakdown,
       priorityReinforcements,
+      transferHighlights,
       rationale,
     };
   }

@@ -108,7 +108,7 @@ export default function OnboardingPage() {
   }
 
   if (!ready) {
-    return <main className="min-h-screen bg-[var(--learn-canvas)] p-8 text-slate-600">Preparing your learning path…</main>;
+    return <main className="min-h-screen bg-[var(--learn-canvas)] p-8 text-[var(--lx-muted)]">Preparing your learning path…</main>;
   }
 
   return (
@@ -116,7 +116,7 @@ export default function OnboardingPage() {
       <section className="mx-auto max-w-2xl">
         <p className="text-xs font-bold tracking-[.16em] text-indigo-700">YOUR STARTING POINT</p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--learn-ink)]">Personalize your learning path.</h1>
-        <p className="mt-4 max-w-xl text-lg leading-8 text-slate-600">Lurexa adapts phonetics, vocabulary transfer, and coaching to your native Spanish variety and personal goals.</p>
+        <p className="mt-4 max-w-xl text-lg leading-8 text-[var(--lx-muted)]">Lurexa adapts phonetics, vocabulary transfer, and coaching to your native Spanish variety and personal goals.</p>
 
         {/* Dialect Profile Selection */}
         <div className="mt-8 space-y-3">
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                 className={`flex cursor-pointer flex-col justify-between rounded-2xl border p-4 transition ${
                   dialect === opt.value
                     ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-md ring-2 ring-[var(--lx-primary)]/20"
-                    : "border-slate-200 bg-white hover:border-[var(--lx-primary)]/40"
+                    : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-primary)]/40"
                 }`}
               >
                 <input
@@ -141,9 +141,9 @@ export default function OnboardingPage() {
                 />
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{opt.flag}</span>
-                  <span className="font-bold text-slate-900">{opt.label}</span>
+                  <span className="font-bold text-[var(--lx-ink)]">{opt.label}</span>
                 </div>
-                <span className="mt-2 block text-xs leading-5 text-slate-500">
+                <span className="mt-2 block text-xs leading-5 text-[var(--lx-muted)]">
                   {opt.description}
                 </span>
               </label>
@@ -155,10 +155,10 @@ export default function OnboardingPage() {
           <h2 className="text-sm font-bold text-[var(--learn-ink)]">2. What do you want English to help you do?</h2>
           <div className="grid gap-3">
             {goalOptions.map((option) => (
-              <label key={option.value} className={`cursor-pointer rounded-2xl border bg-white p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
+              <label key={option.value} className={`cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
                 <input className="sr-only" type="radio" name="goal" value={option.value} checked={goal === option.value} onChange={() => setGoal(option.value)} />
-                <span className="block text-lg font-bold text-slate-900">{option.label}</span>
-                <span className="mt-1 block text-sm leading-6 text-slate-600">{option.description}</span>
+                <span className="block text-lg font-bold text-[var(--lx-ink)]">{option.label}</span>
+                <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">{option.description}</span>
               </label>
             ))}
           </div>
@@ -166,19 +166,19 @@ export default function OnboardingPage() {
 
         <fieldset className="mt-8 space-y-3">
           <legend className="text-lg font-bold text-[var(--learn-ink)]">Where should we start?</legend>
-          <label className={`block cursor-pointer rounded-2xl border bg-white p-5 transition ${startingPoint === "beginner" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
+          <label className={`block cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${startingPoint === "beginner" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
             <input className="mr-3" type="radio" name="starting-point" checked={startingPoint === "beginner"} onChange={() => setStartingPoint("beginner")} />
-            <span className="font-bold text-slate-900">I’m new to English</span>
-            <span className="mt-1 block text-sm leading-6 text-slate-600">Start with the practical A1 foundations lesson.</span>
+            <span className="font-bold text-[var(--lx-ink)]">I’m new to English</span>
+            <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">Start with the practical A1 foundations lesson.</span>
           </label>
-          <label className={`block cursor-pointer rounded-2xl border bg-white p-5 transition ${startingPoint === "start_check" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
+          <label className={`block cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${startingPoint === "start_check" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
             <input className="mr-3" type="radio" name="starting-point" checked={startingPoint === "start_check"} onChange={() => setStartingPoint("start_check")} />
-            <span className="font-bold text-slate-900">I know some English</span>
-            <span className="mt-1 block text-sm leading-6 text-slate-600">Take four quick questions for a provisional A1 or early A2 recommendation.</span>
+            <span className="font-bold text-[var(--lx-ink)]">I know some English</span>
+            <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">Take four quick questions for a provisional A1 or early A2 recommendation.</span>
           </label>
         </fieldset>
 
-        {startingPoint === "start_check" && <fieldset className="mt-8 space-y-6 rounded-2xl border border-indigo-100 bg-white p-5"><legend className="px-2 text-lg font-bold text-[var(--learn-ink)]">Quick start check</legend>{startCheck.map((question, index) => <div key={question.prompt}><p className="font-semibold text-slate-900">{index + 1}. {question.prompt}</p><div className="mt-3 grid gap-2">{question.options.map((option) => <label key={option.value} className={`cursor-pointer rounded-xl border p-3 text-sm ${placementAnswers[index] === option.value ? "border-indigo-500 bg-indigo-50" : "border-slate-200"}`}><input className="mr-3" type="radio" name={`placement-${index}`} checked={placementAnswers[index] === option.value} onChange={() => setPlacementAnswers((answers) => { const next = [...answers]; next[index] = option.value; return next; })} />{option.label}</label>)}</div></div>)}</fieldset>}
+        {startingPoint === "start_check" && <fieldset className="mt-8 space-y-6 rounded-2xl border border-indigo-100 bg-[var(--lx-surface)] p-5"><legend className="px-2 text-lg font-bold text-[var(--learn-ink)]">Quick start check</legend>{startCheck.map((question, index) => <div key={question.prompt}><p className="font-semibold text-[var(--lx-ink)]">{index + 1}. {question.prompt}</p><div className="mt-3 grid gap-2">{question.options.map((option) => <label key={option.value} className={`cursor-pointer rounded-xl border p-3 text-sm ${placementAnswers[index] === option.value ? "border-indigo-500 bg-indigo-50" : "border-[var(--lx-border)]"}`}><input className="mr-3" type="radio" name={`placement-${index}`} checked={placementAnswers[index] === option.value} onChange={() => setPlacementAnswers((answers) => { const next = [...answers]; next[index] = option.value; return next; })} />{option.label}</label>)}</div></div>)}</fieldset>}
 
         {error && <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">{error}</p>}
 

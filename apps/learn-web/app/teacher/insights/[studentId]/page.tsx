@@ -112,24 +112,24 @@ export default function StudentInterventionPage() {
 
         {!brief ? (
           <Card title="Build evidence brief" subtitle="Uses the learner's most recent course that you are authorized to teach">
-            <p className="mb-4 text-sm leading-6 text-slate-600">Load recent trusted progress, learning evidence, Lurexa Mind targets, and recommendations before deciding what support to send.</p>
+            <p className="mb-4 text-sm leading-6 text-[var(--lx-muted)]">Load recent trusted progress, learning evidence, Lurexa Mind targets, and recommendations before deciding what support to send.</p>
             <Button variant="primary" isLoading={loadingBrief} onClick={() => void createTrustedBrief()}>Load trusted learner brief</Button>
           </Card>
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-2">
               <Card title="Recent trusted evidence" action={<Badge variant={brief.status === "responded" ? "success" : "info"}>{brief.status}</Badge>}>
-                <div className="space-y-3 text-sm text-slate-600">
-                  <p><strong className="text-slate-900">Course:</strong> {brief.courseId}</p>
-                  <p><strong className="text-slate-900">Recent lesson:</strong> {brief.recentLessonId ?? "No recent lesson recorded"}</p>
-                  <p><strong className="text-slate-900">Evidence types:</strong> {brief.evidenceSummary.recentEvidenceTypes.join(", ") || "No recent evidence"}</p>
-                  <p><strong className="text-slate-900">Recent activities:</strong> {brief.evidenceSummary.recentActivityIds.join(", ") || "No recent activities"}</p>
+                <div className="space-y-3 text-sm text-[var(--lx-muted)]">
+                  <p><strong className="text-[var(--lx-ink)]">Course:</strong> {brief.courseId}</p>
+                  <p><strong className="text-[var(--lx-ink)]">Recent lesson:</strong> {brief.recentLessonId ?? "No recent lesson recorded"}</p>
+                  <p><strong className="text-[var(--lx-ink)]">Evidence types:</strong> {brief.evidenceSummary.recentEvidenceTypes.join(", ") || "No recent evidence"}</p>
+                  <p><strong className="text-[var(--lx-ink)]">Recent activities:</strong> {brief.evidenceSummary.recentActivityIds.join(", ") || "No recent activities"}</p>
                 </div>
               </Card>
               <Card title="Lurexa Mind signals">
-                <div className="space-y-3 text-sm text-slate-600">
-                  <div><strong className="text-slate-900">Active targets</strong>{brief.learningSignals.activeTargets.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{brief.learningSignals.activeTargets.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="mt-2">No stable active targets yet.</p>}</div>
-                  <div><strong className="text-slate-900">Recommendations</strong>{brief.learningSignals.recommendations.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{brief.learningSignals.recommendations.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="mt-2">No current Mind recommendation.</p>}</div>
+                <div className="space-y-3 text-sm text-[var(--lx-muted)]">
+                  <div><strong className="text-[var(--lx-ink)]">Active targets</strong>{brief.learningSignals.activeTargets.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{brief.learningSignals.activeTargets.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="mt-2">No stable active targets yet.</p>}</div>
+                  <div><strong className="text-[var(--lx-ink)]">Recommendations</strong>{brief.learningSignals.recommendations.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{brief.learningSignals.recommendations.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="mt-2">No current Mind recommendation.</p>}</div>
                 </div>
               </Card>
             </div>
@@ -148,8 +148,8 @@ export default function StudentInterventionPage() {
                   ]}
                   size={280}
                 />
-                <div className="max-w-xs space-y-2 text-xs text-slate-600">
-                  <p className="font-bold text-slate-900">Dominican L1 Focus Areas:</p>
+                <div className="max-w-xs space-y-2 text-xs text-[var(--lx-muted)]">
+                  <p className="font-bold text-[var(--lx-ink)]">Dominican L1 Focus Areas:</p>
                   <p>• Initial s-cluster pronunciation refinement (/st-/, /sp-/)</p>
                   <p>• Dental fricative consistency in connected speech (/ð/)</p>
                   <p>• Strong reading & vocabulary foundation</p>
@@ -159,16 +159,16 @@ export default function StudentInterventionPage() {
 
             <Card title="Send teacher guidance" subtitle="This returns to the learner separately from automatic feedback">
               <form onSubmit={sendGuidance} className="space-y-4 pt-2">
-                <label className="block text-sm font-semibold text-slate-800">Priority
-                  <select value={priority} onChange={(event) => setPriority(event.target.value as TeacherInterventionResponse["priority"])} className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm">
+                <label className="block text-sm font-semibold text-[var(--lx-ink)]">Priority
+                  <select value={priority} onChange={(event) => setPriority(event.target.value as TeacherInterventionResponse["priority"])} className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm">
                     {priorities.map((item) => <option key={item} value={item}>{item}</option>)}
                   </select>
                 </label>
                 <Input label="Teacher note" placeholder="What should the learner understand about this guidance?" value={teacherNote} onChange={(event) => setTeacherNote(event.target.value)} required />
                 <Input label="Recommended action" placeholder="e.g. Repeat the introduction roleplay and focus on clear complete sentences." value={recommendedAction} onChange={(event) => setRecommendedAction(event.target.value)} required />
                 {brief.evidenceSummary.recentActivityIds.length ? (
-                  <label className="block text-sm font-semibold text-slate-800">Target a recent activity (optional)
-                    <select value={recommendedActivityId} onChange={(event) => setRecommendedActivityId(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm">
+                  <label className="block text-sm font-semibold text-[var(--lx-ink)]">Target a recent activity (optional)
+                    <select value={recommendedActivityId} onChange={(event) => setRecommendedActivityId(event.target.value)} className="mt-1 block w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-3 text-sm">
                       <option value="">No specific activity</option>
                       {brief.evidenceSummary.recentActivityIds.map((activityId) => <option key={activityId} value={activityId}>{activityId}</option>)}
                     </select>

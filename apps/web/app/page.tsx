@@ -1,4 +1,5 @@
 import { MasterMark } from "@lurexa/ui/MasterMark";
+import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import Image from "next/image";
 import {
   lurexaProducts,
@@ -18,16 +19,16 @@ type ProductPresentation = {
 const learnUrl = getEcosystemUrl("learn");
 const teachUrl = getEcosystemUrl("teach");
 const adminUrl = getEcosystemUrl("admin");
-const coachUrl = process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? getEcosystemUrl("learn", "/coach");
+const coachUrl = process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? getEcosystemUrl("coach");
 const productOrder = ["learn", "coach", "teach", "admin", "insight", "studio", "campus"] satisfies LurexaProductId[];
 
 const productPresentation: Record<LurexaProductId, ProductPresentation> = {
   learn: { eyebrow: "Personal learning", href: learnUrl, status: "Explore Learn" },
-  coach: { eyebrow: "Speaking intelligence", href: coachUrl, status: "In development" },
+  coach: { eyebrow: "Speaking intelligence", href: coachUrl, status: "Explore Coach" },
   teach: { eyebrow: "Professional growth", href: teachUrl, status: "Explore Teach" },
   admin: { eyebrow: "Institutional trust", href: adminUrl, status: "Explore Admin" },
-  insight: { eyebrow: "Learning evidence", href: process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? "#shared-intelligence", status: "In development" },
-  studio: { eyebrow: "Learning creation", href: process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? "#shared-intelligence", status: "In development" },
+  insight: { eyebrow: "Learning evidence", href: process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? getEcosystemUrl("insight"), status: "In development" },
+  studio: { eyebrow: "Learning creation", href: process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? getEcosystemUrl("studio"), status: "In development" },
   campus: { eyebrow: "Institutional deployment", href: process.env.NEXT_PUBLIC_LUREXA_CAMPUS_URL ?? "#shared-intelligence", status: "In development" },
 };
 
@@ -38,12 +39,6 @@ const products = productOrder.map((id) => ({
   ...productPresentation[id],
 }));
 
-/**
- * The homepage is intentionally self-contained: these product marks are served
- * from this Next application's public directory instead of relying on utility
- * CSS emitted by a consuming app. This keeps the identity assets visible in
- * production builds even when shared-component Tailwind classes are absent.
- */
 const productMarkSrc: Record<LurexaProductId, string> = {
   learn: "/brand/lurexa-learn.svg",
   coach: "/brand/lurexa-coach.svg",
@@ -89,7 +84,10 @@ export default function Home() {
     <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
       <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark compact size="sm" /><span>Lurexa</span></a>
       <div className={styles.navLinks}><a href="#products">Products</a><a href="#shared-intelligence">How it works</a><a href="#values">Values</a></div>
-      <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <EcosystemDropdown currentApp="root" />
+        <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
+      </div>
     </nav>
 
     <section id="top" className={styles.hero}>
@@ -123,14 +121,5 @@ export default function Home() {
       <div className={styles.capabilitiesHeading}><p className={styles.kicker}>THE WIDER ECOSYSTEM</p><h2 id="capabilities-heading">Every capability speaks <em>the same visual language.</em></h2><p>These shared capabilities are being shaped as part of Lurexa’s ecosystem foundation. They are not separate promises; they make the product family more useful together.</p></div>
       <div className={styles.capabilityGrid}>{capabilities.map((capability) => <div className={styles.capability} key={capability.name}><CapabilityIcon name={capability.icon}/><span>{capability.name}</span><i>Planned</i></div>)}</div>
     </section>
-
-    <section id="shared-intelligence" className={styles.intelligence}>
-      <div className={styles.intelligenceVisual}><div className={styles.signalOne}/><div className={styles.signalTwo}/><div className={styles.signalThree}/><div className={styles.intelligenceCore}><MasterMark compact size="lg" /><span>ONE<br/>LEARNER</span></div></div>
-      <div className={styles.intelligenceCopy}><p className={styles.kicker}>SHARED INTELLIGENCE, HUMANLY USED</p><h2>Progress should not reset when the experience changes.</h2><p>Learners can move between Learn and Coach without starting over because authorized context can travel through the shared Core/Mind foundation. Educators use that same trusted foundation in Teach for professional growth, evidence, credentials, and community—while classroom operations remain in Learn.</p><div className={styles.principles}><span>Trusted by Core</span><span>Interpreted by Mind</span><span>Experienced through products</span></div></div>
-    </section>
-
-    <section id="values" className={styles.values}><div className={styles.valueIntro}><p className={styles.kicker}>WHAT GUIDES US</p><h2>Technology should make education feel more personal, not less.</h2></div><div className={styles.valueList}><article><span>♡</span><h3>Learner first</h3><p>We design around real goals, confidence, and dignity.</p></article><article><span>✦</span><h3>Connected by design</h3><p>Useful context moves with people across their learning life.</p></article><article><span>✓</span><h3>Trust is essential</h3><p>Safety, clarity, and responsible data use are not optional.</p></article><article><span>↗</span><h3>Growth with impact</h3><p>We measure progress by what learners can meaningfully do.</p></article></div></section>
-
-    <footer className={styles.footer}><div className={styles.footerBrand}><MasterMark compact size="sm" /><b>Lurexa</b></div><p>Learn. Connect. Grow.</p><a href="#top">Back to top ↑</a><span>© 2026 Lurexa Learning Technologies</span></footer>
   </main>;
 }

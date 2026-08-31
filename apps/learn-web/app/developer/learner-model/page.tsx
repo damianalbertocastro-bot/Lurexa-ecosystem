@@ -65,7 +65,7 @@ export default function LearnerModelInspectorPage() {
   return (
     <div className="min-h-screen bg-[var(--lx-canvas)] text-[var(--color-brand-navy)]">
       {/* Top Inspector Header */}
-      <header className="border-b border-[var(--lx-surface)] bg-white px-6 py-4 shadow-sm sm:px-10">
+      <header className="border-b border-[var(--lx-border)] bg-[var(--lx-surface)] px-6 py-4 shadow-sm sm:px-10">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[var(--color-brand-navy)] to-[var(--lx-primary)] text-lg font-black text-white shadow-md">
@@ -87,7 +87,7 @@ export default function LearnerModelInspectorPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="rounded-xl border border-[var(--lx-surface)] bg-white px-4 py-2 text-xs font-bold text-[var(--lx-muted)] hover:bg-[var(--lx-surface)]"
+              className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2 text-xs font-bold text-[var(--lx-muted)] hover:bg-[var(--lx-surface)]"
             >
               ← Back to Learner Dashboard
             </Link>
@@ -133,7 +133,7 @@ export default function LearnerModelInspectorPage() {
         {/* 7-Skill Mastery & Phoneme Matrices */}
         <div className="grid gap-8 lg:grid-cols-2">
           {/* 7 Skills Continuum */}
-          <section className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+          <section className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-extrabold tracking-widest text-[var(--lx-primary)]">
@@ -148,7 +148,7 @@ export default function LearnerModelInspectorPage() {
 
             <div className="space-y-4">
               {SKILL_DATA.map((item) => (
-                <div key={item.skill} className="rounded-2xl border border-[var(--lx-surface)] bg-[var(--lx-surface)] p-4">
+                <div key={item.skill} className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-sm font-black text-[var(--color-brand-navy)]">{item.skill}</span>
                     <span className="rounded-md bg-[var(--lx-surface)] px-2 py-0.5 font-mono font-black text-[var(--lx-primary)]">
@@ -167,7 +167,7 @@ export default function LearnerModelInspectorPage() {
           </section>
 
           {/* Phonological Interference & Coach History Matrix */}
-          <section className="rounded-3xl border border-[var(--lx-surface)] bg-white p-7 shadow-sm">
+          <section className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-extrabold tracking-widest text-[var(--lx-warning)]">
@@ -184,7 +184,7 @@ export default function LearnerModelInspectorPage() {
               {PHONEME_TARGETS.map((target) => (
                 <div
                   key={target.phoneme}
-                  className="flex items-center justify-between rounded-2xl border border-[var(--lx-surface)] bg-[var(--lx-surface)] p-4"
+                  className="flex items-center justify-between rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4"
                 >
                   <div>
                     <span className="font-mono text-xs font-bold text-[var(--lx-muted)]">

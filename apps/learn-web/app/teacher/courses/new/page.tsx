@@ -262,7 +262,7 @@ function CourseBuilderContent() {
 
               <div className="space-y-3 pt-4">
                 {modules.map((module, index) => (
-                  <section key={module.id} className="rounded-xl border border-[var(--lx-border)] bg-white p-4">
+                  <section key={module.id} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <span className="text-xs font-semibold uppercase tracking-wider text-[var(--lx-primary)]">Module {index + 1}</span>
@@ -273,7 +273,7 @@ function CourseBuilderContent() {
                     </div>
                     <div className="mt-3 space-y-2">
                       {(lessonsByModule[module.id] ?? []).map((lesson) => (
-                        <div key={lesson.id} className="flex items-center justify-between border-t border-[var(--lx-surface)] pt-3 text-sm">
+                        <div key={lesson.id} className="flex items-center justify-between border-t border-[var(--lx-border)] pt-3 text-sm">
                           <span>{lesson.title}</span>
                           <span className="flex gap-2">
                             <Button variant="ghost" size="sm" onClick={() => openLessonEditor(module, lesson)}>Edit</Button>
@@ -317,7 +317,7 @@ function CourseBuilderContent() {
 
 export default function CourseBuilderPage() {
   return (
-    <Suspense fallback={<div role="status" className="p-8 text-sm text-slate-600">Loading course builder…</div>}>
+    <Suspense fallback={<div role="status" className="p-8 text-sm text-[var(--lx-muted)]">Loading course builder…</div>}>
       <CourseBuilderContent />
     </Suspense>
   );

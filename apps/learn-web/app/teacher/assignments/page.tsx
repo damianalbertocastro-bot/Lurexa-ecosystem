@@ -189,10 +189,10 @@ export default function TeacherAssignmentsPage() {
         {/* Assignments List */}
         <Card title="Published Assignments" subtitle="Tasks assigned to your classes">
           {loading ? (
-            <p className="py-6 text-sm text-slate-500 text-center">Loading class assignments…</p>
+            <p className="py-6 text-sm text-[var(--lx-muted)] text-center">Loading class assignments…</p>
           ) : assignments.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-slate-500 mb-3">No assignments created yet.</p>
+              <p className="text-sm text-[var(--lx-muted)] mb-3">No assignments created yet.</p>
               <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
                 Create First Assignment
               </Button>
@@ -203,12 +203,12 @@ export default function TeacherAssignmentsPage() {
                 <div key={assignment.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-base">{assignment.title}</span>
+                      <span className="font-bold text-[var(--lx-ink)] text-base">{assignment.title}</span>
                       <Badge variant="info">{assignment.targetLevel}</Badge>
                       <Badge variant="success">{assignment.targetType.replace("_", " ")}</Badge>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1 max-w-2xl">{assignment.description}</p>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-xs text-[var(--lx-muted)] mt-1 max-w-2xl">{assignment.description}</p>
+                    <p className="text-[11px] text-[var(--lx-muted)] mt-1">
                       Due: <strong>{new Date(assignment.dueDate).toLocaleDateString()}</strong> · Class: {assignment.classId}
                     </p>
                   </div>
@@ -234,31 +234,31 @@ export default function TeacherAssignmentsPage() {
             <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-wider text-indigo-600">STUDENT SUBMISSIONS</p>
-                <h3 className="text-lg font-bold text-slate-900">{selectedAssignment.title}</h3>
+                <h3 className="text-lg font-bold text-[var(--lx-ink)]">{selectedAssignment.title}</h3>
               </div>
               <Button
                 type="button"
                 onClick={() => setSelectedAssignment(null)}
-                className="text-xs font-bold text-slate-500 hover:text-slate-800"
+                className="text-xs font-bold text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
               >
                 Close ✕
               </Button>
             </div>
 
             {submissions.length === 0 ? (
-              <p className="text-xs text-slate-500 py-4">No student submissions received yet for this task.</p>
+              <p className="text-xs text-[var(--lx-muted)] py-4">No student submissions received yet for this task.</p>
             ) : (
               <div className="space-y-3">
                 {submissions.map((sub) => (
-                  <div key={sub.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div key={sub.id} className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900">{sub.studentName}</span>
+                        <span className="font-bold text-sm text-[var(--lx-ink)]">{sub.studentName}</span>
                         <Badge variant={sub.status === "graded" ? "success" : "warning"}>
                           {sub.status.replace("_", " ")}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-600 mt-1 italic">&ldquo;{sub.payload.textResponse}&rdquo;</p>
+                      <p className="text-xs text-[var(--lx-muted)] mt-1 italic">&ldquo;{sub.payload.textResponse}&rdquo;</p>
 
                       {sub.mindEvaluation && (
                         <div className="mt-2 rounded-xl bg-teal-50 border border-teal-200 p-2 text-xs text-teal-900">
@@ -305,48 +305,48 @@ export default function TeacherAssignmentsPage() {
       >
         <form onSubmit={handleCreateAssignment} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Assignment Title</label>
+            <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Assignment Title</label>
             <Input
               type="text"
               required
               placeholder="e.g. Module 2 Speaking Defense"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-indigo-600"
+              className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none focus:border-indigo-600"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Description &amp; Objective</label>
+            <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Description &amp; Objective</label>
             <textarea
               required
               rows={2}
               placeholder="Explain the purpose of the assignment…"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-indigo-600"
+              className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none focus:border-indigo-600"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Student Instructions</label>
+            <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Student Instructions</label>
             <textarea
               required
               rows={2}
               placeholder="Instructions for the student when completing the task…"
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-indigo-600"
+              className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none focus:border-indigo-600"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Task Type</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Task Type</label>
               <select
                 value={targetType}
                 onChange={(e) => setTargetType(e.target.value as AssignmentTargetType)}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
               >
                 <option value="speaking_task">🎙️ Speaking Task</option>
                 <option value="lesson_stage">📖 Lesson Activity</option>
@@ -356,11 +356,11 @@ export default function TeacherAssignmentsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Target CEFR Level</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Target CEFR Level</label>
               <select
                 value={targetLevel}
                 onChange={(e) => setTargetLevel(e.target.value as CefrLevel)}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
               >
                 <option value="A1">A1 - Foundations</option>
                 <option value="A2">A2 - Elementary</option>
@@ -373,12 +373,12 @@ export default function TeacherAssignmentsPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Due Date</label>
+            <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Due Date</label>
             <Input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+              className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
             />
           </div>
 
@@ -396,7 +396,7 @@ export default function TeacherAssignmentsPage() {
           title={`Grade: ${gradingSubmission.studentName}`}
         >
           <form onSubmit={handleGradeSubmission} className="space-y-4">
-            <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-700">
+            <div className="rounded-xl bg-[var(--lx-canvas)] p-3 text-xs text-[var(--lx-muted)]">
               <p className="font-bold mb-1">Student Response:</p>
               <p className="italic">&ldquo;{gradingSubmission.payload.textResponse}&rdquo;</p>
             </div>
@@ -409,7 +409,7 @@ export default function TeacherAssignmentsPage() {
             )}
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Teacher Score (out of 10)</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Teacher Score (out of 10)</label>
               <Input
                 type="number"
                 min={1}
@@ -417,19 +417,19 @@ export default function TeacherAssignmentsPage() {
                 required
                 value={gradeScore}
                 onChange={(e) => setGradeScore(Number(e.target.value))}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Educator Feedback &amp; Recommendations</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Educator Feedback &amp; Recommendations</label>
               <textarea
                 rows={3}
                 required
                 value={gradeFeedback}
                 onChange={(e) => setGradeFeedback(e.target.value)}
                 placeholder="Write actionable feedback for the student…"
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
               />
             </div>
 

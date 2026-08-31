@@ -36,19 +36,23 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const durationMs = Number(durationMsValue);
-    const evidence = await SpokenEvidenceService.persist({
+    const transcript = typeof formData.get("transcript") === "string" ? String(formData.get("transcript")) : undefined;
+
+    const result = await SpokenEvidenceService.persist({
       actor,
       courseId,
       lessonId,
       activityId,
       audio,
       durationMs,
+      transcript,
     });
 
     return Response.json({
       success: true,
-      message: "Spoken evidence recorded successfully.",
-      evidence,
+      message: "Spoken evidence recorded and evaluated successfully.",
+      evidence: result,
+      evaluation: result.evaluation,
       lessonId,
     });
   } catch (error) {

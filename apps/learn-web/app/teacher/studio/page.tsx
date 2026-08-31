@@ -158,31 +158,31 @@ export default function LurexaStudioPage() {
 
         <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
           {/* Authoring Form */}
-          <form onSubmit={handleCreateDraft} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+          <form onSubmit={handleCreateDraft} className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-sm space-y-5">
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-indigo-600">AUTHORING WORKBENCH</p>
-              <h2 className="text-xl font-bold text-slate-900">Create Knowledge Object</h2>
+              <h2 className="text-xl font-bold text-[var(--lx-ink)]">Create Knowledge Object</h2>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Knowledge Object Title</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Knowledge Object Title</label>
               <Input
                 type="text"
                 required
                 placeholder="e.g. Regular Simple Past /-ed/ Coda Articulation"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-indigo-600"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none focus:border-indigo-600"
               />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">CEFR Level</label>
+                <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">CEFR Level</label>
                 <select
                   value={cefrLevel}
                   onChange={(e) => setCefrLevel(e.target.value as CefrLevel)}
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                  className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
                 >
                   <option value="A1">A1 - Foundations</option>
                   <option value="A2">A2 - Elementary</option>
@@ -194,11 +194,11 @@ export default function LurexaStudioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Activity Type</label>
+                <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Activity Type</label>
                 <select
                   value={activityType}
                   onChange={(e) => setActivityType(e.target.value as StudioKnowledgeObjectDraftV1["activityConfig"]["type"])}
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                  className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
                 >
                   <option value="phoneme_shadowing">Phoneme Shadowing</option>
                   <option value="coda_drill">Coda Articulation Drill</option>
@@ -208,11 +208,11 @@ export default function LurexaStudioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Domain</label>
+                <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Domain</label>
                 <select
                   value={domain}
                   onChange={(e) => setDomain(e.target.value as StudioKnowledgeObjectDraftV1["domain"])}
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                  className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
                 >
                   <option value="phonology">Phonology &amp; Prosody</option>
                   <option value="grammar">Grammar &amp; Syntax</option>
@@ -223,11 +223,11 @@ export default function LurexaStudioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Cultural Context</label>
+                <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Cultural Context</label>
                 <select
                   value={culturalContext}
                   onChange={(e) => setCulturalContext(e.target.value as StudioKnowledgeObjectDraftV1["culturalContext"])}
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                  className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
                 >
                   <option value="dominican">Dominican (es-DO)</option>
                   <option value="caribbean">Caribbean</option>
@@ -239,7 +239,7 @@ export default function LurexaStudioPage() {
 
             {/* 7 English Skills Checkbox Array */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">Preserved English Skills (The 7 Skills)</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-2">Preserved English Skills (The 7 Skills)</label>
               <div className="flex flex-wrap gap-2">
                 {ALL_SKILLS.map((skill) => (
                   <Button
@@ -249,7 +249,7 @@ export default function LurexaStudioPage() {
                     className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition ${
                       selectedSkills.includes(skill)
                         ? "bg-indigo-600 text-white shadow-xs"
-                        : "bg-slate-100 text-slate-600 hover:text-slate-900"
+                        : "bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
                     }`}
                   >
                     {skill}
@@ -259,36 +259,36 @@ export default function LurexaStudioPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Pedagogical Objective</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Pedagogical Objective</label>
               <textarea
                 rows={2}
                 required
                 placeholder="Declare explicit communicative and articulatory purpose…"
                 value={objective}
                 onChange={(e) => setObjective(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-indigo-600"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none focus:border-indigo-600"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">L1 Interference &amp; Articulatory Rule</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">L1 Interference &amp; Articulatory Rule</label>
               <Input
                 type="text"
                 value={l1Rule}
                 onChange={(e) => setL1Rule(e.target.value)}
                 placeholder="e.g. Coda deletion of /-d/ and /-t/ in regular past tense verbs."
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Learner Prompt Text &amp; Dialogue</label>
+              <label className="block text-xs font-bold text-[var(--lx-muted)] mb-1">Learner Prompt Text &amp; Dialogue</label>
               <textarea
                 rows={3}
                 required
                 value={promptText}
                 onChange={(e) => setPromptText(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-mono outline-none focus:border-indigo-600"
+                className="w-full rounded-xl border border-[var(--lx-border)] p-2.5 text-xs font-mono outline-none focus:border-indigo-600"
               />
             </div>
 
@@ -302,15 +302,15 @@ export default function LurexaStudioPage() {
             <Card title="CEFR Linguistic Linter" subtitle="Real-time vocabulary frequency and syntax analyzer">
               {lintReport && (
                 <div className="space-y-4 text-xs">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <span className="font-bold text-slate-600">Linguistic Gate:</span>
+                  <div className="flex items-center justify-between border-b border-[var(--lx-border)] pb-3">
+                    <span className="font-bold text-[var(--lx-muted)]">Linguistic Gate:</span>
                     <Badge variant={lintReport.isApproved ? "success" : "warning"}>
                       {lintReport.isApproved ? "✓ CEFR Approved" : "⚠ Review Recommendations"}
                     </Badge>
                   </div>
 
                   <div>
-                    <span className="font-bold text-slate-700">Vocabulary Band Distribution:</span>
+                    <span className="font-bold text-[var(--lx-muted)]">Vocabulary Band Distribution:</span>
                     <div className="grid grid-cols-4 gap-2 mt-2 font-mono text-center">
                       <div className="rounded-xl bg-emerald-50 p-2 text-emerald-800">
                         <p className="text-[10px] font-bold">A1 Band</p>
@@ -339,7 +339,7 @@ export default function LurexaStudioPage() {
                   )}
 
                   {lintReport.recommendations.length > 0 && (
-                    <div className="rounded-xl bg-slate-50 p-3 text-slate-700 space-y-1">
+                    <div className="rounded-xl bg-[var(--lx-canvas)] p-3 text-[var(--lx-muted)] space-y-1">
                       <p className="font-bold">Pedagogical Recommendations:</p>
                       <ul className="list-disc list-inside space-y-0.5 text-[11px]">
                         {lintReport.recommendations.map((rec, i) => (
@@ -359,8 +359,8 @@ export default function LurexaStudioPage() {
                   <span className="text-[10px] font-bold uppercase text-indigo-700">Type: {activityType}</span>
                   <Badge variant="info">{cefrLevel}</Badge>
                 </div>
-                <p className="text-xs font-bold text-slate-800">&ldquo;{promptText}&rdquo;</p>
-                <div className="rounded-xl bg-white p-3 text-[11px] font-mono text-slate-600 border border-slate-200">
+                <p className="text-xs font-bold text-[var(--lx-ink)]">&ldquo;{promptText}&rdquo;</p>
+                <div className="rounded-xl bg-[var(--lx-surface)] p-3 text-[11px] font-mono text-[var(--lx-muted)] border border-[var(--lx-border)]">
                   Target Phonemes: [s], [st], [sp] · L1 Remediation: {l1Rule}
                 </div>
               </div>
@@ -371,26 +371,26 @@ export default function LurexaStudioPage() {
         {/* Catalog of Authored Knowledge Objects */}
         <Card title="Knowledge Object Production Catalog" subtitle="Immutable Core curriculum library">
           {loading ? (
-            <p className="py-6 text-sm text-slate-500 text-center">Loading Knowledge Objects…</p>
+            <p className="py-6 text-sm text-[var(--lx-muted)] text-center">Loading Knowledge Objects…</p>
           ) : knowledgeObjects.length === 0 ? (
-            <p className="py-6 text-sm text-slate-500 text-center">No knowledge objects authored yet.</p>
+            <p className="py-6 text-sm text-[var(--lx-muted)] text-center">No knowledge objects authored yet.</p>
           ) : (
             <div className="divide-y divide-slate-100">
               {knowledgeObjects.map((ko) => (
                 <div key={ko.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-base">{ko.name}</span>
+                      <span className="font-bold text-[var(--lx-ink)] text-base">{ko.name}</span>
                       <Badge variant="info">{ko.cefrLevel}</Badge>
                       <Badge variant={ko.status === "published" ? "success" : "warning"}>
                         v{ko.version} · {ko.status}
                       </Badge>
                       <Badge variant="default">{ko.domain}</Badge>
                     </div>
-                    <p className="text-xs text-slate-600 mt-1 max-w-2xl">{ko.pedagogicalObjective}</p>
+                    <p className="text-xs text-[var(--lx-muted)] mt-1 max-w-2xl">{ko.pedagogicalObjective}</p>
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       {ko.skills.map((s) => (
-                        <span key={s} className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                        <span key={s} className="rounded-md bg-[var(--lx-canvas)] px-2 py-0.5 text-[10px] font-semibold text-[var(--lx-muted)]">
                           {s}
                         </span>
                       ))}

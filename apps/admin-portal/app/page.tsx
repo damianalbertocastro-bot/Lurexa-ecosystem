@@ -170,13 +170,6 @@ export default function AdminDashboardPage() {
               </Link>
               <ThemeToggle />
               <EcosystemDropdown currentApp="admin" inverse />
-              <a
-                href={ecosystemUrl}
-                rel="noreferrer"
-                className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
-              >
-                Ecosystem <span aria-hidden="true">↗</span>
-              </a>
               <Button
                 type="button"
                 onClick={() => void signOut()}

@@ -49,7 +49,7 @@ function statusBadge(status: TeacherReviewStatus): { text: string; bg: string; t
       return { text: "Revision Suggested", bg: "bg-orange-100", textCol: "text-orange-800" };
     case "pending_review":
     default:
-      return { text: "Pending Review", bg: "bg-slate-100", textCol: "text-slate-800" };
+      return { text: "Pending Review", bg: "bg-[var(--lx-canvas)]", textCol: "text-[var(--lx-ink)]" };
   }
 }
 
@@ -127,7 +127,7 @@ export const TeacherGuidanceBanner: React.FC<TeacherGuidanceBannerProps> = ({
             {guidance.returnLoopActions.map((action) => (
               <div
                 key={action.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--color-border-default)] bg-white p-3.5 shadow-sm"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--color-border-default)] bg-[var(--lx-surface)] p-3.5 shadow-sm"
               >
                 <div>
                   <h5 className="text-sm font-bold text-[var(--color-text-primary)]">{action.title}</h5>

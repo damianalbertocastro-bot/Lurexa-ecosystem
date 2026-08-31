@@ -94,11 +94,11 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
   if (loading && !state.pulse) {
     return (
-      <section aria-label="Loading Lurexa learning intelligence" aria-live="polite" className="rounded-[28px] border border-indigo-100 bg-white p-6 shadow-sm">
+      <section aria-label="Loading Lurexa learning intelligence" aria-live="polite" className="rounded-[28px] border border-indigo-100 bg-[var(--lx-surface)] p-6 shadow-sm">
         <div className="h-3 w-28 animate-pulse rounded bg-indigo-100 motion-reduce:animate-none" />
-        <div className="mt-3 h-7 w-64 max-w-full animate-pulse rounded bg-slate-100 motion-reduce:animate-none" />
+        <div className="mt-3 h-7 w-64 max-w-full animate-pulse rounded bg-[var(--lx-canvas)] motion-reduce:animate-none" />
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[0, 1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-50 motion-reduce:animate-none" />)}
+          {[0, 1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-[var(--lx-canvas)] motion-reduce:animate-none" />)}
         </div>
       </section>
     );
@@ -106,8 +106,8 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
 
   if (error && !state.pulse && !state.path && !state.thread && !state.trace) {
     return (
-      <section role="status" aria-live="polite" className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
-        <p className="font-bold text-slate-900">Your evolving learning view is temporarily unavailable.</p>
+      <section role="status" aria-live="polite" className="rounded-[28px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 text-sm text-[var(--lx-muted)]">
+        <p className="font-bold text-[var(--lx-ink)]">Your evolving learning view is temporarily unavailable.</p>
         <p className="mt-1">{error}</p>
         <Button type="button" onClick={retry} className="mt-4 rounded-full border border-indigo-200 px-4 py-2 font-bold text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">Try again</Button>
       </section>
@@ -120,7 +120,7 @@ export function SignatureExperiencePanel({ enabled }: SignatureExperiencePanelPr
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Your Lurexa learning model</p>
           <h2 id="signature-learning-heading" className="mt-1 text-2xl font-black tracking-[-.04em] text-[var(--color-brand-navy)]">One learning history, adapting with you</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">See what Lurexa currently understands, what it recommends next, and the evidence-aware story behind that guidance.</p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--lx-muted)]">See what Lurexa currently understands, what it recommends next, and the evidence-aware story behind that guidance.</p>
         </div>
         <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">Signature experience · v1</span>
       </div>

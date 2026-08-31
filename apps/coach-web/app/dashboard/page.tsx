@@ -8,24 +8,103 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
+import { WelcomeTourModal, type WelcomeTourStep } from "@lurexa/ui/WelcomeTourModal";
 import { AuthService, type AuthenticatedUser, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
+
+const COACH_TOUR_STEPS: WelcomeTourStep[] = [
+  {
+    title: "Welcome to Lurexa Coach",
+    badge: "Speaking Intelligence",
+    icon: "🎙️",
+    description:
+      "Coach is your low-pressure environment for spoken English practice, real-time waveform feedback, and conversational confidence.",
+    tip: "You can practice freely at your own pace without fear of making mistakes.",
+  },
+  {
+    title: "Intelligibility First",
+    badge: "Authentic Voice",
+    icon: "🎯",
+    description:
+      "We focus on acoustic clarity, natural pacing, and communicative ease—never forced accent erasure. Your unique voice matters.",
+    tip: "Focus on clear syllable stress and consonant releases rather than sounding like a native speaker.",
+  },
+  {
+    title: "Dominican Spanish Transfer Focus",
+    badge: "L1 Adaptation",
+    icon: "🇩🇴",
+    description:
+      "Targeted support designed for Hispanic and Dominican Spanish speakers—addressing /s/ cluster onsets, final consonant codas, and vowel durations.",
+    tip: "Check out the Pronunciation section to drill specific phoneme contrasts like /b/ vs /v/ and /ʃ/ vs /tʃ/.",
+  },
+  {
+    title: "Spaced-Repetition Speech Queue",
+    badge: "Long-Term Retention",
+    icon: "⚡",
+    description:
+      "Coach retains your acoustic history and surfaces phonemes and speech patterns just before you forget them for maximum memory retention.",
+    tip: "Complete 10 minutes of daily speaking to maintain your active momentum.",
+  },
+  {
+    title: "Unified Ecosystem Progress",
+    badge: "Single Learner Model",
+    icon: "🔗",
+    description:
+      "Every speech turn directly informs your Lurexa Learner Model in Core. Your lessons in Learn and speaking in Coach adapt in perfect harmony.",
+    tip: "You're ready to start! Jump into a practice pack or quick conversation studio.",
+  },
+];
+
+const COACH_TOUR_STORAGE_KEY = "lurexa_coach_tour_seen";
 
 export default function CoachDashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<CefrLevel | "ALL">("ALL");
   const urls = resolveLurexaPublicUrls();
-
+  const [learnerCefr, setLearnerCefr] = useState<CefrLevel>("A1");
+  const [intelligibilityScore, setIntelligibilityScore] = useState<number>(75);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = AuthService.onUserChanged((user) => {
+    const unsubscribe = AuthService.onUserChanged(async (user) => {
       setCurrentUser(user);
+      if (user) {
+        try {
+          const hasSeenTour = localStorage.getItem(COACH_TOUR_STORAGE_KEY);
+          if (!hasSeenTour) {
+            setIsTourOpen(true);
+          }
+        } catch {
+          // Ignore localStorage errors
+        }
+
+        try {
+          const response = await fetch("/api/coach", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${await user.getIdToken()}`,
+            },
+            body: JSON.stringify({ action: "startSession" }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.learnerContext?.proficiency?.cefr) {
+              setLearnerCefr(data.learnerContext.proficiency.cefr as CefrLevel);
+            }
+            if (data.learnerContext?.proficiency?.intelligibilityScore) {
+              setIntelligibilityScore(data.learnerContext.proficiency.intelligibilityScore);
+            }
+          }
+        } catch {
+          // Graceful fallback
+        }
+      }
     });
     return unsubscribe;
   }, []);
-
 
   const filteredPacks =
     selectedLevel === "ALL"
@@ -39,9 +118,20 @@ export default function CoachDashboardPage() {
         <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
-                <span>🎙️</span>
-                CONTINUOUS SPOKEN INTELLIGENCE
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
+                  <span>🎙️</span>
+                  CONTINUOUS SPOKEN INTELLIGENCE
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsTourOpen(true)}
+                  className="rounded-full border border-white/20 bg-white/10 px-3 py-0.5 text-[11px] font-bold text-white hover:bg-white/20"
+                >
+                  ✦ Welcome Tour
+                </Button>
               </div>
               <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-4xl">
                 {currentUser ? `Welcome back, ${currentUser.displayName || currentUser.email?.split("@")[0]}` : "Welcome to your Speaking Studio"}
@@ -55,17 +145,17 @@ export default function CoachDashboardPage() {
             <div className="flex items-center gap-3 sm:gap-4 rounded-2xl bg-white/10 border border-white/15 p-4 backdrop-blur-md">
               <div className="text-center px-2">
                 <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">STREAK</p>
-                <p className="text-xl sm:text-2xl font-black">🔥 5 Days</p>
+                <p className="text-xl sm:text-2xl font-black">🔥 Active</p>
               </div>
               <div className="h-8 w-px bg-white/20" />
               <div className="text-center px-2">
                 <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">CEFR LEVEL</p>
-                <p className="text-xl sm:text-2xl font-black">A2</p>
+                <p className="text-xl sm:text-2xl font-black">{learnerCefr}</p>
               </div>
               <div className="h-8 w-px bg-white/20" />
               <div className="text-center px-2">
                 <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">INTELLIGIBILITY</p>
-                <p className="text-xl sm:text-2xl font-black text-emerald-300">88%</p>
+                <p className="text-xl sm:text-2xl font-black text-emerald-300">{intelligibilityScore}%</p>
               </div>
             </div>
           </div>
@@ -298,6 +388,14 @@ export default function CoachDashboardPage() {
           </aside>
         </div>
       </main>
+
+      <WelcomeTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        storageKey={COACH_TOUR_STORAGE_KEY}
+        productName="Lurexa Coach"
+        steps={COACH_TOUR_STEPS}
+      />
     </CoachShell>
   );
 }

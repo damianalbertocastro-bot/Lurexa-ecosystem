@@ -149,9 +149,9 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command, course, or workspace to jump to…"
-            className="flex-1 bg-transparent text-sm font-semibold text-[var(--lx-ink)] outline-none placeholder:text-slate-400"
+            className="flex-1 bg-transparent text-sm font-semibold text-[var(--lx-ink)] outline-none placeholder:text-[var(--lx-muted)]"
           />
-          <kbd className="rounded-lg border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-2 py-0.5 text-[10px] font-bold text-slate-500">
+          <kbd className="rounded-lg border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-2 py-0.5 text-[10px] font-bold text-[var(--lx-muted)]">
             ESC
           </kbd>
         </div>
@@ -173,10 +173,10 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
                   className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition duration-150 ${
                     isSelected
                       ? "bg-[var(--lx-canvas)] text-[var(--lx-ink)] ring-1 ring-[var(--lx-border)]"
-                      : "text-slate-600 hover:bg-[var(--lx-canvas)]/50"
+                      : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)]/50"
                   }`}
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm dark:bg-slate-800 text-lg border border-slate-100 dark:border-slate-700">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--lx-canvas)] shadow-sm text-lg border border-[var(--lx-border)]">
                     {cmd.icon}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -185,21 +185,21 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
                       <p className="truncate text-[11px] text-[var(--lx-muted)]">{cmd.subtitle}</p>
                     )}
                   </div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400">
+                  <span className="text-[10px] font-bold uppercase text-[var(--lx-muted)]">
                     {cmd.category}
                   </span>
                 </button>
               );
             })
           ) : (
-            <div className="p-8 text-center text-xs text-slate-400">
+            <div className="p-8 text-center text-xs text-[var(--lx-muted)]">
               No matching commands or pages found for &quot;{query}&quot;.
             </div>
           )}
         </div>
 
         {/* Footer info */}
-        <div className="flex items-center justify-between border-t border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 py-2.5 text-[11px] font-semibold text-slate-500">
+        <div className="flex items-center justify-between border-t border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 py-2.5 text-[11px] font-semibold text-[var(--lx-muted)]">
           <span>Navigate with ↑ ↓ and Enter</span>
           <span className="text-[10px]">Lurexa Universal Search</span>
         </div>

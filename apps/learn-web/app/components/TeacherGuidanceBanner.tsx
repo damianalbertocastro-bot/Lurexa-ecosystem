@@ -73,7 +73,7 @@ export function TeacherGuidanceBanner() {
   }
 
   return (
-    <aside className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-3xl rounded-3xl border border-emerald-200 bg-white p-5 shadow-2xl shadow-emerald-950/15 sm:bottom-6 sm:p-6" aria-live="polite">
+    <aside className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-3xl rounded-3xl border border-emerald-200 bg-[var(--lx-surface)] p-5 shadow-2xl shadow-emerald-950/15 sm:bottom-6 sm:p-6" aria-live="polite">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-extrabold uppercase tracking-[.16em] text-emerald-700">Teacher guidance</p>
@@ -92,7 +92,7 @@ export function TeacherGuidanceBanner() {
               Open recommended lesson
             </Button>
           ) : null}
-          <Button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-[var(--color-border-default)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-background-secondary)] disabled:opacity-50">
+          <Button type="button" onClick={() => void acknowledge()} disabled={closing} className="rounded-xl border border-[var(--color-border-default)] bg-[var(--lx-surface)] px-4 py-2.5 text-sm font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-background-secondary)] disabled:opacity-50">
             {closing ? "Saving…" : "Mark as reviewed"}
           </Button>
         </div>
