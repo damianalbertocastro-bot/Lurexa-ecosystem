@@ -34,7 +34,7 @@ function readOnboardingIntent(value: string | null): { goal: Goal; startingPoint
     const candidate = parsed as { goal?: unknown; startingPoint?: unknown; dialect?: unknown };
     const goal = goalOptions.find((option) => option.value === candidate.goal)?.value ?? "daily_life";
     const dialect = dialectOptions.find((opt) => opt.value === candidate.dialect)?.value ?? "es-DO";
-    const startingPoint = candidate.startingPoint === "beginner" ? "beginner" : "placement";
+    const startingPoint = candidate.startingPoint === "placement" ? "placement" : "beginner";
     return { goal, startingPoint, dialect };
   } catch {
     return null;
@@ -45,7 +45,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [dialect, setDialect] = useState<Dialect>("es-DO");
   const [goal, setGoal] = useState<Goal>("daily_life");
-  const [startingPoint, setStartingPoint] = useState<StartingPoint>("placement");
+  const [startingPoint, setStartingPoint] = useState<StartingPoint>("beginner");
   const [currentUser, setCurrentUser] = useState<unknown | null>(null);
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);

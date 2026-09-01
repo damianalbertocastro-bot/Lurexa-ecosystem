@@ -132,11 +132,13 @@ export function InteractiveGrammarCard({
     const correct = data.forms.affirmative;
     const incorrect1 = data.forms.affirmative.split(" ").reverse().join(" ");
     const incorrect2 = `Not ${data.forms.affirmative}`;
-    return [
+    const options = [
       { text: correct, isCorrect: true, explanation: "Accurately follows the target structural formula." },
       { text: incorrect1, isCorrect: false, explanation: "Incorrect syntactic word order." },
       { text: incorrect2, isCorrect: false, explanation: "Missing auxiliary or affirmative structure." },
-    ].sort(() => 0.5 - Math.random());
+    ];
+    const offset = data.forms.affirmative.length % 3;
+    return [...options.slice(offset), ...options.slice(0, offset)];
   }, [data.forms.affirmative]);
 
   return (

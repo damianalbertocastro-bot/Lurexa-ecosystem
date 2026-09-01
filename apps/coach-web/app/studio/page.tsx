@@ -139,38 +139,60 @@ export default function CoachStudioPage() {
     }
   };
 
-  const recognitionRef = useRef<any>(null);
+interface BrowserSpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface BrowserSpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: BrowserSpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+}
+
+  const recognitionRef = useRef<BrowserSpeechRecognitionInstance | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const startListening = async () => {
     try {
-      if (typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
-        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const recognition = new SpeechRec();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "en-US";
+      if (typeof window !== "undefined") {
+        const SpeechRec = (window as unknown as { SpeechRecognition?: new () => BrowserSpeechRecognitionInstance; webkitSpeechRecognition?: new () => BrowserSpeechRecognitionInstance }).SpeechRecognition ||
+          (window as unknown as { webkitSpeechRecognition?: new () => BrowserSpeechRecognitionInstance }).webkitSpeechRecognition;
+        if (SpeechRec) {
+          const recognition = new SpeechRec();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = "en-US";
 
-        recognition.onresult = (event: any) => {
-          let currentTranscript = "";
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            currentTranscript += event.results[i][0].transcript;
-          }
-          if (currentTranscript.trim()) {
-            setLearnerInput(currentTranscript.trim());
-          }
-        };
+          recognition.onresult = (event: BrowserSpeechRecognitionEvent) => {
+            let currentTranscript = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              const item = event.results.item(i);
+              if (item && item.length > 0) {
+                currentTranscript += item.item(0).transcript;
+              }
+            }
+            if (currentTranscript.trim()) {
+              setLearnerInput(currentTranscript.trim());
+            }
+          };
 
-        recognition.onerror = (e: any) => {
-          console.warn("Speech recognition error:", e);
-        };
+          recognition.onerror = (e: Event) => {
+            console.warn("Speech recognition error:", e);
+          };
 
-        recognition.onend = () => {
-          setIsRecording(false);
-        };
+          recognition.onend = () => {
+            setIsRecording(false);
+          };
 
-        recognition.start();
-        recognitionRef.current = recognition;
+          recognition.start();
+          recognitionRef.current = recognition;
+        }
       }
 
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {

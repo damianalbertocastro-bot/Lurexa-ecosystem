@@ -68,11 +68,6 @@ function PlacementContent() {
   const [error, setError] = useState<string | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
-  useEffect(() => {
-    if (initialGoal) {
-      setGoal(initialGoal);
-    }
-  }, [initialGoal]);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged((user) => {
@@ -87,8 +82,9 @@ function PlacementContent() {
 
   useEffect(() => {
     if (authReady && autostart === "1" && stage === "intro" && items.length === 0 && !loading) {
-      startPlacement();
+      void startPlacement();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, autostart]);
 
   async function startPlacement() {
