@@ -599,7 +599,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                   blockId={block.id}
                   rawText={text}
                   wrapperClass={blockWrapperClass}
-                  initialDialect={(payload.progress && typeof (payload.progress as Record<string, unknown>).nativeDialect === "string" ? String((payload.progress as Record<string, unknown>).nativeDialect) : undefined) ?? "es-DO"}
+                  initialDialect="es-DO"
                 />
               );
             }

@@ -7,7 +7,7 @@ export interface InteractiveGrammarCardProps {
   blockId: string;
   rawText: string;
   wrapperClass?: string;
-  initialDialect?: "es-DO" | "es" | "ht";
+  initialDialect?: "es-DO" | "es" | "ht" | string;
 }
 
 interface ParsedGrammarData {
@@ -78,7 +78,9 @@ export function InteractiveGrammarCard({
 }: InteractiveGrammarCardProps) {
   const data = useMemo(() => parseGrammarText(rawText), [rawText]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [activeDialect, setActiveDialect] = useState<"es-DO" | "es" | "ht">(initialDialect);
+  const [activeDialect, setActiveDialect] = useState<"es-DO" | "es" | "ht">(
+    initialDialect === "es" || initialDialect === "ht" ? initialDialect : "es-DO"
+  );
   const [playingText, setPlayingText] = useState<string | null>(null);
   const [showQuickCheck, setShowQuickCheck] = useState(false);
   const [quizAnswerSelected, setQuizAnswerSelected] = useState<number | null>(null);
