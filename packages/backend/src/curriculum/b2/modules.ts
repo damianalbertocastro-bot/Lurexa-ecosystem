@@ -1,3 +1,5 @@
+import type { GrammarSectionData } from "@lurexa/types";
+
 export interface B2ModuleData {
   id: string;
   order: number;
@@ -6,6 +8,7 @@ export interface B2ModuleData {
   competencyIds: string[];
   vocabulary: string[];
   grammarStructures: string[];
+  grammarSection?: GrammarSectionData;
   phoneticTargets: string[];
   spokenPrompts: string[];
   createApplyTask: {
@@ -35,6 +38,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "Should any unexpected supply chain friction arise, we have established robust contingency protocols.",
       "Under no circumstances can we compromise on our foundational data privacy standards.",
     ],
+    grammarSection: {
+      conceptTitle: "Mixed Conditionals (Past Cause → Present Result) & Concession Clauses",
+      formula: "If + [had + Past Participle] (Past Unreal), [Subject] + [would / could + Base Verb] (Present Result)",
+      explanation: "Mixed Conditionals link a counterfactual past event or decision with an ongoing present reality or capability. In strategic negotiation, they demonstrate how past milestones directly create current commercial leverage or how an avoided error protects present operations.",
+      forms: {
+        affirmative: "If we had not diversified our supplier network last year, we would not be capable of fulfilling this contract today.",
+        negative: "If the legal team had not reviewed the compliance clauses, we wouldn't be in such a secure position right now.",
+        question: "Where would our market share stand today if we hadn't made that strategic acquisition in 2023?",
+      },
+      l1TransferTip: "Spanish speakers often use identical subjunctive forms across both clauses (*'Si hubiéramos ganado, estuviéramos bien'*). In English, strictly distinguish the past condition ('had + past participle') from the present result ('would + base verb').",
+      examples: [
+        "If our team hadn't secured the preliminary agreement, we wouldn't be in this strong negotiating position today.",
+        "Provided that your firm guarantees delivery by Q3, we would be prepared to adjust our tier-pricing terms.",
+        "Should any unforeseen supply-chain bottlenecks occur, our backup protocols will maintain continuous delivery.",
+      ],
+    },
     phoneticTargets: ["Inversion emphasis ('Under no circumstances...')", "Nuanced fall-rise tone in diplomatically softened objections"],
     spokenPrompts: [
       "Lead a 2-minute strategic negotiation responding to an aggressive pricing counter-offer.",
@@ -65,6 +84,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "Not only does this approach optimize operational efficiency, but it also fosters sustainable growth.",
       "To put it another way, the fundamental premise of the argument requires reassessment.",
     ],
+    grammarSection: {
+      conceptTitle: "Negative Inversion for Rhetorical Emphasis ('Not only... but also', 'Under no circumstances', 'Seldom')",
+      formula: "[Negative / Restrictive Adverbial] + [Auxiliary Verb (do/does/did/can/have)] + [Subject] + [Main Verb]",
+      explanation: "Negative Inversion transposes the auxiliary verb before the subject when a sentence begins with restrictive or negative adverbs ('Not only', 'Rarely', 'Seldom', 'Under no circumstances'). This syntactic device injects high rhetorical authority and dramatic emphasis into executive speeches and formal debates.",
+      forms: {
+        affirmative: "Not only does this policy optimize capital efficiency, but it also elevates workforce retention.",
+        negative: "Under no circumstances can the executive committee authorize unbudgeted capital expenditures.",
+        question: "Rarely have we encountered a regulatory proposal that so directly impacts regional supply chains.",
+      },
+      l1TransferTip: "Spanish expresses emphasis through voice inflection or terminal placement. In English, you must invert the grammatical auxiliary (*'Not only this policy optimizes'* ❌ → 'Not only does this policy optimize' ✅).",
+      examples: [
+        "Seldom has a technological shift transformed consumer habits so rapidly.",
+        "Not only did the pilot project exceed our benchmark targets, but it also reduced onboarding costs by 30%.",
+        "Under no circumstances should confidential client telemetry be shared across unencrypted channels.",
+      ],
+    },
     phoneticTargets: ["Contrastive accentuation across multi-clause sentences", "Cadence control in formal debates"],
     spokenPrompts: [
       "Defend a controversial technological or economic policy against three strong counter-arguments.",
@@ -95,6 +130,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "The data suggests a substantial correlation between customer retention and user onboarding speed.",
       "It was widely reported that market conditions had softened prior to the stimulus.",
     ],
+    grammarSection: {
+      conceptTitle: "Passive Reporting Verbs ('It is estimated that...', 'X is projected to...') & Participle Clauses",
+      formula: "Impersonal: It is + [reported / estimated / believed that] + [Clause] | Personal: [Subject] + [is/are projected / expected to] + [Infinitive]",
+      explanation: "Passive reporting structures provide epistemic distance when presenting financial projections, statistical market forecasts, and analytical syntheses. Participle clauses ('Having analyzed the dataset, the board concluded...') compress subordinate temporal and causal information into concise executive language.",
+      forms: {
+        affirmative: "Digital revenue streams are projected to expand by eighteen percent over the coming fiscal cycle.",
+        negative: "It cannot be assumed that current macroeconomic headwinds will dissipate within the next quarter.",
+        question: "To what extent is consumer demand expected to plateau following the proposed interest rate hike?",
+      },
+      l1TransferTip: "Spanish uses 'se proyecta que' or 'se estima que'. In English, while 'It is projected that...' is valid, personal passive structures ('Revenue is projected to expand') sound significantly more idiomatic in professional business presentations.",
+      examples: [
+        "Having evaluated the regional sales variance, the analytics team identified key drivers of churn.",
+        "The renewable energy sector is widely reported to be outperforming traditional utilities.",
+        "Customer acquisition costs are estimated to decline by twelve percent after system integration.",
+      ],
+    },
     phoneticTargets: ["Clear rhythmic delivery of complex numeric sequences and percentages", "Downward terminal cadence on analytical conclusions"],
     spokenPrompts: [
       "Present a 2-minute analytical breakdown of a quarterly performance report.",
@@ -125,6 +176,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "By establishing shared norms early on, we can avoid cross-cultural friction.",
       "It is imperative that every regional branch feels represented in the decision-making process.",
     ],
+    grammarSection: {
+      conceptTitle: "Complex Concessive Contrast ('Whereas', 'While', 'Much as') & Prepositional Gerund Clauses",
+      formula: "Whereas + [Clause A (Culture/Team 1)], [Clause B (Culture/Team 2)] | By + [Verb-ing], [Subject] + [can + Verb]",
+      explanation: "To lead and mediate across international teams without stereotyping or offending, deploy contrastive subordinators ('Whereas high-context environments favor indirect feedback, low-context cultures expect explicit directives'). Use prepositional gerunds ('By establishing clear charters early...') to frame collaborative management actions.",
+      forms: {
+        affirmative: "Whereas distributed teams rely on asynchronous documentation, collocated teams often prioritize informal huddles.",
+        negative: "Leaders cannot cultivate psychological safety without actively validating minority dissenting perspectives.",
+        question: "How can cross-functional managers reconcile competing regional priorities while preserving operational speed?",
+      },
+      l1TransferTip: "Do not confuse 'Whereas' with 'While' as a time marker. 'Whereas' strictly marks structural, balanced contrast between two independent realities.",
+      examples: [
+        "Whereas some regional hubs operate under hierarchical structures, others maintain decentralized decision-making.",
+        "By aligning core performance indicators across continents, our division achieved unprecedented synergy.",
+        "It is essential that all team leads communicate quarterly roadmap adjustments with total transparency.",
+      ],
+    },
     phoneticTargets: ["Accommodating speech rate when collaborating across international teams", "Natural intonation in active listening and confirmation checks"],
     spokenPrompts: [
       "Facilitate an international alignment meeting resolving divergent regional priorities.",
@@ -155,6 +222,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "We are taking immediate, decisive action to ensure that all customer records remain secure.",
       "Our team is conducting a rigorous root cause analysis to prevent any recurrence.",
     ],
+    grammarSection: {
+      conceptTitle: "The Formal Mandative Subjunctive in Crisis Directives & Inverted Third Conditionals",
+      formula: "Mandative: [Subject] + [demand / insist / recommend / require] + that + [Subject] + [Base Verb] | Inverted: Had + [Subject] + [Past Participle], [Subject] + [would have...]",
+      explanation: "In institutional crisis management and governance, the mandative subjunctive expresses binding recommendations without modal auxiliaries ('We recommend that the incident commander issue a status bulletin'). Inverted third conditionals ('Had we not established server redundancy...') articulate retrospective risk realities with executive gravitas.",
+      forms: {
+        affirmative: "The steering committee requires that all security audits be finalized within forty-eight hours.",
+        negative: "We insist that no sensitive customer telemetry be transmitted across unencrypted lines.",
+        question: "Had the engineering team delayed the patch, how severely would data integrity have been compromised?",
+      },
+      l1TransferTip: "In English mandative subjunctive, the verb remains strictly in the bare infinitive for all persons, including third-person singular (*'recommends that he is'* ❌ → 'recommends that he be' ✅; *'requires that she signs'* ❌ → 'requires that she sign' ✅).",
+      examples: [
+        "Management requests that every department head submit an updated risk assessment by noon.",
+        "Had our incident response team not reacted instantly, data recovery would have taken days.",
+        "It is imperative that all operational logs be preserved for forensic analysis.",
+      ],
+    },
     phoneticTargets: ["Steady pacing, deliberate pausing, and measured pitch control during crisis communication"],
     spokenPrompts: [
       "Deliver a live press statement addressing an unexpected service outage or product recall.",
@@ -185,6 +268,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "Never before in our industry have we witnessed such a rapid convergence of...",
       "The true measure of our success lies not in our profits, but in the enduring impact we create.",
     ],
+    grammarSection: {
+      conceptTitle: "Cleft Sentences for Thematic Focus ('What... is...', 'It is... that...') & Rhetorical Antithesis",
+      formula: "Wh-Cleft: What + [Clause] + is/was + [Focal Point] | It-Cleft: It is/was + [Focal Element] + that/who + [Clause]",
+      explanation: "Cleft sentences split a single clause into two parts to highlight and dramatize the most crucial message in public keynote speaking. Paired with rhetorical antithesis ('not merely X, but transformative Y'), cleft structures command audience attention.",
+      forms: {
+        affirmative: "What separates visionary organizations from stagnant ones is their relentless willingness to innovate.",
+        negative: "It was not the lack of technical resources that stalled the rollout, but the absence of cross-team alignment.",
+        question: "What is it about decentralized architecture that inspires such fierce debate among engineers?",
+      },
+      l1TransferTip: "Spanish speakers often use 'Lo que necesitamos es...' which translates directly to 'What we need is...'. Ensure the verb 'to be' matches the grammatical number of the highlighted complement ('What we require are clear guidelines').",
+      examples: [
+        "What inspired this entire community was the young founders' unyielding dedication to education.",
+        "It was through daily deliberate practice on Lurexa that Maria unlocked her international career.",
+        "What we must cultivate above all else is an institutional culture of intellectual curiosity.",
+      ],
+    },
     phoneticTargets: ["Dynamic vocal projection, pitch range variation, and dramatic rhetorical pauses"],
     spokenPrompts: [
       "Deliver the opening 2 minutes of an industry keynote address inspiring innovation.",
@@ -215,6 +314,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "To conclude that correlation implies causation in this context is fundamentally fallacious.",
       "All empirical evidence gathered across multiple cohorts supports the established consensus.",
     ],
+    grammarSection: {
+      conceptTitle: "Academic Hedging & Epistemic Modifiers ('arguably', 'tends to indicate', 'it would appear that')",
+      formula: "[Subject] + [tends to indicate / arguably suggests / appears to correlate with] + [Finding] | It could be postulated that + [Clause]",
+      explanation: "In scientific literacy and evidence-based critiques, assertions must never be overstated. Epistemic hedging devices ('The data arguably suggests', 'It would appear that', 'tends to indicate') allow researchers and speakers to communicate precision without overclaiming certainty.",
+      forms: {
+        affirmative: "The longitudinal clinical data arguably demonstrates a statistically significant correlation.",
+        negative: "These initial trials do not conclusively establish a causal link between the two variables.",
+        question: "To what extent can these preliminary laboratory findings be extrapolated to broader populations?",
+      },
+      l1TransferTip: "Dominican Spanish often uses categorical statements in casual discussions. In scientific and academic English, avoid stating assumptions as absolute facts; always deploy epistemic hedging to maintain scholarly credibility.",
+      examples: [
+        "The empirical evidence tends to support the hypothesis, although confounding variables cannot be entirely ruled out.",
+        "It would appear that the methodology employed in the secondary study failed to account for sampling bias.",
+        "Arguably, the most compelling breakthrough lies in the algorithm's high degree of reproducibility.",
+      ],
+    },
     phoneticTargets: ["Academic hedging intonation ('This arguably suggests...')", "Clarity in dense technical terminology"],
     spokenPrompts: [
       "Critique a misleading media headline by contrasting it with the actual scientific paper methodology.",
@@ -254,6 +369,22 @@ export const B2_MODULES_1_TO_8: B2ModuleData[] = [
       "The culmination of this evidence proves my readiness for international professional leadership in English.",
       "I am fully prepared to defend complex strategic initiatives before global executive panels.",
     ],
+    grammarSection: {
+      conceptTitle: "Mastery of Syntactic Integration & Polyphonic Executive Rhetoric",
+      formula: "[Participial Phase: Having + Past Participle], [Inversion: Not only + Auxiliary + Subject], [Main Executive Claim]",
+      explanation: "B2 Capstone fluency requires the spontaneous orchestration of complex syntactic forms: fronted participial framing, negative inversion, cleft emphasis, and nuanced hedging combined seamlessly into commanding, professional oral defense presentations.",
+      forms: {
+        affirmative: "Having analyzed international case studies and refined my spoken precision, I communicate with articulate authority.",
+        negative: "Under no circumstances should linguistic hesitation prevent leaders from championing transformative ideas.",
+        question: "How has your mastery of syntactic nuance enhanced your ability to persuade and lead in global environments?",
+      },
+      l1TransferTip: "Integrate varied structural registers rather than relying on a single favorite sentence pattern. Moving effortlessly between analytical passives, rhetorical clefts, and persuasive conditionals signals complete B2 readiness.",
+      examples: [
+        "Having demonstrated mastery across commercial, analytical, and keynote domains, I am prepared for global executive leadership.",
+        "What distinguishes this capstone portfolio is the seamless synthesis of quantitative evidence and rhetorical power.",
+        "Not only has my fluency expanded, but my confidence in high-stakes English discourse is fully solidified.",
+      ],
+    },
     phoneticTargets: ["Flawless mastery of connected speech, conversational rhythm, emphatic stress, and executive presence"],
     spokenPrompts: [
       "Deliver your comprehensive 3-minute B2 capstone defense summarizing your professional and communicative mastery.",

@@ -80,6 +80,103 @@ function listeningBlock(spec: A1LessonSpec): ContentBlock {
   };
 }
 
+function grammarBlock(spec: A1LessonSpec): ContentBlock {
+  const grammarMap: Record<string, { concept: string; formula: string; explanation: string; affirmative: string; negative: string; question: string; l1Tip: string; examples: string[] }> = {
+    "a1-m2-u1-l1-phone-details": {
+      concept: "Verb 'To Be' & Personal Identifiers (Phone, Age, Name)",
+      formula: "[Subject] + [Verb 'to be' (am/is/are)] + [Number / Personal Detail]",
+      explanation: "Use the verb 'to be' to share personal contact details and numbers. Group phone numbers into 3-digit and 4-digit rhythm chunks.",
+      affirmative: "My phone number is 809-555-2480, and I am twenty-two years old.",
+      negative: "My area code is not 829; it is 809.",
+      question: "What is your phone number? / How old are you?",
+      l1Tip: "In Spanish, we say 'Tengo 22 años' (using tener). In English, always use 'to be' ('I am 22 years old', never *'I have 22 years'*).",
+      examples: ["My name is Rosa and I'm twenty-two.", "Her phone number is 809-555-1234."],
+    },
+    "a1-m2-u1-l2-ages-addresses": {
+      concept: "Addresses & Prepositions of Location ('on' for streets, 'at' for numbers)",
+      formula: "[Subject] + [live on + Street Name] OR [live at + Building Number + Street Name]",
+      explanation: "Use 'on' when stating the street name alone (on Duarte Street), and 'at' when stating the full specific street address with building number (at 12 Duarte Street).",
+      affirmative: "I live on Duarte Street, and my apartment is number twelve.",
+      negative: "I do not live in Santiago; I live in Santo Domingo.",
+      question: "Where do you live? / What is your exact address?",
+      l1Tip: "Spanish uses 'en' for both ('vivo en la calle Duarte'). In English, use 'on' for street names and 'at' for numbered addresses.",
+      examples: ["I live on Mella Avenue.", "David lives at 45 Independencia Street."],
+    },
+    "a1-m2-u2-l1-days-months-dates": {
+      concept: "Prepositions of Time with Days, Months & Ordinal Dates",
+      formula: "on + [Day / Specific Date] | in + [Month / Year]",
+      explanation: "Use 'on' for specific calendar days and full dates ('on Monday', 'on March 15th'). Use 'in' for months without a specific day ('in March').",
+      affirmative: "My birthday is on March fifteenth, and the class is on Monday.",
+      negative: "The exam is not in April; it is on March twentieth.",
+      question: "When is your birthday? / What day is the meeting?",
+      l1Tip: "Never say *'in Monday'* (translating 'en lunes'). Always use 'on Monday' and 'on Friday'.",
+      examples: ["The conference is on Friday, October 12th.", "My sister was born in August."],
+    },
+    "a1-m2-u2-l2-my-week": {
+      concept: "Weekly Schedules & Time Markers ('at + time', 'on + days')",
+      formula: "[Subject] + [Action Verb] + [at + time] + [on + day]",
+      explanation: "Combine habitual routine actions with time prepositions to communicate clear weekly schedules.",
+      affirmative: "I work on Monday, and English class is at six on Wednesday.",
+      negative: "I am not free on weekdays, but I'm free on Saturday.",
+      question: "Are you free on Wednesday evening? / When do you study?",
+      l1Tip: "When listing days of the week in English, always capitalize them (Monday, Wednesday, Saturday).",
+      examples: ["I study English at six on Tuesday and Thursday.", "We are free on Sunday afternoon."],
+    },
+    "a1-m2-u3-l1-what-time": {
+      concept: "Asking & Telling Clock Time ('What time is it?', 'It's at...')",
+      formula: "Question: What time + [does / is] + [Subject]? | Answer: It's at + [Time]",
+      explanation: "To ask about schedules, use 'What time...?' followed by the auxiliary verb. Use 'It's at' to indicate departure or start times.",
+      affirmative: "The bus leaves at seven thirty in the morning.",
+      negative: "The flight is not at seven; it departs at eight fifteen.",
+      question: "What time does the bus arrive? / Could you repeat the departure time?",
+      l1Tip: "Spanish speakers often drop the dummy subject 'it' (*'Is at seven'* ❌). In English, 'It' is required: 'It is at seven thirty.'",
+      examples: ["What time is the meeting? It's at two thirty.", "The store opens at eight in the morning."],
+    },
+    "a1-m2-u3-l2-how-much-when": {
+      concept: "Transactional Price Inquiries ('How much is...?') & Time Arrangements",
+      formula: "How much is + [Singular Item]? | How much are + [Plural Items]? | Let's meet at + [Time]",
+      explanation: "Use 'How much is...?' for singular items or prices, and 'Let's meet at...' to confirm mutual arrangements.",
+      affirmative: "The ticket is five hundred pesos, and the movie starts at eight.",
+      negative: "The return fare is not included in the single ticket price.",
+      question: "How much are these two tickets? / Can we meet at seven thirty?",
+      l1Tip: "Use 'How much' for prices (uncountable money), never *'How many is the ticket'*. For plural items, use 'How much are the tickets?'.",
+      examples: ["How much is the bus ticket to Puerto Plata?", "Let's meet at the entrance at seven thirty."],
+    },
+  };
+
+  const lookup = grammarMap[spec.id];
+  const conceptTitle = lookup?.concept ?? `Language Structure: ${spec.title}`;
+  const formula = lookup?.formula ?? `[Subject] + [Verb] + [Key Structure]`;
+  const explanation = lookup?.explanation ?? `Practice this key grammatical structure to achieve the lesson mission: "${spec.mission}".`;
+  const affirmative = lookup?.affirmative ?? spec.modelText;
+  const negative = lookup?.negative ?? `Ensure correct negation without double negative markers.`;
+  const question = lookup?.question ?? `Use standard question word order to ask for information.`;
+  const l1Tip = lookup?.l1Tip ?? `Pay close attention to English subject pronouns and word order to avoid direct translation errors from Spanish.`;
+  const examples = lookup?.examples ?? [spec.modelText];
+
+  const grammarText =
+    `### 📖 Grammar Focus: ${conceptTitle}\n\n` +
+    `**Structural Formula:**\n\`${formula}\`\n\n` +
+    `**Explanation & Usage:**\n${explanation}\n\n` +
+    `**Forms Breakdown:**\n` +
+    `• *Affirmative:* ${affirmative}\n` +
+    `• *Negative:* ${negative}\n` +
+    `• *Question:* ${question}\n\n` +
+    `**💡 Dominican & Spanish Transfer Tip:**\n${l1Tip}\n\n` +
+    `**Practical Examples in Context:**\n` +
+    examples.map((ex) => `• "${ex}"`).join("\n");
+
+  return {
+    id: `${spec.id}-grammar-section`,
+    type: "text",
+    order: 3,
+    data: {
+      category: "grammar",
+      text: grammarText,
+    },
+  };
+}
+
 function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
   const correctAnswer = spec.modelText;
   const listeningCompetencyIds = spec.competencyIds.filter((id) => id.startsWith("EN.A1.LISTEN."));
@@ -89,7 +186,7 @@ function listeningCheckBlock(spec: A1LessonSpec): ContentBlock {
   return {
     id: `${spec.id}-listening-check`,
     type: "interactive",
-    order: 3,
+    order: 4,
     data: {
       activity: {
         schemaVersion: "1",
@@ -114,7 +211,7 @@ function functionalCapstoneReadingBlock(spec: A1LessonSpec): ContentBlock | null
   return {
     id: `${spec.id}-functional-reading`,
     type: "interactive",
-    order: 6,
+    order: 7,
     data: {
       activity: {
         schemaVersion: "1",
@@ -139,7 +236,7 @@ function productionCapabilityBlock(spec: A1LessonSpec): ContentBlock {
     return {
       id: `${spec.id}-roleplay`,
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         capability: {
           schemaVersion: "1",
@@ -170,7 +267,7 @@ function productionCapabilityBlock(spec: A1LessonSpec): ContentBlock {
   return {
     id: `${spec.id}-recorded-speaking`,
     type: "interactive",
-    order: 3,
+    order: 5,
     data: {
       capability: {
         schemaVersion: "1",
@@ -199,18 +296,19 @@ function buildLesson(spec: A1LessonSpec): Lesson {
     title: spec.title,
     summary: spec.mission,
     order: spec.order,
-    estimatedMinutes: 17,
+    estimatedMinutes: 18,
     contentBlocks: [
       {
         id: `${spec.id}-mission`,
         type: "text",
         order: 1,
-        data: { text: `Mission: ${spec.mission}\n\nYou will listen, produce language, and use it for a real A1 communication goal.` },
+        data: { text: `Mission: ${spec.mission}\n\nYou will listen, learn the grammar structure, produce language, and use it for a real A1 communication goal.` },
       },
       listeningBlock(spec),
+      grammarBlock(spec),
       listeningCheckBlock(spec),
       productionCapabilityBlock(spec),
-      activityBlock(spec, 5),
+      activityBlock(spec, 6),
       ...(functionalCapstoneReadingBlock(spec) ? [functionalCapstoneReadingBlock(spec)!] : []),
     ],
   };
@@ -262,46 +360,43 @@ const MODULE_SPECS: A1ModuleSpec[] = [
   {
     id: "english-a1-m5-food",
     order: 5,
-    title: "Food, Flavor and Everyday Choices",
-    description: "Express food preferences, understand prices and order in predictable situations.",
+    title: "Food, Drink and Common Needs",
+    description: "Express basic needs, order food, and talk about food preferences.",
     lessons: [
-      { id: "a1-m5-u1-l1-food-around-me", moduleId: "english-a1-m5-food", order: 1, title: "Food Around Me", mission: "Identify common foods and meals in local and international contexts.", modelText: "For breakfast I like eggs and fruit. For lunch I often eat rice, beans and chicken.", competencyIds: ["EN.A1.VOCAB.FOOD_SHOPPING", "EN.A1.SPEAK.EXPRESS_BASIC_PREFERENCE", "EN.A1.LISTEN.PREDICTABLE_EXCHANGES"], productionPrompt: "Name foods you like and one food you do not usually choose.", production: "recorded_speaking" },
-      { id: "a1-m5-u1-l2-food-preferences", moduleId: "english-a1-m5-food", order: 2, title: "What Do You Like?", mission: "Ask and answer basic food preferences.", modelText: "Do you like mango? Yes, I do. I love mango. What about you?",
-        competencyIds: ["EN.A1.SPEAK.EXPRESS_BASIC_PREFERENCE", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.PRAG.TURN_TAKING_BASIC"], productionPrompt: "Ask about two foods and respond with your preferences.", production: "ai_roleplay", role: "a friend choosing food", situation: "You compare food preferences before a meal." },
-      { id: "a1-m5-u2-l1-a-some-any", moduleId: "english-a1-m5-food", order: 3, title: "A, Some, Any", mission: "Use high-frequency quantity patterns in food and shopping contexts.", modelText: "We need a tomato, some rice and some water. Do we have any eggs?",
-        competencyIds: ["EN.A1.GRAMMAR.ARTICLES_BASIC", "EN.A1.GRAMMAR.SOME_ANY_BASIC", "EN.A1.GRAMMAR.COUNTABILITY_FOUNDATIONS"], productionPrompt: "Say or write a short shopping list using a, some, or any where appropriate.", production: "recorded_speaking" },
-      { id: "a1-m5-u2-l2-what-we-need", moduleId: "english-a1-m5-food", order: 4, title: "What Do We Need?", mission: "Plan a simple meal or shopping list and relay one needed item.", modelText: "We need some bread and two bottles of water. Please tell Ana we also need bananas.", competencyIds: ["EN.A1.VOCAB.FOOD_SHOPPING", "EN.A1.MED.RELAY_PERSONAL_DETAIL", "EN.A1.GRAMMAR.COUNTABILITY_FOUNDATIONS"], productionPrompt: "Plan three items for a simple meal and relay one item another person needs.", production: "recorded_speaking" },
-      { id: "a1-m5-u3-l1-reading-menu", moduleId: "english-a1-m5-food", order: 5, title: "Reading a Menu", mission: "Locate simple menu information and prices.", modelText: "The chicken sandwich is six dollars. The fruit juice is three dollars. Today's soup is five dollars.", competencyIds: ["EN.A1.READ.FUNCTIONAL_INFORMATION", "EN.A1.LISTEN.KEY_DETAILS", "EN.A1.VOCAB.FOOD_SHOPPING"], productionPrompt: "Choose one menu item, say the price, and explain your simple preference.", production: "recorded_speaking" },
-      { id: "a1-m5-u3-l2-ordering", moduleId: "english-a1-m5-food", order: 6, title: "I'd Like…", mission: "Complete a short polite ordering exchange.", modelText: "Hello. I'd like a chicken sandwich, please. Anything to drink? Yes, a water, please.", competencyIds: ["EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.CONV.BASIC_TRANSACTION", "EN.A1.PRAG.BASIC_POLITENESS"], productionPrompt: "Order food and a drink, confirm one detail, and close politely.", production: "ai_roleplay", role: "a café server", situation: "You order a simple meal and respond to one follow-up question." },
+      { id: "a1-m5-u1-l1-i-like-food", moduleId: "english-a1-m5-food", order: 1, title: "I Like / I Don't Like", mission: "Say simple food and drink preferences.", modelText: "I like rice and beans. I don't like coffee. I love fresh fruit.", competencyIds: ["EN.A1.SPEAK.BASIC_PREFERENCES", "EN.A1.VOCAB.FOOD_DRINK", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS"], productionPrompt: "Say two things you like and one thing you don't like, then ask your partner what they like.", production: "ai_roleplay", role: "a friend sharing a meal", situation: "You talk about food and drink preferences." },
+      { id: "a1-m5-u1-l2-ordering-food", moduleId: "english-a1-m5-food", order: 2, title: "Ordering Food and Drink", mission: "Use polite request chunks in a café or restaurant.", modelText: "I'd like a chicken sandwich, please. And a water. How much is that?", competencyIds: ["EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.PRAG.BASIC_POLITENESS", "EN.A1.VOCAB.FOOD_DRINK"], productionPrompt: "Order one food item, one drink, and ask for the price.", production: "ai_roleplay", role: "a café worker", situation: "You order food and drink at a counter." },
+      { id: "a1-m5-u2-l1-grocery-needs", moduleId: "english-a1-m5-food", order: 3, title: "At the Colmado / Grocery Store", mission: "Ask for items and check availability.", modelText: "Do you have milk? Yes, we do. How many? Two, please.", competencyIds: ["EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.LISTEN.KEY_DETAILS", "EN.A1.VOCAB.FOOD_DRINK"], productionPrompt: "Ask for two items and confirm the quantity and price.", production: "ai_roleplay", role: "a shopkeeper", situation: "You buy a few everyday grocery items." },
+      { id: "a1-m5-u2-l2-solve-order-problem", moduleId: "english-a1-m5-food", order: 4, title: "Solve an Order Problem", mission: "Handle a simple service breakdown or change.", modelText: "Sorry, we don't have chicken today. Okay, I'll have the cheese sandwich instead.", competencyIds: ["EN.A1.CONV.REQUEST_CLARIFICATION", "EN.A1.STRAT.ASK_REPEAT", "EN.A1.SPEAK.BASIC_TRANSACTION"], productionPrompt: "Respond when something you ordered is unavailable and choose an alternative.", production: "ai_roleplay", role: "a café worker", situation: "An item you want is not available." },
+      { id: "a1-m5-u3-l1-my-favorite-dish", moduleId: "english-a1-m5-food", order: 5, title: "My Favorite Dish", mission: "Describe a dish or meal you enjoy.", modelText: "My favorite dish is mangú. It has plantains, cheese and salami. It's delicious.", competencyIds: ["EN.A1.SPEAK.DESCRIBE_OBJECT", "EN.A1.WRITE.SHORT_DESCRIPTION", "EN.A1.VOCAB.FOOD_DRINK"], productionPrompt: "Describe your favorite meal with at least three simple details.", production: "recorded_speaking" },
+      { id: "a1-m5-u3-l2-restaurant-roleplay", moduleId: "english-a1-m5-food", order: 6, title: "Restaurant Roleplay", mission: "Complete a full order exchange from greeting to payment.", modelText: "Good evening. A table for one, please. I'd like the fish with rice. And the bill, please.", competencyIds: ["EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.PRAG.BASIC_POLITENESS"], productionPrompt: "Roleplay ordering a complete meal, asking one question, and requesting the bill.", production: "ai_roleplay", role: "a restaurant server", situation: "You have a full meal at a restaurant." },
     ],
   },
   {
     id: "english-a1-m6-neighborhood",
     order: 6,
-    title: "My Neighborhood",
-    description: "Identify community places and understand or give simple directions.",
+    title: "Places in My Community",
+    description: "Identify places, ask for and give simple directions, and describe your neighborhood.",
     lessons: [
-      { id: "a1-m6-u1-l1-neighborhood-places", moduleId: "english-a1-m6-neighborhood", order: 1, title: "What's in the Neighborhood?", mission: "Identify and locate common places.", modelText: "There is a pharmacy next to the supermarket. There are two banks near the park.", competencyIds: ["EN.A1.VOCAB.PLACES_DIRECTIONS", "EN.A1.GRAMMAR.THERE_IS_ARE", "EN.A1.READ.SIMPLE_DIRECTIONS"], productionPrompt: "Describe three places in a neighborhood using there is or there are.", production: "recorded_speaking" },
-      { id: "a1-m6-u1-l2-where-is-it", moduleId: "english-a1-m6-neighborhood", order: 2, title: "Where Is It?", mission: "Ask and answer basic location questions.", modelText: "Excuse me, where is the pharmacy? It's across from the park, next to the bank.", competencyIds: ["EN.A1.GRAMMAR.PREPOSITIONS_BASIC", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.VOCAB.PLACES_DIRECTIONS"], productionPrompt: "Ask where a place is and understand a short location answer.", production: "ai_roleplay", role: "a person who knows the neighborhood", situation: "You ask for the location of a nearby place." },
-      { id: "a1-m6-u2-l1-go-turn-stop", moduleId: "english-a1-m6-neighborhood", order: 3, title: "Go, Turn, Stop", mission: "Understand simple direction instructions.", modelText: "Go straight. Turn left at the bank. Stop at the supermarket.", competencyIds: ["EN.A1.LISTEN.SHORT_INSTRUCTIONS", "EN.A1.STRAT.LISTEN_FOR_KEYWORDS", "EN.A1.VOCAB.PLACES_DIRECTIONS"], productionPrompt: "Give three short direction instructions in the correct order.", production: "recorded_speaking" },
-      { id: "a1-m6-u2-l2-how-get-there", moduleId: "english-a1-m6-neighborhood", order: 4, title: "How Do I Get There?", mission: "Ask for and give short directions.", modelText: "How do I get to the museum? Go straight and turn right at the café. It's on your left.", competencyIds: ["EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS", "EN.A1.CONV.REQUEST_CLARIFICATION", "EN.A1.READ.SIMPLE_DIRECTIONS"], productionPrompt: "Ask for directions, follow the answer, and ask for clarification once if needed.", production: "ai_roleplay", role: "a local person giving directions", situation: "You need to find a place in an unfamiliar neighborhood." },
-      { id: "a1-m6-u3-l1-getting-around", moduleId: "english-a1-m6-neighborhood", order: 5, title: "Bus, Walk, Drive", mission: "Discuss very basic transport choices and locations.", modelText: "I walk to the pharmacy. I take the bus to work. The bus stop is near my house.", competencyIds: ["EN.A1.VOCAB.PLACES_DIRECTIONS", "EN.A1.LISTEN.KEY_DETAILS", "EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS"], productionPrompt: "Explain how you get to one familiar place and where you start.", production: "recorded_speaking" },
-      { id: "a1-m6-u3-l2-help-find-it", moduleId: "english-a1-m6-neighborhood", order: 6, title: "Help Me Find It", mission: "Integrate place, direction and clarification strategies.", modelText: "The clinic is on Duarte Avenue. Go straight, then turn left. Do you see the blue building? That's it.", competencyIds: ["EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS", "EN.A1.MED.SHOW_OR_POINT_KEY_INFORMATION", "EN.A1.CONV.REQUEST_CLARIFICATION"], productionPrompt: "Help another person find a place by giving a short route and one useful landmark detail.", production: "ai_roleplay", role: "a visitor who needs help", situation: "You help someone reach a community place." },
+      { id: "a1-m6-u1-l1-places-in-town", moduleId: "english-a1-m6-neighborhood", order: 1, title: "Places Around Me", mission: "Identify common community places.", modelText: "There is a bank on the corner. The pharmacy is next to the supermarket.", competencyIds: ["EN.A1.VOCAB.PLACES_BUILDINGS", "EN.A1.READ.SHORT_DESCRIPTIONS", "EN.A1.SPEAK.DESCRIBE_OBJECT"], productionPrompt: "Name three places in your neighborhood and where they are.", production: "recorded_speaking" },
+      { id: "a1-m6-u1-l2-where-is-the", moduleId: "english-a1-m6-neighborhood", order: 2, title: "Where Is the…?", mission: "Ask for the location of a place.", modelText: "Excuse me, where is the metro station? It's on Main Street, across from the park.", competencyIds: ["EN.A1.SPEAK.ASK_DIRECTIONS", "EN.A1.LISTEN.KEY_DETAILS", "EN.A1.PRAG.BASIC_POLITENESS"], productionPrompt: "Ask for directions to one place and confirm what you heard.", production: "ai_roleplay", role: "a person on the street", situation: "You need to find a nearby place." },
+      { id: "a1-m6-u2-l1-simple-directions", moduleId: "english-a1-m6-neighborhood", order: 3, title: "Go Straight, Turn Left", mission: "Give and follow simple directions.", modelText: "Go straight for two blocks. Turn left at the traffic light. The clinic is on the right.", competencyIds: ["EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS", "EN.A1.LISTEN.SHORT_INSTRUCTIONS", "EN.A1.PHON.FINAL_CONSONANTS"], productionPrompt: "Give simple three-step directions from one landmark to another.", production: "recorded_speaking" },
+      { id: "a1-m6-u2-l2-help-a-visitor", moduleId: "english-a1-m6-neighborhood", order: 4, title: "Help a Visitor", mission: "Help someone find a place with clarification.", modelText: "Excuse me, is the hospital near here? Yes, walk straight and turn right at the bank.", competencyIds: ["EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.MED.SHOW_OR_POINT_KEY_INFORMATION"], productionPrompt: "Help a visitor reach a place and check that they understand.", production: "ai_roleplay", role: "a lost visitor", situation: "Someone asks you for directions." },
+      { id: "a1-m6-u3-l1-my-neighborhood", moduleId: "english-a1-m6-neighborhood", order: 5, title: "My Neighborhood", mission: "Describe your local area.", modelText: "I live in Gazcue. It's quiet. There are trees, small shops and a nice park.", competencyIds: ["EN.A1.SPEAK.DESCRIBE_OBJECT", "EN.A1.WRITE.SHORT_DESCRIPTION", "EN.A1.CREATE.PERSONAL_INTRODUCTION"], productionPrompt: "Describe your neighborhood in four simple sentences.", production: "recorded_speaking" },
+      { id: "a1-m6-u3-l2-community-map", moduleId: "english-a1-m6-neighborhood", order: 6, title: "Community Guide", mission: "Present a simple guide to two or three places in your area.", modelText: "Welcome to my neighborhood. The best colmado is on Duarte Street. The park is great for walking.", competencyIds: ["EN.A1.SPEAK.DESCRIBE_OBJECT", "EN.A1.CREATE.PERSONAL_INTRODUCTION", "EN.A1.MED.RELAY_PERSONAL_DETAIL"], productionPrompt: "Present a short guide to three places in your community for a new neighbor.", production: "recorded_speaking" },
     ],
   },
   {
     id: "english-a1-m7-preferences",
     order: 7,
-    title: "What I Like",
-    description: "Express preferences and abilities and make simple social plans.",
+    title: "Likes, Free Time and Passions",
+    description: "Talk about hobbies, music, sports, free time and what you enjoy.",
     lessons: [
-      { id: "a1-m7-u1-l1-hobbies", moduleId: "english-a1-m7-preferences", order: 1, title: "Hobbies and Interests", mission: "Identify and express common interests.", modelText: "I like music and basketball. I also like cooking. What do you like?",
-        competencyIds: ["EN.A1.VOCAB.PREFERENCES_HOBBIES", "EN.A1.SPEAK.EXPRESS_BASIC_PREFERENCE", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION"], productionPrompt: "Say two things you like and ask one follow-up question about another person's interests.", production: "ai_roleplay", role: "a new friend", situation: "You talk about hobbies and interests." },
-      { id: "a1-m7-u1-l2-me-too", moduleId: "english-a1-m7-preferences", order: 2, title: "Me Too / Not Me", mission: "Maintain a short preference exchange.", modelText: "I love dancing. Me too! I don't like running very much. Really? I like it.", competencyIds: ["EN.A1.PRAG.TURN_TAKING_BASIC", "EN.A1.SPEAK.EXPRESS_BASIC_PREFERENCE", "EN.A1.PHON.BASIC_INTONATION"], productionPrompt: "Respond to preferences with agreement or a different preference and keep the conversation going.", production: "ai_roleplay", role: "a friend comparing interests", situation: "You discover interests you share and interests that are different." },
-      { id: "a1-m7-u2-l1-abilities", moduleId: "english-a1-m7-preferences", order: 3, title: "Abilities", mission: "Express basic ability and non-ability.", modelText: "I can swim, but I can't drive. My sister can cook very well.", competencyIds: ["EN.A1.SPEAK.EXPRESS_BASIC_PREFERENCE", "EN.A1.PHON.BASIC_SENTENCE_STRESS", "EN.A1.VOCAB.PREFERENCES_HOBBIES"], productionPrompt: "Say two things you can do and one thing you cannot do yet.", production: "recorded_speaking" },
-      { id: "a1-m7-u2-l2-find-someone", moduleId: "english-a1-m7-preferences", order: 4, title: "Find Someone Who…", mission: "Ask about abilities or interests and report one result.", modelText: "Can you cook? Yes, I can. Do you like dancing? Yes, I do.", competencyIds: ["EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.PRAG.TURN_TAKING_BASIC", "EN.A1.SPEAK.INTRODUCE_OTHER"], productionPrompt: "Ask two ability or interest questions and report one thing you learned about the other person.", production: "ai_roleplay", role: "a classmate", situation: "You ask simple questions to find someone with a particular interest or ability." },
-      { id: "a1-m7-u3-l1-invitations", moduleId: "english-a1-m7-preferences", order: 5, title: "Want to…?", mission: "Recognize and use basic invitation and response chunks.", modelText: "Do you want to watch a movie on Friday? Sure! What time? At seven.", competencyIds: ["EN.A1.WRITE.BASIC_MESSAGE", "EN.A1.PRAG.BASIC_POLITENESS", "EN.A1.ONLINE.SHORT_SOCIAL_EXCHANGE"], productionPrompt: "Invite someone to one activity and respond naturally to an acceptance or refusal.", production: "ai_roleplay", role: "a friend", situation: "You invite a friend to a simple activity." },
-      { id: "a1-m7-u3-l2-make-plan", moduleId: "english-a1-m7-preferences", order: 6, title: "Let's Make a Plan", mission: "Combine preferences, time and invitation language.", modelText: "Let's go to the park on Sunday. Great. I'm free at three. Let's meet at the entrance.", competencyIds: ["EN.A1.VOCAB.NUMBERS_TIME_DATES", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.ONLINE.SHARE_BASIC_INFORMATION"], productionPrompt: "Make a simple social plan, agree on a time, and confirm it in one short message.", production: "ai_roleplay", role: "a friend making plans", situation: "You choose an activity and agree on a time." },
+      { id: "a1-m7-u1-l1-free-time", moduleId: "english-a1-m7-preferences", order: 1, title: "What Do You Do on Weekends?", mission: "Talk about free-time activities.", modelText: "On weekends, I play baseball. I listen to music. I spend time with my family.", competencyIds: ["EN.A1.SPEAK.BASIC_PREFERENCES", "EN.A1.VOCAB.DAILY_ACTIVITIES", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS"], productionPrompt: "Say three things you like to do when you have free time.", production: "recorded_speaking" },
+      { id: "a1-m7-u1-l2-music-and-culture", moduleId: "english-a1-m7-preferences", order: 2, title: "Music, Sports and Passions", mission: "Share personal cultural interests and ask about another person's.", modelText: "I love bachata and merengue. Do you like baseball? Yes, my favorite team is Tigres del Licey.", competencyIds: ["EN.A1.SPEAK.BASIC_PREFERENCES", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.PRAG.TURN_TAKING_BASIC"], productionPrompt: "Share your favorite music or sport and ask the other person what they enjoy.", production: "ai_roleplay", role: "a friend talking about interests", situation: "You chat about music, sports and weekend fun." },
+      { id: "a1-m7-u2-l1-making-plans", moduleId: "english-a1-m7-preferences", order: 3, title: "Do You Want to…?", mission: "Invite someone and respond to an invitation.", modelText: "Do you want to play baseball on Saturday? Sure! What time? Let's meet at four.", competencyIds: ["EN.A1.SPEAK.MAKE_PLAN", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.VOCAB.NUMBERS_TIME_DATES"], productionPrompt: "Invite someone to an activity, suggest a time, and confirm the plan.", production: "ai_roleplay", role: "a friend making a weekend plan", situation: "You make a simple plan to do something together." },
+      { id: "a1-m7-u2-l2-cant-make-it", moduleId: "english-a1-m7-preferences", order: 4, title: "I'm Busy, but How About…?", mission: "Decline an invitation politely and suggest another time.", modelText: "Can you come on Friday? Sorry, I'm working on Friday. How about Saturday? Saturday is great.", competencyIds: ["EN.A1.SPEAK.MAKE_PLAN", "EN.A1.PRAG.BASIC_POLITENESS", "EN.A1.CONV.REQUEST_CLARIFICATION"], productionPrompt: "Politely say you cannot make one time and propose an alternative.", production: "ai_roleplay", role: "a classmate proposing a time", situation: "You cannot make the first suggested time." },
+      { id: "a1-m7-u3-l1-my-weekend-story", moduleId: "english-a1-m7-preferences", order: 5, title: "A Great Weekend", mission: "Connect activities into a short spoken narrative.", modelText: "On Saturday morning, I cleaned my house. In the afternoon, I went to the beach. It was fun.", competencyIds: ["EN.A1.SPEAK.DESCRIBE_ROUTINE", "EN.A1.WRITE.SIMPLE_ROUTINE", "EN.A1.PHON.BASIC_SENTENCE_STRESS"], productionPrompt: "Describe your ideal or recent weekend using time order words.", production: "recorded_speaking" },
+      { id: "a1-m7-u3-l2-weekend-plan-roleplay", moduleId: "english-a1-m7-preferences", order: 6, title: "Plan a Weekend Together", mission: "Complete a multi-turn conversation to agree on a weekend activity.", modelText: "What are you doing this weekend? Nothing yet. Let's go to the park on Sunday at ten. Perfect.", competencyIds: ["EN.A1.SPEAK.MAKE_PLAN", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.PRAG.TURN_TAKING_BASIC"], productionPrompt: "Negotiate a weekend plan with a friend: activity, day, and time.", production: "ai_roleplay", role: "a friend planning an outing", situation: "You agree on a shared weekend activity." },
     ],
   },
   {
@@ -310,15 +405,13 @@ const MODULE_SPECS: A1ModuleSpec[] = [
     title: "Life in Action",
     description: "Integrate A1 competencies with less support and generate level-exit evidence.",
     lessons: [
-      { id: "a1-m8-u1-l1-meet-someone", moduleId: "english-a1-m8-integration", order: 1, title: "Meet Someone New", mission: "Combine greeting, identity, questions and clarification in one first meeting.", modelText: "Hi, I'm Maya. I'm from Trinidad. I'm a student. What about you?",
-        competencyIds: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.CONV.PERSONAL_INTRODUCTION", "EN.A1.CONV.REQUEST_CLARIFICATION"], productionPrompt: "Meet someone new, exchange basic personal information, and ask at least one question.", production: "ai_roleplay", role: "a person you are meeting for the first time", situation: "You meet before a community event." },
+      { id: "a1-m8-u1-l1-meet-someone", moduleId: "english-a1-m8-integration", order: 1, title: "Meet Someone New", mission: "Combine greeting, identity, questions and clarification in one first meeting.", modelText: "Hi, I'm Maya. I'm from Trinidad. I'm a student. What about you?", competencyIds: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.CONV.PERSONAL_INTRODUCTION", "EN.A1.CONV.REQUEST_CLARIFICATION"], productionPrompt: "Meet someone new, exchange basic personal information, and ask at least one question.", production: "ai_roleplay", role: "a person you are meeting for the first time", situation: "You meet before a community event." },
       { id: "a1-m8-u1-l2-introduce-other", moduleId: "english-a1-m8-integration", order: 2, title: "Introduce Someone Else", mission: "Introduce another person and respond to follow-up questions.", modelText: "This is my friend Leo. He's from La Romana and he works at a hotel.", competencyIds: ["EN.A1.SPEAK.INTRODUCE_OTHER", "EN.A1.LISTEN.PERSONAL_INFORMATION", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS"], productionPrompt: "Introduce another person with three details and answer one follow-up question.", production: "ai_roleplay", role: "someone meeting your friend", situation: "You introduce a familiar person at a social event." },
       { id: "a1-m8-u2-l1-arrange-time", moduleId: "english-a1-m8-integration", order: 3, title: "Arrange a Time", mission: "Combine schedules, time and invitations.", modelText: "Are you free on Tuesday? Yes, after six. Great. Let's meet at six thirty.", competencyIds: ["EN.A1.VOCAB.NUMBERS_TIME_DATES", "EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.ONLINE.SHARE_BASIC_INFORMATION"], productionPrompt: "Arrange a time for one activity and confirm the final plan.", production: "ai_roleplay", role: "a friend with a different schedule", situation: "You need to find one time when you are both free." },
       { id: "a1-m8-u2-l2-order-problem", moduleId: "english-a1-m8-integration", order: 4, title: "Order and Solve a Small Problem", mission: "Order something and repair one predictable problem.", modelText: "I'd like the chicken sandwich, please. Sorry, we don't have chicken today. Okay, I'll have the cheese sandwich.", competencyIds: ["EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.CONV.BASIC_TRANSACTION", "EN.A1.CONV.REQUEST_CLARIFICATION"], productionPrompt: "Order one item and respond when it is unavailable, unclear, or different from what you expected.", production: "ai_roleplay", role: "a café server", situation: "You order something and solve one small service problem." },
       { id: "a1-m8-u2-l3-find-place", moduleId: "english-a1-m8-integration", order: 5, title: "Find a Place", mission: "Understand and give directions with repair.", modelText: "Go straight for one block, turn left at the bank, and the clinic is next to the pharmacy.", competencyIds: ["EN.A1.SPEAK.GIVE_SIMPLE_DIRECTIONS", "EN.A1.LISTEN.SHORT_INSTRUCTIONS", "EN.A1.MED.SHOW_OR_POINT_KEY_INFORMATION"], productionPrompt: "Help someone find a place and confirm that the route is understood.", production: "ai_roleplay", role: "a visitor", situation: "You help someone reach a nearby place." },
       { id: "a1-m8-u3-l1-my-life-in-english", moduleId: "english-a1-m8-integration", order: 6, title: "My Life in English", mission: "Assemble and improve selected A1 work across identity, people, routines, preferences and practical communication.", modelText: "I'm Elena. I live in Santo Domingo. I work during the day, study English at night, and I love music.", competencyIds: ["EN.A1.WRITE.PERSONAL_SENTENCES", "EN.A1.CREATE.PERSONAL_INTRODUCTION", "EN.A1.STRAT.USE_CHUNKS"], productionPrompt: "Create a short personal profile that combines information from at least three earlier A1 modules.", production: "recorded_speaking" },
-      { id: "a1-m8-u3-l2-conversation-challenge", moduleId: "english-a1-m8-integration", order: 7, title: "A1 Conversation Challenge", mission: "Complete a multi-goal conversation with reduced prompts.", modelText: "Hi! I'm Jordan. I'm new here. What do you like to do on weekends?",
-        competencyIds: ["EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.CONV.REQUEST_CLARIFICATION", "EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES"], productionPrompt: "Sustain the conversation, ask at least one question, initiate one turn, and repair meaning if needed.", production: "ai_roleplay", role: "an unfamiliar but friendly conversation partner", situation: "You meet and then make one simple practical or social plan." },
+      { id: "a1-m8-u3-l2-conversation-challenge", moduleId: "english-a1-m8-integration", order: 7, title: "A1 Conversation Challenge", mission: "Complete a multi-goal conversation with reduced prompts.", modelText: "Hi! I'm Jordan. I'm new here. What do you like to do on weekends?", competencyIds: ["EN.A1.CONV.SHORT_SUPPORTED_CONVERSATION", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS", "EN.A1.CONV.REQUEST_CLARIFICATION", "EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES"], productionPrompt: "Sustain the conversation, ask at least one question, initiate one turn, and repair meaning if needed.", production: "ai_roleplay", role: "an unfamiliar but friendly conversation partner", situation: "You meet and then make one simple practical or social plan." },
       { id: "a1-m8-u3-l3-capstone", moduleId: "english-a1-m8-integration", order: 8, title: "Capstone: My Life, My English", mission: "Use A1 English across listening, speaking, reading, writing, mediation and practical transfer.", modelText: "Your appointment is Friday at four thirty. The office is next to the pharmacy. Please bring your name and phone number.", competencyIds: ["EN.A1.LISTEN.KEY_DETAILS", "EN.A1.READ.FUNCTIONAL_INFORMATION", "EN.A1.WRITE.BASIC_MESSAGE", "EN.A1.SPEAK.BASIC_TRANSACTION", "EN.A1.MED.RELAY_PERSONAL_DETAIL"], productionPrompt: "Explain the key information, relay one detail to another person, and respond with a short message confirming what you will do.", production: "ai_roleplay", role: "a community service assistant", situation: "You receive practical information, clarify it, relay one detail, and confirm the next step." },
     ],
   },
@@ -350,11 +443,6 @@ export function buildA1ProductionCurriculum(now = new Date().toISOString()): A1P
   return { course, modules, lessons };
 }
 
-/**
- * Provisions the A1 production curriculum as trusted server-authored objects.
- * This function is idempotent and preserves learner progress/evidence because
- * it updates curriculum documents only; it never rewrites learner records.
- */
 export async function provisionA1ProductionCurriculum(): Promise<A1ProductionCurriculumBundle> {
   const database = getServerFirestore();
   const bundle = buildA1ProductionCurriculum();

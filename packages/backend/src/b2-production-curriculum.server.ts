@@ -14,6 +14,22 @@ export interface B2ProductionCurriculumBundle {
 function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
   const lessonId = `b2-m${moduleData.order}-lesson-1`;
 
+  const grammarSection = moduleData.grammarSection;
+  const grammarText = grammarSection
+    ? `### 📖 Grammar Focus: ${grammarSection.conceptTitle}\n\n` +
+      `**Structural Formula:**\n\`${grammarSection.formula}\`\n\n` +
+      `**Explanation & Strategic Function:**\n${grammarSection.explanation}\n\n` +
+      `**Forms Breakdown:**\n` +
+      `• *Affirmative:* ${grammarSection.forms.affirmative}\n` +
+      `• *Negative:* ${grammarSection.forms.negative}\n` +
+      `• *Question / Inverted:* ${grammarSection.forms.question}\n\n` +
+      `**💡 Dominican & Spanish Transfer Tip:**\n${grammarSection.l1TransferTip}\n\n` +
+      `**Executive Examples in Context:**\n` +
+      grammarSection.examples.map((ex) => `• "${ex}"`).join("\n")
+    : `### 📖 Grammar Focus: ${moduleData.title}\n\n` +
+      `**Key Structure:** \`${moduleData.grammarStructures[0] ?? ""}\`\n\n` +
+      `**Usage Note:** Deploy advanced grammatical structures to negotiate, structure discourse, and lead executive discussions.`;
+
   const blocks: ContentBlock[] = [
     {
       id: `${lessonId}-hook-mission`,
@@ -46,9 +62,18 @@ function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
       },
     },
     {
+      id: `${lessonId}-grammar-section`,
+      type: "text",
+      order: 3,
+      data: {
+        category: "grammar",
+        text: grammarText,
+      },
+    },
+    {
       id: `${lessonId}-comprehension-check`,
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -73,7 +98,7 @@ function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
     {
       id: `${lessonId}-language-noticing`,
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         activity: {
           schemaVersion: "1",
@@ -98,7 +123,7 @@ function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
     {
       id: `${lessonId}-create-apply`,
       type: "interactive",
-      order: 5,
+      order: 6,
       data: {
         activity: {
           schemaVersion: "1",
@@ -117,7 +142,7 @@ function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
     {
       id: `${lessonId}-quiz`,
       type: "interactive",
-      order: 6,
+      order: 7,
       data: {
         activity: {
           schemaVersion: "1",
@@ -142,7 +167,7 @@ function buildLessonFromModule(moduleData: B2ModuleData): Lesson {
     {
       id: `${lessonId}-reflection`,
       type: "text",
-      order: 7,
+      order: 8,
       data: {
         text: `Lesson Completed!\n\nYou have mastered: ${moduleData.title}.\nPhonetics target: ${moduleData.phoneticTargets.join("; ")}.\nProceed to Lurexa Coach for real-time executive speaking simulation!`,
       },
@@ -183,7 +208,7 @@ export function buildB2ProductionCurriculum(now: string = new Date().toISOString
     orgId: ORGANIZATION_ID,
     authorId: "lurexa-system",
     title: "English B2 Fluency & Professional Communication",
-    description: "Comprehensive 8-module upper-intermediate course for executive negotiations, rhetorical presentations, data synthesis, and global leadership communication.",
+    description: "Comprehensive 8-module executive course for strategic negotiation, analytical data synthesis, crisis response, and keynote rhetoric.",
     subject: "english",
     status: "published",
     isTemplate: false,

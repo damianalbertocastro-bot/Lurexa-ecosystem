@@ -1,5 +1,18 @@
 export type CourseStatus = "draft" | "published" | "archived";
 
+export interface GrammarSectionData {
+  conceptTitle: string;
+  formula: string;
+  explanation: string;
+  forms: {
+    affirmative: string;
+    negative: string;
+    question: string;
+  };
+  l1TransferTip: string;
+  examples: string[];
+}
+
 export interface Course {
   id: string;
   orgId: string;

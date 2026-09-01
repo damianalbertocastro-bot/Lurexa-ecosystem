@@ -1,4 +1,7 @@
-import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
+import {
+  CoursePlatformService,
+  type AuthenticatedActor,
+} from "@lurexa/backend/course-platform.server";
 import {
   CoachPlacementService,
   type SpokenTaskEvaluationInput,
@@ -20,9 +23,18 @@ export async function POST(request: Request): Promise<Response> {
   let actorId: string | undefined;
 
   try {
-    const actor = await CoursePlatformService.authenticate(
-      request.headers.get("authorization")
-    );
+    let actor: AuthenticatedActor;
+    try {
+      actor = await CoursePlatformService.authenticate(
+        request.headers.get("authorization")
+      );
+    } catch {
+      // Allow unauthenticated preview / placement diagnostic calculation
+      actor = {
+        uid: "preview-placement-learner",
+        email: "placement@lurexa.org",
+      };
+    }
     actorId = actor.uid;
 
     const body = (await request.json()) as {

@@ -227,163 +227,167 @@ export class CoachPlacementService {
     };
 
     // Persist trusted placement evidence and updated profile in Core
-    const db = getServerFirestore();
-    const evidenceRepository = new FirestoreLearningEvidenceRepository();
-    const placementEvidenceId = `evidence-coach-placement-${actor.uid}-${Date.now()}`;
-
-    // Provision curriculum if needed
     try {
-      if (estimatedLevel === "A1") {
-        await provisionA1ProductionCurriculum();
-      } else if (estimatedLevel === "A2") {
-        await ensureA2ProductionCurriculumInFirestore();
-      } else if (estimatedLevel === "B1") {
-        await ensureB1ProductionCurriculumInFirestore();
-      } else if (estimatedLevel === "B2") {
-        await ensureB2ProductionCurriculumInFirestore();
+      const db = getServerFirestore();
+      const evidenceRepository = new FirestoreLearningEvidenceRepository();
+      const placementEvidenceId = `evidence-coach-placement-${actor.uid}-${Date.now()}`;
+
+      // Provision curriculum if needed
+      try {
+        if (estimatedLevel === "A1") {
+          await provisionA1ProductionCurriculum();
+        } else if (estimatedLevel === "A2") {
+          await ensureA2ProductionCurriculumInFirestore();
+        } else if (estimatedLevel === "B1") {
+          await ensureB1ProductionCurriculumInFirestore();
+        } else if (estimatedLevel === "B2") {
+          await ensureB2ProductionCurriculumInFirestore();
+        }
+      } catch (provisionErr) {
+        console.warn("Curriculum provisioning warning during coach placement:", provisionErr);
       }
-    } catch (provisionErr) {
-      console.warn("Curriculum provisioning warning during coach placement:", provisionErr);
-    }
 
-    const organizationReference = db.collection("organizations").doc(ORGANIZATION_ID);
-    const membershipReference = organizationReference.collection("members").doc(actor.uid);
-    const userMembershipReference = db.collection("user-memberships").doc(actor.uid).collection("organizations").doc(ORGANIZATION_ID);
+      const organizationReference = db.collection("organizations").doc(ORGANIZATION_ID);
+      const membershipReference = organizationReference.collection("members").doc(actor.uid);
+      const userMembershipReference = db.collection("user-memberships").doc(actor.uid).collection("organizations").doc(ORGANIZATION_ID);
 
-    await Promise.all([
-      organizationReference.set(
-        {
-          id: ORGANIZATION_ID,
-          name: "Lurexa Self-Paced Learning",
-          slug: "lurexa-self-paced",
-          ownerId: "lurexa-system",
-          plan: "platform",
-          updatedAt: now,
-        },
-        { merge: true }
-      ),
-      membershipReference.set(
-        {
-          userId: actor.uid,
-          orgId: ORGANIZATION_ID,
-          role: "student",
-          joinedAt: now,
-          source: "coach-oral-placement",
-        },
-        { merge: true }
-      ),
-      userMembershipReference.set(
-        {
-          userId: actor.uid,
-          orgId: ORGANIZATION_ID,
-          role: "student",
-          joinedAt: now,
-          source: "coach-oral-placement",
-        },
-        { merge: true }
-      ),
-      db.collection("learners").doc(actor.uid).set(
-        {
-          learnerId: actor.uid,
-          email: actor.email,
-          proficiency: {
-            cefr: estimatedLevel,
-            confidence,
-            intelligibilityScore: overallIntelligibilityScore,
+      await Promise.all([
+        organizationReference.set(
+          {
+            id: ORGANIZATION_ID,
+            name: "Lurexa Self-Paced Learning",
+            slug: "lurexa-self-paced",
+            ownerId: "lurexa-system",
+            plan: "platform",
             updatedAt: now,
           },
-          placement: {
-            estimatedLevel,
-            confidence,
-            overallScorePercent: overallIntelligibilityScore,
-            priorityReinforcements: priorityTargets,
-            recommendedCourseId,
-            completedAt: now,
-            type: "coach_oral_diagnostic",
+          { merge: true }
+        ),
+        membershipReference.set(
+          {
+            userId: actor.uid,
+            orgId: ORGANIZATION_ID,
+            role: "student",
+            joinedAt: now,
+            source: "coach-oral-placement",
           },
-          oralPlacement: {
+          { merge: true }
+        ),
+        userMembershipReference.set(
+          {
+            userId: actor.uid,
+            orgId: ORGANIZATION_ID,
+            role: "student",
+            joinedAt: now,
+            source: "coach-oral-placement",
+          },
+          { merge: true }
+        ),
+        db.collection("learners").doc(actor.uid).set(
+          {
+            learnerId: actor.uid,
+            email: actor.email,
+            proficiency: {
+              cefr: estimatedLevel,
+              confidence,
+              intelligibilityScore: overallIntelligibilityScore,
+              updatedAt: now,
+            },
+            placement: {
+              estimatedLevel,
+              confidence,
+              overallScorePercent: overallIntelligibilityScore,
+              priorityReinforcements: priorityTargets,
+              recommendedCourseId,
+              completedAt: now,
+              type: "coach_oral_diagnostic",
+            },
+            oralPlacement: {
+              estimatedLevel,
+              overallIntelligibilityScore,
+              confidence,
+              taskScores,
+              detectedTransferPatterns: allTransferPatterns,
+              evaluatedAt: now,
+            },
+            onboarding: {
+              path: "coach-oral-diagnostic",
+              completedAt: now,
+              recommendation: `${estimatedLevel} Oral Diagnostic`,
+              recommendedCourseId,
+              confidence,
+            },
+            updatedAt: now,
+          },
+          { merge: true }
+        ),
+        db.collection("learner-profiles").doc(actor.uid).set(
+          {
+            learnerId: actor.uid,
+            email: actor.email,
+            goals: ["speaking_fluency", "pronunciation_clarity"],
+            proficiency: {
+              cefr: estimatedLevel,
+              confidence,
+              intelligibilityScore: overallIntelligibilityScore,
+              updatedAt: now,
+            },
+            onboarding: {
+              path: "coach-oral-diagnostic",
+              completedAt: now,
+              recommendation: `${estimatedLevel} Speaking Placement`,
+              recommendedCourseId,
+              confidence,
+            },
+            activeTargets: {
+              pronunciation: priorityTargets,
+              fluency: [recommendedStartingFocus],
+            },
+            updatedAt: now,
+          },
+          { merge: true }
+        ),
+        evidenceRepository.append({
+          contractVersion: "1",
+          id: placementEvidenceId,
+          learnerId: actor.uid,
+          organizationId: ORGANIZATION_ID,
+          source: {
+            product: "coach",
+            courseId: recommendedCourseId,
+            activityId: "coach-oral-diagnostic-placement",
+          },
+          type: "assessment_result",
+          observedAt: now,
+          dataClassification: "sensitive",
+          payload: {
             estimatedLevel,
             overallIntelligibilityScore,
             confidence,
             taskScores,
             detectedTransferPatterns: allTransferPatterns,
-            evaluatedAt: now,
+            scope: "oral_diagnostic_speaking_test",
           },
-          onboarding: {
-            path: "coach-oral-diagnostic",
-            completedAt: now,
-            recommendation: `${estimatedLevel} Oral Diagnostic`,
-            recommendedCourseId,
-            confidence,
+          provenance: {
+            method: "system_observed",
+            actorId: actor.uid,
+            confidence: confidence === "high" ? 0.92 : 0.75,
           },
-          updatedAt: now,
-        },
-        { merge: true }
-      ),
-      db.collection("learner-profiles").doc(actor.uid).set(
-        {
-          learnerId: actor.uid,
-          email: actor.email,
-          goals: ["speaking_fluency", "pronunciation_clarity"],
-          proficiency: {
-            cefr: estimatedLevel,
-            confidence,
-            intelligibilityScore: overallIntelligibilityScore,
-            updatedAt: now,
-          },
-          onboarding: {
-            path: "coach-oral-diagnostic",
-            completedAt: now,
-            recommendation: `${estimatedLevel} Speaking Placement`,
-            recommendedCourseId,
-            confidence,
-          },
-          activeTargets: {
-            pronunciation: priorityTargets,
-            fluency: [recommendedStartingFocus],
-          },
-          updatedAt: now,
-        },
-        { merge: true }
-      ),
-      evidenceRepository.append({
-        contractVersion: "1",
-        id: placementEvidenceId,
-        learnerId: actor.uid,
-        organizationId: ORGANIZATION_ID,
-        source: {
-          product: "coach",
-          courseId: recommendedCourseId,
-          activityId: "coach-oral-diagnostic-placement",
-        },
-        type: "assessment_result",
-        observedAt: now,
-        dataClassification: "sensitive",
-        payload: {
-          estimatedLevel,
-          overallIntelligibilityScore,
-          confidence,
-          taskScores,
-          detectedTransferPatterns: allTransferPatterns,
-          scope: "oral_diagnostic_speaking_test",
-        },
-        provenance: {
-          method: "system_observed",
-          actorId: actor.uid,
-          confidence: confidence === "high" ? 0.92 : 0.75,
-        },
-      }),
-    ]);
+        }),
+      ]);
 
-    // Refresh Learner Model Mind intelligence asynchronously
-    try {
-      await refreshLearnerIntelligence({
-        learnerId: actor.uid,
-        organizationId: ORGANIZATION_ID,
-        requestedDomains: ["proficiency", "pronunciation", "fluency", "recommendation"],
-      });
-    } catch (mindError) {
-      console.warn("Learner intelligence refresh after coach placement encountered a minor warning.", mindError);
+      // Refresh Learner Model Mind intelligence asynchronously
+      try {
+        await refreshLearnerIntelligence({
+          learnerId: actor.uid,
+          organizationId: ORGANIZATION_ID,
+          requestedDomains: ["proficiency", "pronunciation", "fluency", "recommendation"],
+        });
+      } catch (mindError) {
+        console.warn("Learner intelligence refresh after coach placement encountered a minor warning.", mindError);
+      }
+    } catch (persistError) {
+      console.warn("Placement persistence warning:", persistError);
     }
 
     return result;

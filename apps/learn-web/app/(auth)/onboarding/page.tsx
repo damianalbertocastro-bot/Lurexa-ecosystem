@@ -7,9 +7,9 @@ import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
 
 type Goal = "daily_life" | "work" | "travel" | "study";
-type StartingPoint = "beginner" | "start_check";
+type StartingPoint = "beginner" | "placement";
 type Dialect = "es-DO" | "es-PR" | "es-MX" | "es-CO";
-type PlacementAnswer = "nice_to_meet_you" | "fine_thanks" | "i_live_in" | "i_live" | "are" | "is" | "going_to" | "go";
+
 const onboardingIntentKey = "lurexa_onboarding_intent";
 
 const dialectOptions: Array<{ value: Dialect; label: string; description: string; flag: string }> = [
@@ -19,35 +19,23 @@ const dialectOptions: Array<{ value: Dialect; label: string; description: string
   { value: "es-CO", label: "Colombia", description: "Calibrated for clear consonant articulation, /z/ voicing, and intonation control.", flag: "🇨🇴" },
 ];
 
-const goalOptions: Array<{ value: Goal; label: string; description: string }> = [
-  { value: "daily_life", label: "Daily life", description: "Talk with people, manage everyday situations, and feel more independent." },
-  { value: "work", label: "Work", description: "Communicate more confidently in professional situations." },
-  { value: "travel", label: "Travel", description: "Use English comfortably when you travel or meet visitors." },
-  { value: "study", label: "Study", description: "Build a foundation for classes, tests, or future goals." },
+const goalOptions: Array<{ value: Goal; label: string; description: string; icon: string }> = [
+  { value: "daily_life", label: "Daily life", description: "Talk with people, manage everyday situations, and feel more independent.", icon: "💬" },
+  { value: "work", label: "Work & Career", description: "Communicate more confidently in professional and workplace situations.", icon: "💼" },
+  { value: "travel", label: "Travel & Culture", description: "Use English comfortably when you travel or meet international visitors.", icon: "✈️" },
+  { value: "study", label: "Academic & Exams", description: "Build an advanced foundation for classes, tests, or academic goals.", icon: "🎓" },
 ];
 
-const startCheck: Array<{ prompt: string; options: Array<{ value: PlacementAnswer; label: string }> }> = [
-  { prompt: "Someone says: “Hi, I’m Laura. Nice to meet you.” What is the best response?", options: [{ value: "nice_to_meet_you", label: "Nice to meet you, too." }, { value: "fine_thanks", label: "I’m fine, thank you." }] },
-  { prompt: "Choose the sentence that describes where you live.", options: [{ value: "i_live_in", label: "I live in Santo Domingo." }, { value: "i_live", label: "I live Santo Domingo." }] },
-  { prompt: "Choose the question that asks about someone’s plans.", options: [{ value: "are", label: "What are you going to do this weekend?" }, { value: "is", label: "What is you going to do this weekend?" }] },
-  { prompt: "Complete the sentence: “I’m ___ meet my friend at three.”", options: [{ value: "going_to", label: "going to" }, { value: "go", label: "go" }] },
-];
-
-function readOnboardingIntent(value: string | null): { goal: Goal; startingPoint: StartingPoint; placementAnswers: PlacementAnswer[] } | null {
+function readOnboardingIntent(value: string | null): { goal: Goal; startingPoint: StartingPoint; dialect: Dialect } | null {
   if (!value) return null;
   try {
     const parsed: unknown = JSON.parse(value);
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return null;
-    const candidate = parsed as { goal?: unknown; startingPoint?: unknown; placementAnswers?: unknown };
-    const goal = goalOptions.find((option) => option.value === candidate.goal)?.value;
-    if (!goal || !Array.isArray(candidate.placementAnswers)) return null;
-    const placementAnswers = candidate.placementAnswers;
-    if (!placementAnswers.every((answer, index) => typeof answer === "string" && startCheck[index]?.options.some((option) => option.value === answer))) return null;
-    const startingPoint = candidate.startingPoint === "beginner" || candidate.startingPoint === "start_check"
-      ? candidate.startingPoint
-      : placementAnswers.length > 0 ? "start_check" : "beginner";
-    if (startingPoint === "start_check" && placementAnswers.length !== startCheck.length) return null;
-    return { goal, startingPoint, placementAnswers: placementAnswers as PlacementAnswer[] };
+    const candidate = parsed as { goal?: unknown; startingPoint?: unknown; dialect?: unknown };
+    const goal = goalOptions.find((option) => option.value === candidate.goal)?.value ?? "daily_life";
+    const dialect = dialectOptions.find((opt) => opt.value === candidate.dialect)?.value ?? "es-DO";
+    const startingPoint = candidate.startingPoint === "beginner" ? "beginner" : "placement";
+    return { goal, startingPoint, dialect };
   } catch {
     return null;
   }
@@ -57,33 +45,48 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [dialect, setDialect] = useState<Dialect>("es-DO");
   const [goal, setGoal] = useState<Goal>("daily_life");
-  const [startingPoint, setStartingPoint] = useState<StartingPoint>("beginner");
-  const [placementAnswers, setPlacementAnswers] = useState<PlacementAnswer[]>([]);
+  const [startingPoint, setStartingPoint] = useState<StartingPoint>("placement");
   const [currentUser, setCurrentUser] = useState<unknown | null>(null);
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => AuthService.onUserChanged((user) => {
-    const intent = readOnboardingIntent(window.localStorage.getItem(onboardingIntentKey));
-    if (intent) {
-      setGoal(intent.goal);
-      setStartingPoint(intent.startingPoint);
-      setPlacementAnswers(intent.placementAnswers);
-    } else if (window.localStorage.getItem(onboardingIntentKey)) {
-      window.localStorage.removeItem(onboardingIntentKey);
-    }
-    setCurrentUser(user);
-    setReady(true);
-  }), []);
+  useEffect(() => {
+    return AuthService.onUserChanged((user) => {
+      const intent = readOnboardingIntent(window.localStorage.getItem(onboardingIntentKey));
+      if (intent) {
+        setGoal(intent.goal);
+        setStartingPoint(intent.startingPoint);
+        setDialect(intent.dialect);
+      }
+      setCurrentUser(user);
+      setReady(true);
+    });
+  }, []);
 
-  async function startLearning() {
+  async function handleStart() {
     setSubmitting(true);
     setError("");
     try {
+      // If learner chose Placement Test (L-PDA)
+      if (startingPoint === "placement") {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(onboardingIntentKey, JSON.stringify({ goal, startingPoint, dialect }));
+        }
+        if (!currentUser) {
+          router.push(`/signup?returnUrl=${encodeURIComponent(`/placement?goal=${goal}&dialect=${dialect}&autostart=1`)}`);
+          return;
+        }
+        // If authenticated, route directly to the interactive placement assessment
+        window.localStorage.removeItem(onboardingIntentKey);
+        router.push(`/placement?goal=${goal}&dialect=${dialect}&autostart=1`);
+        return;
+      }
+
+      // If learner chose beginner A1 Foundations
       if (!currentUser) {
         if (typeof window !== "undefined") {
-          localStorage.setItem(onboardingIntentKey, JSON.stringify({ goal, startingPoint, placementAnswers }));
+          localStorage.setItem(onboardingIntentKey, JSON.stringify({ goal, startingPoint, dialect }));
         }
         router.push("/signup");
         return;
@@ -92,9 +95,14 @@ export default function OnboardingPage() {
       const response = await authenticatedFetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ goal, ...(startingPoint === "start_check" ? { placementAnswers } : {}) }),
+        body: JSON.stringify({ goal, dialect }),
       });
-      const payload = await response.json() as { courseId?: string; lessonId?: string; recommendation?: { level: "A1" | "A2" }; error?: string };
+      const payload = (await response.json()) as {
+        courseId?: string;
+        lessonId?: string;
+        recommendation?: { level: "A1" | "A2" };
+        error?: string;
+      };
       if (!response.ok || !payload.courseId || !payload.lessonId) {
         throw new Error(payload.error ?? "Unable to create your learning path.");
       }
@@ -108,19 +116,35 @@ export default function OnboardingPage() {
   }
 
   if (!ready) {
-    return <main className="min-h-screen bg-[var(--learn-canvas)] p-8 text-[var(--lx-muted)]">Preparing your learning path…</main>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[var(--learn-canvas)] p-8 text-[var(--lx-muted)]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <p className="text-sm font-semibold">Preparing your learning path…</p>
+        </div>
+      </main>
+    );
   }
 
   return (
     <main className="min-h-screen bg-[var(--learn-canvas)] px-4 py-10 sm:px-8">
-      <section className="mx-auto max-w-2xl">
-        <p className="text-xs font-bold tracking-[.16em] text-indigo-700">YOUR STARTING POINT</p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--learn-ink)]">Personalize your learning path.</h1>
-        <p className="mt-4 max-w-xl text-lg leading-8 text-[var(--lx-muted)]">Lurexa adapts phonetics, vocabulary transfer, and coaching to your native Spanish variety and personal goals.</p>
+      <section className="mx-auto max-w-3xl">
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-indigo-700">
+          <span>🚀</span>
+          YOUR STARTING POINT
+        </div>
+        <h1 className="mt-4 text-3xl font-black tracking-tight text-[var(--lx-ink)] sm:text-4xl">
+          Personalize your learning path.
+        </h1>
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--lx-muted)]">
+          Lurexa adapts phonetics, vocabulary transfer, and speaking coaching to your native Spanish variety and personal goals.
+        </p>
 
-        {/* Dialect Profile Selection */}
-        <div className="mt-8 space-y-3">
-          <h2 className="text-sm font-bold text-[var(--learn-ink)]">1. What Spanish variety do you speak?</h2>
+        {/* 1. Spanish Variety Profile Selection */}
+        <div className="mt-10 space-y-3">
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--lx-ink)]">
+            1. What Spanish variety do you speak?
+          </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {dialectOptions.map((opt) => (
               <label
@@ -139,8 +163,8 @@ export default function OnboardingPage() {
                   checked={dialect === opt.value}
                   onChange={() => setDialect(opt.value)}
                 />
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{opt.flag}</span>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">{opt.flag}</span>
                   <span className="font-bold text-[var(--lx-ink)]">{opt.label}</span>
                 </div>
                 <span className="mt-2 block text-xs leading-5 text-[var(--lx-muted)]">
@@ -151,41 +175,159 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <div className="mt-8 space-y-3">
-          <h2 className="text-sm font-bold text-[var(--learn-ink)]">2. What do you want English to help you do?</h2>
-          <div className="grid gap-3">
+        {/* 2. English Goal Selection */}
+        <div className="mt-10 space-y-3">
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--lx-ink)]">
+            2. What do you want English to help you do?
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
             {goalOptions.map((option) => (
-              <label key={option.value} className={`cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${goal === option.value ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
-                <input className="sr-only" type="radio" name="goal" value={option.value} checked={goal === option.value} onChange={() => setGoal(option.value)} />
-                <span className="block text-lg font-bold text-[var(--lx-ink)]">{option.label}</span>
-                <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">{option.description}</span>
+              <label
+                key={option.value}
+                className={`flex cursor-pointer flex-col justify-between rounded-2xl border p-4 transition ${
+                  goal === option.value
+                    ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-md ring-2 ring-[var(--lx-primary)]/20"
+                    : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-primary)]/40"
+                }`}
+              >
+                <input
+                  className="sr-only"
+                  type="radio"
+                  name="goal"
+                  value={option.value}
+                  checked={goal === option.value}
+                  onChange={() => setGoal(option.value)}
+                />
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">{option.icon}</span>
+                  <span className="font-bold text-[var(--lx-ink)]">{option.label}</span>
+                </div>
+                <span className="mt-2 block text-xs leading-5 text-[var(--lx-muted)]">
+                  {option.description}
+                </span>
               </label>
             ))}
           </div>
         </div>
 
-        <fieldset className="mt-8 space-y-3">
-          <legend className="text-lg font-bold text-[var(--learn-ink)]">Where should we start?</legend>
-          <label className={`block cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${startingPoint === "beginner" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
-            <input className="mr-3" type="radio" name="starting-point" checked={startingPoint === "beginner"} onChange={() => setStartingPoint("beginner")} />
-            <span className="font-bold text-[var(--lx-ink)]">I’m new to English</span>
-            <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">Start with the practical A1 foundations lesson.</span>
-          </label>
-          <label className={`block cursor-pointer rounded-2xl border bg-[var(--lx-surface)] p-5 transition ${startingPoint === "start_check" ? "border-indigo-500 ring-2 ring-indigo-100" : "border-[var(--lx-border)] hover:border-indigo-300"}`}>
-            <input className="mr-3" type="radio" name="starting-point" checked={startingPoint === "start_check"} onChange={() => setStartingPoint("start_check")} />
-            <span className="font-bold text-[var(--lx-ink)]">I know some English</span>
-            <span className="mt-1 block text-sm leading-6 text-[var(--lx-muted)]">Take four quick questions for a provisional A1 or early A2 recommendation.</span>
-          </label>
-        </fieldset>
+        {/* 3. Starting Path Selection (A1 vs L-PDA Placement Assessment) */}
+        <div className="mt-10 space-y-4">
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--lx-ink)]">
+            3. Where should we start?
+          </h2>
 
-        {startingPoint === "start_check" && <fieldset className="mt-8 space-y-6 rounded-2xl border border-indigo-100 bg-[var(--lx-surface)] p-5"><legend className="px-2 text-lg font-bold text-[var(--learn-ink)]">Quick start check</legend>{startCheck.map((question, index) => <div key={question.prompt}><p className="font-semibold text-[var(--lx-ink)]">{index + 1}. {question.prompt}</p><div className="mt-3 grid gap-2">{question.options.map((option) => <label key={option.value} className={`cursor-pointer rounded-xl border p-3 text-sm ${placementAnswers[index] === option.value ? "border-indigo-500 bg-indigo-50" : "border-[var(--lx-border)]"}`}><input className="mr-3" type="radio" name={`placement-${index}`} checked={placementAnswers[index] === option.value} onChange={() => setPlacementAnswers((answers) => { const next = [...answers]; next[index] = option.value; return next; })} />{option.label}</label>)}</div></div>)}</fieldset>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* OPTION A: Placement Test (Recommended for anyone with prior knowledge) */}
+            <label
+              className={`relative flex cursor-pointer flex-col justify-between rounded-3xl border p-6 transition ${
+                startingPoint === "placement"
+                  ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-lg ring-2 ring-[var(--lx-primary)]/25"
+                  : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-primary)]/50"
+              }`}
+            >
+              <input
+                className="sr-only"
+                type="radio"
+                name="starting-point"
+                checked={startingPoint === "placement"}
+                onChange={() => setStartingPoint("placement")}
+              />
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-emerald-800">
+                    🎯 Recommended
+                  </span>
+                  <span className="text-2xl">🧠</span>
+                </div>
+                <h3 className="mt-3 text-lg font-black text-[var(--lx-ink)]">
+                  I know some English
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-[var(--lx-muted)]">
+                  Take our comprehensive <strong>Placement & Diagnostic Assessment (L-PDA)</strong> across 7 English skills (Listening, Speaking, Reading, Writing, Vocabulary, Grammar, Phonetics).
+                </p>
+                <div className="mt-4 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3 text-[11px] text-[var(--lx-muted)] space-y-1">
+                  <p className="font-bold text-[var(--lx-ink)]">✦ Multi-Skill Calibration (A1–C2)</p>
+                  <p>Includes live audio probes, acoustic speech analysis, and Dominican Spanish L1 transfer markers.</p>
+                </div>
+              </div>
+            </label>
 
-        {error && <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">{error}</p>}
+            {/* OPTION B: Absolute Beginner */}
+            <label
+              className={`relative flex cursor-pointer flex-col justify-between rounded-3xl border p-6 transition ${
+                startingPoint === "beginner"
+                  ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-lg ring-2 ring-[var(--lx-primary)]/25"
+                  : "border-[var(--lx-border)] bg-[var(--lx-surface)] hover:border-[var(--lx-primary)]/50"
+              }`}
+            >
+              <input
+                className="sr-only"
+                type="radio"
+                name="starting-point"
+                checked={startingPoint === "beginner"}
+                onChange={() => setStartingPoint("beginner")}
+              />
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-indigo-50 border border-indigo-200 px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-indigo-700">
+                    A1 Foundations
+                  </span>
+                  <span className="text-2xl">🌱</span>
+                </div>
+                <h3 className="mt-3 text-lg font-black text-[var(--lx-ink)]">
+                  I’m new to English
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-[var(--lx-muted)]">
+                  Start from the absolute basics with practical A1 Foundations: real greetings, introducing yourself, and core conversational phrases.
+                </p>
+                <div className="mt-4 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3 text-[11px] text-[var(--lx-muted)] space-y-1">
+                  <p className="font-bold text-[var(--lx-ink)]">✦ Lesson 1: Real Introductions</p>
+                  <p>Step-by-step interactive exercises without skipping prerequisite vocabulary.</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
 
-        <div className="mt-8 rounded-2xl bg-slate-950 p-6 text-white">
-          <p className="font-bold">{startingPoint === "beginner" ? "Your first lesson: Introduce yourself" : "Your next lesson is based on your start check"}</p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">{startingPoint === "beginner" ? "You will greet someone, say your name, practise a clear spoken introduction, and create a real two-sentence message." : "Your answers create a provisional recommendation. Future speaking and listening evidence can refine your path."}</p>
-          <Button type="button" onClick={startLearning} disabled={submitting || (startingPoint === "start_check" && placementAnswers.length !== startCheck.length)} className="mt-5 rounded-xl bg-teal-400 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-500">{submitting ? "Creating your path…" : startingPoint === "beginner" ? "Start my A1 lesson" : "Get my recommendation"}</Button>
+        {error && (
+          <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-800">
+            {error}
+          </div>
+        )}
+
+        {/* Action Panel */}
+        <div className="mt-10 rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 text-white shadow-xl sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-cyan-300">
+                {startingPoint === "placement" ? "🎯 Diagnostic Placement" : "🌱 Foundations Starting Point"}
+              </p>
+              <h3 className="mt-1 text-xl font-black">
+                {startingPoint === "placement"
+                  ? "Launch Placement & Diagnostic Assessment (L-PDA)"
+                  : "Begin Lesson 1: Introduce Yourself"}
+              </h3>
+              <p className="mt-1 text-xs text-indigo-100 max-w-lg leading-relaxed">
+                {startingPoint === "placement"
+                  ? "Evaluates your listening, phonetics, and grammar in 5–8 minutes to unlock your calibrated course and custom learner model."
+                  : "Jump straight into your first structured lesson and start earning momentum rewards."}
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handleStart}
+              disabled={submitting}
+              className="whitespace-nowrap rounded-2xl px-7 py-4 text-sm font-black shadow-lg transition hover:brightness-110"
+            >
+              {submitting
+                ? "Launching…"
+                : startingPoint === "placement"
+                ? "Start Placement Test (L-PDA) →"
+                : "Start my A1 lesson →"}
+            </Button>
+          </div>
         </div>
       </section>
     </main>

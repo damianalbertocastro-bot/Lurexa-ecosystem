@@ -21,7 +21,7 @@ export async function POST(request: Request): Promise<Response> {
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
     const body: unknown = await request.json();
     const payload = typeof body === "object" && body !== null && !Array.isArray(body)
-      ? body as { goal?: unknown; placementAnswers?: unknown }
+      ? body as { goal?: unknown; dialect?: unknown; placementAnswers?: unknown }
       : {};
     const goal = payload.goal;
 
@@ -38,6 +38,7 @@ export async function POST(request: Request): Promise<Response> {
       learnerId: actor.uid,
       email: actor.email,
       goal: goal as SelfPacedGoal,
+      dialect: typeof payload.dialect === "string" ? payload.dialect : undefined,
       ...(answers ? { placementAnswers: answers as PlacementAnswer[] } : {}),
     }), { status: 201 });
   } catch (error) {

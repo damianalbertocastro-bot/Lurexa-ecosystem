@@ -139,13 +139,80 @@ export default function CoachStudioPage() {
     }
   };
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      void handleSendTurn(learnerInput || "Good morning, thank you for your assistance today.");
-    } else {
+  const recognitionRef = useRef<any>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const startListening = async () => {
+    try {
+      if (typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRec();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
+
+        recognition.onresult = (event: any) => {
+          let currentTranscript = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          if (currentTranscript.trim()) {
+            setLearnerInput(currentTranscript.trim());
+          }
+        };
+
+        recognition.onerror = (e: any) => {
+          console.warn("Speech recognition error:", e);
+        };
+
+        recognition.onend = () => {
+          setIsRecording(false);
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        streamRef.current = stream;
+      }
+
       setIsRecording(true);
       playClick();
+    } catch (micErr) {
+      console.warn("Microphone access unavailable, using simulated voice input:", micErr);
+      setIsRecording(true);
+      playClick();
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // safe
+      }
+      recognitionRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setIsRecording(false);
+    playSuccess();
+
+    if (learnerInput.trim()) {
+      void handleSendTurn(learnerInput.trim());
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopListening();
+    } else {
+      void startListening();
     }
   };
 
@@ -272,7 +339,7 @@ export default function CoachStudioPage() {
 
             {/* Minimal Pair Drill Generator */}
             {currentL1Profile?.remediationStrategies && currentL1Profile.remediationStrategies.length > 0 && (
-              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-900/30 p-4 space-y-2.5">
+              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 dark:bg-indigo-950/40 dark:border-indigo-800/50 p-4 space-y-2.5">
                 <p className="text-xs font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">
                   ⚡ Minimal Pair Drill
                 </p>
@@ -282,10 +349,10 @@ export default function CoachStudioPage() {
                       key={idx}
                       type="button"
                       onClick={() => void handleSendTurn(`${drill.wordA} and ${drill.wordB}`)}
-                      className="flex flex-col items-center justify-center rounded-xl border border-indigo-200 bg-[var(--lx-surface)] p-2.5 text-center text-xs font-bold text-[var(--lx-ink)] shadow-2xs hover:border-[var(--lx-primary)] transition"
+                      className="flex flex-col items-center justify-center rounded-xl border border-indigo-200 dark:border-indigo-700 bg-[var(--lx-surface)] p-2.5 text-center text-xs font-bold text-[var(--lx-ink)] shadow-2xs hover:border-[var(--lx-primary)] transition"
                     >
                       <span className="text-[var(--lx-primary)] font-extrabold">{drill.wordA} vs {drill.wordB}</span>
-                      <span className="font-mono text-[10px] text-[var(--lx-muted)]">{drill.ipaA} · {drill.ipaB}</span>
+                      <span className="font-mono text-[10px] text-[var(--lx-muted)] dark:text-slate-200">{drill.ipaA} · {drill.ipaB}</span>
                     </Button>
                   ))}
                 </div>
@@ -294,7 +361,7 @@ export default function CoachStudioPage() {
           </article>
 
           {activeCoachingCue && (
-            <article className="rounded-3xl border border-amber-200 bg-amber-50/80 p-6 dark:bg-amber-950/20 dark:border-amber-900/30 animate-fade-slide-up">
+            <article className="rounded-3xl border border-amber-200 bg-amber-50/80 p-6 dark:bg-amber-950/40 dark:border-amber-800/60 animate-fade-slide-up">
               <p className="text-[10px] font-black uppercase tracking-[.18em] text-amber-800 dark:text-amber-300">
                 COACHING CUE
               </p>
@@ -304,11 +371,11 @@ export default function CoachStudioPage() {
             </article>
           )}
 
-          <article className="rounded-3xl border border-teal-200 bg-teal-50/60 p-6 dark:bg-teal-950/20 dark:border-teal-900/30">
+          <article className="rounded-3xl border border-teal-200 bg-teal-50/60 p-6 dark:bg-teal-950/40 dark:border-teal-800">
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-teal-800 dark:text-teal-300">
               CORE EVIDENCE GUARANTEE
             </p>
-            <p className="mt-2 text-xs leading-5 text-teal-900 dark:text-teal-100">
+            <p className="mt-2 text-xs leading-5 text-teal-950 dark:text-white font-medium">
               Spoken turns in Coach update your continuous Learner Model in Core. Intelligibility scoring preserves authentic accent while optimizing clarity.
             </p>
           </article>
@@ -421,7 +488,7 @@ export default function CoachStudioPage() {
                 onClick={toggleRecording}
                 disabled={isRecording || sendingTurn}
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition ${
-                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-[var(--color-brand-navy)] hover:bg-[var(--lx-accent)]"
+                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-slate-900 font-bold hover:brightness-105"
                 }`}
                 title="Use Microphone"
               >
