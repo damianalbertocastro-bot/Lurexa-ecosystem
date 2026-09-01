@@ -17,6 +17,7 @@ import {
   ModelListeningActivity,
   RecordedSpeakingActivity,
 } from "./AdvancedLearningCapabilities";
+import { InteractiveGrammarCard } from "./InteractiveGrammarCard";
 import { Button } from "@lurexa/ui/button";
 
 type LessonPayload = {
@@ -586,6 +587,23 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
 
           const text = readText(block.data);
           if (block.type === "text" && text) {
+            const isGrammar =
+              block.data.category === "grammar" ||
+              text.includes("Grammar Focus") ||
+              block.id.includes("grammar");
+
+            if (isGrammar) {
+              return (
+                <InteractiveGrammarCard
+                  key={block.id}
+                  blockId={block.id}
+                  rawText={text}
+                  wrapperClass={blockWrapperClass}
+                  initialDialect="es-DO"
+                />
+              );
+            }
+
             return (
               <section
                 key={block.id}

@@ -62,9 +62,30 @@ function lessonContentBlocks(): ContentBlock[] {
       },
     },
     {
+      id: "a1-grammar-section",
+      type: "text",
+      order: 3,
+      data: {
+        category: "grammar",
+        text:
+          `### 📖 Grammar Focus: Subject Pronouns & Verb 'To Be' (First Introductions)\n\n` +
+          `**Structural Formula:**\n\`[Subject Pronoun] + [Verb 'to be' (am/is/are)] + [Name / Adjective / Origin]\`\n\n` +
+          `**Explanation & Usage:**\nIn English, introducing yourself and stating your identity requires the verb 'to be'. We frequently contract 'I am' into 'I'm' and 'What is' into 'What's' in natural conversational speech.\n\n` +
+          `**Forms Breakdown:**\n` +
+          `• *Affirmative:* I am (I'm) Carlos. / She is (She's) Elena.\n` +
+          `• *Negative:* I am not (I'm not) a teacher; I am a student.\n` +
+          `• *Question:* What is (What's) your name? / Are you from Santiago?\n\n` +
+          `**💡 Dominican & Spanish Transfer Tip:**\nIn Spanish, you can drop the subject pronoun (*"Soy Carlos"* / *"Es de La Vega"*). English strictly requires an explicit subject pronoun in every sentence (*"I am Carlos"*, never *"Am Carlos"* ❌). Always include 'I', 'You', 'He', 'She', 'It', 'We', or 'They'.\n\n` +
+          `**Practical Examples in Context:**\n` +
+          `• "Hello! I'm Luis, and I live in Santo Domingo."\n` +
+          `• "Hi, my name is Maria. Nice to meet you."\n` +
+          `• "This is my friend Carlos. He is from Puerto Plata."`,
+      },
+    },
+    {
       id: "a1-listening-check",
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -85,7 +106,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-greeting-response",
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         activity: {
           schemaVersion: "1",
@@ -106,7 +127,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-build-introduction",
       type: "interactive",
-      order: 5,
+      order: 6,
       data: {
         activity: {
           schemaVersion: "1",
@@ -127,7 +148,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-recorded-speaking",
       type: "interactive",
-      order: 6,
+      order: 7,
       data: {
         capability: {
           schemaVersion: "1",
@@ -151,7 +172,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-ai-roleplay",
       type: "interactive",
-      order: 7,
+      order: 8,
       data: {
         capability: {
           schemaVersion: "1",
@@ -180,7 +201,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-intro-check",
       type: "quiz_embed",
-      order: 8,
+      order: 9,
       data: {
         prompt: "Which sentence introduces your name?",
         options: ["I’m Daniela.", "Nice yesterday.", "I am fine name."],
@@ -191,7 +212,7 @@ function lessonContentBlocks(): ContentBlock[] {
     {
       id: "a1-create-apply",
       type: "interactive",
-      order: 9,
+      order: 10,
       data: {
         activity: {
           schemaVersion: "1",
@@ -230,17 +251,103 @@ type A1LessonBlueprint = {
   competencies: string[];
   order: number;
   roleplayTurns?: [number, number];
-  /** Defaults preserve the short A1 speaking-practice window. */
   spokenDuration?: {
     minimumSeconds: number;
     maximumSeconds: number;
   };
 };
 
+function getBlueprintGrammar(spec: A1LessonBlueprint): { concept: string; formula: string; explanation: string; affirmative: string; negative: string; question: string; l1Tip: string; examples: string[] } {
+  if (spec.id.includes("name")) {
+    return {
+      concept: "First Names & Introductions with 'I am / My name is'",
+      formula: "I am (I'm) + [Name] | My name is + [Name] | What's your name?",
+      explanation: "Use 'I'm' or 'My name is' to state your identity clearly. Ask 'What's your name?' to invite the other person to share.",
+      affirmative: "Hello, I'm Maya. / My name is Joel.",
+      negative: "My name is not Maria; I'm Maya.",
+      question: "What is (What's) your name?",
+      l1Tip: "In Spanish, people say 'Me llamo...'. In English, use 'I am...' or 'My name is...'. Always include 'I' ('I am Luis', not *'Am Luis'*).",
+      examples: ["Hi, I'm Alex. What's your name?", "My name is Joel. Nice to meet you."],
+    };
+  }
+  if (spec.id.includes("countries") || spec.id.includes("identity")) {
+    return {
+      concept: "Stating Origin with 'from' & Verb 'to be'",
+      formula: "[Subject] + [Verb 'to be'] + [from + Country/City]",
+      explanation: "Use 'to be + from' to express geographic origin. Use 'Where are you from?' for polite inquiries.",
+      affirmative: "I am from the Dominican Republic. She is from Brazil.",
+      negative: "I am not from Mexico; I am from the Dominican Republic.",
+      question: "Where are you from? / Is David from Brazil?",
+      l1Tip: "Remember the preposition 'from' (de). Spanish: 'Soy de Santo Domingo' -> English: 'I am from Santo Domingo'.",
+      examples: ["Where are you from? I'm from Santiago.", "David is from the Dominican Republic."],
+    };
+  }
+  if (spec.id.includes("be-questions")) {
+    return {
+      concept: "Yes/No Questions & Short Answers with 'to be'",
+      formula: "Question: [Am / Are / Is] + [Subject] + [Origin / Adjective]? | Short Answer: Yes, [Subject] + [be] / No, [Subject] + [be] not",
+      explanation: "In English questions with the verb 'to be', invert the word order: place the verb BEFORE the subject pronoun.",
+      affirmative: "Yes, I am from Santo Domingo. / Yes, she is.",
+      negative: "No, I'm not from Santo Domingo; I'm from Santiago.",
+      question: "Are you from Santo Domingo? / Is she a student?",
+      l1Tip: "In Spanish, questions only change intonation ('¿Tú eres de Santiago?'). In English, you MUST invert the verb: 'Are you from Santiago?'",
+      examples: ["Are you a student? Yes, I am.", "Is he from La Romana? No, he isn't."],
+    };
+  }
+  if (spec.id.includes("student-worker") || spec.id.includes("profile")) {
+    return {
+      concept: "Indefinite Articles 'a / an' with Professions & Roles",
+      formula: "[Subject] + [Verb 'to be'] + [a / an] + [Singular Occupation]",
+      explanation: "In English, singular professions MUST take 'a' (before consonant sounds: a teacher, a student) or 'an' (before vowel sounds: an engineer, an artist).",
+      affirmative: "I am a design student. / Carla is a nurse.",
+      negative: "I am not an engineer; I am an architect.",
+      question: "Are you a student? / What is her job?",
+      l1Tip: "Spanish says 'Soy estudiante' (WITHOUT article). English strictly requires 'a/an': 'I am A student' (never *'I am student'* ❌).",
+      examples: ["I'm a nurse at the hospital.", "Miguel is a design student in Santo Domingo."],
+    };
+  }
+  if (spec.id.includes("spell") || spec.id.includes("alphabet") || spec.id.includes("repeat")) {
+    return {
+      concept: "Polite Clarification & Spelling Requests ('Can you...?', 'How do you...?')",
+      formula: "How do you spell + [Word/Name]? | Can you repeat that, please?",
+      explanation: "Use modal 'can' and polite marker 'please' to request repetition or spelling without disrupting communication flow.",
+      affirmative: "My name is spelled O-M-A-R.",
+      negative: "Sorry, I didn't catch that. Could you say it again?",
+      question: "How do you spell your first name? / Can you repeat that, please?",
+      l1Tip: "English letter names differ significantly from Spanish (E = /iː/, I = /aɪ/, A = /eɪ/). Practice distinguishing these vowels.",
+      examples: ["How do you spell your last name? P-E-R-E-Z.", "Sorry? Can you repeat that, please?"],
+    };
+  }
+  return {
+    concept: `Language Architecture: ${spec.title}`,
+    formula: "[Subject] + [Verb] + [Key Information]",
+    explanation: `Use structured English phrases to achieve your communication goal: "${spec.mission}".`,
+    affirmative: spec.dialogue.split("\n")[0] ?? "Hello, nice to meet you.",
+    negative: "Ensure clear sentence boundaries without dropping the subject pronoun.",
+    question: spec.listeningPrompt,
+    l1Tip: "Always include explicit subject pronouns in English and practice natural connected phrasing.",
+    examples: [spec.dialogue.split("\n")[0] ?? "Hello, nice to meet you."],
+  };
+}
+
 function structuredA1Lesson(spec: A1LessonBlueprint): Lesson {
   const prefix = spec.id;
   const [minimumTurns, maximumTurns] = spec.roleplayTurns ?? [2, 5];
   const { minimumSeconds = 3, maximumSeconds = 45 } = spec.spokenDuration ?? {};
+  const grammar = getBlueprintGrammar(spec);
+
+  const grammarText =
+    `### 📖 Grammar Focus: ${grammar.concept}\n\n` +
+    `**Structural Formula:**\n\`${grammar.formula}\`\n\n` +
+    `**Explanation & Usage:**\n${grammar.explanation}\n\n` +
+    `**Forms Breakdown:**\n` +
+    `• *Affirmative:* ${grammar.affirmative}\n` +
+    `• *Negative:* ${grammar.negative}\n` +
+    `• *Question:* ${grammar.question}\n\n` +
+    `**💡 Dominican & Spanish Transfer Tip:**\n${grammar.l1Tip}\n\n` +
+    `**Practical Examples in Context:**\n` +
+    grammar.examples.map((ex) => `• "${ex}"`).join("\n");
+
   return {
     id: spec.id,
     moduleId: spec.moduleId,
@@ -251,19 +358,37 @@ function structuredA1Lesson(spec: A1LessonBlueprint): Lesson {
     contentBlocks: [
       { id: `${prefix}-mission`, type: "text", order: 1, data: { text: `Mission: ${spec.mission}\n\n${spec.dialogue}\n\nWork for meaning first. Then use the short English chunks in your own response.` } },
       { id: `${prefix}-listen`, type: "interactive", order: 2, data: { capability: { schemaVersion: "1", id: `${prefix}-model-listening`, kind: "model_listening", stage: "CONTEXTUAL_INPUT", title: "Listen for meaning", instructions: "Listen once without reading for every word. Listen again to notice the useful chunks.", competencyIds: spec.competencies, estimatedMinutes: 2, required: false, modelText: spec.dialogue, locale: "en-US", playbackGoal: "meaning" } } },
-      { id: `${prefix}-listen-check`, type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "COMPREHENSION", title: "Check what you heard", instructions: "Choose the answer from the short exchange.", prompt: spec.listeningPrompt, options: spec.listeningOptions, correctAnswers: [spec.listeningAnswer], explanation: `The exchange gives the answer: ${spec.listeningAnswer}`, competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
-      { id: `${prefix}-build`, type: "interactive", order: 4, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build the useful chunk", instructions: "Select the words in the natural order.", prompt: "Build the sentence for this situation.", options: spec.builder, correctAnswers: spec.builder, explanation: "Use this short chunk as a whole, then change the personal detail for yourself.", competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
-      { id: `${prefix}-speak`, type: "interactive", order: 5, data: { capability: { schemaVersion: "1", id: `${prefix}-recorded-speaking`, kind: "recorded_speaking", stage: "PHONETICS_FOCUS", title: "Say it clearly", instructions: "Record one short, meaningful response. Focus on understandable words, stress, and phrase endings—not accent erasure.", competencyIds: [...spec.competencies, "EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES"], estimatedMinutes: 3, required: true, prompt: spec.spokenPrompt, locale: "en-US", minimumSeconds, maximumSeconds, evidencePurpose: "performance" } } },
-      { id: `${prefix}-roleplay`, type: "interactive", order: 6, data: { capability: { schemaVersion: "1", id: `${prefix}-roleplay-capability`, kind: "ai_roleplay", stage: "CONVERSATION", title: "Use it in a short exchange", instructions: "Respond in your own words. The tutor remains at A1 and gives one useful correction only when it helps communication.", competencyIds: spec.competencies, estimatedMinutes: 4, required: true, cefr: "A1", language: "English", scenario: { role: spec.role, situation: spec.situation, learnerGoal: spec.goal, openingLine: spec.openingLine, minimumTurns, maximumTurns }, correctionPolicy: "post_turn_salient" } } },
-      { id: `${prefix}-quick-check`, type: "quiz_embed", order: 7, data: { prompt: spec.listeningPrompt, options: spec.listeningOptions, correctAnswer: spec.listeningAnswer, explanation: `The correct response is ${spec.listeningAnswer}.` } },
-      { id: `${prefix}-create`, type: "interactive", order: 8, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Create and apply", instructions: "Write a short, real response. You can change personal details to keep it comfortable and private.", prompt: spec.writingPrompt, explanation: "Your response is preserved as learner-generated evidence. Completion is not a mastery claim; the next activity can use it as a starting point.", competencyIds: [...spec.competencies, "EN.A1.WRITE.BASIC_FORM"], estimatedMinutes: 3, required: true } } },
+      { id: `${prefix}-grammar-section`, type: "text", order: 3, data: { category: "grammar", text: grammarText } },
+      { id: `${prefix}-listen-check`, type: "interactive", order: 4, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "COMPREHENSION", title: "Check what you heard", instructions: "Choose the answer from the short exchange.", prompt: spec.listeningPrompt, options: spec.listeningOptions, correctAnswers: [spec.listeningAnswer], explanation: `The exchange gives the answer: ${spec.listeningAnswer}`, competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
+      { id: `${prefix}-build`, type: "interactive", order: 5, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build the useful chunk", instructions: "Select the words in the natural order.", prompt: "Build the sentence for this situation.", options: spec.builder, correctAnswers: spec.builder, explanation: "Use this short chunk as a whole, then change the personal detail for yourself.", competencyIds: spec.competencies, estimatedMinutes: 2, required: true } } },
+      { id: `${prefix}-speak`, type: "interactive", order: 6, data: { capability: { schemaVersion: "1", id: `${prefix}-recorded-speaking`, kind: "recorded_speaking", stage: "PHONETICS_FOCUS", title: "Say it clearly", instructions: "Record one short, meaningful response. Focus on understandable words, stress, and phrase endings—not accent erasure.", competencyIds: [...spec.competencies, "EN.A1.PHON.INTELLIGIBLE_CORE_PHRASES"], estimatedMinutes: 3, required: true, prompt: spec.spokenPrompt, locale: "en-US", minimumSeconds, maximumSeconds, evidencePurpose: "performance" } } },
+      { id: `${prefix}-roleplay`, type: "interactive", order: 7, data: { capability: { schemaVersion: "1", id: `${prefix}-roleplay-capability`, kind: "ai_roleplay", stage: "CONVERSATION", title: "Use it in a short exchange", instructions: "Respond in your own words. The tutor remains at A1 and gives one useful correction only when it helps communication.", competencyIds: spec.competencies, estimatedMinutes: 4, required: true, cefr: "A1", language: "English", scenario: { role: spec.role, situation: spec.situation, learnerGoal: spec.goal, openingLine: spec.openingLine, minimumTurns, maximumTurns }, correctionPolicy: "post_turn_salient" } } },
+      { id: `${prefix}-quick-check`, type: "quiz_embed", order: 8, data: { prompt: spec.listeningPrompt, options: spec.listeningOptions, correctAnswer: spec.listeningAnswer, explanation: `The correct response is ${spec.listeningAnswer}.` } },
+      { id: `${prefix}-create`, type: "interactive", order: 9, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Create and apply", instructions: "Write a short, real response. You can change personal details to keep it comfortable and private.", prompt: spec.writingPrompt, explanation: "Your response is preserved as learner-generated evidence. Completion is not a mastery claim; the next activity can use it as a starting point.", competencyIds: [...spec.competencies, "EN.A1.WRITE.BASIC_FORM"], estimatedMinutes: 3, required: true } } },
     ],
   };
 }
 
 function a1StarterCourse(now: string): { course: Course; modules: Module[]; lessons: Lesson[]; entryLesson: Lesson } {
   const unitOneNames = structuredA1Lesson({
-    id: "a1-ask-your-name", moduleId: MODULE_ID, title: "What's your name?", summary: "Say your name, ask another person's name, and complete a two-way exchange.", mission: "I can say my name and ask another person's name.", dialogue: "Maya: Hi, I'm Maya. What's your name?\nJoel: I'm Joel. Nice to meet you.\nMaya: Nice to meet you too.", listeningPrompt: "What is the second person's name?", listeningOptions: ["Joel", "Maya", "Carlos"], listeningAnswer: "Joel", builder: ["My", "name", "is", "Ana."], spokenPrompt: "Say your name and ask, ‘What's your name?’", role: "a new classmate", situation: "You meet before an English class.", goal: "Say your name, ask for a name, and close politely.", openingLine: "Hi! I'm Maya. What's your name?", writingPrompt: "Write a two-line name exchange for two new classmates.", competencies: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.SPEAK.ASK_PERSONAL_QUESTIONS", "EN.A1.CONV.GREETING_EXCHANGE"], order: 2,
+    id: "a1-ask-your-name",
+    moduleId: MODULE_ID,
+    title: "What's your name?",
+    summary: "Say your name, ask another person's name, and complete a two-way exchange.",
+    mission: "I can say my name and ask another person's name.",
+    dialogue: "Maya: Good morning! I'm Maya. Are you new here too?\nJoel: Hey Maya! Yes, I'm Joel. It's really nice to meet you.\nMaya: Great to meet you too, Joel! Welcome to our class.",
+    listeningPrompt: "What is the name of the new student?",
+    listeningOptions: ["Joel", "Maya", "Carlos"],
+    listeningAnswer: "Joel",
+    builder: ["My", "name", "is", "Ana."],
+    spokenPrompt: "Say your name and ask, ‘What's your name?’",
+    role: "a friendly new classmate",
+    situation: "You meet before an English class in Santo Domingo.",
+    goal: "Say your name, ask for a name, and close politely.",
+    openingLine: "Hi there! I'm Maya. Are you in this class too? What's your name?",
+    writingPrompt: "Write a short natural introduction exchange between two new classmates.",
+    competencies: ["EN.A1.SPEAK.INTRODUCE_SELF", "EN.A1.SPEAK.ASK_PERSONAL_QUESTIONS", "EN.A1.CONV.GREETING_EXCHANGE"],
+    order: 2,
   });
   const countries = structuredA1Lesson({
     id: "a1-countries-identity", moduleId: "english-a1-who-am-i", title: "Where are you from?", summary: "Share and understand a country of origin in a short exchange.", mission: "I can say where I am from and ask where another person is from.", dialogue: "Rosa: Where are you from?\nDavid: I'm from the Dominican Republic. And you?\nRosa: I'm from Brazil.", listeningPrompt: "Where is David from?", listeningOptions: ["The Dominican Republic", "Brazil", "Mexico"], listeningAnswer: "The Dominican Republic", builder: ["I'm", "from", "the", "Dominican Republic."], spokenPrompt: "Say where you are from. You may use a real or practice country.", role: "a friendly student", situation: "You are sharing basic information before a class activity.", goal: "Ask and answer where someone is from, then ask one follow-up question.", openingLine: "Hello! Where are you from?", writingPrompt: "Write a short profile line with a name and country. Use a practice identity if you prefer.", competencies: ["EN.A1.LISTEN.PERSONAL_INFORMATION", "EN.A1.VOCAB.IDENTITY", "EN.A1.CONV.ASK_ANSWER_BASIC_QUESTIONS"], order: 1,
@@ -313,13 +438,31 @@ function a2StarterCourse(now: string): { course: Course; module: Module; lesson:
     summary: "Invite someone, suggest a time, and respond to a plan.",
     contentBlocks: [
       { id: "a2-plan-text", type: "text", order: 1, data: { text: "Mission: make a simple plan with a friend.\n\nSofía: Are you free on Saturday?\nMateo: Yes, I am. What are you going to do?\nSofía: I’m going to visit the Malecón. Do you want to come?\nMateo: Sure! Let’s meet at three.\n\nUse Are you free…? to invite someone. Use going to for a plan." } },
-      { id: "a2-plan-response", type: "interactive", order: 2, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "GUIDED_PRACTICE", title: "Respond to an invitation", instructions: "Choose the most natural response.", prompt: "A friend says: “Do you want to come to the park?”", options: ["Sure, I’d like to.", "I am going yesterday.", "Nice to meet Saturday."], correctAnswers: ["Sure, I’d like to."], explanation: "Sure, I’d like to is a natural way to accept an invitation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
-      { id: "a2-plan-builder", type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build a plan", instructions: "Select the words in the correct order.", prompt: "Make a sentence about your plan.", options: ["I’m", "going", "to", "call", "my friend."], correctAnswers: ["I’m", "going", "to", "call", "my friend."], explanation: "Use I’m going to + verb to talk about a plan.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
-      { id: "a2-plan-check", type: "quiz_embed", order: 4, data: { prompt: "Which question asks about a future plan?", options: ["What are you going to do?", "Where you yesterday?", "Nice to meet plan."], correctAnswer: "What are you going to do?", explanation: "What are you going to do? asks about a future plan." } },
-      { id: "a2-plan-create-apply", type: "interactive", order: 5, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Invite a friend", instructions: "Write two or three sentences. Invite someone, say what you are going to do, and suggest a time.", prompt: "Write a short message to make a plan with a friend.", explanation: "You created a practical invitation. Read it aloud to rehearse the conversation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN", "EN.A2.WRITE.PLAN_ARRANGEMENT"], estimatedMinutes: 3, required: true } } },
+      {
+        id: "a2-plan-grammar",
+        type: "text",
+        order: 2,
+        data: {
+          category: "grammar",
+          text:
+            `### 📖 Grammar Focus: Future Intentions with 'Going To' & Invitations\n\n` +
+            `**Structural Formula:**\n\`[Subject] + [Verb 'to be' (am/is/are)] + going to + [Base Verb]\`\n\n` +
+            `**Explanation & Usage:**\nUse 'be going to + verb' to express future plans and intentions that have already been decided.\n\n` +
+            `**Forms Breakdown:**\n` +
+            `• *Affirmative:* I am (I'm) going to visit the Malecón this weekend.\n` +
+            `• *Negative:* We are not (aren't) going to stay home on Saturday.\n` +
+            `• *Question:* What are you going to do on Sunday? / Are you free at three?\n\n` +
+            `**💡 Dominican & Spanish Transfer Tip:**\nSimilar to Spanish *"voy a + verbo"*, but never drop the auxiliary verb 'to be' (*"I going to visit"* ❌ -> *"I AM going to visit"* ✅).\n\n` +
+            `**Practical Examples:**\n• "Are you free on Saturday afternoon?"\n• "I'm going to meet my friends at three."\n• "Let's meet at the park entrance."`,
+        },
+      },
+      { id: "a2-plan-response", type: "interactive", order: 3, data: { activity: { schemaVersion: "1", type: "single_choice", stage: "GUIDED_PRACTICE", title: "Respond to an invitation", instructions: "Choose the most natural response.", prompt: "A friend says: “Do you want to come to the park?”", options: ["Sure, I’d like to.", "I am going yesterday.", "Nice to meet Saturday."], correctAnswers: ["Sure, I’d like to."], explanation: "Sure, I’d like to is a natural way to accept an invitation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-builder", type: "interactive", order: 4, data: { activity: { schemaVersion: "1", type: "sentence_builder", stage: "GUIDED_PRACTICE", title: "Build a plan", instructions: "Select the words in the correct order.", prompt: "Make a sentence about your plan.", options: ["I’m", "going", "to", "call", "my friend."], correctAnswers: ["I’m", "going", "to", "call", "my friend."], explanation: "Use I’m going to + verb to talk about a plan.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN"], estimatedMinutes: 2, required: true } } },
+      { id: "a2-plan-check", type: "quiz_embed", order: 5, data: { prompt: "Which question asks about a future plan?", options: ["What are you going to do?", "Where you yesterday?", "Nice to meet plan."], correctAnswer: "What are you going to do?", explanation: "What are you going to do? asks about a future plan." } },
+      { id: "a2-plan-create-apply", type: "interactive", order: 6, data: { activity: { schemaVersion: "1", type: "short_response", stage: "CREATE_APPLY", title: "Invite a friend", instructions: "Write two or three sentences. Invite someone, say what you are going to do, and suggest a time.", prompt: "Write a short message to make a plan with a friend.", explanation: "You created a practical invitation. Read it aloud to rehearse the conversation.", competencyIds: ["EN.A2.SPEAK.MAKE_PLAN", "EN.A2.WRITE.PLAN_ARRANGEMENT"], estimatedMinutes: 3, required: true } } },
     ],
     order: 1,
-    estimatedMinutes: 12,
+    estimatedMinutes: 14,
   };
   const module: Module = { id: A2_MODULE_ID, courseId: A2_COURSE_ID, title: "Everyday conversations", description: "Make plans and respond naturally in common situations.", order: 1, lessonIds: [A2_LESSON_ID] };
   const course: Course = { id: A2_COURSE_ID, orgId: ORGANIZATION_ID, authorId: "lurexa-system", title: "English A2 Everyday Conversations", description: "A practical starter path for learners with early English foundations.", subject: "english", status: "published", isTemplate: false, moduleIds: [A2_MODULE_ID], createdAt: now, updatedAt: now };
@@ -343,6 +486,7 @@ export async function onboardSelfPacedLearner(input: {
   learnerId: string;
   email: string | null;
   goal: SelfPacedGoal;
+  dialect?: string;
   placementAnswers?: PlacementAnswer[];
 }): Promise<SelfPacedOnboardingResult> {
   const database = getServerFirestore();
@@ -393,6 +537,8 @@ export async function onboardSelfPacedLearner(input: {
     profileReference.set({
       learnerId: input.learnerId,
       goals: [input.goal],
+      nativeLanguage: "es",
+      nativeDialect: input.dialect ?? "es-DO",
       onboarding: {
         path: input.placementAnswers ? "self-paced-start-check" : "self-paced-beginner",
         completedAt: now,

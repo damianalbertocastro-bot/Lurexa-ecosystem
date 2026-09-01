@@ -114,13 +114,13 @@ export function EcosystemDropdown({
   function navigate(event: MouseEvent<HTMLAnchorElement>, url: string, isCurrent = false) {
     setIsOpen(false);
     if (isCurrent || shouldUseNativeNavigation(event)) return;
-    event.preventDefault();
-    window.location.assign(url);
+    // Direct navigation to target ecosystem subdomain
+    window.location.href = url;
   }
 
   const buttonStyle = inverse
-    ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white"
-    : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] hover:border-[var(--lx-border)] focus-visible:ring-[var(--lx-secondary)]";
+    ? "border-white/20 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 focus-visible:ring-white"
+    : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] backdrop-blur-md hover:bg-[var(--lx-canvas)] hover:border-[var(--lx-secondary)] focus-visible:ring-[var(--lx-secondary)]";
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`} {...props}>
@@ -130,15 +130,15 @@ export function EcosystemDropdown({
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="Lurexa ecosystem navigation switcher"
-        className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-extrabold shadow-sm transition motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${buttonStyle}`}
+        className={`inline-flex min-h-10 items-center gap-2.5 rounded-xl border px-3.5 py-2 text-xs font-extrabold shadow-sm transition motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${buttonStyle}`}
       >
         <span className="grid h-5 w-5 place-items-center">
           <MasterMark compact size="sm" />
         </span>
-        <span className="hidden sm:inline">Ecosystem</span>
+        <span className="hidden sm:inline font-bold">Ecosystem</span>
         <svg
           aria-hidden="true"
-          className={`h-4 w-4 transition-transform motion-reduce:transition-none ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-[var(--lx-muted)] transition-transform motion-reduce:transition-none ${isOpen ? "rotate-180 text-[var(--lx-secondary)]" : ""}`}
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -155,20 +155,20 @@ export function EcosystemDropdown({
           role="menu"
           aria-orientation="vertical"
           aria-label="Lurexa ecosystem surfaces"
-          className={`absolute z-50 mt-2 w-80 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-2 shadow-[var(--lx-card-shadow)] focus:outline-none ${
+          className={`absolute z-[9999] mt-2 w-84 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/98 backdrop-blur-xl p-2.5 shadow-2xl ring-1 ring-black/5 focus:outline-none ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
-          <div className="border-b border-[var(--lx-border)] px-3 py-2.5">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-secondary)]">
+          <div className="border-b border-[var(--lx-border)] px-3.5 py-3">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-secondary)]">
               Lurexa Ecosystem
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[var(--lx-muted)]">
+            <p className="mt-1 text-xs font-medium text-[var(--lx-muted)]">
               One learner model across all connected surfaces.
             </p>
           </div>
 
-          <div className="mt-1 space-y-1">
+          <div className="mt-1.5 space-y-1">
             {APPS_CONFIG.map((app) => {
               const url = getEcosystemUrl(app.key);
               const isCurrent = app.key === currentApp;
@@ -178,21 +178,20 @@ export function EcosystemDropdown({
                   key={app.key}
                   href={url}
                   role="menuitem"
-                  rel="noreferrer"
                   aria-current={isCurrent ? "page" : undefined}
                   onClick={(event) => navigate(event, url, isCurrent)}
                   className={`group flex items-start gap-3 rounded-xl p-2.5 transition motion-reduce:transition-none ${
                     isCurrent
-                      ? "bg-[var(--lx-canvas)] text-[var(--lx-secondary)]"
+                      ? "bg-[var(--lx-canvas)] text-[var(--lx-secondary)] shadow-2xs"
                       : "text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-secondary)]"
                   }`}
                 >
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--lx-canvas)] shadow-sm ring-1 ring-[var(--lx-border)]">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--lx-canvas)] shadow-2xs ring-1 ring-[var(--lx-border)]">
                     <AppMark appKey={app.key} />
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs font-black tracking-[-0.01em]">
+                      <span className="text-xs font-black tracking-[-0.01em] text-[var(--lx-ink)] group-hover:text-[var(--lx-secondary)]">
                         {app.name}
                       </span>
                       {isCurrent ? (
@@ -200,7 +199,7 @@ export function EcosystemDropdown({
                           Current
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-[#8a9bbd] transition group-hover:translate-x-0.5 motion-reduce:transform-none">
+                        <span className="text-xs font-bold text-[var(--lx-muted)] transition group-hover:translate-x-0.5 group-hover:text-[var(--lx-secondary)] motion-reduce:transform-none">
                           ↗
                         </span>
                       )}

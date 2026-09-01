@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthService, MindRecommendationService } from "@lurexa/backend";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
@@ -49,12 +49,16 @@ const skillConfig: Record<PlacementSkill, { label: string; icon: string; badgeCo
   phonetics: { label: "Phonetics & Pronunciation", icon: "🗣️", badgeColor: "bg-amber-50 text-amber-800 border-amber-200" },
 };
 
-export default function PlacementPage() {
+function PlacementContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialGoal = searchParams.get("goal");
+  const autostart = searchParams.get("autostart");
+
   const { playClick } = useSoundEffects();
   const [authReady, setAuthReady] = useState(false);
   const [stage, setStage] = useState<"intro" | "testing" | "evaluating" | "results">("intro");
-  const [goal, setGoal] = useState<string>("daily_life");
+  const [goal, setGoal] = useState<string>(initialGoal || "daily_life");
   const [items, setItems] = useState<PlacementProbeItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -63,6 +67,7 @@ export default function PlacementPage() {
   const [result, setResult] = useState<PlacementDiagnosticResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
+
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged((user) => {
@@ -74,6 +79,13 @@ export default function PlacementPage() {
     });
     return unsubscribe;
   }, [router]);
+
+  useEffect(() => {
+    if (authReady && autostart === "1" && stage === "intro" && items.length === 0 && !loading) {
+      void startPlacement();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authReady, autostart]);
 
   async function startPlacement() {
     setLoading(true);
@@ -606,5 +618,20 @@ export default function PlacementPage() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+export default function PlacementPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <p className="mt-4 text-sm font-semibold text-[var(--lx-muted)]">Loading Placement Assessment…</p>
+        </div>
+      }
+    >
+      <PlacementContent />
+    </Suspense>
   );
 }

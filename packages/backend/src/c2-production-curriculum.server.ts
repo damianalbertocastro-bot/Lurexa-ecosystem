@@ -14,6 +14,22 @@ export interface C2ProductionCurriculumBundle {
 function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
   const lessonId = `c2-m${moduleData.order}-lesson-1`;
 
+  const grammarSection = moduleData.grammarSection;
+  const grammarText = grammarSection
+    ? `### 📖 Grammar Focus: ${grammarSection.conceptTitle}\n\n` +
+      `**Structural Formula:**\n\`${grammarSection.formula}\`\n\n` +
+      `**Sovereign Explanation & Classical Rhetorical Function:**\n${grammarSection.explanation}\n\n` +
+      `**Forms Breakdown:**\n` +
+      `• *Affirmative:* ${grammarSection.forms.affirmative}\n` +
+      `• *Negative:* ${grammarSection.forms.negative}\n` +
+      `• *Sovereign Inquest / Classical Inversion:* ${grammarSection.forms.question}\n\n` +
+      `**💡 Dominican & Spanish Transfer Tip:**\n${grammarSection.l1TransferTip}\n\n` +
+      `**Masterpiece Examples in Context:**\n` +
+      grammarSection.examples.map((ex) => `• "${ex}"`).join("\n")
+    : `### 📖 Grammar Focus: ${moduleData.title}\n\n` +
+      `**Rhetorical Device & Structure:** \`${moduleData.grammarStructures[0] ?? ""}\`\n\n` +
+      `**Usage Note:** Command classical rhetorical schemes, periodic sentences, and litotic subtext with sovereign native-level virtuosity.`;
+
   const blocks: ContentBlock[] = [
     {
       id: `${lessonId}-hook-mission`,
@@ -46,9 +62,18 @@ function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
       },
     },
     {
+      id: `${lessonId}-grammar-section`,
+      type: "text",
+      order: 3,
+      data: {
+        category: "grammar",
+        text: grammarText,
+      },
+    },
+    {
       id: `${lessonId}-comprehension-check`,
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -73,7 +98,7 @@ function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
     {
       id: `${lessonId}-language-noticing`,
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         activity: {
           schemaVersion: "1",
@@ -98,7 +123,7 @@ function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
     {
       id: `${lessonId}-create-apply`,
       type: "interactive",
-      order: 5,
+      order: 6,
       data: {
         activity: {
           schemaVersion: "1",
@@ -117,7 +142,7 @@ function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
     {
       id: `${lessonId}-quiz`,
       type: "interactive",
-      order: 6,
+      order: 7,
       data: {
         activity: {
           schemaVersion: "1",
@@ -142,7 +167,7 @@ function buildLessonFromModule(moduleData: C2ModuleData): Lesson {
     {
       id: `${lessonId}-reflection`,
       type: "text",
-      order: 7,
+      order: 8,
       data: {
         text: `Lesson Completed!\n\nYou have mastered: ${moduleData.title}.\nPhonetics target: ${moduleData.phoneticTargets.join("; ")}.\nEngage in spontaneous, unscripted high-stakes debates with Lurexa Coach!`,
       },
@@ -182,8 +207,8 @@ export function buildC2ProductionCurriculum(now: string = new Date().toISOString
     id: C2_PRODUCTION_COURSE_ID,
     orgId: ORGANIZATION_ID,
     authorId: "lurexa-system",
-    title: "English C2 Native-Like Mastery & Sovereign Fluency",
-    description: "Pinnacle 8-module mastery curriculum for international statesmanship, post-structuralist hermeneutics, spontaneous sociolect code-switching, classical oratory, and sovereign spoken eloquence.",
+    title: "English C2 Mastery & Sovereign Oratory",
+    description: "Sovereign 8-module track for high-stakes crisis mediation, philosophical hermeneutics, global sociolects, classical rhetorical virtuosity, and magnum opus defense.",
     subject: "english",
     status: "published",
     isTemplate: false,

@@ -42,6 +42,7 @@ export async function onboardProductionLearner(input: {
   learnerId: string;
   email: string | null;
   goal: SelfPacedGoal;
+  dialect?: string;
   placementAnswers?: PlacementAnswer[];
 }): Promise<SelfPacedOnboardingResult> {
   const result = await onboardSelfPacedLearner(input);

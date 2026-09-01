@@ -1,9 +1,13 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
+import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -23,7 +27,25 @@ export function CoachShell({
   active?: string;
   inverse?: boolean;
 }) {
+  const router = useRouter();
   const urls = resolveLurexaPublicUrls();
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = AuthService.onUserChanged((user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await AuthService.logout();
+      router.push("/login");
+    } catch {
+      router.push("/login");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] flex flex-col justify-between transition-colors duration-200">
@@ -70,18 +92,30 @@ export function CoachShell({
             <ThemeToggle />
             <EcosystemDropdown currentApp="coach" inverse={inverse} />
 
-            <Link
-              href="/login"
-              className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
-                inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
-              }`}
-            >
-              Sign in
-            </Link>
+            {currentUser ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
+                  inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
+                }`}
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
+                  inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
+                }`}
+              >
+                Sign in
+              </Link>
+            )}
 
             <Link
               href="/practice"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-4 py-2 text-xs font-black text-[var(--color-brand-navy)] shadow-sm transition hover:brightness-105 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-4 py-2 text-xs font-black text-slate-900 shadow-sm transition hover:brightness-105 active:scale-95"
             >
               <span>🎙️</span>
               <span className="hidden sm:inline">Quick Practice</span>

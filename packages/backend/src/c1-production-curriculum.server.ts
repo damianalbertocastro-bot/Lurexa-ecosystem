@@ -14,6 +14,22 @@ export interface C1ProductionCurriculumBundle {
 function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
   const lessonId = `c1-m${moduleData.order}-lesson-1`;
 
+  const grammarSection = moduleData.grammarSection;
+  const grammarText = grammarSection
+    ? `### 📖 Grammar Focus: ${grammarSection.conceptTitle}\n\n` +
+      `**Structural Formula:**\n\`${grammarSection.formula}\`\n\n` +
+      `**Theoretical Explanation & Syntactic Architecture:**\n${grammarSection.explanation}\n\n` +
+      `**Forms Breakdown:**\n` +
+      `• *Affirmative:* ${grammarSection.forms.affirmative}\n` +
+      `• *Negative:* ${grammarSection.forms.negative}\n` +
+      `• *Scholarly Inquiry / Inversion:* ${grammarSection.forms.question}\n\n` +
+      `**💡 Dominican & Spanish Transfer Tip:**\n${grammarSection.l1TransferTip}\n\n` +
+      `**Academic & Strategic Models in Context:**\n` +
+      grammarSection.examples.map((ex) => `• "${ex}"`).join("\n")
+    : `### 📖 Grammar Focus: ${moduleData.title}\n\n` +
+      `**Key Syntactic Architecture:** \`${moduleData.grammarStructures[0] ?? ""}\`\n\n` +
+      `**Usage Note:** Deploy sophisticated syntactic subordination, complex nominalization, and inverted structures with scholarly precision.`;
+
   const blocks: ContentBlock[] = [
     {
       id: `${lessonId}-hook-mission`,
@@ -46,9 +62,18 @@ function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
       },
     },
     {
+      id: `${lessonId}-grammar-section`,
+      type: "text",
+      order: 3,
+      data: {
+        category: "grammar",
+        text: grammarText,
+      },
+    },
+    {
       id: `${lessonId}-comprehension-check`,
       type: "interactive",
-      order: 3,
+      order: 4,
       data: {
         activity: {
           schemaVersion: "1",
@@ -73,7 +98,7 @@ function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
     {
       id: `${lessonId}-language-noticing`,
       type: "interactive",
-      order: 4,
+      order: 5,
       data: {
         activity: {
           schemaVersion: "1",
@@ -98,7 +123,7 @@ function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
     {
       id: `${lessonId}-create-apply`,
       type: "interactive",
-      order: 5,
+      order: 6,
       data: {
         activity: {
           schemaVersion: "1",
@@ -117,7 +142,7 @@ function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
     {
       id: `${lessonId}-quiz`,
       type: "interactive",
-      order: 6,
+      order: 7,
       data: {
         activity: {
           schemaVersion: "1",
@@ -142,7 +167,7 @@ function buildLessonFromModule(moduleData: C1ModuleData): Lesson {
     {
       id: `${lessonId}-reflection`,
       type: "text",
-      order: 7,
+      order: 8,
       data: {
         text: `Lesson Completed!\n\nYou have mastered: ${moduleData.title}.\nPhonetics target: ${moduleData.phoneticTargets.join("; ")}.\nEngage with Lurexa Coach for doctoral-level spoken defense and debate simulations!`,
       },
@@ -182,8 +207,8 @@ export function buildC1ProductionCurriculum(now: string = new Date().toISOString
     id: C1_PRODUCTION_COURSE_ID,
     orgId: ORGANIZATION_ID,
     authorId: "lurexa-system",
-    title: "English C1 Advanced & Academic Fluency",
-    description: "Doctoral-grade 8-module advanced course for academic epistemology, international diplomacy, abstract philosophy, executive rhetoric, and supreme spoken eloquence.",
+    title: "English C1 Advanced Fluency & Epistemic Mastery",
+    description: "Doctoral-level 8-module track for scholarly research synthesis, strategic diplomacy, bioethics, macroeconomic policy, and executive leadership.",
     subject: "english",
     status: "published",
     isTemplate: false,

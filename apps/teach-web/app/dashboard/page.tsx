@@ -187,7 +187,7 @@ export default function DashboardPage() {
               </p>
               <a
                 href={mind?.actionHref ?? "/growth"}
-                className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-white px-4 text-sm font-extrabold text-[var(--color-brand-navy)] shadow-md hover:bg-slate-100"
+                className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-white px-4 text-sm font-extrabold text-slate-900 shadow-md transition hover:bg-slate-100"
               >
                 {mind?.actionLabel ?? "Update growth profile"} →
               </a>

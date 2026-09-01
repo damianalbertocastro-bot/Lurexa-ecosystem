@@ -1,3 +1,5 @@
+import type { GrammarSectionData } from "@lurexa/types";
+
 export interface C2ModuleData {
   id: string;
   order: number;
@@ -6,6 +8,7 @@ export interface C2ModuleData {
   competencyIds: string[];
   vocabulary: string[];
   grammarStructures: string[];
+  grammarSection?: GrammarSectionData;
   phoneticTargets: string[];
   spokenPrompts: string[];
   createApplyTask: {
@@ -35,6 +38,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "Lest we fall into the trap of oversimplification, let us scrutinize what was left conspicuously unsaid.",
       "Not for a moment did the delegation accept the premise, courteous though their public rejoinder appeared.",
     ],
+    grammarSection: {
+      conceptTitle: "Syntactic Ellipsis, Litotic Negation & Asymmetrical Concessions ('courteous though it appeared')",
+      formula: "[Adjective / Adverb] + [though / as] + [Subject] + [Verb], [Main Assertion with Deliberate Lexical Ellipsis]",
+      explanation: "C2 diplomatic subtlety leverages fronted concessive inversions ('Courteous though their public rejoinder appeared...') paired with litotes (affirmation through denying the opposite, e.g. 'not unmindful of') and tactical syntactic ellipsis, expressing nuanced reservations without overt diplomatic friction.",
+      forms: {
+        affirmative: "Diplomatic though the communique remained, the underlying strategic ultimatum was unmistakable.",
+        negative: "The envoy was not unmindful of the historical grievances cited by the opposition delegation.",
+        question: "Lest we misinterpret the ambassador's circumspection, what subtle red lines were implicitly communicated?",
+      },
+      l1TransferTip: "Mastery of English litotes ('not insignificant', 'hardly unintended') allows Caribbean and international diplomats to calibrate tone with razor-sharp delicacy.",
+      examples: [
+        "Seldom has a policy document conveyed such profound strategic recalibration through mere syntactic omission.",
+        "Compelling though the rhetoric may seem, what was left conspicuously unsaid speaks volumes.",
+        "Lest negotiations stall irremediably, let us explore alternative sovereign demarcation options.",
+      ],
+    },
     phoneticTargets: ["Micro-pitch fluctuations conveying unspoken skepticism or subtle irony", "Acoustic attenuation in parenthetical asides"],
     spokenPrompts: [
       "Deliver a diplomatic communique expressing conditional dissent without causing diplomatic rupture.",
@@ -65,6 +84,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "Come what may, our mandate requires uncompromising adherence to statutory humanitarian conventions.",
       "It is imperative that the ceasefire agreement bear the multilateral imprimatur of all guarantor nations.",
     ],
+    grammarSection: {
+      conceptTitle: "Archaic & High-Register Jurisprudential Subjunctives ('Be it resolved that...', 'Come what may', 'Lest')",
+      formula: "Resolution: Be it + [resolved / enacted / stipulated] that + [Subject] + [Base Verb] | Adversative: Come what may, + [Sovereign Mandate]",
+      explanation: "International statesmanship and sovereign treaty arbitration utilize formal subjunctive constructs to impart irrevocable solemnity and multilateral binding power to diplomatic accords.",
+      forms: {
+        affirmative: "Be it resolved that all sovereign signatory states guarantee unhindered maritime transit through the neutral strait.",
+        negative: "Lest international arbitration fail, guarantor nations must enforce the established armistice line.",
+        question: "Come what may, how shall the tribunal ensure that sovereign boundary stipulations remain unassailable?",
+      },
+      l1TransferTip: "Archaic formal subjunctives ('Be it known', 'Lest it be forgotten') embody sovereign institutional gravitas in international jurisprudence.",
+      examples: [
+        "Be it enacted that all commercial embargoes be lifted conditionally upon verification of non-proliferation compliance.",
+        "Had neither delegation demonstrated statesmanship, the region would have succumbed to catastrophic armed confrontation.",
+        "Come what may, our collective commitment to global human security remains uncompromised.",
+      ],
+    },
     phoneticTargets: ["Commanding statesmanship timbre, resonant vocal projection, and authoritative terminal cadences"],
     spokenPrompts: [
       "Lead a plenary mediation session bringing two warring diplomatic delegations to a binding ceasefire.",
@@ -95,6 +130,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "The teleological argument, persuasive though it may seem at first blush, crumbles upon rigorous dialectical interrogation.",
       "Insofar as language constitutes our sole conduit to reality, every ontological assertion remains an act of interpretation.",
     ],
+    grammarSection: {
+      conceptTitle: "Correlative Negative Inversions ('No sooner had... than...', 'Hardly had... when...') & Insofar Clauses",
+      formula: "No sooner had + [Subject] + [Past Participle] + than + [Subject] + [Past Simple] | Insofar as + [Epistemic Premise], + [Main Thesis]",
+      explanation: "Hyper-complex dialectical critique deploys negative correlatives and proportional restrictive clauses ('Insofar as...', 'Inasmuch as...') to expose philosophical aporias, articulate structural epistemologies, and dismantle ontological assumptions with scholarly precision.",
+      forms: {
+        affirmative: "No sooner had the structuralist thesis been formulated than post-modern hermeneutics dismantled its metaphysical claims.",
+        negative: "Insofar as empirical data remains theory-laden, objective neutrality cannot be claimed without profound contradiction.",
+        question: "How does the dialectical tension between determinism and existential agency reshape our conception of human responsibility?",
+      },
+      l1TransferTip: "Note the strict pairing: 'No sooner had...' always pairs with 'than' (NOT 'when'); 'Hardly had...' and 'Scarcely had...' always pair with 'when'.",
+      examples: [
+        "Insofar as language constitutes our sole conduit to consciousness, every philosophical assertion remains inherently interpretive.",
+        "No sooner had the economic theory been codified than financial market volatility demonstrated its mathematical limits.",
+        "The ontological proof, elegant though it appeared, dissolved under rigorous dialectical interrogation.",
+      ],
+    },
     phoneticTargets: ["Sophisticated intellectual prosody, balanced clause momentum, and effortless multisyllabic fluency"],
     spokenPrompts: [
       "Deliver a philosophical exegesis resolving the dialectical tension between determinism and existential agency.",
@@ -125,6 +176,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "Far from being a sign of deficit, vernacular flexibility reflects the pinnacle of sociolinguistic competence.",
       "One moment she was citing Shakespearean sonnets, and the next she was exchanging lightning-fast banter in Jamaican Patois.",
     ],
+    grammarSection: {
+      conceptTitle: "Bilingual Code-Meshing, Polyphonic Registers & Sociolinguistic Inversion",
+      formula: "[Register Marker 1: Elevated Analytical Thesis] + [Discursive Pivot: Far from being X, Y is Z] + [Register Marker 2: Dialectal Vitality]",
+      explanation: "Sovereign C2 command embraces polyphony—the ability to shift seamlessly between global vernaculars, regional sociolects, and classical prose without hesitation, signaling authentic sociolinguistic dominance.",
+      forms: {
+        affirmative: "Far from being an obstacle to academic rigor, code-meshing enriches scholarly discourse with lived cultural authenticity.",
+        negative: "At no point did the orator compromise intelligibility while weaving Caribbean idioms into the keynote address.",
+        question: "How does fluid modulation across regional sociolects dismantle linguistic hierarchies in international diplomacy?",
+      },
+      l1TransferTip: "Rather than suppressing Caribbean or Dominican linguistic identity, true C2 mastery integrates authentic cultural voice with complete grammatical control across all global Englishes.",
+      examples: [
+        "Depending on the audience, the speaker transitioned effortlessly between Oxford debate cadence and vibrant Caribbean warmth.",
+        "Far from diminishing clarity, vernacular storytelling resonated deeply across the entire international delegation.",
+        "Linguistic sovereignty means choosing your register freely, powerfully, and with absolute communicative precision.",
+      ],
+    },
     phoneticTargets: ["Effortless acoustic flexibility across regional vowel shifts, glottal stops, and rhotic/non-rhotic cadences"],
     spokenPrompts: [
       "Perform a spontaneous 3-minute improvisation transitioning seamlessly across three distinct global English sociolects.",
@@ -155,6 +222,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "We have fought through the tempest, and through the shadows, and through the bitter cold, and we shall endure.",
       "Ask not what your country can do for you; ask what you can do for your country.",
     ],
+    grammarSection: {
+      conceptTitle: "Chiasmus, Antimetabole & Symmetrical Inverted Rhetorical Schemes",
+      formula: "Chiasmus: [Clause A: Subject 1 + Verb 1 + Object 1]; [Clause B: Object 1 (as Subject) + Verb 2 + Subject 1 (as Object)]",
+      explanation: "Classical rhetorical schemes structure unforgettable oratory: Antimetabole repeats exact words in inverted grammatical order ('Let us never negotiate out of fear, but let us never fear to negotiate'); Zeugma links one verb to two distinct semantic objects ('He opened his mind and his wallet'); Polysyndeton repeats conjunctions for cumulative dramatic crescendo.",
+      forms: {
+        affirmative: "A nation must not define its vision by its immediate crises; rather, it must overcome its crises through the clarity of its vision.",
+        negative: "Ask not what your community can surrender to fear; ask what your courage can build for your community.",
+        question: "How can classical chiasmic architecture elevate a ceremonial address into an enduring historic document?",
+      },
+      l1TransferTip: "Classical rhetorical schemes are rooted in Greco-Roman traditions shared by Spanish and English, allowing advanced bilingual speakers to craft breathtaking poetic oratory with sublime symmetrical balance.",
+      examples: [
+        "Let us never negotiate out of fear, but let us never fear to negotiate.",
+        "Through the storm, and through the silence, and through the sacrifice of generations, our people prevailed.",
+        "She commanded the courtroom with the power of her evidence and the serenity of her conviction.",
+      ],
+    },
     phoneticTargets: ["Mellifluous cadence control, theatrical vocal crescendo, and sublime metered pauses"],
     spokenPrompts: [
       "Deliver an original ceremonial oration commemorating an epochal historical milestone.",
@@ -185,6 +268,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "By adopting a multi-century temporal horizon, policymakers can transcend transient political cycles.",
       "Our fiduciary and civilizational responsibility mandates that we safeguard collective planetary equilibrium.",
     ],
+    grammarSection: {
+      conceptTitle: "Multi-Tiered Modal Stacking & Periodic Suspended Climax in Meta-Governance",
+      formula: "[Participial/Adverbial Pre-Condition 1] + [Concessive Sub-Clause 2] + [Epistemic Modality Stack] — [Definitive Institutional Resolution]",
+      explanation: "Meta-governance briefings synthesize complex civilizational risks by holding the final grammatical resolution in suspense until the conclusion of the periodic sentence, conveying monumental weight and strategic urgency.",
+      forms: {
+        affirmative: "Though technological advancement accelerates exponentially, though geopolitical consensus fractures, human ethical stewardship remains sovereign.",
+        negative: "Under no circumstances can the stewardship council permit autonomous weapon systems to deploy without human veto authority.",
+        question: "Should we fail to govern emerging general intelligence within planetary ethical boundaries, what civilizational recourse remains?",
+      },
+      l1TransferTip: "Mastering periodic sentence structures creates commanding intellectual authority before global oversight councils and international panels.",
+      examples: [
+        "It is not merely probable, but virtually inevitable that without multilateral safeguards, systemic technological risks will compound.",
+        "By adopting a fifty-year foresight paradigm, sovereign states can protect planetary resources for future generations.",
+        "Our fiduciary duty mandates that we balance exponential innovation with uncompromised human safety.",
+      ],
+    },
     phoneticTargets: ["Measured, gravitas-filled cadence, absolute acoustic stability, and unflinching clarity under pressure"],
     spokenPrompts: [
       "Present a century-horizon governance blueprint before a simulated Global Security and Foresight Council.",
@@ -215,6 +314,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "His contribution to the debate was laconic in length, yet devastatingly trenchant in effect.",
       "With a masterstroke of self-deprecating irony, the prime minister disarmed the entire opposition in a single sentence.",
     ],
+    grammarSection: {
+      conceptTitle: "Counter-Factual Irony, Hyperbolic Simile & Deadpan Subversion Schemes",
+      formula: "To suggest that [Understated Claim] is rather like describing [Catastrophic Historic Event] as having [Trivial Minor Inconvenience]",
+      explanation: "Elite intellectual wit and British understatement rely on deliberate syntactical disproportion—pairing astronomical crises with polite, trivial litotes to produce devastating comedic effect with a deadpan acoustic delivery.",
+      forms: {
+        affirmative: "To describe the company's total server meltdown as a 'minor technical glitch' is rather like describing an earthquake as mild vibration.",
+        negative: "I wouldn't dream of questioning your peerless expertise, although the mathematical evidence suggests otherwise.",
+        question: "Would it be terribly inconvenient if we adhered to the documented contractual timeline for once?",
+      },
+      l1TransferTip: "Deliver witty satirical punchlines with completely flat, calm pitch contours. The lack of acoustic giveaway is what gives deadpan English repartee its irresistible bite.",
+      examples: [
+        "To describe the negotiation as 'spirited' is an exquisite understatement for what was essentially a boardroom mutiny.",
+        "I would agree with your financial projection, but then we would both be defending an economic impossibility.",
+        "His rejoinder was laconic in length, yet devastatingly trenchant in outcome.",
+      ],
+    },
     phoneticTargets: ["Deadpan flat pitch contour delivering devastating satirical punchlines with zero acoustic giveaway"],
     spokenPrompts: [
       "Engage in a spontaneous 3-minute battle of wits and intellectual repartee with a formidable interlocutor.",
@@ -254,6 +369,22 @@ export const C2_MODULES_1_TO_8: C2ModuleData[] = [
       "The comprehensive, unedited evidence assembled across this grand capstone stands as definitive testament to my sovereign English mastery.",
       "I stand fully prepared to lead world summits, author definitive literature, and command the highest intellectual forums in English.",
     ],
+    grammarSection: {
+      conceptTitle: "Sovereign English Mastery & Transcendent Oratorical Synthesis",
+      formula: "Grand Magnum Opus Synthesis: Complete effortless mastery of all syntactic, phonetic, pragmatic, and rhetorical paradigms.",
+      explanation: "The C2 Grand Magnum Opus represents complete, unconstrained linguistic sovereignty. The speaker commands the entire syntactic and pragmatic architecture of the English language with effortless precision, natural resonance, and sovereign authority.",
+      forms: {
+        affirmative: "Having journeyed from foundational learning to sovereign C2 virtuosity, I command the English language with unshakeable authority.",
+        negative: "Never again shall linguistic boundaries constrain my intellectual ambition, creative expression, or international leadership.",
+        question: "How will your sovereign mastery of English empower your life, elevate your community, and inspire generations to come?",
+      },
+      l1TransferTip: "You are a sovereign English communicator whose native cultural background and bilingual brilliance enrich global English discourse.",
+      examples: [
+        "Having traversed this comprehensive curriculum, I stand as living proof of transformative, sovereign language mastery.",
+        "Not only do I wield English with the effortless grace of a native orator, but I also shape international discourse with authenticity.",
+        "What defines true mastery is the power to articulate truth, inspire action, and bridge human worlds across languages.",
+      ],
+    },
     phoneticTargets: ["Total acoustic perfection, transcendent prosodic fluidity, flawless resonance, and native-like vocal authority"],
     spokenPrompts: [
       "Deliver your 4-minute C2 Grand Magnum Opus Spoken Defense summarizing your life's linguistic transformation and intellectual sovereignty.",

@@ -83,7 +83,12 @@ export default function Home() {
   return <main className={styles.page}>
     <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
       <a className={styles.brand} href="#top" aria-label="Lurexa home"><MasterMark compact size="sm" /><span>Lurexa</span></a>
-      <div className={styles.navLinks}><a href="#products">Products</a><a href="#shared-intelligence">How it works</a><a href="#values">Values</a></div>
+      <div className={styles.navLinks}>
+        <a href="#products">Products</a>
+        <a href="#shared-intelligence">How it works</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+      </div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <EcosystemDropdown currentApp="root" />
         <a className={styles.navCta} href={learnUrl}>Enter Lurexa Learn <span>↗</span></a>
@@ -104,7 +109,7 @@ export default function Home() {
       </div>
     </section>
 
-    <section className={styles.trustBar} aria-label="Lurexa shared architecture">
+    <section id="shared-intelligence" className={styles.trustBar} aria-label="Lurexa shared architecture">
       <div><span className={styles.stepNumber}>01</span><b>Lurexa Core</b><p>Protects identity, access, and trusted learning records.</p></div>
       <span className={styles.flow}>→</span>
       <div><span className={styles.stepNumber}>02</span><b>Lurexa Mind</b><p>Interprets evidence to make learning intelligence useful.</p></div>
@@ -121,5 +126,55 @@ export default function Home() {
       <div className={styles.capabilitiesHeading}><p className={styles.kicker}>THE WIDER ECOSYSTEM</p><h2 id="capabilities-heading">Every capability speaks <em>the same visual language.</em></h2><p>These shared capabilities are being shaped as part of Lurexa’s ecosystem foundation. They are not separate promises; they make the product family more useful together.</p></div>
       <div className={styles.capabilityGrid}>{capabilities.map((capability) => <div className={styles.capability} key={capability.name}><CapabilityIcon name={capability.icon}/><span>{capability.name}</span><i>Planned</i></div>)}</div>
     </section>
+
+    <section id="about" className={styles.aboutSection} aria-labelledby="about-heading">
+      <div className={styles.sectionHeading}>
+        <p className={styles.kicker}>ABOUT LUREXA</p>
+        <h2 id="about-heading">Empowering learners and educators with <em>cohesive AI.</em></h2>
+        <p>Lurexa Learning Technologies builds pedagogical systems designed for real human fluency, professional educator growth, and verifiable credentials—grounded in cognitive science and contrastive linguistics.</p>
+      </div>
+      <div className={styles.aboutGrid}>
+        <article className={styles.aboutCard}>
+          <span className={styles.aboutNumber}>01</span>
+          <h3>One Learner Model</h3>
+          <p>Every lesson, spoken turn, quiz, and teacher observation updates a single persistent learner model in Core, ensuring learning never starts from zero.</p>
+        </article>
+        <article className={styles.aboutCard}>
+          <span className={styles.aboutNumber}>02</span>
+          <h3>Pedagogy First</h3>
+          <p>We prioritize communicative intelligibility, targeted phonetics remediation, and active retrieval practice over superficial gamification.</p>
+        </article>
+        <article className={styles.aboutCard}>
+          <span className={styles.aboutNumber}>03</span>
+          <h3>Educator Empowerment</h3>
+          <p>Through Lurexa Teach, educators receive dedicated CEFR progression, micro-credentials, and classroom insights to amplify their teaching impact.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" className={styles.contactSection} aria-labelledby="contact-heading">
+      <div className={styles.contactContainer}>
+        <div>
+          <p className={styles.kickerLight}>CONNECT WITH US</p>
+          <h2 id="contact-heading">Partner with Lurexa for your <em>institution or classroom.</em></h2>
+          <p className={styles.contactIntro}>Whether you are an educator, institutional leader, or enterprise partner, we would love to connect and discuss how Lurexa can support your language learning goals.</p>
+        </div>
+        <div className={styles.contactActions}>
+          <a className={styles.contactPrimaryCta} href="mailto:contact@lurexa.org">Email Our Team <span>✉</span></a>
+          <a className={styles.contactSecondaryCta} href={getEcosystemUrl("docs")}>Explore Documentation <span>↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <footer className={styles.footer}>
+      <div className={styles.footerBrand}>
+        <MasterMark compact size="sm" />
+        <span>Lurexa</span>
+      </div>
+      <p>© {new Date().getFullYear()} Lurexa Learning Technologies. All rights reserved.</p>
+      <div>
+        <a href="#about">About</a> · <a href="#contact">Contact</a> · <a href={getEcosystemUrl("docs")}>Docs</a>
+      </div>
+    </footer>
   </main>;
 }

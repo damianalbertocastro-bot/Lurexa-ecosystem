@@ -115,7 +115,7 @@ export default function CoachDashboardPage() {
     <CoachShell active="Dashboard">
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 space-y-8">
         {/* Top Greeting Header */}
-        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
+        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a1931] via-[#15274f] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function CoachDashboardPage() {
                   ✦ Welcome Tour
                 </Button>
               </div>
-              <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-4xl">
+              <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-4xl text-white">
                 {currentUser ? `Welcome back, ${currentUser.displayName || currentUser.email?.split("@")[0]}` : "Welcome to your Speaking Studio"}
               </h1>
               <p className="mt-2 text-sm text-indigo-100 max-w-2xl leading-relaxed">
@@ -145,12 +145,12 @@ export default function CoachDashboardPage() {
             <div className="flex items-center gap-3 sm:gap-4 rounded-2xl bg-white/10 border border-white/15 p-4 backdrop-blur-md">
               <div className="text-center px-2">
                 <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">STREAK</p>
-                <p className="text-xl sm:text-2xl font-black">🔥 Active</p>
+                <p className="text-xl sm:text-2xl font-black text-white">🔥 Active</p>
               </div>
               <div className="h-8 w-px bg-white/20" />
               <div className="text-center px-2">
                 <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">CEFR LEVEL</p>
-                <p className="text-xl sm:text-2xl font-black">{learnerCefr}</p>
+                <p className="text-xl sm:text-2xl font-black text-white">{learnerCefr}</p>
               </div>
               <div className="h-8 w-px bg-white/20" />
               <div className="text-center px-2">
@@ -167,7 +167,7 @@ export default function CoachDashboardPage() {
           <section className="space-y-8 lg:col-span-2">
             {/* Daily Recommended Session Card */}
             <Card
-              className="border-0 bg-white shadow-lg shadow-indigo-100/70"
+              className="border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md"
               title="Today's Recommended Speaking Review"
               subtitle="Daily Spaced-Repetition Queue · 10 Minutes"
               action={<Badge variant="info">Priority Queue</Badge>}

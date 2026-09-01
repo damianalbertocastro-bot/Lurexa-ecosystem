@@ -1,5 +1,6 @@
-export interface A1ModuleData {
+import type { GrammarSectionData } from "@lurexa/types";
 
+export interface A1ModuleData {
   id: string;
   order: number;
   title: string;
@@ -7,6 +8,7 @@ export interface A1ModuleData {
   competencyIds: string[];
   vocabulary: string[];
   grammarStructures: string[];
+  grammarSection?: GrammarSectionData;
   phoneticTargets: string[];
   spokenPrompts: string[];
   createApplyTask: {
@@ -31,6 +33,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["phone number", "clock", "morning", "afternoon", "Monday", "Friday", "quarter past", "half past", "dollars", "pesos"],
     grammarStructures: ["What time is it?", "It's at [time]", "How much is...?", "When do you...?"],
+    grammarSection: {
+      conceptTitle: "Prepositions of Time & Asking Questions with 'When' and 'What Time'",
+      formula: "[Preposition] + [Time Specificity] (at + clock time | on + days/dates | in + parts of day/months)",
+      explanation: "In English, we use specific prepositions for distinct time units: 'at' for precise clock times and moments (at 7:00, at noon, at night); 'on' for specific calendar days and dates (on Monday, on March 15th); and 'in' for longer periods and parts of the day (in the morning, in April, in 2026).",
+      forms: {
+        affirmative: "The bus departs at 7:30 AM on Monday morning.",
+        negative: "The class is not on Friday; it takes place on Wednesday.",
+        question: "What time does your English class start? / When is your meeting?",
+      },
+      l1TransferTip: "In Dominican Spanish, 'en' is often used for everything ('en la mañana', 'en lunes', 'en las tres'). In English, avoid saying 'in Monday' or 'in 3:00'. Always use 'on Monday' and 'at 3:00'.",
+      examples: [
+        "English class starts at 6:00 PM on Wednesdays.",
+        "My birthday is on October 24th.",
+        "I usually study in the evening after work.",
+      ],
+    },
     phoneticTargets: ["teen vs ty stress contrasts", "digit rhythm and chunking", "final -s on plural days"],
     spokenPrompts: [
       "Say your contact phone number and birth month clearly.",
@@ -57,6 +75,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["mother", "father", "brother", "sister", "friend", "coworker", "tall", "kind", "busy", "young"],
     grammarStructures: ["This is my [relative]", "His/Her name is...", "They are very [adjective]", "Who is she?"],
+    grammarSection: {
+      conceptTitle: "Possessive Adjectives (my, your, his, her, our, their) & the Saxon Genitive ('s)",
+      formula: "[Possessor] + ['s] + [Noun] OR [Possessive Adjective] + [Noun]",
+      explanation: "Possessive adjectives indicate ownership or relationships. 'His' refers to a male possessor (his mother = the mother of a male), while 'her' refers to a female possessor (her brother = the brother of a female). The Saxon genitive ('s) attaches directly to the possessor person.",
+      forms: {
+        affirmative: "This is Laura's brother. His name is Miguel, and he is very friendly.",
+        negative: "Carlos is not her coworker; he is her university classmate.",
+        question: "Is this your sister's notebook? / Who is his English teacher?",
+      },
+      l1TransferTip: "In Spanish, 'su' agrees with the noun possessed ('su madre' for his or her mother). In English, 'his' and 'her' agree with the gender of the owner: use 'his' for a man's family/belongings and 'her' for a woman's. Also replace 'the friend of Carlos' with 'Carlos's friend'.",
+      examples: [
+        "Maria is talking to her mother on the phone.",
+        "David and his sister live in Santiago.",
+        "That is my teacher's car.",
+      ],
+    },
     phoneticTargets: ["voiced vs voiceless final consonants in adjectives", "possessive -s endings (/s/, /z/, /ɪz/)"],
     spokenPrompts: [
       "Introduce your best friend or a family member to your teacher.",
@@ -82,6 +116,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["wake up", "take a shower", "have breakfast", "go to work", "study English", "cook dinner", "always", "usually", "sometimes"],
     grammarStructures: ["I wake up at...", "She works at...", "Do you usually have coffee?", "He doesn't eat breakfast."],
+    grammarSection: {
+      conceptTitle: "Present Simple for Daily Habits, Routines & 3rd Person Singular (-s/-es)",
+      formula: "[Subject (He/She/It)] + [Base Verb + -s/-es] | Negation: [Subject] + [do not / does not] + [Base Verb]",
+      explanation: "The Present Simple describes facts, regular habits, and daily recurring routines. For third-person singular subjects (he, she, it, single names), we add -s or -es to the base verb in affirmative statements. In negative sentences and questions, the auxiliary 'does / doesn't' carries the third-person marker, returning the main verb to base form.",
+      forms: {
+        affirmative: "I wake up at 6:30 AM, but my sister wakes up at 7:00 AM.",
+        negative: "He does not (doesn't) drink coffee in the evening.",
+        question: "Do you exercise before work? / What time does she start her shift?",
+      },
+      l1TransferTip: "In Dominican Spanish, final /s/ is often dropped in everyday speech ('él trabaja aquí'). In English, the third-person '-s' is crucial for grammatical agreement ('He works here'). Also, never negate with 'no' alone (*'He no work'*); always use 'doesn't + base verb'.",
+      examples: [
+        "Daniel works in an IT company in Santo Domingo.",
+        "We usually take the metro at eight o'clock.",
+        "She doesn't eat meat on weekdays.",
+      ],
+    },
     phoneticTargets: ["third person singular -s endings", "reduced prepositions 'at' and 'to'"],
     spokenPrompts: [
       "Describe your morning routine from waking up until arriving at work or class.",
@@ -107,6 +157,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["supermarket", "bank", "pharmacy", "bus stop", "next to", "across from", "between", "turn left", "go straight"],
     grammarStructures: ["Excuse me, where is the...?", "Is there a pharmacy near here?", "It's on Main Street next to the bank."],
+    grammarSection: {
+      conceptTitle: "Prepositions of Place (next to, across from, between, behind) & Direction Imperatives",
+      formula: "[Place A] + [is] + [Preposition of Place] + [Place B] | Imperative: [Base Verb] + [Direction/Location]",
+      explanation: "To describe exact spatial locations, use prepositions of place. 'Next to' indicates adjacency, 'across from' indicates facing on the opposite side of a street or plaza, and 'between' connects two flanking landmarks. For directions, use bare imperative verbs (Turn left, Walk two blocks, Go straight).",
+      forms: {
+        affirmative: "The pharmacy is across from the central park, next to the bank.",
+        negative: "The hospital is not near the metro station; it is three blocks away.",
+        question: "Is there a bank near here? / Where can I find the nearest bus stop?",
+      },
+      l1TransferTip: "Spanish 'frente a' means 'across from' or 'opposite' when across a street. Avoid using 'in front of' for buildings on opposite sides of a road ('in front of' means right at the front entrance).",
+      examples: [
+        "Go straight for two blocks and turn right on Duarte Avenue.",
+        "The supermarket is between the bakery and the clinic.",
+        "Excuse me, is there an ATM on this street?",
+      ],
+    },
     phoneticTargets: ["/θ/ in 'through' and 'north' without stopping to /t/", "syllable stress on compound place names"],
     spokenPrompts: [
       "Ask for directions to the nearest bank in a polite manner.",
@@ -132,6 +198,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["coffee", "water", "rice", "chicken", "salad", "menu", "bill", "delicious", "can I have", "I would like"],
     grammarStructures: ["I'd like a [item], please", "Can we have the check?", "Do you have any vegetarian options?", "How much is this?"],
+    grammarSection: {
+      conceptTitle: "Polite Request Modal ('Would like' / 'Could I have') & Countable vs. Uncountable Nouns",
+      formula: "[Subject] + [would like ('d like)] + [Noun / to Verb] | [Could / Can I have] + [Noun] + [please]?",
+      explanation: "In English service encounters, direct imperatives ('Give me coffee') sound harsh. We use the polite conditional 'would like' or modal requests 'Could I have / Can I have'. Countable nouns take 'a/an' or numbers (a sandwich, two coffees), while uncountable nouns take 'some' or measurement containers (some water, a bottle of water, a plate of rice).",
+      forms: {
+        affirmative: "I would like (I'd like) a black coffee and some water, please.",
+        negative: "We would not like any dessert right now, thank you.",
+        question: "Could we have the bill, please? / Would you like anything else to drink?",
+      },
+      l1TransferTip: "In Caribbean and Dominican Spanish, saying 'Dame un café' is completely warm and normal. In English, translating literally to 'Give me a coffee' feels demanding. Always use 'I'd like a coffee, please' or 'Could I get a coffee, please?'",
+      examples: [
+        "I'd like the grilled chicken with salad, please.",
+        "Could I have a glass of water with ice?",
+        "How much is the total with tax included?",
+      ],
+    },
     phoneticTargets: ["consonant-to-vowel linking ('can I', 'like a')", "polite intonation rise on requests"],
     spokenPrompts: [
       "Order your favorite Dominican or international lunch at a restaurant.",
@@ -157,6 +239,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
     ],
     vocabulary: ["listen to music", "watch movies", "play baseball", "dance bachata", "travel", "read books", "love", "don't like"],
     grammarStructures: ["I like playing...", "I love listening to...", "What do you do on weekends?", "Do you like dancing?"],
+    grammarSection: {
+      conceptTitle: "Verbs of Preference (like, love, enjoy, dislike) + Gerund (-ing)",
+      formula: "[Subject] + [like / love / enjoy / hate / don't like] + [Verb-ing] + [Complement]",
+      explanation: "When expressing ongoing hobbies, interests, and recreational activities, English verbs of preference are naturally followed by a gerund (verb + ing acting as an activity noun). While 'like to play' is grammatically possible, 'like playing' is the most natural native pattern for general hobbies.",
+      forms: {
+        affirmative: "I love dancing bachata and playing baseball on weekends.",
+        negative: "He doesn't like cooking on busy weekdays.",
+        question: "Do you enjoy traveling to new places? / What do you love doing in your free time?",
+      },
+      l1TransferTip: "Spanish uses the infinitive after preference verbs ('Me gusta bailar'). Avoid translating directly as *'I like dance'* (missing -ing/to). Always say 'I like dancing' or 'I like to dance'.",
+      examples: [
+        "Elena enjoys listening to Caribbean music while working.",
+        "We love visiting the beach on long holiday weekends.",
+        "I don't like waking up early on Sundays.",
+      ],
+    },
     phoneticTargets: ["-ing participle articulation (/ɪŋ/ without /n/ reduction friction)", "vowel duration contrasts (/iː/ vs /ɪ/)"],
     spokenPrompts: [
       "Share 3 things you love doing on weekends and 1 thing you dislike.",
@@ -187,7 +285,22 @@ export const A1_MODULES_2_TO_8: A1ModuleData[] = [
       "I like [activity] because it is [adjective]",
       "Could you please tell me about...?",
     ],
-
+    grammarSection: {
+      conceptTitle: "Coordinating Conjunctions (and, but, because, so) for Connected Fluency",
+      formula: "[Clause 1] + [and (addition) | but (contrast) | because (cause) | so (result)] + [Clause 2]",
+      explanation: "To advance from isolated words to connected multi-sentence speech, coordinating conjunctions link your ideas: 'and' joins similar details; 'but' introduces an unexpected contrast; 'because' explains your reason or motivation; and 'so' explains the result or consequence.",
+      forms: {
+        affirmative: "I live in Santo Domingo and I work at a technology startup.",
+        negative: "I don't have much free time during the week, but I always study English at night.",
+        question: "Do you prefer studying in the morning because it is quiet, or in the evening?",
+      },
+      l1TransferTip: "Avoid stringing choppy fragments with only commas. Use 'because' for reasons ('I study because I want to grow') and 'so' for results ('It was raining, so I took the metro').",
+      examples: [
+        "My sister is a student, and my brother works as an accountant.",
+        "I love my neighborhood, but the traffic is sometimes heavy.",
+        "I want to travel next year, so I am practicing my spoken English every day.",
+      ],
+    },
     phoneticTargets: ["Overall conversational intelligibility, rhythm, and spoken confidence"],
     spokenPrompts: [
       "Deliver a complete 2-minute oral presentation covering yourself, your family, your daily routine, and your hometown.",

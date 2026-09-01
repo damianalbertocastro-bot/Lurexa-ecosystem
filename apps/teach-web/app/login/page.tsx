@@ -12,6 +12,9 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [teachingFocus, setTeachingFocus] = useState("secondary-english");
+  const [cefrGoal, setCefrGoal] = useState("C1");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,8 +23,11 @@ export default function LoginPage() {
     setBusy(true);
     setError("");
     try {
-      if (mode === "login") await AuthService.login(email, password);
-      else await AuthService.register(email, password);
+      if (mode === "login") {
+        await AuthService.login(email, password);
+      } else {
+        await AuthService.register(email, password);
+      }
       router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "We could not complete that request.");
@@ -30,5 +36,124 @@ export default function LoginPage() {
     }
   };
 
-  return <main className="grid min-h-screen place-items-center bg-[var(--lx-surface)] px-5 py-10"><section className="w-full max-w-md rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-[0_24px_70px_rgba(31,50,120,.12)] sm:p-9"><ProductMark product="teach"/><p className="mt-8 text-[10px] font-extrabold tracking-[.18em] text-[var(--lx-primary)]">PROFESSIONAL GROWTH SPACE</p><h1 className="mt-3 text-3xl font-black tracking-[-.05em]">{mode === "login" ? "Continue with your Lurexa account." : "Start your Lurexa educator journey."}</h1><p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">{mode === "login" ? "Already teach in Lurexa Learn? Use the same account—no second Teach registration is required. Your professional learning stays connected to your Lurexa identity." : "Create a Lurexa account only if you do not already have one. You can begin in Teach as an educator learner without receiving student-teaching access in Learn."}</p><form className="mt-7 space-y-4" onSubmit={submit}><label className="block text-sm font-extrabold text-[var(--lx-muted)]">Email<Input type="email" required autoComplete="email" value={email} onChange={(e)=>setEmail(e.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] px-4 outline-none focus:border-[var(--lx-secondary)] focus:ring-4 focus:ring-[var(--lx-secondary)]/10"/></label><label className="block text-sm font-extrabold text-[var(--lx-muted)]">Password<Input type="password" required minLength={6} autoComplete={mode === "login" ? "current-password" : "new-password"} value={password} onChange={(e)=>setPassword(e.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-[var(--lx-border)] px-4 outline-none focus:border-[var(--lx-secondary)] focus:ring-4 focus:ring-[var(--lx-secondary)]/10"/></label>{error && <p role="alert" className="rounded-xl bg-[var(--lx-destructive)] p-3 text-sm font-bold text-[var(--lx-destructive)]">{error}</p>}<Button disabled={busy} className="min-h-12 w-full rounded-xl bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] px-5 text-sm font-extrabold text-white disabled:opacity-60">{busy ? "Working…" : mode === "login" ? "Enter Lurexa Teach" : "Create Lurexa account"}</Button></form><Button type="button" onClick={()=>setMode(mode === "login" ? "register" : "login")} className="mt-5 min-h-11 w-full text-sm font-extrabold text-[var(--lx-secondary)]">{mode === "login" ? "New to all of Lurexa? Create an account" : "Already use any Lurexa product? Sign in"}</Button></section></main>;
+  return (
+    <main className="grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
+      <section className="w-full max-w-lg rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-[0_24px_70px_rgba(31,50,120,.12)] sm:p-9">
+        <ProductMark product="teach" />
+        <p className="mt-8 text-[10px] font-black tracking-[.18em] text-[var(--lx-primary)]">
+          PROFESSIONAL GROWTH SPACE
+        </p>
+        <h1 className="mt-3 text-3xl font-black tracking-[-.05em] text-[var(--lx-ink)]">
+          {mode === "login" ? "Continue with your Lurexa account." : "Start your Lurexa educator journey."}
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-[var(--lx-muted)]">
+          {mode === "login"
+            ? "Already teach in Lurexa Learn? Use the same account—no second Teach registration is required. Your professional learning stays connected to your Lurexa identity."
+            : "Create your professional educator profile to unlock personalized pedagogical development, diagnostic benchmarks, and verified credentials."}
+        </p>
+
+        <form className="mt-7 space-y-4" onSubmit={submit}>
+          {mode === "register" && (
+            <>
+              <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
+                Full Name
+                <Input
+                  type="text"
+                  required
+                  placeholder="e.g. Professor Maria Santos"
+                  autoComplete="name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="mt-1.5 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 text-sm font-semibold text-[var(--lx-ink)] outline-none focus:border-[var(--lx-secondary)] focus:ring-4 focus:ring-[var(--lx-secondary)]/10"
+                />
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
+                  Teaching Focus
+                  <select
+                    value={teachingFocus}
+                    onChange={(e) => setTeachingFocus(e.target.value)}
+                    className="mt-1.5 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 text-sm font-semibold text-[var(--lx-ink)] outline-none focus:border-[var(--lx-secondary)]"
+                  >
+                    <option value="primary-esl">Primary / Elementary ESL</option>
+                    <option value="secondary-english">Secondary English / High School</option>
+                    <option value="higher-ed">Higher Education / University</option>
+                    <option value="bilingual-immersion">Bilingual / Dual Immersion</option>
+                    <option value="adult-business">Adult / Business English</option>
+                  </select>
+                </label>
+
+                <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
+                  Target CEFR Goal
+                  <select
+                    value={cefrGoal}
+                    onChange={(e) => setCefrGoal(e.target.value)}
+                    className="mt-1.5 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 text-sm font-semibold text-[var(--lx-ink)] outline-none focus:border-[var(--lx-secondary)]"
+                  >
+                    <option value="B2">B2 (Vantage / Upper Intermediate)</option>
+                    <option value="C1">C1 (Effective Operational Proficiency)</option>
+                    <option value="C2">C2 (Mastery / Native Intelligibility)</option>
+                  </select>
+                </label>
+              </div>
+            </>
+          )}
+
+          <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
+            Email
+            <Input
+              type="email"
+              required
+              placeholder="you@institution.edu"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 text-sm font-semibold text-[var(--lx-ink)] outline-none focus:border-[var(--lx-secondary)] focus:ring-4 focus:ring-[var(--lx-secondary)]/10"
+            />
+          </label>
+
+          <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
+            Password
+            <Input
+              type="password"
+              required
+              minLength={6}
+              placeholder="••••••••"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 text-sm font-semibold text-[var(--lx-ink)] outline-none focus:border-[var(--lx-secondary)] focus:ring-4 focus:ring-[var(--lx-secondary)]/10"
+            />
+          </label>
+
+          {error && (
+            <p
+              role="alert"
+              className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-sm font-bold text-slate-900 shadow-xs dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100"
+            >
+              {error}
+            </p>
+          )}
+
+          <Button
+            disabled={busy}
+            className="min-h-12 w-full rounded-xl bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] px-5 text-sm font-extrabold text-white shadow-md transition hover:brightness-105 disabled:opacity-60"
+          >
+            {busy ? "Working…" : mode === "login" ? "Enter Lurexa Teach" : "Create Educator Profile"}
+          </Button>
+        </form>
+
+        <Button
+          type="button"
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
+          className="mt-5 min-h-11 w-full text-sm font-extrabold text-[var(--lx-secondary)] hover:underline"
+        >
+          {mode === "login"
+            ? "New to all of Lurexa? Create an educator account"
+            : "Already use any Lurexa product? Sign in"}
+        </Button>
+      </section>
+    </main>
+  );
 }
