@@ -14,6 +14,9 @@ const ecosystemUrl = getEcosystemUrl("root");
 export default function SignupPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"teacher" | "student">("student");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [orgName, setOrgName] = useState("");
@@ -30,6 +33,11 @@ export default function SignupPage() {
     try {
       // 1. Register User in Firebase Auth
       const user = await AuthService.register(email, password);
+
+      // Store basic profile details if provided
+      if (typeof window !== "undefined") {
+        localStorage.setItem("lurexa_user_profile", JSON.stringify({ firstName, lastName, phone }));
+      }
 
       // 2. Process Organization Assignment
       if (mode === "teacher") {
@@ -75,6 +83,34 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              id="first-name"
+              label="First Name"
+              type="text"
+              placeholder="e.g. Maria"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+            <Input
+              id="last-name"
+              label="Last Name"
+              type="text"
+              placeholder="e.g. Santos"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <Input
+            id="phone"
+            label="Phone Number"
+            type="tel"
+            placeholder="e.g. +1 (809) 555-0123"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
           <Input
             id="email"
             label="Email Address"

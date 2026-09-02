@@ -7,7 +7,7 @@ import { AuthService, MindRecommendationService } from "@lurexa/backend";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import type { CefrLevel, DiagnosticTransferHighlight, PlacementSkill, PlanRecommendation } from "@lurexa/types";
+import type { CefrLevel, DiagnosticTransferHighlight, PlacementSkill } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
 
@@ -67,7 +67,9 @@ function PlacementContent() {
   const [result, setResult] = useState<PlacementDiagnosticResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
-
+  const [playbackRate, setPlaybackRate] = useState(0.9);
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged((user) => {
@@ -100,6 +102,7 @@ function PlacementContent() {
       setCurrentIndex(0);
       setAnswers({});
       setSelectedOption(null);
+      setVoiceTranscript(null);
       setStage("testing");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load placement test.");
@@ -108,16 +111,90 @@ function PlacementContent() {
     }
   }
 
-  function playAudioPrompt(text: string) {
+  function playAudioPrompt(text: string, rate = playbackRate) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
-    utterance.rate = 0.9;
+    utterance.rate = rate;
     utterance.onstart = () => setAudioPlaying(true);
     utterance.onend = () => setAudioPlaying(false);
     utterance.onerror = () => setAudioPlaying(false);
     window.speechSynthesis.speak(utterance);
+  }
+
+  function startVoiceRecording() {
+    const speechWindow = typeof window !== "undefined" ? (window as unknown as {
+      SpeechRecognition?: new () => {
+        lang: string;
+        interimResults: boolean;
+        maxAlternatives: number;
+        onresult: (event: { results: ArrayLike<{ 0?: { transcript?: string } }> }) => void;
+        onerror: () => void;
+        onend: () => void;
+        start: () => void;
+      };
+      webkitSpeechRecognition?: new () => {
+        lang: string;
+        interimResults: boolean;
+        maxAlternatives: number;
+        onresult: (event: { results: ArrayLike<{ 0?: { transcript?: string } }> }) => void;
+        onerror: () => void;
+        onend: () => void;
+        start: () => void;
+      };
+    }) : {};
+
+    const SpeechRecognitionConstructor = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionConstructor) {
+      setError("Speech recognition is not supported in this browser. Please select an option manually.");
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognitionConstructor();
+      recognition.lang = "en-US";
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 3;
+
+      setIsVoiceRecording(true);
+      setVoiceTranscript("");
+
+      recognition.onresult = (event: { results: ArrayLike<{ 0?: { transcript?: string } }> }) => {
+        const transcript = Array.from(event.results)
+          .map((res) => res[0]?.transcript || "")
+          .join(" ")
+          .trim();
+        setVoiceTranscript(transcript);
+
+        // Check if spoken transcript matches any option closely
+        const currentItem = items[currentIndex];
+        if (currentItem && transcript) {
+          const lower = transcript.toLowerCase();
+          const matched = currentItem.options.find(
+            (opt) =>
+              lower.includes(opt.toLowerCase()) ||
+              opt.toLowerCase().includes(lower)
+          );
+          if (matched) {
+            setSelectedOption(matched);
+          }
+        }
+      };
+
+      recognition.onerror = () => {
+        setIsVoiceRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsVoiceRecording(false);
+      };
+
+      recognition.start();
+    } catch {
+      setIsVoiceRecording(false);
+    }
   }
 
   async function handleNextQuestion() {
@@ -334,29 +411,83 @@ function PlacementContent() {
               {/* Audio Prompt for Listening */}
               {currentItem.audioPrompt ? (
                 <div className="mt-4 rounded-2xl bg-sky-50 border border-sky-200 p-4 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold text-sky-900">Audio Comprehension Sample</p>
-                      <p className="text-xs text-sky-700">Listen carefully to the spoken excerpt:</p>
+                      <p className="text-xs font-bold text-sky-900">🎧 Audio Comprehension Sample</p>
+                      <p className="text-xs text-sky-700">Listen carefully to the spoken dialogue:</p>
                     </div>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        playClick();
-                        playAudioPrompt(currentItem.audioPrompt!);
-                      }}
-                      className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1.5"
-                    >
-                      <span>{audioPlaying ? "🔊 Playing…" : "▶ Play Audio"}</span>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          const nextRate = playbackRate === 0.9 ? 0.75 : 0.9;
+                          setPlaybackRate(nextRate);
+                          if (audioPlaying) playAudioPrompt(currentItem.audioPrompt!, nextRate);
+                        }}
+                        className="rounded-xl border border-sky-300 bg-white px-2.5 py-1 text-[11px] font-bold text-sky-900 hover:bg-sky-100"
+                      >
+                        Speed: {playbackRate === 0.9 ? "1.0x" : "0.75x"}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          playClick();
+                          playAudioPrompt(currentItem.audioPrompt!);
+                        }}
+                        className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1.5"
+                      >
+                        <span>{audioPlaying ? "🔊 Playing…" : "▶ Play Audio"}</span>
+                      </Button>
+                    </div>
                   </div>
                   {audioPlaying && (
-                    <div className="rounded-xl bg-white/70 p-2">
+                    <div className="rounded-xl bg-white/80 p-3 border border-sky-200 shadow-xs">
                       <AudioWaveform active={true} variant="playback" />
                     </div>
                   )}
                 </div>
               ) : null}
+
+              {/* Live Microphone Voice Input for Speaking / Phonetics Probes */}
+              {(currentItem.skill === "speaking" || currentItem.skill === "phonetics") && (
+                <div className="mt-4 rounded-2xl bg-teal-50 border border-teal-200 p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold text-teal-950">🎙️ Spoken Interaction &amp; Phonetic Check</p>
+                      <p className="text-xs text-teal-800">You can answer by speaking into your microphone or selecting an option below:</p>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        playClick();
+                        startVoiceRecording();
+                      }}
+                      disabled={isVoiceRecording}
+                      className={`rounded-xl px-4 py-2 text-xs font-bold text-white shadow-sm transition flex items-center gap-1.5 ${
+                        isVoiceRecording ? "bg-rose-600 animate-pulse" : "bg-teal-700 hover:bg-teal-600"
+                      }`}
+                    >
+                      <span>{isVoiceRecording ? "🎙️ Listening…" : "🎙️ Speak Your Answer"}</span>
+                    </Button>
+                  </div>
+
+                  {isVoiceRecording && (
+                    <div className="rounded-xl bg-white/90 p-3 border border-teal-300 shadow-xs">
+                      <AudioWaveform active={true} variant="recording" />
+                      <p className="mt-2 text-center text-xs font-semibold text-teal-900 animate-pulse">
+                        Speak clearly into your microphone now…
+                      </p>
+                    </div>
+                  )}
+
+                  {voiceTranscript && (
+                    <div className="rounded-xl bg-teal-100/70 p-3 border border-teal-300 text-xs">
+                      <p className="font-bold text-teal-950">Captured Speech Transcript:</p>
+                      <p className="mt-1 font-semibold text-teal-900 italic">“{voiceTranscript}”</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Question Prompt */}
               <div className="mt-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 p-4">
@@ -555,37 +686,95 @@ function PlacementContent() {
 
             {/* Mind Recommended Ecosystem Plan */}
             {(() => {
-              const recommendation: PlanRecommendation | null = MindRecommendationService.evaluatePlanSynergy({
-                userId: "learner_self",
+              const transfers = (result.transferHighlights?.map((t) => {
+                if (t.detectedPattern.includes("s-cluster")) return "s_cluster_epenthesis";
+                if (t.detectedPattern.includes("Consonant") || t.detectedPattern.includes("Coda")) return "coda_weakening";
+                if (t.detectedPattern.includes("Dental") || t.detectedPattern.includes("th")) return "interdental_stopping";
+                return "third_person_inflection";
+              }) ?? []) as ("s_cluster_epenthesis" | "coda_weakening" | "interdental_stopping" | "third_person_inflection")[];
+
+              const ecosystemPlan = MindRecommendationService.generatePlacementEcosystemPlan({
                 cefrLevel: result.estimatedLevel,
-                activeTier: "BASIC",
-                completedLessonCount: 0,
-                coachMinutesUsedThisMonth: 12,
-                identifiedDominicanTransfers: ["coda_weakening", "s_cluster_epenthesis"],
-                enrolledProductCount: 2,
+                overallScorePercent: result.overallScorePercent,
+                identifiedDominicanTransfers: transfers,
+                priorityReinforcements: result.priorityReinforcements,
+                goal,
               });
 
-              if (!recommendation) return null;
-
               return (
-                <div className="mt-8 rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 p-6 text-white border border-indigo-500/30 shadow-lg">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="rounded-full bg-cyan-400/20 border border-cyan-400/50 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
-                      Recommended Plan: {recommendation.recommendedTier}
-                    </span>
-                    <span className="text-xs font-bold text-[var(--lx-muted)]">Current Tier: BASIC</span>
-                  </div>
+                <div className="mt-8 space-y-6">
+                  {/* Ecosystem Multi-Tool Synergy Card */}
+                  <div className="rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 p-6 text-white border border-indigo-500/30 shadow-lg">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <span className="rounded-full bg-cyan-400/20 border border-cyan-400/50 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                        ⚡ Lurexa Mind Tool Synergy Plan: {ecosystemPlan.recommendedTier}
+                      </span>
+                      <span className="text-xs font-bold text-slate-400">Universal Learner Model Calibrated</span>
+                    </div>
 
-                  <h4 className="mt-3 text-lg font-black text-white">Universal Learner Model Synergy</h4>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-300">{recommendation.reason}</p>
+                    <h4 className="mt-3 text-lg font-black text-white">Your Tailored Multi-Product Learning Roadmap</h4>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">{ecosystemPlan.tierSynergyReason}</p>
 
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {recommendation.synergyBenefits.map((benefit, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-cyan-200">
-                        <span>✓</span>
-                        <span>{benefit}</span>
+                    {/* 3 Pillars: Learn, Coach, Tracks */}
+                    <div className="mt-5 grid gap-4 md:grid-cols-3">
+                      {/* Learn Pillar */}
+                      <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                        <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-2">
+                          <span>📚</span>
+                          <span>Lurexa Learn</span>
+                        </div>
+                        <h5 className="font-bold text-sm text-white">{ecosystemPlan.primaryCourse.title}</h5>
+                        <p className="mt-1 text-[11px] text-slate-300 line-clamp-2">{ecosystemPlan.primaryCourse.description}</p>
+                        <p className="mt-3 text-[10px] font-semibold text-emerald-300">First Step: {ecosystemPlan.primaryCourse.firstLessonTitle}</p>
                       </div>
-                    ))}
+
+                      {/* Coach Pillar */}
+                      <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                        <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs mb-2">
+                          <span>🗣️</span>
+                          <span>Lurexa Coach</span>
+                        </div>
+                        <h5 className="font-bold text-sm text-white">{ecosystemPlan.coachDrills[0]?.title ?? "Targeted Voice Practice"}</h5>
+                        <p className="mt-1 text-[11px] text-slate-300 line-clamp-2">{ecosystemPlan.coachDrills[0]?.reason ?? "Work on conversational fluency and phonetics."}</p>
+                        <Link
+                          href={ecosystemPlan.coachDrills[0]?.actionHref ?? "/coach"}
+                          className="mt-3 inline-block text-[10px] font-bold text-cyan-300 hover:underline"
+                        >
+                          Launch Coach Voice Session →
+                        </Link>
+                      </div>
+
+                      {/* Career Tracks Pillar */}
+                      <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                        <div className="flex items-center gap-2 text-amber-400 font-bold text-xs mb-2">
+                          <span>💼</span>
+                          <span>Career Tracks</span>
+                        </div>
+                        <div className="space-y-1.5">
+                          {ecosystemPlan.recommendedCareerTracks.map((trk) => (
+                            <div key={trk.slug} className="flex items-center justify-between text-[11px]">
+                              <span className="text-slate-200 truncate">{trk.title}</span>
+                              <span className={`text-[10px] font-bold ${trk.status === "unlocked" ? "text-emerald-400" : "text-slate-500"}`}>
+                                {trk.status === "unlocked" ? "✓ Ready" : `🔒 ${trk.minimumLevel}+`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subscription Benefits */}
+                    <div className="mt-5 border-t border-white/10 pt-4">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-300 mb-2">Plan Synergy Benefits:</p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {ecosystemPlan.synergyBenefits.map((benefit, i) => (
+                          <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
+                            <span className="text-cyan-400">✓</span>
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );

@@ -7,7 +7,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
-import type { Course, LearnerRecommendationAction, Lesson, NextLearningAction } from "@lurexa/types";
+import type { CefrLevel, Course, LearnerRecommendationAction, Lesson, NextLearningAction } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { DashboardGreetingHeader } from "./components/DashboardGreetingHeader";
 import { DashboardTourModal } from "./components/DashboardTourModal";
@@ -33,10 +33,21 @@ interface LearnerGamificationSummary {
   lastActivityAt: string | null;
 }
 
+interface LearnerPlacementSummary {
+  completed: boolean;
+  estimatedLevel?: string;
+  overallScorePercent?: number;
+  completedAt?: string;
+  recommendedCourseId?: string;
+  recommendedStartingPoint?: string;
+}
+
 interface LearnerDashboardSummary {
   courses: LearnerCourseSummary[];
   gamification: LearnerGamificationSummary;
   nextStep: LearnerRecommendationAction | null;
+  placement?: LearnerPlacementSummary | null;
+  cefrLevel?: string;
 }
 
 function nextStepBadge(outcome: LearnerRecommendationAction["outcome"]): string {
@@ -60,6 +71,8 @@ export default function StudentDashboardPage() {
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [courses, setCourses] = useState<LearnerCourseSummary[]>([]);
   const [gamification, setGamification] = useState<LearnerGamificationSummary | null>(null);
+  const [placement, setPlacement] = useState<LearnerPlacementSummary | null>(null);
+  const [cefrLevel, setCefrLevel] = useState<string>("A1");
   const [nextAction, setNextAction] = useState<NextLearningAction | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +95,8 @@ export default function StudentDashboardPage() {
           const dashboard = (await dashboardResponse.json()) as LearnerDashboardSummary;
           setCourses(dashboard.courses);
           setGamification(dashboard.gamification);
+          setPlacement(dashboard.placement ?? null);
+          if (dashboard.cefrLevel) setCefrLevel(dashboard.cefrLevel);
 
           if (adaptationResponse.ok) {
             setNextAction((await adaptationResponse.json()) as NextLearningAction);
@@ -204,7 +219,7 @@ export default function StudentDashboardPage() {
               </Card>
             )}
 
-            <UniversalLearnerModelCard />
+            <UniversalLearnerModelCard cefrLevel={(cefrLevel || placement?.estimatedLevel || "A1") as CefrLevel} />
 
             <section className="space-y-4" aria-labelledby="enrolled-courses-heading">
               <div className="flex items-center justify-between">
@@ -299,7 +314,7 @@ export default function StudentDashboardPage() {
             </section>
 
             <CoachPracticeCard />
-            <SpecializedTracksCard />
+            <SpecializedTracksCard userCefrLevel={cefrLevel || placement?.estimatedLevel || "A1"} />
           </main>
 
           <aside className="space-y-8 lg:col-span-1" aria-label="Learning momentum and rewards">
@@ -316,25 +331,45 @@ export default function StudentDashboardPage() {
               onStartLesson={handleStartFirstLesson}
             />
 
-            <Card
-              className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"
-              title="Placement Diagnostic"
-              subtitle="Calibrate your CEFR proficiency level"
-            >
-              <div className="space-y-3 pt-2">
-                <p className="text-xs text-[var(--lx-muted)] leading-relaxed">
-                  Take the adaptive multi-skill diagnostic to evaluate your listening, grammar, and pronunciation readiness across A1–C1.
-                </p>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => router.push("/placement")}
-                >
-                  Take Diagnostic Placement 🎯
-                </Button>
-              </div>
-            </Card>
+            {placement?.completed ? (
+              <Card
+                className="border-0 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 shadow-md"
+                title="CEFR Standing Calibrated"
+                subtitle={`Level ${cefrLevel || placement.estimatedLevel || "A1"} Confirmed`}
+              >
+                <div className="space-y-2.5 pt-2 text-xs text-emerald-950 dark:text-emerald-200 font-medium">
+                  <p>Your curriculum pathway is optimized for <strong>{cefrLevel || placement.estimatedLevel || "A1"}</strong>.</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full bg-white dark:bg-slate-900 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-white font-bold"
+                    onClick={() => router.push("/placement")}
+                  >
+                    Recalibrate Diagnostics →
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card
+                className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"
+                title="Placement Diagnostic"
+                subtitle="Calibrate your CEFR proficiency level"
+              >
+                <div className="space-y-3 pt-2">
+                  <p className="text-xs text-[var(--lx-muted)] leading-relaxed">
+                    Take the adaptive multi-skill diagnostic to evaluate your listening, grammar, and pronunciation readiness across A1–C1.
+                  </p>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => router.push("/placement")}
+                  >
+                    Take Diagnostic Placement 🎯
+                  </Button>
+                </div>
+              </Card>
+            )}
 
             <Card
               className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"

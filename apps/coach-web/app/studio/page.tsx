@@ -257,6 +257,16 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
     }
   };
 
+  const playAudioSample = (text: string) => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] pb-12">
       {/* Studio Header */}
@@ -266,17 +276,23 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
             <Link href="/dashboard">
               <ProductMark product="coach" size="sm" />
             </Link>
-            <span className="text-xs font-bold text-[var(--lx-muted)]">
+            <span className="text-xs font-bold text-slate-900 dark:text-white">
               / Speaking Studio
             </span>
           </div>
 
           <div className="flex items-center gap-3">
+            {session && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {session.status === "active" ? "Live Studio Active" : "Session Completed"}
+              </span>
+            )}
             <Button
               type="button"
-              disabled={endingSession || sendingTurn}
+              disabled={endingSession}
               onClick={() => void handleFinishSession()}
-              className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3.5 py-1.5 text-xs font-bold text-[var(--lx-ink)] hover:bg-[var(--lx-border)]/40 transition active:scale-95 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-1.5 text-xs font-black text-slate-950 dark:text-white hover:border-[var(--lx-primary)] transition"
             >
               {endingSession ? "Saving…" : "Finish Session"}
             </Button>
@@ -284,9 +300,9 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
         </div>
       </header>
 
-      {/* Main Studio Grid */}
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 grid gap-6 lg:grid-cols-[.85fr_1.15fr] items-start">
-        {/* Left Coaching & Dialect Sidebar */}
+      {/* Main Studio Workspace */}
+      <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
+        {/* Left Side: Dialect Controls & Articulatory Targets */}
         <aside className="space-y-5">
           {/* L1 Dialect Background Switcher */}
           <article className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5 shadow-sm space-y-3">
@@ -294,7 +310,7 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
               <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-primary)]">
                 L1 PHONOLOGICAL PROFILE
               </p>
-              <span className="text-[10px] font-mono font-bold text-[var(--lx-muted)]">
+              <span className="text-[10px] font-mono font-bold text-slate-900 dark:text-white">
                 {currentL1Profile?.l1Code}
               </span>
             </div>
@@ -308,10 +324,10 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
                     setSelectedL1(prof.l1Code);
                     playClick();
                   }}
-                  className={`rounded-xl px-2.5 py-2 text-center text-xs font-bold transition ${
+                  className={`rounded-xl px-2.5 py-2 text-center text-xs font-black transition ${
                     selectedL1 === prof.l1Code
                       ? "bg-[var(--lx-primary)] text-white shadow-xs"
-                      : "border border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+                      : "border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-950 dark:text-white hover:border-[var(--lx-primary)]"
                   }`}
                 >
                   <span className="block truncate">{prof.l1Name.split(" ")[0]}</span>
@@ -319,7 +335,7 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
               ))}
             </div>
 
-            <p className="text-xs text-[var(--lx-muted)] leading-5">
+            <p className="text-xs text-slate-800 dark:text-slate-200 font-medium leading-5">
               Region: <strong>{currentL1Profile?.region}</strong> · {currentL1Profile?.prosodyProfile.rhythmType} rhythm
             </p>
           </article>
@@ -329,7 +345,7 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-primary)]">
               DIALECT-TARGETED ARTICULATORY CUES
             </p>
-            <h2 className="text-sm font-bold text-[var(--lx-ink)]">
+            <h2 className="text-sm font-black text-slate-950 dark:text-white">
               {currentL1Profile?.l1Name} Transfer Targets
             </h2>
 
@@ -338,20 +354,20 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
                 {currentL1Profile?.phonologicalTransfers.slice(0, 3).map((transfer) => (
                   <div
                     key={transfer.id}
-                    className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/70 p-3 space-y-1.5"
+                    className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-[var(--lx-canvas)]/80 p-3 space-y-1.5"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-[var(--lx-primary)]">
+                      <span className="font-mono text-xs font-black text-[var(--lx-primary)]">
                         /{transfer.sourcePhoneme}/ → /{transfer.targetPhoneme}/
                       </span>
-                      <span className="rounded-full bg-[var(--lx-surface)] border border-[var(--lx-border)] px-2 py-0.5 text-[9px] font-bold uppercase text-[var(--lx-muted)]">
+                      <span className="rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-[9px] font-black uppercase text-slate-900 dark:text-white">
                         {transfer.priority}
                       </span>
                     </div>
-                    <p className="text-xs text-[var(--lx-ink)] font-medium">
+                    <p className="text-xs text-slate-950 dark:text-white font-semibold">
                       {transfer.l1Rule}
                     </p>
-                    <p className="text-[11px] text-[var(--lx-muted)]">
+                    <p className="text-[11px] text-slate-700 dark:text-slate-300 font-medium">
                       Impact: {transfer.englishImpact}
                     </p>
                   </div>
@@ -361,21 +377,50 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
 
             {/* Minimal Pair Drill Generator */}
             {currentL1Profile?.remediationStrategies && currentL1Profile.remediationStrategies.length > 0 && (
-              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 dark:bg-indigo-950/40 dark:border-indigo-800/50 p-4 space-y-2.5">
-                <p className="text-xs font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">
-                  ⚡ Minimal Pair Drill
-                </p>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-2xl border-2 border-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/60 dark:border-indigo-500/80 p-4 space-y-3 shadow-md ring-4 ring-indigo-500/10">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <span>⚡</span>
+                    <span>Target Minimal Pair Drill</span>
+                  </p>
+                  <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300">Click 🔊 to listen</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
                   {currentL1Profile.remediationStrategies[0]?.minimalPairDrills.slice(0, 2).map((drill, idx) => (
-                    <Button
+                    <div
                       key={idx}
-                      type="button"
-                      onClick={() => void handleSendTurn(`${drill.wordA} and ${drill.wordB}`)}
-                      className="flex flex-col items-center justify-center rounded-xl border border-indigo-200 dark:border-indigo-700 bg-[var(--lx-surface)] p-2.5 text-center text-xs font-bold text-[var(--lx-ink)] shadow-2xs hover:border-[var(--lx-primary)] transition"
+                      className="flex flex-col items-center justify-center rounded-xl border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-900 p-3 text-center text-xs shadow-sm hover:border-[var(--lx-primary)] transition"
                     >
-                      <span className="text-[var(--lx-primary)] font-extrabold">{drill.wordA} vs {drill.wordB}</span>
-                      <span className="font-mono text-[10px] text-[var(--lx-muted)] dark:text-slate-200">{drill.ipaA} · {drill.ipaB}</span>
-                    </Button>
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <button
+                          type="button"
+                          onClick={() => playAudioSample(drill.wordA)}
+                          className="text-[var(--lx-primary)] font-black text-xs hover:underline flex items-center gap-1"
+                          title="Listen to pronunciation"
+                        >
+                          <span>🔊</span>
+                          <span>{drill.wordA}</span>
+                        </button>
+                        <span className="text-slate-400 font-bold">vs</span>
+                        <button
+                          type="button"
+                          onClick={() => playAudioSample(drill.wordB)}
+                          className="text-[var(--lx-primary)] font-black text-xs hover:underline flex items-center gap-1"
+                          title="Listen to pronunciation"
+                        >
+                          <span>🔊</span>
+                          <span>{drill.wordB}</span>
+                        </button>
+                      </div>
+                      <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300">{drill.ipaA} · {drill.ipaB}</span>
+                      <Button
+                        type="button"
+                        onClick={() => void handleSendTurn(`${drill.wordA} and ${drill.wordB}`)}
+                        className="mt-2 text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 hover:underline"
+                      >
+                        + Drill in Studio
+                      </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -454,7 +499,7 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
 
           {/* Prompt Chips */}
           <div className="border-t border-[var(--lx-border)] bg-[var(--lx-canvas)]/20 px-6 py-2.5 flex flex-wrap gap-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[var(--lx-muted)] self-center mr-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 self-center mr-1">
               Try Saying:
             </span>
             {[
@@ -467,7 +512,7 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
                 type="button"
                 disabled={sendingTurn || isRecording}
                 onClick={() => void handleSendTurn(phrase)}
-                className="rounded-lg border border-[var(--lx-border)] bg-[var(--lx-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--lx-ink)] hover:border-[var(--lx-primary)] transition disabled:opacity-40"
+                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-slate-950 dark:text-white hover:border-[var(--lx-primary)] transition disabled:opacity-40"
               >
                 + {phrase}
               </Button>
@@ -477,11 +522,24 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
           {/* Voice & Text Input Bar */}
           <footer className="border-t border-[var(--lx-border)] p-4 sm:p-5 bg-[var(--lx-surface)]">
             {isRecording && (
-              <div className="mb-3 rounded-2xl border border-rose-200 bg-rose-50/50 p-3 dark:bg-rose-950/20 flex flex-col items-center gap-1.5 animate-fade-in">
-                <AudioWaveform active={true} variant="recording" barCount={20} />
-                <span className="text-xs font-black text-rose-600 animate-pulse">
-                  ● Capturing spoken voice… Speak clearly
-                </span>
+              <div className="mb-3 rounded-2xl border-2 border-rose-400 bg-rose-50/90 p-4 dark:bg-rose-950/40 dark:border-rose-700 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in shadow-md">
+                <div className="flex items-center gap-3">
+                  <span className="h-3 w-3 rounded-full bg-rose-600 animate-ping" />
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-black text-rose-700 dark:text-rose-200">
+                      Recording audio… Speak clearly into microphone
+                    </p>
+                    <AudioWaveform active={true} variant="recording" barCount={20} />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={stopListening}
+                  className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-black text-white shadow-lg shadow-rose-600/30 hover:bg-rose-700 transition flex items-center gap-1.5"
+                >
+                  <span>⏹</span>
+                  <span>Stop Recording</span>
+                </Button>
               </div>
             )}
 
@@ -495,26 +553,28 @@ interface BrowserSpeechRecognitionInstance extends EventTarget {
                 }}
                 disabled={isRecording || sendingTurn}
                 placeholder={`Type or use mic (calibrated for ${currentL1Profile?.l1Name})…`}
-                className="flex-1 min-w-0 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-4 py-3 text-xs text-[var(--lx-ink)] outline-none focus:border-[var(--lx-primary)] focus:ring-1 focus:ring-[var(--lx-primary)]"
+                className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-700 bg-[var(--lx-canvas)] px-4 py-3 text-xs font-medium text-slate-950 dark:text-white outline-none focus:border-[var(--lx-primary)] focus:ring-1 focus:ring-[var(--lx-primary)]"
               />
               <Button
                 type="button"
                 disabled={!learnerInput.trim() || isRecording || sendingTurn}
                 onClick={() => void handleSendTurn()}
-                className="rounded-2xl bg-[var(--lx-primary)] px-5 py-3 text-xs font-bold text-white shadow-sm hover:bg-[var(--lx-primary)] transition disabled:opacity-40"
+                className="rounded-2xl bg-[var(--lx-primary)] px-5 py-3 text-xs font-black text-white shadow-sm hover:bg-[var(--lx-primary)] transition disabled:opacity-40"
               >
                 Send
               </Button>
               <Button
                 type="button"
                 onClick={toggleRecording}
-                disabled={isRecording || sendingTurn}
-                className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition ${
-                  isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-[var(--lx-accent)] text-slate-900 font-bold hover:brightness-105"
+                disabled={sendingTurn}
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition shadow-sm ${
+                  isRecording
+                    ? "bg-rose-600 text-white animate-pulse hover:bg-rose-700"
+                    : "bg-[var(--lx-accent)] text-slate-950 font-black hover:brightness-105"
                 }`}
-                title="Use Microphone"
+                title={isRecording ? "Stop Recording" : "Use Microphone"}
               >
-                <span>🎙️</span>
+                <span>{isRecording ? "⏹" : "🎙️"}</span>
               </Button>
             </div>
           </footer>

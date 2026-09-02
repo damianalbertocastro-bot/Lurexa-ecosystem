@@ -10,8 +10,12 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request): Promise<Response> {
   try {
     await CoursePlatformService.authenticate(request.headers.get("authorization"));
-    const initialProbes: PlacementProbeItem[] = PlacementAssessmentService.getInitialProbes();
-    return Response.json({ probes: initialProbes });
+    const url = new URL(request.url);
+    const mode = url.searchParams.get("mode");
+    const probes: PlacementProbeItem[] = mode === "all" || mode === "comprehensive"
+      ? PlacementAssessmentService.getAllProbes()
+      : PlacementAssessmentService.getInitialProbes();
+    return Response.json({ probes, totalAvailable: PlacementAssessmentService.getAllProbes().length });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load placement probes.";
     return Response.json(

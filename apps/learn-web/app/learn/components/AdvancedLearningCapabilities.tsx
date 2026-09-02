@@ -728,8 +728,19 @@ export function AIRoleplayActivity({
   async function sendTurn(customMessage?: string) {
     const message = (customMessage ?? learnerMessage).trim();
     if (!message || sending) return;
+
+    // Optimistically update transcript & immediately clear text input for instant responsiveness
+    const optimisticTurn: LearnTutorTurn = {
+      sender: "learner",
+      text: message,
+      timestamp: new Date().toISOString(),
+    };
+    const previousTranscript = transcript;
+    setTranscript((prev) => [...prev, optimisticTurn]);
+    setLearnerMessage("");
     setSending(true);
     setError(null);
+
     try {
       const response = await authenticatedFetch("/api/learning/tutor", {
         method: "POST",
@@ -749,13 +760,15 @@ export function AIRoleplayActivity({
       setTranscript(updatedTranscript);
       setProvider(result.provider);
       setFallbackMode(result.provider === "deterministic_fallback");
-      setLearnerMessage("");
 
       const updatedLearnerTurns = updatedTranscript.filter((t) => t.sender === "learner").length;
       if (updatedLearnerTurns >= capability.scenario.minimumTurns) {
         onCompleted?.(capability.id);
       }
     } catch (sendError) {
+      // Restore input and transcript on failure
+      setTranscript(previousTranscript);
+      setLearnerMessage(message);
       setError(sendError instanceof Error ? sendError.message : "Unable to continue the roleplay.");
       setFallbackMode(true);
     } finally {

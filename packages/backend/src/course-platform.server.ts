@@ -3,7 +3,21 @@ import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.serv
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { parseLearningCapability, readLearningCapability } from "./learning-capability-validation";
-import type { ContentBlock, Course, LearnerLearningActivity, LearnerLearningActivityContentBlockData, LearnerQuizContentBlockData, LearningActivity, LearningEvidenceType, Lesson, LessonStage, Module, QuizContentBlockData, StudentProgress } from "@lurexa/types";
+import type {
+  CefrLevel,
+  ContentBlock,
+  Course,
+  LearnerLearningActivity,
+  LearnerLearningActivityContentBlockData,
+  LearnerQuizContentBlockData,
+  LearningActivity,
+  LearningEvidenceType,
+  Lesson,
+  LessonStage,
+  Module,
+  QuizContentBlockData,
+  StudentProgress,
+} from "@lurexa/types";
 
 type TeacherRole = "owner" | "admin" | "teacher";
 
@@ -31,9 +45,20 @@ export interface LearnerGamificationSummary {
   lastActivityAt: string | null;
 }
 
+export interface LearnerPlacementSummary {
+  completed: boolean;
+  estimatedLevel?: CefrLevel;
+  overallScorePercent?: number;
+  completedAt?: string;
+  recommendedCourseId?: string;
+  recommendedStartingPoint?: string;
+}
+
 export interface LearnerDashboardSummary {
   courses: LearnerCourseSummary[];
   gamification: LearnerGamificationSummary;
+  placement?: LearnerPlacementSummary | null;
+  cefrLevel?: CefrLevel;
 }
 
 function asCourse(value: FirebaseFirestore.DocumentData): Course {
@@ -318,12 +343,34 @@ export const CoursePlatformService = {
   },
 
   async getLearnerDashboard(actor: AuthenticatedActor): Promise<LearnerDashboardSummary> {
-    const [courses, progressSnapshots] = await Promise.all([
+    const [courses, progressSnapshots, learnerDoc] = await Promise.all([
       this.getLearnerCourses(actor),
       getServerFirestore().collection("progress").where("studentId", "==", actor.uid).get(),
+      getServerFirestore().collection("learners").doc(actor.uid).get(),
     ]);
     const progress = progressSnapshots.docs.map((snapshot) => snapshot.data() as StudentProgress);
     const completed = progress.filter((entry) => entry.completed);
+    const learnerData = learnerDoc.exists ? (learnerDoc.data() as {
+      placement?: {
+        estimatedLevel?: CefrLevel;
+        overallScorePercent?: number;
+        completedAt?: string;
+        recommendedCourseId?: string;
+        recommendedStartingPoint?: string;
+      };
+      proficiency?: { cefr?: CefrLevel };
+    }) : null;
+    const placementData = learnerData?.placement;
+    const placement: LearnerPlacementSummary | null = placementData ? {
+      completed: true,
+      estimatedLevel: placementData.estimatedLevel,
+      overallScorePercent: placementData.overallScorePercent,
+      completedAt: placementData.completedAt,
+      recommendedCourseId: placementData.recommendedCourseId,
+      recommendedStartingPoint: placementData.recommendedStartingPoint,
+    } : null;
+    const cefrLevel: CefrLevel = learnerData?.proficiency?.cefr || placementData?.estimatedLevel || "A1";
+
     return {
       courses,
       gamification: {
@@ -331,6 +378,8 @@ export const CoursePlatformService = {
         totalPoints: completed.length * 10,
         lastActivityAt: completed.sort((first, second) => second.lastAccessedAt.localeCompare(first.lastAccessedAt))[0]?.lastAccessedAt ?? null,
       },
+      placement,
+      cefrLevel,
     };
   },
 
@@ -387,12 +436,6 @@ export const CoursePlatformService = {
     return record;
   },
 
-  /**
-   * A capability can only mark its own block complete after its server-side
-   * service has accepted the relevant evidence. The browser never calls this
-   * method directly, which keeps required speaking and roleplay completion
-   * behind the same Core-authorized boundary as the evidence itself.
-   */
   async recordCapabilityCompletion(
     actor: AuthenticatedActor,
     courseId: string,

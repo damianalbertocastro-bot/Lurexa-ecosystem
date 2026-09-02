@@ -8,6 +8,8 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
+import { ProductMark } from "@lurexa/ui/ProductMark";
+import { MasterMark } from "@lurexa/ui/MasterMark";
 import { WelcomeTourModal, type WelcomeTourStep } from "@lurexa/ui/WelcomeTourModal";
 import { AuthService, type AuthenticatedUser, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
@@ -246,7 +248,7 @@ export default function CoachDashboardPage() {
                       className={`rounded-xl px-3 py-1 text-xs font-black transition ${
                         selectedLevel === lvl
                           ? "bg-[var(--lx-primary)] text-white shadow-sm"
-                          : "bg-white text-slate-600 border border-slate-200 hover:text-slate-900"
+                          : "bg-white dark:bg-slate-900 text-slate-950 dark:text-white border border-slate-300 dark:border-slate-700 hover:border-[var(--lx-primary)]"
                       }`}
                     >
                       {lvl}
@@ -270,13 +272,13 @@ export default function CoachDashboardPage() {
                     }
                   >
                     <div className="space-y-4 pt-2 flex-1 flex flex-col justify-between">
-                      <p className="text-xs leading-relaxed text-slate-600 line-clamp-2">
+                      <p className="text-xs leading-relaxed text-slate-900 dark:text-slate-100 font-medium line-clamp-2">
                         {pack.description}
                       </p>
 
                       <div className="space-y-2 border-t border-slate-100 pt-3">
-                        <div className="flex items-center justify-between text-[11px] text-slate-500">
-                          <span>Partner: <strong>{pack.scenarioRole}</strong></span>
+                        <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-slate-300 font-bold">
+                          <span>Partner: <strong className="text-slate-950 dark:text-white">{pack.scenarioRole}</strong></span>
                           <span>{pack.suggestedTurns} Turns</span>
                         </div>
 
@@ -354,33 +356,56 @@ export default function CoachDashboardPage() {
               </div>
             </Card>
 
-            {/* Cross-Product Bridge Card */}
+            {/* Cross-Product Bridge Card with Visual Logos */}
             <Card
-              className="border-0 bg-white shadow-lg shadow-slate-200/60"
+              className="border-0 bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/60"
               title="Connected Lurexa Workspace"
-              subtitle="Continue learning in other products"
+              subtitle="Continue learning across products"
             >
               <div className="space-y-3 pt-2">
                 <a
                   href={urls.learn}
-                  className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-indigo-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
                 >
-                  <p className="text-xs font-black text-[var(--color-brand-navy)]">Open Learn ↗</p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">Resume course lessons, curriculum pathways, and assignments.</p>
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                    <ProductMark product="learn" compact size="sm" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-indigo-600 transition">Open Learn ↗</p>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Resume interactive curriculum and lessons.</p>
+                  </div>
                 </a>
+
                 <a
                   href={urls.teach}
-                  className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-violet-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
                 >
-                  <p className="text-xs font-black text-[var(--lx-primary)]">Open Teach ↗</p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">Educator training, CEFR proficiency growth, and credentials.</p>
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                    <ProductMark product="teach" compact size="sm" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-violet-600 transition">Open Teach ↗</p>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Educator training &amp; CEFR growth.</p>
+                  </div>
                 </a>
+
                 <a
                   href={urls.ecosystem}
-                  className="block rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 transition hover:bg-slate-100 hover:border-slate-300"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-teal-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
                 >
-                  <p className="text-xs font-black text-[var(--lx-accent)]">All Lurexa products ↗</p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">Explore platform tools, documentation, and campus services.</p>
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                    <MasterMark compact size="sm" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-teal-600 transition">All Lurexa products ↗</p>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Platform tools, docs, and services.</p>
+                  </div>
                 </a>
               </div>
             </Card>

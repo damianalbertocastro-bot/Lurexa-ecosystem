@@ -25,38 +25,48 @@ export function getRawServiceAccountJson(): string | null {
 function readServiceAccount(): ValidFirebaseServiceAccount | null {
   const serializedServiceAccount = getRawServiceAccountJson();
 
-  if (!serializedServiceAccount) return null;
+  if (serializedServiceAccount) {
+    let parsedServiceAccount: unknown;
+    try {
+      parsedServiceAccount = JSON.parse(serializedServiceAccount);
+    } catch {
+      console.warn(`Warning: ${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} is not valid JSON; falling back to individual env variables or default credentials.`);
+      parsedServiceAccount = null;
+    }
 
-  let parsedServiceAccount: unknown;
-  try {
-    parsedServiceAccount = JSON.parse(serializedServiceAccount);
-  } catch {
-    throw new Error(`${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} must contain valid JSON.`);
+    if (
+      typeof parsedServiceAccount === "object"
+      && parsedServiceAccount !== null
+      && !Array.isArray(parsedServiceAccount)
+    ) {
+      const serviceAccount = parsedServiceAccount as FirebaseServiceAccount;
+      if (serviceAccount.project_id && serviceAccount.client_email && serviceAccount.private_key) {
+        return {
+          project_id: serviceAccount.project_id,
+          client_email: serviceAccount.client_email,
+          private_key: serviceAccount.private_key,
+        };
+      }
+    }
   }
 
-  if (
-    typeof parsedServiceAccount !== "object"
-    || parsedServiceAccount === null
-    || Array.isArray(parsedServiceAccount)
-  ) {
-    throw new Error(`${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} must contain a service-account object.`);
+  // Check discrete individual environment variables
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (projectId && clientEmail && privateKey) {
+    return {
+      project_id: projectId,
+      client_email: clientEmail,
+      private_key: privateKey,
+    };
   }
 
-  const serviceAccount = parsedServiceAccount as FirebaseServiceAccount;
-  if (!serviceAccount.project_id || !serviceAccount.client_email || !serviceAccount.private_key) {
-    throw new Error(
-      `${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} must include project_id, client_email, and private_key.`,
-    );
-  }
-
-  return {
-    project_id: serviceAccount.project_id,
-    client_email: serviceAccount.client_email,
-    private_key: serviceAccount.private_key,
-  };
+  return null;
 }
 
-function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): string | undefined {
+function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): string {
   return serviceAccount?.project_id
     ?? process.env.FIREBASE_PROJECT_ID
     ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -88,7 +98,7 @@ export function getFirebaseAdminApp(): App {
     });
   }
 
-  if (isFirestoreEmulator && projectId) {
+  if (isFirestoreEmulator || process.env.NODE_ENV !== "production" || projectId) {
     return initializeApp({ projectId });
   }
 
