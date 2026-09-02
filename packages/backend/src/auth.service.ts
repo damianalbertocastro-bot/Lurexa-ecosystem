@@ -33,6 +33,10 @@ export const AuthService = {
     return onAuthStateChanged(auth, callback);
   },
 
+  getCurrentUser(): FirebaseUser | null {
+    return auth.currentUser;
+  },
+
   async getUserClaims(user: FirebaseUser): Promise<CustomUserClaims> {
     const tokenResult = await user.getIdTokenResult(true);
     return {

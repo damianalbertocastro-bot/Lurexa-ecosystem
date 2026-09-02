@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import { InsightRelatedExperiences } from "./components/InsightRelatedExperiences";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function InsightLayout({
         <ToastProvider>
           {children}
           <InsightRelatedExperiences />
+          <EcosystemSupportWidget />
         </ToastProvider>
       </body>
     </html>

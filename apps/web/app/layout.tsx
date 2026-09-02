@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body>
         <SkipToContent targetId="main-content" />
         {children}
+        <EcosystemSupportWidget />
       </body>
     </html>
   );

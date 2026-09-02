@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import { StudioRelatedExperiences } from "./components/StudioRelatedExperiences";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ToastProvider>
           {children}
           <StudioRelatedExperiences />
+          <EcosystemSupportWidget />
         </ToastProvider>
       </body>
     </html>

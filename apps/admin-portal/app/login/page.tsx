@@ -10,18 +10,44 @@ import { Input } from "@lurexa/ui/Input";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [mode, setMode] = useState<"signin" | "setup">("signin");
+  const [email, setEmail] = useState("damianalbertocastro@gmail.com");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (loading) return;
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
+      if (mode === "setup") {
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match.");
+        }
+        if (password.length < 6) {
+          throw new Error("Password must be at least 6 characters.");
+        }
+
+        // Call server bootstrap endpoint
+        const res = await fetch("/api/admin/bootstrap-superadmin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+        const data = (await res.json()) as { error?: string };
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to set up superadmin credentials.");
+        }
+        setSuccessMessage("Superadmin password configured! Signing in to console…");
+      }
+
+      // Perform authentication
       const user = await AuthService.login(email.trim(), password);
       const claims = await AuthService.getUserClaims(user);
       if (claims.role !== "super_admin") {
@@ -30,7 +56,7 @@ export default function AdminLoginPage() {
       }
       router.replace("/");
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to sign in to Lurexa Admin.");
+      setError(caught instanceof Error ? caught.message : "Unable to complete action.");
     } finally {
       setLoading(false);
     }
@@ -39,13 +65,54 @@ export default function AdminLoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-canvas)] to-[var(--lx-surface)] px-5 py-10 text-[var(--color-brand-navy)]">
       <div className="w-full max-w-md">
-        <div className="mb-7 flex justify-center">
+        <div className="mb-7 flex flex-col items-center justify-center gap-2">
           <ProductMark product="admin" />
+          <span className="rounded-full bg-violet-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-violet-800">
+            Ecosystem Master Administration
+          </span>
         </div>
-        <Card title="Sign in to Lurexa Admin" subtitle="Platform operations are restricted to verified superadmin accounts.">
+
+        <Card
+          title={mode === "signin" ? "Sign in to Lurexa Admin" : "First-Time Superadmin Setup"}
+          subtitle="Platform operations and master controls are restricted to verified superadmin accounts."
+        >
+          {/* Mode Switcher */}
+          <div className="mb-4 flex rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("signin");
+                setError(null);
+              }}
+              className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition ${
+                mode === "signin"
+                  ? "bg-white text-[var(--lx-ink)] shadow-xs"
+                  : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("setup");
+                setError(null);
+              }}
+              className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition ${
+                mode === "setup"
+                  ? "bg-white text-[var(--lx-ink)] shadow-xs"
+                  : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+              }`}
+            >
+              Set / Reset Password
+            </button>
+          </div>
+
           <form className="space-y-4 pt-2" onSubmit={(event) => void submit(event)}>
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-bold text-[var(--color-brand-navy)]">Email</label>
+              <label htmlFor="email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)]">
+                Superadmin Email
+              </label>
               <Input
                 id="email"
                 name="email"
@@ -54,29 +121,67 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-white px-3.5 text-sm text-[var(--color-brand-navy)] outline-none transition focus:border-[var(--lx-primary)] focus:ring-4 focus:ring-[var(--lx-primary)]/10"
+                className="min-h-11 w-full rounded-xl border border-[var(--lx-border)] bg-white px-3.5 text-sm text-[var(--color-brand-navy)] outline-none transition focus:border-[var(--lx-primary)] focus:ring-4 focus:ring-[var(--lx-primary)]/10"
               />
             </div>
+
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-bold text-[var(--color-brand-navy)]">Password</label>
+              <label htmlFor="password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)]">
+                {mode === "setup" ? "New Superadmin Password" : "Password"}
+              </label>
               <Input
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete={mode === "setup" ? "new-password" : "current-password"}
                 required
+                placeholder={mode === "setup" ? "At least 6 characters" : "••••••••"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="min-h-12 w-full rounded-xl border border-[var(--lx-border)] bg-white px-3.5 text-sm text-[var(--color-brand-navy)] outline-none transition focus:border-[var(--lx-primary)] focus:ring-4 focus:ring-[var(--lx-primary)]/10"
+                className="min-h-11 w-full rounded-xl border border-[var(--lx-border)] bg-white px-3.5 text-sm text-[var(--color-brand-navy)] outline-none transition focus:border-[var(--lx-primary)] focus:ring-4 focus:ring-[var(--lx-primary)]/10"
               />
             </div>
-            {error ? <p role="alert" className="rounded-xl bg-rose-50 px-3.5 py-3 text-sm font-semibold text-rose-700">{error}</p> : null}
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Signing in…" : "Sign in"}
+
+            {mode === "setup" && (
+              <div>
+                <label htmlFor="confirmPassword" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--color-brand-navy)]">
+                  Confirm Password
+                </label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  placeholder="Re-enter password"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className="min-h-11 w-full rounded-xl border border-[var(--lx-border)] bg-white px-3.5 text-sm text-[var(--color-brand-navy)] outline-none transition focus:border-[var(--lx-primary)] focus:ring-4 focus:ring-[var(--lx-primary)]/10"
+                />
+              </div>
+            )}
+
+            {error ? (
+              <p role="alert" className="rounded-xl bg-rose-50 px-3.5 py-3 text-xs font-bold text-rose-700 border border-rose-200">
+                {error}
+              </p>
+            ) : null}
+
+            {successMessage ? (
+              <p className="rounded-xl bg-emerald-50 px-3.5 py-3 text-xs font-bold text-emerald-800 border border-emerald-200">
+                {successMessage}
+              </p>
+            ) : null}
+
+            <Button className="w-full font-bold" type="submit" disabled={loading}>
+              {loading
+                ? mode === "setup" ? "Configuring Superadmin…" : "Signing in…"
+                : mode === "setup" ? "Save Password & Sign In →" : "Sign in to Admin Portal"}
             </Button>
           </form>
-          <p className="mt-5 text-xs leading-5 text-[var(--lx-muted)]">
-            Lurexa Admin access is enforced again by Lurexa Core on every platform API request. Signing in alone does not grant platform privileges.
+
+          <p className="mt-5 text-[11px] leading-4 text-[var(--lx-muted)]">
+            Designated superadmin operations are governed by Lurexa Core security contracts. All changes and administrative deletions are tracked with cryptographic provenance.
           </p>
         </Card>
       </div>

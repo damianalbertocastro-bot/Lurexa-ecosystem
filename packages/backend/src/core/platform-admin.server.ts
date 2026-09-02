@@ -231,5 +231,189 @@ export const PlatformAdminService = {
     if (!account) throw new Error("Unable to retrieve updated billing account.");
     return account;
   },
+
+  /**
+   * Bootstraps the platform superadmin account (damianalbertocastro@gmail.com).
+   * Creates or updates the Firebase Auth user, sets password, grants super_admin claim,
+   * and synchronizes with Firestore users collection.
+   */
+  async bootstrapSuperadmin(email: string, password: string): Promise<{ success: boolean; uid: string; email: string }> {
+    const targetEmail = email.trim().toLowerCase();
+    const authorizedSuperadminEmail = "damianalbertocastro@gmail.com";
+
+    if (targetEmail !== authorizedSuperadminEmail) {
+      throw new Error("Only the designated platform superadmin account can be initialized through this endpoint.");
+    }
+    if (!password || password.length < 6) {
+      throw new Error("Password must be at least 6 characters long.");
+    }
+
+    const auth = getServerFirebaseAuth();
+    const database = getServerFirestore();
+    let uid: string;
+
+    try {
+      const existingUser = await auth.getUserByEmail(targetEmail);
+      uid = existingUser.uid;
+      await auth.updateUser(uid, {
+        password,
+        emailVerified: true,
+      });
+    } catch {
+      const newUser = await auth.createUser({
+        email: targetEmail,
+        password,
+        displayName: "Damian Castro",
+        emailVerified: true,
+      });
+      uid = newUser.uid;
+    }
+
+    // Set super_admin custom claim
+    await auth.setCustomUserClaims(uid, {
+      role: "super_admin",
+    });
+
+    // Synchronize Firestore user record
+    const timestamp = new Date().toISOString();
+    await database.collection("users").doc(uid).set(
+      {
+        email: targetEmail,
+        displayName: "Damian Castro (Superadmin)",
+        role: "super_admin",
+        updatedAt: timestamp,
+      },
+      { merge: true }
+    );
+
+    return { success: true, uid, email: targetEmail };
+  },
+
+  /**
+   * Lists all users across the ecosystem (Learners, Educators, Campus Admins, Superadmins).
+   */
+  async listAllEcosystemUsers(authorization: string | null): Promise<Array<{
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    role: string;
+    cefrLevel?: string;
+    profileType: string;
+    createdAt?: string;
+  }>> {
+    await requireSuperAdmin(authorization);
+    const database = getServerFirestore();
+    const auth = getServerFirebaseAuth();
+
+    const usersList: Array<{
+      uid: string;
+      email: string | null;
+      displayName: string | null;
+      role: string;
+      cefrLevel?: string;
+      profileType: string;
+      createdAt?: string;
+    }> = [];
+
+    // 1. Fetch from Firebase Auth
+    try {
+      const listAuth = await auth.listUsers(100);
+      listAuth.users.forEach((u) => {
+        usersList.push({
+          uid: u.uid,
+          email: u.email ?? null,
+          displayName: u.displayName ?? null,
+          role: (u.customClaims?.role as string) || "student",
+          profileType: (u.customClaims?.role as string) || "user",
+          createdAt: u.metadata.creationTime,
+        });
+      });
+    } catch {
+      // Fallback to Firestore users
+    }
+
+    // 2. Augment from Firestore educatorProfiles & learner-profiles
+    const [educatorSnap, learnerSnap] = await Promise.all([
+      database.collection("educatorProfiles").get(),
+      database.collection("learner-profiles").get(),
+    ]);
+
+    const educatorMap = new Map<string, FirebaseFirestore.DocumentData>();
+    educatorSnap.docs.forEach((d) => educatorMap.set(d.id, d.data()));
+
+    const learnerMap = new Map<string, FirebaseFirestore.DocumentData>();
+    learnerSnap.docs.forEach((d) => learnerMap.set(d.id, d.data()));
+
+    usersList.forEach((u) => {
+      if (educatorMap.has(u.uid)) {
+        const ed = educatorMap.get(u.uid)!;
+        u.profileType = "educator";
+        if (ed.cefrLevel) u.cefrLevel = ed.cefrLevel;
+      }
+      if (learnerMap.has(u.uid)) {
+        const lp = learnerMap.get(u.uid)!;
+        if (lp.cefrLevel) u.cefrLevel = lp.cefrLevel;
+      }
+    });
+
+    return usersList;
+  },
+
+  /**
+   * Deletes or resets an ecosystem entity (user, progress, placement, evidence, course).
+   */
+  async deleteEcosystemEntity(
+    authorization: string | null,
+    input: { type: "user" | "progress" | "placement" | "evidence" | "course"; id: string }
+  ): Promise<{ success: boolean; type: string; id: string }> {
+    await requireSuperAdmin(authorization);
+    const database = getServerFirestore();
+    const auth = getServerFirebaseAuth();
+
+    if (input.type === "user") {
+      try {
+        await auth.deleteUser(input.id);
+      } catch {
+        // Ignore if user not in auth
+      }
+      await Promise.all([
+        database.collection("users").doc(input.id).delete(),
+        database.collection("learner-profiles").doc(input.id).delete(),
+        database.collection("educatorProfiles").doc(input.id).delete(),
+        database.collection("progress").doc(input.id).delete(),
+      ]);
+      return { success: true, type: "user", id: input.id };
+    }
+
+    if (input.type === "placement") {
+      // Reset placement test results so learner can retake diagnostic
+      await database.collection("placement").doc(input.id).delete();
+      await database.collection("learner-profiles").doc(input.id).set(
+        {
+          placement: { completed: false },
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+      return { success: true, type: "placement", id: input.id };
+    }
+
+    if (input.type === "progress") {
+      await database.collection("progress").doc(input.id).delete();
+      return { success: true, type: "progress", id: input.id };
+    }
+
+    if (input.type === "evidence") {
+      await database.collection("learningEvidence").doc(input.id).delete();
+      return { success: true, type: "evidence", id: input.id };
+    }
+
+    if (input.type === "course") {
+      await database.collection("courses").doc(input.id).delete();
+      return { success: true, type: "course", id: input.id };
+    }
+
+    throw new Error(`Unsupported entity deletion type: ${input.type}`);
+  },
 };
 

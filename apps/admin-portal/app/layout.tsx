@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { AdminRelatedExperiences } from "./components/AdminRelatedExperiences";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import "./globals.css";
 
 const inter = localFont({ src: "./fonts/InterVariable.woff2", display: "swap", weight: "100 900" });
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ToastProvider>
           {children}
           <AdminRelatedExperiences />
+          <EcosystemSupportWidget />
         </ToastProvider>
       </body>
     </html>

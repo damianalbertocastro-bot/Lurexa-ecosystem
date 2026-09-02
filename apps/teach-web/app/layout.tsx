@@ -3,6 +3,7 @@ import { TeachAuthProvider } from "./components/TeachAuthProvider";
 import { TeachRelatedExperiences } from "./components/TeachRelatedExperiences";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <TeachAuthProvider>
             {children}
             <TeachRelatedExperiences />
+            <EcosystemSupportWidget />
           </TeachAuthProvider>
         </ToastProvider>
       </body>

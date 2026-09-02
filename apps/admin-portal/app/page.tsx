@@ -145,28 +145,28 @@ export default function AdminDashboardPage() {
                 Overview
               </Link>
               <Link
+                href="/users"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
+              >
+                Users &amp; Profiles
+              </Link>
+              <Link
+                href="/tools"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
+              >
+                Ecosystem Tools
+              </Link>
+              <Link
+                href="/data-management"
+                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-rose-200 transition hover:bg-rose-500/20 hover:text-white"
+              >
+                Master Deletion 🗑️
+              </Link>
+              <Link
                 href="/billing"
                 className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
               >
                 Billing &amp; Licenses
-              </Link>
-              <Link
-                href="/roster"
-                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
-              >
-                Roster Sync
-              </Link>
-              <Link
-                href="/analytics/phonetics"
-                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
-              >
-                Phonetics &amp; Speaking
-              </Link>
-              <Link
-                href="/analytics/field-pilot"
-                className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 transition hover:bg-white/10 hover:text-white"
-              >
-                Dominican Field Pilot
               </Link>
               <ThemeToggle />
               <EcosystemDropdown currentApp="admin" inverse />

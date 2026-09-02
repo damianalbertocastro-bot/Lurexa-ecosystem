@@ -6,6 +6,7 @@ import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import { OfflineIndicator } from "@lurexa/ui/OfflineIndicator";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import "./globals.css";
 
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <TeacherGuidanceBanner />
           <LearnRelatedExperiences />
           <OfflineIndicator />
+          <EcosystemSupportWidget />
         </ToastProvider>
       </body>
     </html>

@@ -14,7 +14,6 @@ import { DashboardTourModal } from "./components/DashboardTourModal";
 import { VisualStreakTracker } from "./components/VisualStreakTracker";
 import { MilestoneAchievementsCard } from "./components/MilestoneAchievementsCard";
 import { CoachPracticeCard } from "./components/CoachPracticeCard";
-import { SupportHelpModal } from "./components/SupportHelpModal";
 import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
 import { UniversalLearnerModelCard } from "./components/UniversalLearnerModelCard";
 import { SpecializedTracksCard } from "./components/SpecializedTracksCard";
@@ -400,8 +399,6 @@ export default function StudentDashboardPage() {
         isOpen={isTourOpen}
         onClose={() => setIsTourOpen(false)}
       />
-
-      <SupportHelpModal />
     </div>
   );
 }
