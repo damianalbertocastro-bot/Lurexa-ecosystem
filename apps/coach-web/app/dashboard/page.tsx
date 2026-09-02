@@ -371,8 +371,7 @@ export default function CoachDashboardPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-indigo-600 transition">Lurexa Learn</p>
-                      <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 transition">↗</span>
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-indigo-600 transition">Open Learn ↗</p>
                     </div>
                     <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Resume interactive curriculum and lessons.</p>
                   </div>
@@ -387,8 +386,7 @@ export default function CoachDashboardPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-violet-600 transition">Lurexa Teach</p>
-                      <span className="text-xs font-bold text-slate-400 group-hover:text-violet-600 transition">↗</span>
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-violet-600 transition">Open Teach ↗</p>
                     </div>
                     <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Educator training &amp; CEFR growth.</p>
                   </div>
@@ -399,12 +397,11 @@ export default function CoachDashboardPage() {
                   className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-teal-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
                 >
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
-                    <ProductMark compact size="sm" />
+                    <ProductMark product="core" compact size="sm" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-teal-600 transition">All Ecosystem Products</p>
-                      <span className="text-xs font-bold text-slate-400 group-hover:text-teal-600 transition">↗</span>
+                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-teal-600 transition">All Lurexa products ↗</p>
                     </div>
                     <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Platform tools, docs, and services.</p>
                   </div>
