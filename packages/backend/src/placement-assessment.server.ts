@@ -1163,6 +1163,7 @@ export class PlacementAssessmentService {
           learnerId: input.actorId,
           email: input.email,
           placement: {
+            completed: true,
             estimatedLevel,
             confidence,
             isProvisional,

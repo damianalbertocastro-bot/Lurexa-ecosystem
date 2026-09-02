@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: linear-gradient(180deg, #fff 0%, #f5f8ff 54%, #fff 100%);
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
@@ -15,22 +15,31 @@
   text-decoration: none;
 }
 
-/* Sticky Ecosystem Navigation */
-.nav {
+/* Sticky Full-Width Ecosystem Navbar */
+.navWrapper {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(71, 87, 188, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 16px 40px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(71, 87, 188, 0.08);
-  transition: padding 0.2s ease, background 0.2s ease;
+  padding: 14px 24px;
+}
+
+.brandWrapper {
+  position: relative;
+  display: inline-block;
 }
 
 .brand {
@@ -41,6 +50,137 @@
   font-weight: 800;
   letter-spacing: -1.4px;
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.brand:hover {
+  opacity: 0.9;
+}
+
+.brandCaret {
+  font-size: 0.85rem;
+  color: #7b8db5;
+  transition: transform 0.2s ease;
+}
+
+.brandWrapper:hover .brandCaret {
+  transform: translateY(2px);
+  color: var(--color-brand-primary);
+}
+
+/* Hover Accordion Pop-up Menu */
+.logoAccordionPopup {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: 320px;
+  background: #ffffff;
+  border: 1px solid rgba(71, 87, 188, 0.14);
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(31, 50, 120, 0.16);
+  padding: 16px;
+  z-index: 110;
+  animation: popupFadeIn 0.2s ease-out;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popupHeader {
+  border-bottom: 1px solid rgba(71, 87, 188, 0.08);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.popupTitle {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--color-brand-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.popupSubtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.popupItems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popupItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.popupItem:hover {
+  background: #f1f5f9;
+}
+
+.popupItemInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.popupItemName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.popupItemDesc {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.popupItemBadge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* Ergonomic Ecosystem Pill Button */
+.ecosystemPillButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(71, 87, 188, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px 18px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--color-brand-primary);
+  box-shadow: 0 4px 14px rgba(31, 50, 120, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ecosystemPillButton:hover {
+  background: #ffffff;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 6px 20px rgba(31, 50, 120, 0.12);
+  transform: translateY(-1px);
 }
 
 .masterMarkSmall {

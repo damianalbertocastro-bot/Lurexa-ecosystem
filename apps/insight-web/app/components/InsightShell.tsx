@@ -24,6 +24,8 @@ export function InsightShell({
 }) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -36,9 +38,18 @@ export function InsightShell({
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)]">
+    <div className="flex min-h-screen flex-col justify-between bg-[var(--lx-canvas)] text-[var(--lx-ink)]">
       <header className="sticky top-0 z-40 border-b border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-xl shadow-xs">
-        <div className="mx-auto flex max-w-[1440px] items-center gap-5 px-5 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1440px] items-center gap-4 px-4 py-3 sm:px-8">
+          <Button
+            type="button"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label="Toggle navigation drawer"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] text-slate-850 dark:text-white lg:hidden"
+          >
+            ☰
+          </Button>
+
           <Link
             href="/"
             aria-label="Lurexa Insight home"
@@ -86,6 +97,40 @@ export function InsightShell({
           </div>
         </div>
 
+        {/* Mobile slide-out drawer */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <div
+              className="h-full w-72 max-w-[80vw] bg-[var(--lx-surface)] p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-[var(--lx-border)] pb-4">
+                <ProductMark product="insight" compact />
+                <Button onClick={() => setSidebarOpen(false)} className="rounded-lg p-1.5 text-xs text-slate-900 dark:text-white">✕</Button>
+              </div>
+              <nav className="mt-4 flex flex-col gap-1.5">
+                {nav.map(([label, href]) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`rounded-xl px-4 py-2.5 text-sm font-bold transition ${
+                      active === label
+                        ? "bg-[var(--lx-primary)] text-white"
+                        : "text-slate-900 dark:text-slate-100 hover:bg-[var(--lx-canvas)]"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Navigation */}
         <nav
           className="flex items-center gap-1 overflow-x-auto border-t border-[var(--lx-border)] px-4 py-2 lg:hidden"
@@ -111,6 +156,26 @@ export function InsightShell({
       <main id="main-content" className="flex-1">
         {children}
       </main>
+
+      <footer className="mt-auto border-t border-[var(--lx-border)] bg-[var(--lx-surface)]">
+        <div className="mx-auto grid max-w-[1440px] gap-7 px-5 py-10 sm:px-8 md:grid-cols-[1fr_auto]">
+          <div>
+            <ProductMark product="insight" />
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--lx-muted)]">
+              Cross-product longitudinal analytics, CEFR velocity radar, Dominican Spanish linguistic diagnostics, and educator grade calibration.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-bold text-[var(--lx-muted)]">
+            <Link href="/">Overview</Link>
+            <Link href="/cohorts">Phonemic Heatmaps</Link>
+            <Link href="/interventions">Intervention Routing</Link>
+            <Link href="/reports">Milestone Reports</Link>
+            <a href="https://learn.lurexa.org">Lurexa Learn ↗</a>
+            <a href="https://teach.lurexa.org">Lurexa Teach ↗</a>
+            <a href="https://lurexa.org">Ecosystem ↗</a>
+          </div>
+        </div>
+      </footer>
 
       <CommandPalette
         isOpen={commandPaletteOpen}

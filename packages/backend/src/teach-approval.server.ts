@@ -56,10 +56,11 @@ export class TeachApprovalService {
       };
     }
 
-    // Check if the user is already a campus admin or superuser, auto-approve them
+    // Check if the user is an existing Lurexa Learn student/learner
     const userDoc = await database.collection("users").doc(userId).get();
     const userRole = userDoc.exists ? userDoc.data()?.role : null;
-    const isPreAuthorized = userRole === "super_admin" || userRole === "admin" || userRole === "superuser";
+    const isLearnStudent = userRole === "student" || userRole === "learner";
+    const isPreAuthorized = !isLearnStudent || userRole === "super_admin" || userRole === "admin" || userRole === "superuser" || userRole === "educator" || userRole === "teacher";
 
     const timestamp = new Date().toISOString();
     const newProfile: EducatorProfile = {

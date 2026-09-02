@@ -51,7 +51,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--teach-mist)] text-[var(--teach-ink)]">
+    <div className="flex min-h-screen flex-col justify-between bg-[var(--teach-mist)] text-[var(--teach-ink)]">
       <header className="sticky top-0 z-40 border-b border-[var(--lx-border)] bg-[var(--lx-surface)]/95 backdrop-blur-xl shadow-xs">
         <div className="mx-auto flex max-w-[1440px] items-center gap-4 px-4 py-3 sm:px-8">
           <Button
@@ -190,9 +190,11 @@ export function TeachShell({ active, children }: { active: string; children: Rea
         </nav>
       </header>
 
-      {children}
+      <div className="flex-1 w-full">
+        {children}
+      </div>
 
-      <footer className="border-t border-[var(--lx-border)] bg-[var(--lx-surface)]">
+      <footer className="mt-auto border-t border-[var(--lx-border)] bg-[var(--lx-surface)]">
         <div className="mx-auto grid max-w-[1440px] gap-7 px-5 py-10 sm:px-8 md:grid-cols-[1fr_auto]">
           <div>
             <ProductMark product="teach" />

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { MasterMark } from "@lurexa/ui/MasterMark";
-import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import Image from "next/image";
 import {
   lurexaProducts,
@@ -88,6 +87,8 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("products");
 
+  const [logoPopupOpen, setLogoPopupOpen] = useState(false);
+
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -100,34 +101,74 @@ export default function Home() {
   return (
     <main className={styles.page}>
       {/* Sticky Top Ecosystem Navbar */}
-      <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
-        <a className={styles.brand} href="#top" onClick={scrollToTop} aria-label="Lurexa home - Scroll to top">
-          <MasterMark compact size="sm" />
-          <span>Lurexa</span>
-        </a>
-        <div className={styles.navLinks}>
-          <a href="#why-lurexa">Why Lurexa</a>
-          <a href="#products">Products</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#shared-intelligence">How it works</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <button
-            type="button"
-            className={styles.menuToggle}
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open Navigation Sidebar"
+      <header className={styles.navWrapper}>
+        <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
+          <div
+            className={styles.brandWrapper}
+            onMouseEnter={() => setLogoPopupOpen(true)}
+            onMouseLeave={() => setLogoPopupOpen(false)}
           >
-            ☰
-          </button>
-          <EcosystemDropdown currentApp="root" />
-          <a className={styles.navCta} href={learnUrl}>
-            Enter Learn <span>↗</span>
-          </a>
-        </div>
-      </nav>
+            <a className={styles.brand} href="#top" onClick={scrollToTop} aria-label="Lurexa home - Scroll to top">
+              <MasterMark compact size="sm" />
+              <span>Lurexa</span>
+              <span className={styles.brandCaret}>▾</span>
+            </a>
+
+            {logoPopupOpen && (
+              <div className={styles.logoAccordionPopup} role="menu">
+                <div className={styles.popupHeader}>
+                  <p className={styles.popupTitle}>Lurexa Ecosystem</p>
+                  <p className={styles.popupSubtitle}>One Learner. Adaptive Products.</p>
+                </div>
+                <div className={styles.popupItems}>
+                  {products.map((p) => (
+                    <a key={p.id} href={p.href} className={styles.popupItem}>
+                      <div className={styles.popupItemInfo}>
+                        <span className={styles.popupItemName}>{p.name}</span>
+                        <span className={styles.popupItemDesc}>{p.eyebrow}</span>
+                      </div>
+                      <span className={styles.popupItemBadge}>{p.status.split("•")[0]?.trim()}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.navLinks}>
+            <a href="#why-lurexa">Why Lurexa</a>
+            <a href="#products">Products</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#shared-intelligence">How it works</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <button
+              type="button"
+              className={styles.menuToggle}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open Navigation Sidebar"
+            >
+              ☰
+            </button>
+            <button
+              type="button"
+              className={styles.ecosystemPillButton}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open Ecosystem Accordion Menu"
+            >
+              <span>🌐</span>
+              <span>Ecosystem</span>
+              <span>▾</span>
+            </button>
+            <a className={styles.navCta} href={learnUrl}>
+              Enter Learn <span>↗</span>
+            </a>
+          </div>
+        </nav>
+      </header>
 
       {/* Responsive Slide-out Sidebar Accordion */}
       {sidebarOpen && (

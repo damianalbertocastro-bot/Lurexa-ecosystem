@@ -37,15 +37,15 @@ export function TeachPrivate({ children }: { children: React.ReactNode }) {
               ? "Educator Access Not Approved"
               : isPendingApproval
               ? "Educator Access Pending Approval"
-              : "Educator Authorization Required"}
+              : "Educator Authorization Required for Learn Students"}
           </h2>
 
           <p className="mt-3 text-sm leading-relaxed text-[var(--lx-muted)]">
             {isRejected
               ? profile?.rejectionReason || "Your request to access Lurexa Teach was reviewed and could not be approved at this time. Please reach out to your Campus Administrator."
               : isPendingApproval
-              ? "Your Lurexa Teach access request has been submitted and is currently under review by a Superuser or Campus Administrator."
-              : "Lurexa Teach is reserved for verified educators and teacher trainees. Access requires prior authorization from a Superuser or Campus Administrator."}
+              ? "Your Lurexa Teach educator access request has been submitted and is currently under review by a Superadmin or Campus Administrator."
+              : "Lurexa Teach is reserved for verified educators and teacher trainees. If you are registered as a student in Lurexa Learn, accessing Teach requires permission from a Superadmin or Campus Administrator. If you are an educator, you can submit an access request below."}
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -60,7 +60,7 @@ export function TeachPrivate({ children }: { children: React.ReactNode }) {
             ) : null}
 
             <a
-              href="https://learn.lurexa.com"
+              href="https://learn.lurexa.org"
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-6 text-sm font-bold text-[var(--color-brand-navy)] hover:bg-[var(--lx-surface)] transition"
             >
               Return to Lurexa Learn →

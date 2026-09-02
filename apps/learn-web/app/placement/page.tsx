@@ -244,6 +244,15 @@ function PlacementContent() {
       if (!submitResponse.ok || !finalResult.estimatedLevel) {
         throw new Error(finalResult.error ?? "Placement evaluation failed.");
       }
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("lurexa_placement_completed", "true");
+          localStorage.setItem("lurexa_placement_level", finalResult.estimatedLevel);
+          localStorage.setItem("lurexa_placement_result", JSON.stringify(finalResult));
+        }
+      } catch {
+        // safe ignore storage quota or sandbox errors
+      }
       setResult(finalResult);
       setStage("results");
     } catch (err) {

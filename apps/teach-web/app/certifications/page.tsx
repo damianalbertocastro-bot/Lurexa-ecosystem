@@ -51,7 +51,7 @@ export default function CertificationsPage() {
   };
 
   const getLinkedInCertUrl = (credName: string, code: string) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://lurexa.com";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://teach.lurexa.org";
     const certUrl = `${origin}/verify/${code}`;
     return `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(credName)}&organizationName=${encodeURIComponent("Lurexa Learning Technologies")}&certUrl=${encodeURIComponent(certUrl)}&certId=${encodeURIComponent(code)}`;
   };

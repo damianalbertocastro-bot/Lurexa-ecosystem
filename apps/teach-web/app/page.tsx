@@ -29,7 +29,7 @@ export default function TeachHome() {
               <div className="mt-9 flex flex-wrap gap-3">
                 <a
                   href="/dashboard"
-                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-extrabold text-slate-900 shadow-xl transition hover:bg-slate-100"
+                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black shadow-xl transition hover:bg-slate-100"
                 >
                   Start your growth path →
                 </a>
@@ -138,19 +138,19 @@ export default function TeachHome() {
 
         {/* Final Chapter CTA */}
         <section className="mx-auto max-w-[1440px] px-5 sm:px-8">
-          <div className="rounded-[34px] bg-gradient-to-r from-[var(--lx-primary)] to-[var(--lx-secondary)] p-8 text-white shadow-xl sm:p-12">
-            <p className="text-[11px] font-black tracking-[.18em] text-[#50e3c2]">
+          <div className="rounded-[34px] border border-indigo-400/40 dark:border-white/20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 p-8 text-white shadow-2xl sm:p-12">
+            <p className="text-xs font-black tracking-[.22em] text-teal-300 drop-shadow-xs">
               YOUR NEXT PROFESSIONAL CHAPTER
             </p>
-            <h2 className="mt-4 max-w-3xl text-4xl font-black tracking-[-.055em] text-white sm:text-5xl">
+            <h2 className="mt-4 max-w-3xl text-4xl font-black tracking-[-.055em] text-white sm:text-5xl drop-shadow-sm">
               Build a professional record that grows with you.
             </h2>
-            <p className="mt-5 max-w-2xl leading-7 text-indigo-100">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/95 dark:text-white/90 font-medium">
               Your Lurexa Teach profile becomes the evidence layer for learning, credentials, strengths, goals, and contributions across your teaching career.
             </p>
             <a
               href="/growth"
-              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-extrabold text-slate-900 shadow-lg transition hover:bg-slate-100"
+              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black shadow-xl transition hover:bg-slate-100"
             >
               View the growth model →
             </a>

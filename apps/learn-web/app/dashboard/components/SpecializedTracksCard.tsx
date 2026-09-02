@@ -49,83 +49,71 @@ export const SpecializedTracksCard: React.FC<SpecializedTracksCardProps> = ({
         </Link>
       }
     >
-      {unlockedTracks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--lx-border)] bg-[var(--lx-canvas)]/40 p-6 text-center">
-          <p className="text-sm font-semibold text-[var(--lx-ink)]">
-            Career Tracks unlock starting at CEFR A2
-          </p>
-          <p className="mt-1 text-xs text-[var(--lx-muted)]">
-            Complete your A1 Foundations lessons or take the Placement Diagnostic to unlock BPO Call Center, Tourism, and Software Engineering English tracks.
-          </p>
-          <div className="mt-4 flex justify-center gap-2">
-            {lockedTracks.map((track) => (
-              <span
-                key={track.id}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-1 text-[11px] font-medium text-[var(--lx-muted)]"
-              >
-                🔒 {track.title} ({track.minimumCefrLevel}+)
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="grid gap-3 pt-2 sm:grid-cols-3">
-          {unlockedTracks.map((track) => (
-            <Link
-              key={track.id}
-              href={`/learn/tracks/${track.slug}`}
-              className="group flex flex-col justify-between rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--lx-primary)]/50 hover:bg-[var(--lx-canvas)] hover:shadow-xs"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <Badge variant="info">{track.targetIndustry}</Badge>
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                    ✓ Unlocked ({track.minimumCefrLevel}+)
-                  </span>
-                </div>
-                <h4 className="mt-2.5 text-xs font-bold text-[var(--lx-ink)] group-hover:text-[var(--lx-primary)] transition-colors">
-                  {track.title}
-                </h4>
-                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--lx-muted)]">
-                  {track.description}
-                </p>
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t border-[var(--lx-border)] pt-2.5 text-[10px] font-bold text-[var(--lx-primary)]">
-                <span>{track.modules.length} Modules</span>
-                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-              </div>
-            </Link>
-          ))}
+      <div className="grid gap-4 pt-2 sm:grid-cols-3">
+        {SPECIALIZED_INDUSTRY_TRACKS.map((track) => {
+          const minRank = CEFR_RANKS[track.minimumCefrLevel.toUpperCase()] ?? 1;
+          const isUnlocked = userRank >= minRank;
 
-          {lockedTracks.map((track) => (
+          if (isUnlocked) {
+            return (
+              <Link
+                key={track.id}
+                href={`/learn/tracks/${track.slug}`}
+                className="group flex flex-col justify-between rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="info">{track.targetIndustry}</Badge>
+                    <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                      ✓ Ready ({track.minimumCefrLevel}+)
+                    </span>
+                  </div>
+                  <h4 className="mt-3 text-sm font-bold text-[var(--lx-ink)] group-hover:text-[var(--lx-primary)] transition-colors">
+                    {track.title}
+                  </h4>
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[var(--lx-muted)]">
+                    {track.description}
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-[var(--lx-border)] pt-3 text-xs font-bold text-[var(--lx-primary)]">
+                  <span>{track.modules.length} Modules</span>
+                  <span className="group-hover:translate-x-0.5 transition-transform">Enter Course →</span>
+                </div>
+              </Link>
+            );
+          }
+
+          return (
             <div
               key={track.id}
-              className="flex flex-col justify-between rounded-2xl border border-dashed border-[var(--lx-border)] bg-[var(--lx-canvas)]/30 p-4 opacity-70"
+              className="flex flex-col justify-between rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 p-5 select-none"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                  <span className="rounded-full bg-slate-200/70 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-400">
                     {track.targetIndustry}
                   </span>
-                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                    🔒 Requires {track.minimumCefrLevel}
+                  <span className="rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
+                    🔒 Blocked ({track.minimumCefrLevel}+)
                   </span>
                 </div>
-                <h4 className="mt-2.5 text-xs font-bold text-[var(--lx-ink)]">
+                <h4 className="mt-3 text-sm font-bold text-[var(--lx-muted)]">
                   {track.title}
                 </h4>
-                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--lx-muted)]">
+                <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[var(--lx-muted)]/80">
                   {track.description}
                 </p>
               </div>
-              <div className="mt-3 flex items-center justify-between border-t border-[var(--lx-border)] pt-2.5 text-[10px] font-semibold text-[var(--lx-muted)]">
-                <span>Unlocks at {track.minimumCefrLevel}</span>
-                <span>🔒</span>
+              <div className="mt-4 border-t border-slate-200/80 dark:border-slate-800 pt-3">
+                <div className="flex items-center justify-between text-[11px] font-medium text-rose-600 dark:text-rose-400">
+                  <span>Requires CEFR {track.minimumCefrLevel} (Your Level: {userCefrLevel})</span>
+                  <span>🔒</span>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </Card>
   );
 };

@@ -109,6 +109,10 @@ export default function StudentDashboardPage() {
             if (!hasSeenTour) {
               setIsTourOpen(true);
             }
+            const storedLevel = localStorage.getItem("lurexa_placement_level");
+            if (storedLevel && !dashboard.cefrLevel) {
+              setCefrLevel(storedLevel);
+            }
           } catch {
             // LocalStorage might be inaccessible in some sandbox contexts
           }
@@ -331,25 +335,7 @@ export default function StudentDashboardPage() {
               onStartLesson={handleStartFirstLesson}
             />
 
-            {placement?.completed ? (
-              <Card
-                className="border-0 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 shadow-md"
-                title="CEFR Standing Calibrated"
-                subtitle={`Level ${cefrLevel || placement.estimatedLevel || "A1"} Confirmed`}
-              >
-                <div className="space-y-2.5 pt-2 text-xs text-emerald-950 dark:text-emerald-200 font-medium">
-                  <p>Your curriculum pathway is optimized for <strong>{cefrLevel || placement.estimatedLevel || "A1"}</strong>.</p>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="w-full bg-white dark:bg-slate-900 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-white font-bold"
-                    onClick={() => router.push("/placement")}
-                  >
-                    Recalibrate Diagnostics →
-                  </Button>
-                </div>
-              </Card>
-            ) : (
+            {!(placement?.completed || (typeof window !== "undefined" && localStorage.getItem("lurexa_placement_completed") === "true")) && (
               <Card
                 className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60"
                 title="Placement Diagnostic"

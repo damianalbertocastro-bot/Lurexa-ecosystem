@@ -18,40 +18,40 @@ export default function InsightOverviewPage() {
     <InsightShell active="Overview">
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
         {/* Executive Hero / Header */}
-        <section className="relative overflow-hidden rounded-3xl border border-[var(--lx-border)] bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-canvas)] to-[var(--lx-surface)] p-6 sm:p-8 shadow-[var(--lx-card-shadow)]">
+        <section className="relative overflow-hidden rounded-[32px] border border-sky-200/50 dark:border-sky-900/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 p-6 sm:p-10 text-white shadow-2xl">
+          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-secondary)]">
-                  INSTITUTIONAL INTELLIGENCE
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[.18em] text-sky-300">
+                  <span>🏛️</span> INSTITUTIONAL INTELLIGENCE
                 </span>
-                <span className="text-[var(--lx-muted)]">·</span>
-                <Badge variant="info" className="text-[10px]">
+                <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[11px] font-extrabold text-white">
                   {analytics.organizationName}
-                </Badge>
-                <Badge variant="success" className="text-[10px]">
-                  Core Governed
-                </Badge>
+                </span>
+                <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">
+                  ✓ Core Governed
+                </span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+              <h1 className="text-2xl sm:text-4xl font-black tracking-[-0.04em] text-white">
                 Executive CEFR Velocity &amp; Learning Radar
               </h1>
-              <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-[var(--lx-muted)]">
+              <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-200 font-medium">
                 Longitudinal CEFR progression, Dominican Spanish linguistic transfer metrics, and dropout early-warning telemetry calibrated with Lurexa Mind models.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/cohorts">
-                <Button className="rounded-xl bg-[var(--lx-primary)] px-4 py-2.5 text-xs font-black text-white shadow-xs hover:opacity-95 transition">
+                <Button className="rounded-xl bg-gradient-to-r from-sky-400 to-indigo-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-lg hover:opacity-95 transition">
                   Phonemic Heatmaps →
                 </Button>
               </Link>
               <Link href="/interventions">
                 <Button
                   variant="secondary"
-                  className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2.5 text-xs font-bold text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)]"
+                  className="rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-xs font-bold text-white hover:bg-white/20 transition"
                 >
                   Active Interventions
                 </Button>
@@ -62,42 +62,42 @@ export default function InsightOverviewPage() {
 
         {/* Top-Level KPI Metric Cards */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          <Card className="p-5 rounded-[24px] border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md hover:border-sky-400 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Active Cohort
+              <span className="flex items-center gap-1.5 text-xs font-black text-[var(--lx-muted)] uppercase tracking-wider">
+                <span>👥</span> Active Cohort
               </span>
-              <Badge variant="success" className="text-[10px]">
+              <Badge variant="success" className="text-[10px] font-bold">
                 ↑ +18% MoM
               </Badge>
             </div>
             <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
               {analytics.activeLearnersCount.toLocaleString()}
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Enrolled students in active terms</p>
+            <p className="mt-1 text-xs text-[var(--lx-muted)] font-medium">Enrolled students in active terms</p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          <Card className="p-5 rounded-[24px] border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md hover:border-indigo-400 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Speaking Velocity
+              <span className="flex items-center gap-1.5 text-xs font-black text-[var(--lx-muted)] uppercase tracking-wider">
+                <span>🎙️</span> Speaking Velocity
               </span>
-              <Badge variant="info" className="text-[10px]">
+              <Badge variant="info" className="text-[10px] font-bold">
                 Active Weekly
               </Badge>
             </div>
             <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
               {analytics.averageSpeakingMinutesPerLearner} min
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Average weekly spoken practice</p>
+            <p className="mt-1 text-xs text-[var(--lx-muted)] font-medium">Average weekly spoken practice</p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          <Card className="p-5 rounded-[24px] border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md hover:border-emerald-400 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Grading SLA (&lt;24h)
+              <span className="flex items-center gap-1.5 text-xs font-black text-[var(--lx-muted)] uppercase tracking-wider">
+                <span>⏱️</span> Grading SLA (&lt;24h)
               </span>
-              <Badge variant="success" className="text-[10px]">
+              <Badge variant="success" className="text-[10px] font-bold">
                 Target Met
               </Badge>
             </div>
@@ -109,24 +109,24 @@ export default function InsightOverviewPage() {
               )}
               %
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">
+            <p className="mt-1 text-xs text-[var(--lx-muted)] font-medium">
               Avg turnaround: {analytics.assignmentSla.averageGradingHours} hours
             </p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          <Card className="p-5 rounded-[24px] border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md hover:border-amber-400 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Mind AI Grade Alignment
+              <span className="flex items-center gap-1.5 text-xs font-black text-[var(--lx-muted)] uppercase tracking-wider">
+                <span>🤖</span> Mind AI Grade Alignment
               </span>
-              <Badge variant="warning" className="text-[10px]">
-                Educator Verified
+              <Badge variant="warning" className="text-[10px] font-bold">
+                Verified
               </Badge>
             </div>
             <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
               {analytics.assignmentSla.aiSuggestedGradesAcceptedPercent}%
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Instructor review acceptance rate</p>
+            <p className="mt-1 text-xs text-[var(--lx-muted)] font-medium">Instructor review acceptance rate</p>
           </Card>
         </section>
 
