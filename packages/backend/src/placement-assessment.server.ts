@@ -41,9 +41,11 @@ export interface PlacementDiagnosticResult {
 
 const ORGANIZATION_ID = "lurexa-self-paced";
 
-// Comprehensive multi-skill item bank across CEFR A1 - C1
+// Comprehensive multi-skill item bank across CEFR A1 - C2 (60 items total)
 export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
-  // A1 Items
+  // ==========================================
+  // A1 FOUNDATIONS (10 Items)
+  // ==========================================
   {
     id: "a1-gram-01",
     cefr: "A1",
@@ -56,6 +58,17 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Subject-verb agreement (be)",
   },
   {
+    id: "a1-gram-02",
+    cefr: "A1",
+    skill: "grammar",
+    title: "Possessive Determiners",
+    prompt: "Maria is a doctor. ___ office is in Santiago.",
+    options: ["Her", "His", "Their", "Your"],
+    correctAnswer: "Her",
+    explanation: "Use 'Her' for third-person singular female possessor.",
+    focusArea: "Possessive adjectives",
+  },
+  {
     id: "a1-voc-01",
     cefr: "A1",
     skill: "vocabulary",
@@ -65,6 +78,28 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     correctAnswer: "Nice to meet you.",
     explanation: "'Nice to meet you' is standard when introduced to someone for the first time.",
     focusArea: "Social formulaic greetings",
+  },
+  {
+    id: "a1-voc-02",
+    cefr: "A1",
+    skill: "vocabulary",
+    title: "Daily Routine Collocations",
+    prompt: "Every morning, I ___ up at 6:30 AM and ___ a cup of coffee.",
+    options: ["wake / drink", "wake / make", "stand / eat", "look / take"],
+    correctAnswer: "wake / drink",
+    explanation: "'Wake up' and 'drink coffee' are standard everyday routine collocations.",
+    focusArea: "Daily life verbs",
+  },
+  {
+    id: "a1-voc-03",
+    cefr: "A1",
+    skill: "vocabulary",
+    title: "Family & Relationships",
+    prompt: "My father's sister is my ___.",
+    options: ["aunt", "niece", "cousin", "daughter"],
+    correctAnswer: "aunt",
+    explanation: "Your father's or mother's sister is your aunt.",
+    focusArea: "Family member vocabulary",
   },
   {
     id: "a1-list-01",
@@ -79,6 +114,30 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Listening for simple factual location",
   },
   {
+    id: "a1-list-02",
+    cefr: "A1",
+    skill: "listening",
+    title: "Cafe Order & Price",
+    audioPrompt: "That will be three dollars and fifty cents for the regular coffee, please.",
+    prompt: "How much does the coffee cost?",
+    options: ["$3.50", "$3.15", "$5.30", "$3.05"],
+    correctAnswer: "$3.50",
+    explanation: "The barista explicitly says 'three dollars and fifty cents' ($3.50).",
+    focusArea: "Listening for numbers and monetary amounts",
+  },
+  {
+    id: "a1-read-01",
+    cefr: "A1",
+    skill: "reading",
+    title: "Store Opening Notice",
+    contextText: "Welcome to Bella Vista Cafe! Open Monday to Saturday: 7:00 AM – 8:00 PM. Closed on Sundays.",
+    prompt: "When can you visit Bella Vista Cafe?",
+    options: ["On Friday afternoon", "On Sunday morning", "Every day at midnight", "Only on weekends"],
+    correctAnswer: "On Friday afternoon",
+    explanation: "The cafe is open Monday through Saturday between 7 AM and 8 PM.",
+    focusArea: "Reading basic operational notices",
+  },
+  {
     id: "a1-phon-01",
     cefr: "A1",
     skill: "phonetics",
@@ -89,8 +148,21 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     explanation: "In standard English, /s/ clusters begin directly with the voiceless sibilant without an epenthetic vowel.",
     focusArea: "Dominican Spanish initial /s/ cluster transfer",
   },
+  {
+    id: "a1-phon-02",
+    cefr: "A1",
+    skill: "phonetics",
+    title: "Short vs Long Vowels (/ɪ/ vs /iː/)",
+    prompt: "Which pair of words contains two distinctly different vowel sounds in English?",
+    options: ["ship / sheep", "seat / seat", "bean / been (same)", "meet / meat"],
+    correctAnswer: "ship / sheep",
+    explanation: "'Ship' has the short lax vowel /ɪ/ while 'sheep' has the long tense vowel /iː/.",
+    focusArea: "Vowel duration and lax/tense contrast",
+  },
 
-  // A2 Items
+  // ==========================================
+  // A2 ELEMENTARY & EVERYDAY (12 Items)
+  // ==========================================
   {
     id: "a2-gram-01",
     cefr: "A2",
@@ -103,16 +175,88 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Irregular past simple forms",
   },
   {
+    id: "a2-gram-02",
+    cefr: "A2",
+    skill: "grammar",
+    title: "Comparatives & Superlatives",
+    prompt: "This public transit line is ___ and ___ than driving during rush hour.",
+    options: ["faster / cheaper", "more fast / more cheap", "fastest / cheapest", "more faster / cheaper"],
+    correctAnswer: "faster / cheaper",
+    explanation: "Short one-syllable adjectives form comparatives with '-er' (faster, cheaper).",
+    focusArea: "Comparative adjective morphology",
+  },
+  {
+    id: "a2-gram-03",
+    cefr: "A2",
+    skill: "grammar",
+    title: "Quantifiers: Much vs Many",
+    prompt: "We don't have ___ time, but there are ___ questions left.",
+    options: ["much / many", "many / much", "a lot / much", "many / many"],
+    correctAnswer: "much / many",
+    explanation: "Use 'much' with uncountable nouns (time) and 'many' with countable plural nouns (questions).",
+    focusArea: "Countable vs uncountable quantifiers",
+  },
+  {
+    id: "a2-voc-01",
+    cefr: "A2",
+    skill: "vocabulary",
+    title: "Airport & Travel Navigation",
+    prompt: "Before you board the airplane, you must show your passport and ___.",
+    options: ["boarding pass", "credit receipt", "luggage claim", "driver's license"],
+    correctAnswer: "boarding pass",
+    explanation: "A 'boarding pass' is the official airline document required to board.",
+    focusArea: "Airport navigation vocabulary",
+  },
+  {
+    id: "a2-voc-02",
+    cefr: "A2",
+    skill: "vocabulary",
+    title: "Customer & Retail Interactions",
+    prompt: "Customer: 'Excuse me, do you have this shirt in a larger ___?'",
+    options: ["size", "number", "measurement", "price"],
+    correctAnswer: "size",
+    explanation: "In clothing retail, garment sizing is referred to as 'size' (Small, Medium, Large).",
+    focusArea: "Shopping & clothing retail transactions",
+  },
+  {
+    id: "a2-voc-03",
+    cefr: "A2",
+    skill: "vocabulary",
+    title: "Health & Physical Symptoms",
+    prompt: "I have a terrible headache and a high fever, so I need to make an ___ with the doctor.",
+    options: ["appointment", "interview", "invitation", "agreement"],
+    correctAnswer: "appointment",
+    explanation: "You schedule a professional medical 'appointment' with a doctor or dentist.",
+    focusArea: "Health and medical appointments",
+  },
+  {
     id: "a2-read-01",
     cefr: "A2",
     skill: "reading",
-    title: "Public Notice",
+    title: "Public Transit Detour",
     contextText: "Bus Notice: Due to road work on Avenida Central, buses on Route 4 will stop on Calle Luna until Friday evening.",
     prompt: "Where should passengers take Route 4 this week?",
     options: ["On Calle Luna", "On Avenida Central", "At the central station", "Only on Friday"],
     correctAnswer: "On Calle Luna",
     explanation: "The notice states buses will temporarily stop on Calle Luna until Friday.",
     focusArea: "Extracting explicit information from public signs",
+  },
+  {
+    id: "a2-read-02",
+    cefr: "A2",
+    skill: "reading",
+    title: "Restaurant Menu Allergies",
+    contextText: "Menu Note: All our bakery items may contain traces of peanuts and dairy. Gluten-free options are prepared in a dedicated separate oven upon request.",
+    prompt: "How can a customer get a gluten-free pastry safely?",
+    options: [
+      "By requesting it so it is baked in the separate oven",
+      "All items on the menu are automatically gluten-free",
+      "By visiting only on weekends",
+      "Gluten-free food is not available"
+    ],
+    correctAnswer: "By requesting it so it is baked in the separate oven",
+    explanation: "The menu specifies gluten-free options are prepared in a dedicated separate oven upon request.",
+    focusArea: "Scanning menus for dietary constraints",
   },
   {
     id: "a2-list-01",
@@ -127,6 +271,18 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Listening for time and schedule updates",
   },
   {
+    id: "a2-list-02",
+    cefr: "A2",
+    skill: "listening",
+    title: "Transit Directions",
+    audioPrompt: "To reach the medical center, take the blue metro line toward Downtown, get off at Station 5, and take Exit B.",
+    prompt: "Which station exit should you take for the medical center?",
+    options: ["Exit B at Station 5", "Exit A at Station 4", "The Central Terminal", "Exit 5 at Downtown Station"],
+    correctAnswer: "Exit B at Station 5",
+    explanation: "The speaker states 'get off at Station 5, and take Exit B.'",
+    focusArea: "Following multi-step directional instructions",
+  },
+  {
     id: "a2-phon-01",
     cefr: "A2",
     skill: "phonetics",
@@ -137,8 +293,21 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     explanation: "Verbs ending in /t/ or /d/ add the full extra syllable /ɪd/ (e.g. de-ci-ded).",
     focusArea: "Regular past tense -ed allomorphs",
   },
+  {
+    id: "a2-phon-02",
+    cefr: "A2",
+    skill: "phonetics",
+    title: "Word Stress in Compound Nouns",
+    prompt: "Where is the primary stress placed in the compound word 'AIRPORT'?",
+    options: ["On the first syllable: AIR-port", "On the second syllable: air-PORT", "Even stress on both syllables", "Stress on the final consonant"],
+    correctAnswer: "On the first syllable: AIR-port",
+    explanation: "In English compound nouns, primary tonic stress predominantly falls on the first element (AIR-port, POST office).",
+    focusArea: "Compound noun stress patterns",
+  },
 
-  // B1 Items
+  // ==========================================
+  // B1 INTERMEDIATE & WORKPLACE (12 Items)
+  // ==========================================
   {
     id: "b1-gram-01",
     cefr: "B1",
@@ -151,16 +320,26 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Duration with present perfect",
   },
   {
-    id: "b1-read-01",
+    id: "b1-gram-02",
     cefr: "B1",
-    skill: "reading",
-    title: "Workplace Email",
-    contextText: "Although the initial client feedback was hesitant regarding our proposal timeline, our updated delivery milestones have reassured their executive team.",
-    prompt: "What was the client's final reaction after seeing the updated milestones?",
-    options: ["They felt reassured.", "They canceled the proposal.", "They remained hesitant.", "They requested more time."],
-    correctAnswer: "They felt reassured.",
-    explanation: "'reassured their executive team' indicates they gained confidence with the updated milestones.",
-    focusArea: "Understanding contrasting clauses (although) and sentiment",
+    skill: "grammar",
+    title: "Modals of Obligation",
+    prompt: "According to company security policies, all employees ___ wear their digital badges inside the server facility.",
+    options: ["must", "might", "could", "would"],
+    correctAnswer: "must",
+    explanation: "'Must' indicates a strict regulatory requirement or mandatory obligation.",
+    focusArea: "Modals of necessity and workplace rules",
+  },
+  {
+    id: "b1-gram-03",
+    cefr: "B1",
+    skill: "grammar",
+    title: "Second Conditional (Hypothetical)",
+    prompt: "If I ___ more free time, I ___ learn how to play the guitar.",
+    options: ["had / would", "have / will", "had / will", "would have / did"],
+    correctAnswer: "had / would",
+    explanation: "Second conditional uses 'if + past simple' with 'would + base verb' for present hypothetical situations.",
+    focusArea: "Hypothetical conditionals",
   },
   {
     id: "b1-voc-01",
@@ -174,6 +353,91 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Make vs Do collocations",
   },
   {
+    id: "b1-voc-02",
+    cefr: "B1",
+    skill: "vocabulary",
+    title: "Workplace Phrasal Verbs",
+    prompt: "Because the project manager was ill, we had to ___ the afternoon client presentation until next Tuesday.",
+    options: ["call off", "put off", "take off", "look up"],
+    correctAnswer: "put off",
+    explanation: "'Put off' means to postpone or reschedule to a later time.",
+    focusArea: "Workplace phrasal verbs (postpone)",
+  },
+  {
+    id: "b1-voc-03",
+    cefr: "B1",
+    skill: "vocabulary",
+    title: "False Cognates: Embarrassed vs Pregnant",
+    prompt: "When I spilled coffee during the job interview, I felt extremely ___.",
+    options: ["embarrassed", "pregnant", "disgusted", "compromised"],
+    correctAnswer: "embarrassed",
+    explanation: "'Embarrassed' means feeling awkward or ashamed. (Spanish 'embarazada' is a famous false friend meaning pregnant).",
+    focusArea: "Dominican Spanish false cognate differentiation",
+  },
+  {
+    id: "b1-read-01",
+    cefr: "B1",
+    skill: "reading",
+    title: "Workplace Email & Milestones",
+    contextText: "Although the initial client feedback was hesitant regarding our proposal timeline, our updated delivery milestones have reassured their executive team.",
+    prompt: "What was the client's final reaction after seeing the updated milestones?",
+    options: ["They felt reassured.", "They canceled the proposal.", "They remained hesitant.", "They requested more time."],
+    correctAnswer: "They felt reassured.",
+    explanation: "'reassured their executive team' indicates they gained confidence with the updated milestones.",
+    focusArea: "Understanding contrasting clauses (although) and sentiment",
+  },
+  {
+    id: "b1-read-02",
+    cefr: "B1",
+    skill: "reading",
+    title: "Software User Instructions",
+    contextText: "Before initiating the data migration, administrators must ensure all active user sessions are terminated. Otherwise, unsaved changes in open draft documents will be permanently overwritten.",
+    prompt: "What is the primary risk if user sessions are not closed before migration?",
+    options: [
+      "Unsaved draft edits will be lost permanently",
+      "The server hardware will overheat",
+      "Admin passwords will expire immediately",
+      "Data will automatically sync to external drives"
+    ],
+    correctAnswer: "Unsaved draft edits will be lost permanently",
+    explanation: "The text explains 'unsaved changes in open draft documents will be permanently overwritten.'",
+    focusArea: "Interpreting procedural conditional warnings",
+  },
+  {
+    id: "b1-list-01",
+    cefr: "B1",
+    skill: "listening",
+    title: "Customer Support Resolution",
+    audioPrompt: "Thank you for holding. I see that your shipment was held temporarily at the Miami logistics center for customs verification, but it cleared inspection this morning and is scheduled for delivery on Tuesday.",
+    prompt: "Why was the package delayed?",
+    options: [
+      "Customs inspection in Miami",
+      "The customer provided an incorrect address",
+      "Bad weather canceled the flight",
+      "The item was returned to sender"
+    ],
+    correctAnswer: "Customs inspection in Miami",
+    explanation: "The agent explains the shipment was held for 'customs verification' in Miami.",
+    focusArea: "Listening for causality in customer support calls",
+  },
+  {
+    id: "b1-list-02",
+    cefr: "B1",
+    skill: "listening",
+    title: "Project Delegation Sync",
+    audioPrompt: "Elena, could you double-check the final financial estimates on slide 8 before the eleven o'clock client sync? We need to ensure the exchange rate calculations reflect current market rates.",
+    prompt: "What action does Elena need to complete before 11:00 AM?",
+    options: [
+      "Verify the financial calculations on slide 8",
+      "Cancel the eleven o'clock meeting",
+      "Send an invoice to the client",
+      "Write a new slide presentation"
+    ],
+    correctAnswer: "Verify the financial calculations on slide 8",
+    explanation: "The speaker specifically asks Elena to double-check the financial estimates on slide 8 before 11 AM.",
+    focusArea: "Extracting actionable work delegation items",
+  },
+  {
     id: "b1-phon-01",
     cefr: "B1",
     skill: "phonetics",
@@ -184,8 +448,26 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     explanation: "Consonant-to-vowel linking connects the final consonant of one word to the initial vowel of the next.",
     focusArea: "Consonant-to-vowel linking in connected speech",
   },
+  {
+    id: "b1-phon-02",
+    cefr: "B1",
+    skill: "phonetics",
+    title: "Final Consonant Articulation (Coda Weakening)",
+    prompt: "Which pronunciation ensures maximum clarity for a call center agent saying the word 'FIRST'?",
+    options: [
+      "Pronouncing both the /s/ and final /t/ cleanly (/fɜːrst/)",
+      "Dropping the final /t/ completely ('fers')",
+      "Adding a vowel at the end ('first-eh')",
+      "Replacing the /t/ with a glottal stop"
+    ],
+    correctAnswer: "Pronouncing both the /s/ and final /t/ cleanly (/fɜːrst/)",
+    explanation: "Articulating final consonant clusters cleanly prevents misinterpretation in professional phone communication.",
+    focusArea: "Dominican coda weakening remediation in professional English",
+  },
 
-  // B2 Items
+  // ==========================================
+  // B2 UPPER-INTERMEDIATE & PROFESSIONAL (12 Items)
+  // ==========================================
   {
     id: "b2-gram-01",
     cefr: "B2",
@@ -198,10 +480,65 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Mixed conditionals (past condition, present outcome)",
   },
   {
+    id: "b2-gram-02",
+    cefr: "B2",
+    skill: "grammar",
+    title: "Passive Voice in Business Reports",
+    prompt: "The new quarterly fiscal budget ___ by the board of directors before next Monday.",
+    options: ["will have been approved", "will approve", "has being approved", "is approving"],
+    correctAnswer: "will have been approved",
+    explanation: "Future perfect passive ('will have been + past participle') expresses an action completed prior to a specific future point.",
+    focusArea: "Complex passive voice & future perfect",
+  },
+  {
+    id: "b2-gram-03",
+    cefr: "B2",
+    skill: "grammar",
+    title: "Defining vs Non-Defining Relative Clauses",
+    prompt: "Our regional headquarters, ___ was renovated last spring, now houses over three hundred software engineers.",
+    options: ["which", "that", "where", "what"],
+    correctAnswer: "which",
+    explanation: "Non-defining relative clauses (separated by commas) providing supplementary information require 'which' for things, not 'that'.",
+    focusArea: "Relative clause punctuation and pronoun selection",
+  },
+  {
+    id: "b2-voc-01",
+    cefr: "B2",
+    skill: "vocabulary",
+    title: "Business & Negotiation Idioms",
+    prompt: "Before signing the partnership agreement, let's schedule a quick call so we are both on the same ___.",
+    options: ["page", "boat", "track", "line"],
+    correctAnswer: "page",
+    explanation: "'To be on the same page' is a common professional idiom meaning to have a shared mutual understanding.",
+    focusArea: "Professional collaboration idioms",
+  },
+  {
+    id: "b2-voc-02",
+    cefr: "B2",
+    skill: "vocabulary",
+    title: "Technical Feasibility & Project Risk",
+    prompt: "After evaluating the infrastructure limitations, the engineering team concluded that the proposed cloud migration was not financially ___.",
+    options: ["viable", "pliable", "docile", "tactful"],
+    correctAnswer: "viable",
+    explanation: "'Viable' means feasible, capable of working successfully and cost-effectively.",
+    focusArea: "Analytical and business evaluation vocabulary",
+  },
+  {
+    id: "b2-voc-03",
+    cefr: "B2",
+    skill: "vocabulary",
+    title: "Advanced Phrasal Collocations",
+    prompt: "The senior architect ___ a creative workaround to circumvent the third-party API latency issues.",
+    options: ["came up with", "stood out for", "put up with", "ran out on"],
+    correctAnswer: "came up with",
+    explanation: "'Come up with' means to produce, devise, or invent an idea or solution.",
+    focusArea: "Multi-word professional verbal expressions",
+  },
+  {
     id: "b2-read-01",
     cefr: "B2",
     skill: "reading",
-    title: "Academic Analysis",
+    title: "Economic Analysis of Remote Work",
     contextText: "The rapid adoption of remote work infrastructure has not merely altered daily commuting patterns; it has fundamentally reorganized urban commercial real estate demand and talent retention strategies.",
     prompt: "According to the author, remote work has:",
     options: [
@@ -214,13 +551,98 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     explanation: "'Not merely altered... but fundamentally reorganized...' expresses a multi-dimensional impact.",
     focusArea: "Synthesizing complex argumentation and discourse markers",
   },
+  {
+    id: "b2-read-02",
+    cefr: "B2",
+    skill: "reading",
+    title: "Service Level Agreement (SLA) Clause",
+    contextText: "Service credits shall constitute the customer's sole and exclusive financial remedy for any documented failure to meet the 99.9% monthly uptime threshold, provided that notice of such outage is submitted in writing within thirty days.",
+    prompt: "What can a customer claim if the service uptime falls below 99.9%?",
+    options: [
+      "Service credits, provided they file written notice within 30 days",
+      "Immediate full cash reimbursement regardless of notice",
+      "Automatic renewal of the annual enterprise contract",
+      "Compensation for secondary operational losses"
+    ],
+    correctAnswer: "Service credits, provided they file written notice within 30 days",
+    explanation: "The clause restricts the remedy exclusively to service credits conditional on written notice within 30 days.",
+    focusArea: "Interpreting contractual and legal English nuances",
+  },
+  {
+    id: "b2-list-01",
+    cefr: "B2",
+    skill: "listening",
+    title: "Agile Architecture Retrospective",
+    audioPrompt: "While the frontend dashboard redesign was delivered on schedule, our primary deployment bottleneck stemmed from the legacy database schema refactoring, which required unexpected migration scripts.",
+    prompt: "What caused the main deployment delay?",
+    options: [
+      "Legacy database schema refactoring",
+      "Delays in the frontend UI redesign",
+      "Network server hardware outages",
+      "Lack of client design approval"
+    ],
+    correctAnswer: "Legacy database schema refactoring",
+    explanation: "The speaker clarifies that the bottleneck 'stemmed from the legacy database schema refactoring'.",
+    focusArea: "Identifying primary root causes in technical discourse",
+  },
+  {
+    id: "b2-list-02",
+    cefr: "B2",
+    skill: "listening",
+    title: "Executive Strategic Direction",
+    audioPrompt: "Rather than competing directly on price in saturated domestic markets, our strategic focus for Q4 centers on expanding high-margin enterprise consulting services across the Caribbean basin.",
+    prompt: "What is the organization's core strategy for the fourth quarter?",
+    options: [
+      "Focusing on high-margin enterprise services in the Caribbean",
+      "Lowering prices aggressively across all domestic retail products",
+      "Halting all international service expansion",
+      "Acquiring local retail competitors"
+    ],
+    correctAnswer: "Focusing on high-margin enterprise services in the Caribbean",
+    explanation: "The executive states the focus is expanding 'high-margin enterprise consulting services across the Caribbean basin'.",
+    focusArea: "Synthesizing executive strategic intent",
+  },
+  {
+    id: "b2-phon-01",
+    cefr: "B2",
+    skill: "phonetics",
+    title: "Dental Fricative Distinction (/θ/ vs /t/ & /s/)",
+    prompt: "In which sentence is the word 'THINK' pronounced correctly with the voiceless interdental fricative /θ/ rather than /t/ or /s/?",
+    options: [
+      "Tongue positioned lightly between the upper and lower teeth with unvoiced airflow (/θɪŋk/)",
+      "Tongue making hard stop contact against the alveolar ridge ('tink')",
+      "Teeth closed with sharp sibilant friction ('sink')",
+      "Glottal friction at the back of the throat"
+    ],
+    correctAnswer: "Tongue positioned lightly between the upper and lower teeth with unvoiced airflow (/θɪŋk/)",
+    explanation: "The English /θ/ is an interdental fricative produced by placing the tongue tip between the front teeth with steady air friction.",
+    focusArea: "Interdental fricative articulation vs dental stop substitution",
+  },
+  {
+    id: "b2-phon-02",
+    cefr: "B2",
+    skill: "phonetics",
+    title: "Sentence Nuclear Intonation for Implication",
+    prompt: "If a speaker says 'I didn't say SHE took the laptop' with heavy pitch accent on 'SHE', what is the implied meaning?",
+    options: [
+      "Someone else may have taken the laptop, not her.",
+      "The laptop was definitely not stolen by anyone.",
+      "The speaker never said anything about a laptop.",
+      "The speaker took the laptop personally."
+    ],
+    correctAnswer: "Someone else may have taken the laptop, not her.",
+    explanation: "Nuclear pitch accent on 'SHE' conveys contrastive focus, implying suspicion falls on another individual.",
+    focusArea: "Pragmatic intonation and contrastive focus",
+  },
 
-  // C1 Items
+  // ==========================================
+  // C1 ADVANCED & FLUENCY (8 Items)
+  // ==========================================
   {
     id: "c1-gram-01",
     cefr: "C1",
     skill: "grammar",
-    title: "Inversion for Emphasis",
+    title: "Inversion for Rhetorical Emphasis",
     prompt: "Rarely ___ such unanimous consensus among diverse stakeholders during policy negotiations.",
     options: ["have we witnessed", "we have witnessed", "we witnessed", "had witnessed we"],
     correctAnswer: "have we witnessed",
@@ -228,24 +650,211 @@ export const PLACEMENT_ITEM_BANK: PlacementProbeItem[] = [
     focusArea: "Negative inversion and sophisticated rhetorical style",
   },
   {
+    id: "c1-gram-02",
+    cefr: "C1",
+    skill: "grammar",
+    title: "Formal Mandative Subjunctive",
+    prompt: "It is imperative that every team member ___ informed of compliance revisions prior to the regulatory audit.",
+    options: ["be", "is", "was", "will be"],
+    correctAnswer: "be",
+    explanation: "Expressions of urgency or formal necessity (it is imperative that...) govern the mandative subjunctive bare base form 'be'.",
+    focusArea: "Mandative subjunctive in formal registers",
+  },
+  {
     id: "c1-voc-01",
     cefr: "C1",
     skill: "vocabulary",
-    title: "Nuanced Register & Idiomatic Precision",
-    prompt: "The CEO decided to ___ the issue during the press conference rather than addressing it head-on.",
+    title: "Nuanced Register & Figurative Precision",
+    prompt: "The CEO decided to ___ the contentious regulatory dispute during the press conference rather than addressing it head-on.",
     options: ["skirt around", "run across", "make up", "break down"],
     correctAnswer: "skirt around",
     explanation: "'To skirt around an issue' means to deliberately avoid discussing or dealing with it directly.",
     focusArea: "Nuanced phrasal verbs and figurative register",
   },
+  {
+    id: "c1-voc-02",
+    cefr: "C1",
+    skill: "vocabulary",
+    title: "Academic & Analytical Lexicon",
+    prompt: "The author argues that algorithmic bias is not an isolated malfunction, but an ___ feature of datasets reflecting historical inequities.",
+    options: ["inherent", "ephemeral", "incidental", "arbitrary"],
+    correctAnswer: "inherent",
+    explanation: "'Inherent' denotes an essential, permanent, and inseparable characteristic.",
+    focusArea: "Advanced academic vocabulary",
+  },
+  {
+    id: "c1-read-01",
+    cefr: "C1",
+    skill: "reading",
+    title: "Epistemological Analysis of AI Cognition",
+    contextText: "To conflate statistical pattern completion in large language models with genuine semantic comprehension is to commit a categorical error. While the former relies upon high-dimensional probabilistic distribution across linguistic tokens, the latter demands intentional grounding within phenomenological experience and communicative agency.",
+    prompt: "The excerpt posits that the key distinction between LLMs and true comprehension is:",
+    options: [
+      "Statistical token modeling lacks grounded intentionality and conscious agency",
+      "LLMs compute probabilistic vectors too slowly for real dialogue",
+      "Human cognition operates entirely through statistical distributions",
+      "Language models will never generate grammatically coherent syntax"
+    ],
+    correctAnswer: "Statistical token modeling lacks grounded intentionality and conscious agency",
+    explanation: "The author explicitly differentiates statistical token distribution from intentional grounding in experience.",
+    focusArea: "Critical analysis of abstract philosophical and scientific texts",
+  },
+  {
+    id: "c1-list-01",
+    cefr: "C1",
+    skill: "listening",
+    title: "Sociolinguistic Lecture Excerpt",
+    audioPrompt: "In Caribbean contact linguistics, the phenomenon of syllable-coda reduction cannot be dismissed as random phonological erosion; rather, it reflects regularized historical substrate influences interacting with syllable-timed rhythmic constraints.",
+    prompt: "According to the lecturer, Caribbean syllable-coda reduction:",
+    options: [
+      "Is governed by historical substrate influences and rhythmic constraints",
+      "Is purely random and lacks systematic linguistic patterns",
+      "Only occurs in modern technological vocabulary",
+      "Prevents speakers from acquiring any secondary languages"
+    ],
+    correctAnswer: "Is governed by historical substrate influences and rhythmic constraints",
+    explanation: "The speaker explains it reflects regularized historical substrate influences and syllable-timed constraints.",
+    focusArea: "Comprehending dense academic discourse and theoretical claims",
+  },
+  {
+    id: "c1-phon-01",
+    cefr: "C1",
+    skill: "phonetics",
+    title: "Rhythm & Isochrony Control",
+    prompt: "Standard English is a 'stress-timed' language (intervals between stressed syllables are relatively equal). How should unstressed function words (to, for, at) be delivered for natural English rhythm?",
+    options: [
+      "Reduced with weak vowel forms (schwa /ə/) and shorter duration",
+      "Pronounced with full Spanish vowel clarity and equal length",
+      "Over-emphasized with louder volume than nouns and verbs",
+      "Completely silenced without pronunciation"
+    ],
+    correctAnswer: "Reduced with weak vowel forms (schwa /ə/) and shorter duration",
+    explanation: "In stress-timed English, unstressed grammatical function words naturally reduce to schwa /ə/ to preserve rhythmic isochrony.",
+    focusArea: "Stress-timing, reduction, and schwa centralization",
+  },
+  {
+    id: "c1-phon-02",
+    cefr: "C1",
+    skill: "phonetics",
+    title: "Diplomatic Intonation & Tentativeness",
+    prompt: "Which intonation contour conveys polite, non-confrontational nuance when offering counter-proposals during executive negotiations?",
+    options: [
+      "Fall-rise intonation curve indicating openness to dialogue",
+      "Abrupt steep falling tone indicating finality",
+      "Monotone flat pitch throughout the statement",
+      "Staccato loud bursts on every syllable"
+    ],
+    correctAnswer: "Fall-rise intonation curve indicating openness to dialogue",
+    explanation: "A fall-rise intonation contour indicates tentativeness, politeness, and collaborative openness in high-stakes negotiations.",
+    focusArea: "Pragmatic intonation in diplomatic registers",
+  },
+
+  // ==========================================
+  // C2 NATIVE-LIKE MASTERY (6 Items)
+  // ==========================================
+  {
+    id: "c2-gram-01",
+    cefr: "C2",
+    skill: "grammar",
+    title: "Complex Ellipsis & Nominalization",
+    prompt: "Had it not been for the interim committee's timely intervention, the resolution ___ into endless procedural gridlock.",
+    options: [
+      "would inevitably have degenerated",
+      "had inevitably degenerated",
+      "will inevitably degenerate",
+      "would degenerate inevitably have"
+    ],
+    correctAnswer: "would inevitably have degenerated",
+    explanation: "Third conditional inversion ('Had it not been...') with past hypothetical consequence takes 'would + adverb + have + past participle'.",
+    focusArea: "Inverted conditional structures with complex auxiliary positioning",
+  },
+  {
+    id: "c2-voc-01",
+    cefr: "C2",
+    skill: "vocabulary",
+    title: "High-Register Rhetorical Precision",
+    prompt: "The spokesperson attempted to ___ the legislative intent behind the subsidy package, rendering the statutory text almost incomprehensible to the press.",
+    options: ["obfuscate", "delineate", "recapitulate", "vindicate"],
+    correctAnswer: "obfuscate",
+    explanation: "'To obfuscate' means to render obscure, unclear, or intentionally difficult to understand.",
+    focusArea: "Sovereign rhetorical vocabulary",
+  },
+  {
+    id: "c2-voc-02",
+    cefr: "C2",
+    skill: "vocabulary",
+    title: "Idiomatic Mastery & Cultural Allusions",
+    prompt: "Despite the initial enthusiasm for the startup merger, differing corporate cultures proved to be the ultimate ___ heel of the venture.",
+    options: ["Achilles'", "Promethean", "Pandora's", "Sisyphus'"],
+    correctAnswer: "Achilles'",
+    explanation: "An 'Achilles' heel' is an established cultural idiom denoting a vulnerable point or fatal flaw in an otherwise strong entity.",
+    focusArea: "Classical allusions and idiomatic mastery",
+  },
+  {
+    id: "c2-read-01",
+    cefr: "C2",
+    skill: "reading",
+    title: "Jurisprudential & Constitutional Analysis",
+    contextText: "The doctrine of proportionality in constitutional adjudication functions not as a mechanical algorithmic calculus, but as an interpretive prism through which judicial discretion balances state prerogative against fundamental liberties. In doing so, it eschews categorical absolutes in favor of contextualized normative calibration.",
+    prompt: "The passage asserts that the doctrine of proportionality:",
+    options: [
+      "Employs contextual normative judgment rather than rigid formulaic absolutes",
+      "Strictly enforces immutable state authority over private rights",
+      "Relies entirely on mathematical and computational metrics",
+      "Eliminates judicial interpretation from constitutional disputes"
+    ],
+    correctAnswer: "Employs contextual normative judgment rather than rigid formulaic absolutes",
+    explanation: "The author characterizes proportionality as 'contextualized normative calibration' that 'eschews categorical absolutes'.",
+    focusArea: "Deconstructing dense jurisprudential texts",
+  },
+  {
+    id: "c2-list-01",
+    cefr: "C2",
+    skill: "listening",
+    title: "Multilateral Diplomatic Briefing",
+    audioPrompt: "While several delegates expressed reservations regarding the non-binding carbon offset mechanisms, the overarching plenary consensus favored an iterative ratification framework over immediate statutory mandates.",
+    prompt: "What procedural approach was ultimately preferred by the plenary delegation?",
+    options: [
+      "An iterative ratification framework",
+      "Immediate binding statutory mandates",
+      "Complete dissolution of the offset agreement",
+      "Unconditional economic sanctions"
+    ],
+    correctAnswer: "An iterative ratification framework",
+    explanation: "The speaker confirms the plenary consensus favored an 'iterative ratification framework'.",
+    focusArea: "Interpreting nuanced multilateral diplomatic discourse",
+  },
+  {
+    id: "c2-phon-01",
+    cefr: "C2",
+    skill: "phonetics",
+    title: "Sovereign Phonological Agility & Style Shifting",
+    prompt: "A C2 speaker demonstrates 'sovereign phonological control' when they can:",
+    options: [
+      "Effortlessly adjust register, speech rate, and intonational nuance across formal, colloquial, and international settings without sacrificing intelligibility",
+      "Imitate only one regional accent while erasing their native cultural identity",
+      "Speak continuously at maximum speed without pausing for breath",
+      "Avoid all contractions and connected speech in casual dialogue"
+    ],
+    correctAnswer: "Effortlessly adjust register, speech rate, and intonational nuance across formal, colloquial, and international settings without sacrificing intelligibility",
+    explanation: "Lurexa pedagogical standards define C2 mastery as flexible, context-sensitive communicative agility, not accent erasure.",
+    focusArea: "Contextual stylistic and phonological mastery",
+  },
 ];
 
 export class PlacementAssessmentService {
   /**
-   * Returns initial screening probe set representing baseline A1-B1 competencies.
+   * Returns initial screening probe set representing balanced A1-A2 baseline competencies.
    */
   static getInitialProbes(): PlacementProbeItem[] {
     return PLACEMENT_ITEM_BANK.filter((item) => item.cefr === "A1" || item.cefr === "A2");
+  }
+
+  /**
+   * Returns complete comprehensive item bank for exhaustive calibration.
+   */
+  static getAllProbes(): PlacementProbeItem[] {
+    return [...PLACEMENT_ITEM_BANK];
   }
 
   /**
@@ -270,11 +879,12 @@ export class PlacementAssessmentService {
     ).length;
     const accuracy = correctCount / answeredItems.length;
 
+    const hasAItems = answeredItems.some((item) => item.cefr === "A1" || item.cefr === "A2");
     const hasBItems = answeredItems.some((item) => item.cefr === "B1" || item.cefr === "B2");
-    const hasCItems = answeredItems.some((item) => item.cefr === "C1");
+    const hasCItems = answeredItems.some((item) => item.cefr === "C1" || item.cefr === "C2");
 
-    // If learner performed well on A1/A2 (>= 75%) and hasn't seen B1/B2, serve B1/B2
-    if (!hasBItems && accuracy >= 0.75) {
+    // If learner performed well on A1/A2 (>= 70%) and hasn't seen B1/B2, serve B1/B2 probe set
+    if (hasAItems && !hasBItems && accuracy >= 0.70) {
       const bItems = PLACEMENT_ITEM_BANK.filter((item) => item.cefr === "B1" || item.cefr === "B2");
       return {
         completed: false,
@@ -283,13 +893,13 @@ export class PlacementAssessmentService {
       };
     }
 
-    // If learner performed well on B1/B2 (>= 75%) and hasn't seen C1, serve C1
-    if (hasBItems && !hasCItems && accuracy >= 0.8) {
-      const cItems = PLACEMENT_ITEM_BANK.filter((item) => item.cefr === "C1");
+    // If learner performed well on B1/B2 (>= 75%) and hasn't seen C1/C2, serve C1/C2 probe set
+    if (hasBItems && !hasCItems && accuracy >= 0.75) {
+      const cItems = PLACEMENT_ITEM_BANK.filter((item) => item.cefr === "C1" || item.cefr === "C2");
       return {
         completed: false,
         nextItems: cItems,
-        currentPerformanceLevel: "B2",
+        currentPerformanceLevel: "C1",
       };
     }
 
@@ -297,7 +907,7 @@ export class PlacementAssessmentService {
     return {
       completed: true,
       nextItems: [],
-      currentPerformanceLevel: accuracy >= 0.85 ? "B2" : accuracy >= 0.65 ? "A2" : "A1",
+      currentPerformanceLevel: accuracy >= 0.88 ? (hasCItems ? "C1" : "B2") : accuracy >= 0.65 ? (hasBItems ? "B1" : "A2") : "A1",
     };
   }
 
@@ -412,6 +1022,26 @@ export class PlacementAssessmentService {
         confidenceScore: 0.88,
         pedagogicalNote: "Dominican Spanish speakers often add a prosthetic vowel before initial s-clusters. Targeted phonetics practice builds direct onset control.",
         suggestedFocusModule: "DO-ENG-PRO-002",
+      });
+    }
+    if (answeredItems.some((i) => i.id === "b1-phon-02" && input.answers[i.id]?.toLowerCase() !== i.correctAnswer.toLowerCase())) {
+      transferHighlights.push({
+        category: "coda_weakening",
+        detectedPattern: "Syllable-final consonant coda weakening (e.g., dropping /t/, /s/, /d/)",
+        expectedPattern: "Clean release of final consonant clusters (e.g. /fɜːrst/)",
+        confidenceScore: 0.86,
+        pedagogicalNote: "Dominican Spanish features widespread coda debuccalization. Targeted acoustic articulatory drills in Coach reinforce clean terminal consonants.",
+        suggestedFocusModule: "DO-ENG-PRO-004",
+      });
+    }
+    if (answeredItems.some((i) => i.id === "b2-phon-01" && input.answers[i.id]?.toLowerCase() !== i.correctAnswer.toLowerCase())) {
+      transferHighlights.push({
+        category: "interdental_stopping",
+        detectedPattern: "Interdental /θ/ and /ð/ replaced by dental stops /t/ or /d/",
+        expectedPattern: "Light interdental frication (/θɪŋk/ vs 'tink')",
+        confidenceScore: 0.84,
+        pedagogicalNote: "Dominican Spanish lacks phonemic /θ/. Explicit interdental placement exercises ensure intelligibility in professional communications.",
+        suggestedFocusModule: "DO-ENG-PRO-008",
       });
     }
     if (answeredItems.some((i) => i.id === "a2-gram-01" && input.answers[i.id]?.toLowerCase() !== i.correctAnswer.toLowerCase())) {

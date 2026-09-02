@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { TeachService } from "@lurexa/backend";
-import type { TeachCourse, TeachEnrollment } from "@lurexa/types";
+import type { EducatorProfile, TeachCourse, TeachEnrollment } from "@lurexa/types";
 import { TeachShell } from "../components/TeachShell";
 import { TeachPrivate } from "../components/TeachPrivate";
 import { useTeachAuth } from "../components/TeachAuthProvider";
@@ -16,6 +16,7 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<TeachCourse[]>([]);
   const [enrollments, setEnrollments] = useState<TeachEnrollment[]>([]);
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
+  const [profile, setProfile] = useState<EducatorProfile | null>(null);
   const [busyCourse, setBusyCourse] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -23,16 +24,34 @@ export default function CoursesPage() {
     if (!user) return;
     (async () => {
       try {
-        const [nextCourses, nextEnrollments] = await Promise.all([TeachService.listPublishedCourses(), TeachService.listEnrollments(user.uid)]);
+        const [nextCourses, nextEnrollments, nextProfile] = await Promise.all([
+          TeachService.listPublishedCourses(),
+          TeachService.listEnrollments(user.uid),
+          TeachService.getEducatorProfile(user.uid),
+        ]);
         setCourses(nextCourses);
         setEnrollments(nextEnrollments);
+        setProfile(nextProfile);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to load professional learning.");
       }
     })();
   }, [user]);
 
-  const visible = useMemo(() => filter === "all" ? courses : courses.filter((course) => course.track === filter), [courses, filter]);
+  const visible = useMemo(() => {
+    if (filter === "all") {
+      // Prioritize recommended courses if educator has CEFR standing from diagnostic
+      if (profile?.cefrLevel) {
+        return [...courses].sort((a, b) => {
+          const aMatch = a.cefrTarget === profile.cefrLevel ? -1 : 0;
+          const bMatch = b.cefrTarget === profile.cefrLevel ? -1 : 0;
+          return aMatch - bMatch;
+        });
+      }
+      return courses;
+    }
+    return courses.filter((course) => course.track === filter);
+  }, [courses, filter, profile]);
   const enrollmentFor = (courseId: string) => enrollments.find((item) => item.courseId === courseId);
 
   const enroll = async (courseId: string) => {

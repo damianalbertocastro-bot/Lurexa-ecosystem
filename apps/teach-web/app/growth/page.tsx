@@ -501,13 +501,13 @@ function GrowthContent() {
                 )}
               </article>
 
-              <aside className="rounded-[28px] bg-[var(--lx-warning)] border border-[var(--lx-warning)] p-7 shadow-sm">
-                <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-warning)]">PROFESSIONAL GOALS</p>
-                <h3 className="mt-2 text-xl font-black text-[var(--lx-warning)]">What matters next?</h3>
+              <aside className="rounded-[28px] bg-[var(--lx-surface)] border border-[var(--lx-border)] p-7 shadow-sm">
+                <p className="text-[10px] font-extrabold tracking-[.17em] text-[var(--lx-primary)] uppercase">PROFESSIONAL GOALS</p>
+                <h3 className="mt-2 text-xl font-black text-[var(--color-brand-navy)]">What matters next?</h3>
                 {profile?.goals.length ? (
                   profile.goals.map((goal) => (
-                    <div key={goal} className="mt-4 border-t border-[var(--lx-warning)] pt-4">
-                      <b className="text-sm text-[var(--lx-warning)]">{goal}</b>
+                    <div key={goal} className="mt-4 border-t border-[var(--lx-border)] pt-4">
+                      <b className="text-sm font-bold text-[var(--color-brand-navy)]">{goal}</b>
                     </div>
                   ))
                 ) : (
@@ -517,7 +517,7 @@ function GrowthContent() {
                     </p>
                     <Link
                       href="/profile"
-                      className="mt-4 inline-flex items-center text-xs font-extrabold text-[var(--lx-warning)] hover:underline"
+                      className="mt-4 inline-flex items-center text-xs font-extrabold text-[var(--lx-primary)] hover:underline"
                     >
                       Edit Educator Profile →
                     </Link>

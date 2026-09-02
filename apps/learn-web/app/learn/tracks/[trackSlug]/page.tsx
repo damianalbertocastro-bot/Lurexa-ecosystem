@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getTrackBySlug, type SpecializedModule } from "@lurexa/backend";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
@@ -10,7 +10,6 @@ import { Button } from "@lurexa/ui/button";
 
 export default function TrackDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const trackSlug = typeof params?.trackSlug === "string" ? params.trackSlug : "";
   const track = getTrackBySlug(trackSlug);
 
@@ -183,28 +182,65 @@ export default function TrackDetailPage() {
                     </ul>
                   </div>
 
-                  {/* Spoken Prompts & Role-Plays */}
-                  <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/60 p-4 space-y-3">
-                    <p className="text-xs font-black uppercase tracking-wider text-[var(--lx-muted)]">
-                      🎭 Authentic Spoken Role-Play Scenarios
-                    </p>
-                    <div className="space-y-3">
+                  {/* Interactive Spoken Prompts & Role-Plays */}
+                  <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)]/60 p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-wider text-[var(--lx-muted)]">
+                        🎭 Authentic Spoken Role-Play Scenarios
+                      </p>
+                      <span className="rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 px-2.5 py-0.5 text-[10px] font-bold">
+                        Interactive Simulation
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
                       {activeModule.rolePlayScenarios.map((rp) => (
                         <div
                           key={rp.id}
-                          className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-3.5 space-y-2"
+                          className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 space-y-3 shadow-2xs"
                         >
                           <div className="flex items-center justify-between">
-                            <b className="text-xs text-[var(--lx-primary)]">{rp.title}</b>
-                            <span className="text-[10px] font-bold text-[var(--lx-muted)]">
+                            <b className="text-sm font-bold text-[var(--lx-primary)]">{rp.title}</b>
+                            <span className="text-[11px] font-bold text-[var(--lx-muted)]">
                               Roles: {rp.roles.join(" ↔ ")}
                             </span>
                           </div>
-                          <p className="text-xs text-[var(--lx-muted)]">{rp.setting}</p>
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {rp.evaluationCriteria.map((crit, idx) => (
-                              <Badge key={idx} variant="info">{crit}</Badge>
-                            ))}
+                          <p className="text-xs text-[var(--lx-muted)] leading-relaxed">{rp.setting}</p>
+
+                          {/* Objectives & Evaluation Badges */}
+                          <div className="space-y-1.5 pt-1">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">Key Objectives:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {rp.objectives.map((obj, idx) => (
+                                <span key={idx} className="rounded-lg bg-[var(--lx-canvas)] border border-[var(--lx-border)] px-2 py-0.5 text-[11px] text-[var(--lx-ink)]">
+                                  ✓ {obj}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Interactive Audio Dialogue Tester */}
+                          <div className="rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/50 p-3.5 space-y-2.5">
+                            <p className="text-xs font-bold text-[var(--lx-ink)]">
+                              🗣️ Practice Spoken Response for: <span className="text-indigo-600 dark:text-indigo-400">{rp.roles[0]}</span>
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!("speechSynthesis" in window)) return;
+                                  const text = activeModule.grammarStructures[0] || activeModule.spokenPrompts[0] || rp.setting;
+                                  const utterance = new SpeechSynthesisUtterance(text);
+                                  utterance.lang = "en-US";
+                                  utterance.rate = 0.9;
+                                  window.speechSynthesis.speak(utterance);
+                                }}
+                                className="rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition shadow-2xs"
+                              >
+                                🔊 Listen to Model Dialogue
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -227,17 +263,16 @@ export default function TrackDetailPage() {
                     </p>
                   </div>
 
-                  {/* Launch Simulation in Coach */}
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <Button
-                      variant="primary"
-                      onClick={() => router.push("/learn/a1-preview")}
-                    >
-                      Practice in Lesson Runtime →
-                    </Button>
+                  {/* Action CTAs */}
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <Link href="/dashboard">
+                      <Button variant="primary">
+                        Return to Dashboard
+                      </Button>
+                    </Link>
                     <a href="http://localhost:3002/studio" target="_blank" rel="noreferrer">
                       <Button variant="secondary">
-                        Acoustic Practice in Coach Studio ↗
+                        Practice Voice in Coach Studio ↗
                       </Button>
                     </a>
                   </div>

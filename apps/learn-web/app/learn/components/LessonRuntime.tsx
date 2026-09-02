@@ -175,19 +175,49 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
     return [...payload.lesson.contentBlocks].sort((a, b) => a.order - b.order);
   }, [payload]);
 
+  const courseLevel = useMemo(() => {
+    const id = courseId.toLowerCase();
+    if (id.includes("a2")) return "A2 Elementary";
+    if (id.includes("b1")) return "B1 Intermediate";
+    if (id.includes("b2")) return "B2 Upper Intermediate";
+    if (id.includes("c1")) return "C1 Advanced";
+    if (id.includes("c2")) return "C2 Mastery";
+    return "A1 Foundations";
+  }, [courseId]);
+
+  const levelBadge = useMemo(() => {
+    const match = courseId.match(/([a-c][1-2])/i);
+    return match ? match[1].toUpperCase() : "A1";
+  }, [courseId]);
+
   const totalInteractiveBlocks = useMemo(() => {
-    return blocks.filter((b) => b.type === "interactive" || b.type === "quiz_embed").length;
+    return blocks.filter((b) => {
+      if (b.type === "quiz_embed") return true;
+      if (b.type === "interactive") {
+        const cap = readCapability(b.data);
+        return cap?.kind !== "model_listening";
+      }
+      return false;
+    }).length;
   }, [blocks]);
 
   const completedInteractiveBlocks = useMemo(() => {
-    if (!payload?.progress?.attempts) return 0;
-    const completedIds = new Set(payload.progress.attempts.map((a) => a.quizId));
-    return blocks.filter((b) => (b.type === "interactive" || b.type === "quiz_embed") && completedIds.has(b.id)).length;
-  }, [blocks, payload]);
+    const completedSet = new Set(payload?.progress?.attempts.map((a) => a.quizId) ?? []);
+    return blocks.filter((b) => {
+      if (b.type === "quiz_embed") return completedSet.has(b.id);
+      if (b.type === "interactive") {
+        const cap = readCapability(b.data);
+        if (cap?.kind === "model_listening") return false;
+        return completedSet.has(b.id);
+      }
+      return false;
+    }).length;
+  }, [blocks, payload?.progress?.attempts]);
 
-  const progressPercent = totalInteractiveBlocks > 0
-    ? Math.min(100, Math.round((completedInteractiveBlocks / totalInteractiveBlocks) * 100))
-    : 0;
+  const progressPercent = useMemo(() => {
+    if (totalInteractiveBlocks === 0) return 100;
+    return Math.min(100, Math.round((completedInteractiveBlocks / totalInteractiveBlocks) * 100));
+  }, [completedInteractiveBlocks, totalInteractiveBlocks]);
 
   function scrollToBlock(blockId: string) {
     setHighlightedBlockId(blockId);
@@ -448,7 +478,10 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       if (!targetId) {
         const completedIds = new Set(payload.progress?.attempts.map((a) => a.quizId) ?? []);
         const firstIncomplete = blocks.find(
-          (b) => (b.type === "interactive" || b.type === "quiz_embed") && !completedIds.has(b.id)
+          (b) =>
+            (b.type === "interactive" || b.type === "quiz_embed") &&
+            !completedIds.has(b.id) &&
+            readCapability(b.data)?.kind !== "model_listening"
         );
         if (firstIncomplete) {
           targetId = firstIncomplete.id;
@@ -518,7 +551,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
             </Button>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700 ring-1 ring-indigo-200">
-                A1 Foundations
+                {courseLevel}
               </span>
               <span className={`rounded-full px-3 py-1 text-xs font-bold ${isLessonCompleted ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"}`}>
                 {inRetrievalMode ? "Retrieval Review" : isLessonCompleted ? "✓ Completed" : "In Progress"}
@@ -545,7 +578,7 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
       <div className="mx-auto max-w-4xl space-y-6 px-4 pt-6 sm:px-8">
         {/* Title Hero */}
         <section className="rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">English A1 Core Lesson</p>
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">English {levelBadge} • {courseLevel}</p>
           <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
             {lesson.title}
           </h1>
@@ -662,12 +695,12 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                   </span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-slate-950">{quiz.prompt}</h2>
-                <div className="mt-5 grid gap-3" role="group" aria-label={quiz.prompt}>
+                <div className="mt-6 grid gap-4" role="group" aria-label={quiz.prompt}>
                   {quiz.options.map((option) => {
                     const isSelected = selected.includes(option);
                     let optionStyle = "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:border-indigo-300 hover:bg-[var(--lx-canvas)]";
                     if (isSelected) {
-                      optionStyle = "border-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
+                      optionStyle = "border-indigo-600 bg-indigo-50/90 text-indigo-950 font-bold ring-2 ring-indigo-500/20";
                     }
                     if (isSubmitted && isSelected) {
                       optionStyle = blockFeedback.passed
@@ -681,21 +714,21 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
                         type="button"
                         aria-pressed={isSelected}
                         onClick={() => handleSingleChoice(block.id, option)}
-                        className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left text-sm font-medium transition ${optionStyle}`}
+                        className={`flex items-center justify-between rounded-2xl border px-6 py-4 text-left text-sm font-semibold transition shadow-xs ${optionStyle}`}
                       >
                         <span>{option}</span>
-                        {isSelected ? <span className="text-xs font-bold">✓</span> : null}
+                        {isSelected ? <span className="text-xs font-black">✓</span> : null}
                       </Button>
                     );
                   })}
                 </div>
-                <div className="mt-5 flex items-center gap-3">
+                <div className="mt-6 flex items-center gap-3 pt-2">
                   <Button
                     disabled={submittingId === block.id || !selected.length}
                     onClick={() => void submitBlock(block.id, "quiz")}
-                    className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition"
+                    className="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-black text-white shadow-md hover:bg-indigo-500 disabled:opacity-40 transition"
                   >
-                    {submittingId === block.id ? "Checking…" : "Check Answer"}
+                    {submittingId === block.id ? "Checking…" : "Check Answer →"}
                   </Button>
                 </div>
                 {blockFeedback ? (
@@ -987,12 +1020,19 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
               </Button>
             ) : null}
 
-            {isLessonCompleted && nextLesson ? (
+            {isLessonCompleted ? (
               <Button
-                onClick={() => router.push(`/learn/${courseId}/${nextLesson.id}`)}
-                className="rounded-xl bg-indigo-500 px-6 py-3 font-bold text-white shadow-md hover:bg-indigo-400 transition"
+                onClick={() => {
+                  if (nextLesson?.id) {
+                    router.push(`/learn/${courseId}/${nextLesson.id}`);
+                  } else {
+                    router.push("/dashboard");
+                  }
+                }}
+                className="rounded-xl bg-indigo-500 px-7 py-3.5 font-black text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-400 transition flex items-center gap-2"
               >
-                Continue to Next Lesson →
+                <span>{nextLesson ? "Continue to Next Lesson" : "Continue Learning Journey"}</span>
+                <span>→</span>
               </Button>
             ) : null}
 

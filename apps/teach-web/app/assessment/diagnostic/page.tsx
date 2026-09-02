@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
-import type { TeachCefrLevel } from "@lurexa/types";
+import type { TeachCefrLevel, TeachCourse } from "@lurexa/types";
 import { Button } from "@lurexa/ui/button";
 import { TeachShell } from "../../components/TeachShell";
 import { TeachPrivate } from "../../components/TeachPrivate";
@@ -51,6 +51,26 @@ const TEACH_TASKS: DiagnosticTask[] = [
     sampleExpected:
       "From a communicative perspective, our pedagogical priority is mutual intelligibility rather than accent erasure. For Dominican learners, we scaffold initial /s/ clusters to prevent epenthesis while validating their linguistic identity.",
   },
+  {
+    level: "B2",
+    title: "Task 4: AI & Digital Lesson Scaffolding",
+    scenario: "You are reviewing an AI-generated reading dialogue for your intermediate learners.",
+    prompt:
+      "Explain aloud how you evaluate and adapt the dialogue before giving it to students to ensure appropriate cognitive and vocabulary load.",
+    evaluationFocus: "AI prompt refinement, cognitive load management, and targeted vocabulary curation.",
+    sampleExpected:
+      "I first verify that the lexical complexity matches our B1/B2 target competencies. Then I adapt idiomatic expressions and add comprehension check questions to scaffold independent reading.",
+  },
+  {
+    level: "C1",
+    title: "Task 5: Interactive Task Design & Student Talk Time",
+    scenario: "You are redesigning a teacher-led grammar lecture into an active communicative speaking task.",
+    prompt:
+      "Describe aloud how you structure the task to maximize meaningful student-to-student interaction while minimizing unnecessary teacher talk time.",
+    evaluationFocus: "Communicative task design, student talk time (STT) maximization, and inductive elicitation.",
+    sampleExpected:
+      "Instead of lecturing on conditionals, I provide authentic dilemma cards where students negotiate choices in small groups. I monitor silently, taking notes for a focused delayed feedback session.",
+  },
 ];
 
 interface TaskScore {
@@ -70,6 +90,8 @@ interface TeachPlacementResponse {
   pedagogicalStrengths: string[];
   recommendedGrowthFocus: string;
   awardedCredentialsCount: number;
+  assignedCourses?: TeachCourse[];
+  assignedCourseIds?: string[];
   feedback: string;
   evaluatedAt: string;
   error?: string;
@@ -409,7 +431,7 @@ export default function TeachDiagnosticPage() {
                 </span>
               </div>
 
-              <div className="space-y-3 text-left">
+              <div className="space-y-4 text-left">
                 <div className="rounded-2xl bg-[var(--lx-canvas)] p-5 text-xs leading-6 text-[var(--lx-ink)] border border-[var(--lx-border)]">
                   <p className="font-bold text-[var(--lx-primary)] mb-1">Pedagogical Analysis:</p>
                   <p>{result.feedback}</p>
@@ -419,6 +441,42 @@ export default function TeachDiagnosticPage() {
                   <p className="font-bold text-[var(--color-brand-navy)] mb-1">🎯 Recommended Pathway Focus:</p>
                   <p className="font-medium text-indigo-950">{result.recommendedGrowthFocus}</p>
                 </div>
+
+                {/* Level-Gated Assigned Professional Courses */}
+                {result.assignedCourses && result.assignedCourses.length > 0 ? (
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 p-5 text-white border border-indigo-500/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-black uppercase tracking-wider text-cyan-300">
+                        📚 Level-Assigned Professional Courses (Auto-Enrolled):
+                      </p>
+                      <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                        {result.estimatedLevel} Calibrated
+                      </span>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {result.assignedCourses.map((course) => (
+                        <div
+                          key={course.id}
+                          className="rounded-xl bg-white/10 p-3 border border-white/10 flex flex-col justify-between"
+                        >
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-200">
+                              {course.track.replace("-", " ")}
+                            </span>
+                            <h4 className="mt-1 text-xs font-bold text-white line-clamp-1">{course.title}</h4>
+                            <p className="mt-1 text-[11px] text-slate-300 line-clamp-2">{course.description}</p>
+                          </div>
+                          <Link
+                            href={`/courses/${course.id}`}
+                            className="mt-3 inline-flex items-center text-[11px] font-bold text-cyan-300 hover:underline"
+                          >
+                            Open Course Modules →
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 {result.pedagogicalStrengths.length > 0 ? (
                   <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200 p-4 text-xs">
@@ -438,6 +496,15 @@ export default function TeachDiagnosticPage() {
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center gap-4">
+                {result.assignedCourses && result.assignedCourses.length > 0 ? (
+                  <Button
+                    type="button"
+                    onClick={() => router.push(`/courses/${result.assignedCourses![0]!.id}`)}
+                    className="rounded-2xl bg-emerald-500 px-8 py-3.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-md transition hover:bg-emerald-400 active:scale-95"
+                  >
+                    Start First Assigned Course →
+                  </Button>
+                ) : null}
                 <Button
                   type="button"
                   onClick={() => router.push("/dashboard")}

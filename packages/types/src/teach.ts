@@ -23,9 +23,15 @@ export interface VerifiedEducatorCompetency {
   verifiedAt: string;
 }
 
+export type EducatorApprovalStatus = "pending_approval" | "approved" | "rejected";
+
 export interface EducatorProfile {
   userId: string;
   displayName: string;
+  status?: EducatorApprovalStatus;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
   headline?: string;
   cefrLevel?: TeachCefrLevel;
   verifiedCefrLevel?: TeachCefrLevel;

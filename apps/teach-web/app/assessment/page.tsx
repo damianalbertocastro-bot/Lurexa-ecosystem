@@ -78,11 +78,11 @@ export default function AssessmentPage() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Link
                   href="/assessment/diagnostic"
-                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-[var(--color-brand-navy)] shadow-md hover:bg-indigo-50 transition"
+                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-slate-950 shadow-md hover:bg-slate-100 transition"
                 >
                   🎙️ Take Spoken Diagnostic (B1–C2) →
                 </Link>
-                <span className="text-xs font-medium text-indigo-200">
+                <span className="text-xs font-semibold text-indigo-100">
                   Instant AI acoustic calibration
                 </span>
               </div>
@@ -99,7 +99,7 @@ export default function AssessmentPage() {
           {error && (
             <p
               role="alert"
-              className="mt-6 rounded-2xl bg-[var(--lx-destructive)] p-4 text-sm font-bold text-[var(--lx-destructive)]"
+              className="mt-6 rounded-2xl border border-rose-300 bg-rose-50 p-4 text-sm font-extrabold text-slate-950 dark:border-rose-800 dark:bg-rose-950/40 dark:text-white shadow-xs"
             >
               {error}
             </p>

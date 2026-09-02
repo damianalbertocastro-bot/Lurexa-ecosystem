@@ -105,6 +105,8 @@ export interface TeachTaskEvaluationScore {
   feedbackNotes: string;
 }
 
+import type { TeachCourse } from "./teach";
+
 export interface TeachOralPlacementResult {
   estimatedLevel: TeachCefrLevel;
   overallIntelligibilityScore: number;
@@ -113,6 +115,8 @@ export interface TeachOralPlacementResult {
   pedagogicalStrengths: string[];
   recommendedGrowthFocus: string;
   awardedCredentialsCount: number;
+  assignedCourses?: TeachCourse[];
+  assignedCourseIds?: string[];
   feedback: string;
   evaluatedAt: string;
 }

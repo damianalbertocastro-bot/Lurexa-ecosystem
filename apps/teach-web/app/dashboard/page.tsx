@@ -138,6 +138,31 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Diagnostic Placement Card for Unassessed Educators */}
+          {!profile?.cefrLevel && !loading && (
+            <section className="rounded-[30px] bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-7 text-white shadow-xl sm:p-9 border border-indigo-500/30">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <span className="rounded-full bg-cyan-400/20 border border-cyan-400/40 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                    ⚡ Initial Assessment Recommended
+                  </span>
+                  <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
+                    Establish Your Professional English &amp; Teaching Benchmark
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-300">
+                    Take the 5-task Diagnostic Assessment to test instructional staging, formative error recasting, Dominican L1 transfer pedagogy, and AI literacy. Courses will be automatically assigned to your level.
+                  </p>
+                </div>
+                <a
+                  href="/assessment/diagnostic"
+                  className="inline-flex min-h-12 items-center rounded-2xl bg-cyan-400 px-6 text-sm font-black text-slate-950 shadow-md transition hover:bg-cyan-300 active:scale-95"
+                >
+                  Start Educator Placement Test →
+                </a>
+              </div>
+            </section>
+          )}
+
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               ["English level", englishLabel, target],

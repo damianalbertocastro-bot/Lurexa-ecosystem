@@ -1,6 +1,7 @@
 import type {
   EducatorProfile,
   TeachCefrLevel,
+  TeachCourse,
   TeachSpokenTaskInput,
   TeachTaskEvaluationScore,
   TeachOralPlacementResult,
@@ -10,7 +11,7 @@ import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { evaluateTeachCredential } from "./teach-credential";
-import { TEACH_MVP_CREDENTIALS } from "./teach-catalog";
+import { TEACH_MVP_COURSES, TEACH_MVP_CREDENTIALS } from "./teach-catalog";
 
 export type {
   TeachSpokenTaskInput,
@@ -18,17 +19,21 @@ export type {
   TeachOralPlacementResult,
 };
 
-const TEACH_DIAGNOSTIC_TASKS = [
+export const TEACH_DIAGNOSTIC_TASKS = [
   {
     level: "B1" as TeachCefrLevel,
+    title: "Task 1: Classroom Instructions & Staging",
+    capability: "instructional_language",
     prompt:
-      "Explain the instructions for a 5-minute pair-work speaking activity to your students. Include the goal, student roles, and time limit.",
+      "Explain the instructions for a 5-minute pair-work speaking activity to your students aloud. Include the goal, student roles, and time limit clearly.",
     expectedKeywords: ["pair", "partner", "minutes", "talk", "ask", "answer", "role", "first", "then", "start"],
   },
   {
     level: "B2" as TeachCefrLevel,
+    title: "Task 2: Formative Feedback & Error Recasting",
+    capability: "formative_recasting",
     prompt:
-      "A student says: 'Yesterday I go to the beach and I see many people.' How do you provide a supportive, constructive oral recast without discouraging them?",
+      "A student says: 'Yesterday I go to the beach and I see many people.' How do you provide a supportive, constructive oral recast without discouraging their participation?",
     expectedKeywords: [
       "went",
       "saw",
@@ -44,6 +49,8 @@ const TEACH_DIAGNOSTIC_TASKS = [
   },
   {
     level: "C1" as TeachCefrLevel,
+    title: "Task 3: Intelligibility & L1 Transfer Pedagogy",
+    capability: "pronunciation_pedagogy",
     prompt:
       "Discuss why prioritizing communicative intelligibility over native-like accent erasure is essential for language learners, particularly Dominican Spanish speakers.",
     expectedKeywords: [
@@ -57,6 +64,44 @@ const TEACH_DIAGNOSTIC_TASKS = [
       "perspective",
       "furthermore",
       "pedagogical",
+    ],
+  },
+  {
+    level: "B2" as TeachCefrLevel,
+    title: "Task 4: AI & Digital Lesson Scaffolding",
+    capability: "ai_digital_literacy",
+    prompt:
+      "Explain how you evaluate and adapt an AI-generated reading dialogue before giving it to your students to ensure appropriate cognitive and vocabulary load.",
+    expectedKeywords: [
+      "evaluate",
+      "adapt",
+      "vocabulary",
+      "level",
+      "scaffold",
+      "accuracy",
+      "prompt",
+      "students",
+      "comprehension",
+      "check",
+    ],
+  },
+  {
+    level: "C1" as TeachCefrLevel,
+    title: "Task 5: Interactive Task Design & Student Talk Time",
+    capability: "task_design",
+    prompt:
+      "Describe how you design a communicative task that maximizes meaningful student-to-student interaction while minimizing unnecessary teacher talk time.",
+    expectedKeywords: [
+      "interaction",
+      "student",
+      "talk",
+      "time",
+      "meaningful",
+      "scaffold",
+      "pairs",
+      "groups",
+      "feedback",
+      "objective",
     ],
   },
 ];
@@ -99,11 +144,19 @@ export const TeachPlacementService = {
         }
       } else if (idx === 1) {
         if (transcript.includes("went") || transcript.includes("saw")) {
-          strengths.push("Accurate constructive recasting");
+          strengths.push("Accurate constructive recasting & supportive correction");
         }
       } else if (idx === 2) {
-        if (transcript.includes("intelligibility") || transcript.includes("confidence")) {
+        if (transcript.includes("intelligibility") || transcript.includes("confidence") || transcript.includes("identity")) {
           strengths.push("Principled communicative pedagogy & identity awareness");
+        }
+      } else if (idx === 3) {
+        if (transcript.includes("evaluate") || transcript.includes("scaffold") || transcript.includes("level")) {
+          strengths.push("Critical AI literacy & pedagogical curation");
+        }
+      } else if (idx === 4) {
+        if (transcript.includes("interaction") || transcript.includes("student") || transcript.includes("talk")) {
+          strengths.push("High-engagement communicative task structuring");
         }
       }
 
@@ -128,24 +181,27 @@ export const TeachPlacementService = {
     );
 
     // Determine CEFR Benchmark Level
+    const passedCount = taskScores.filter((t) => t.passedBenchmark).length;
     let estimatedLevel: TeachCefrLevel = "B1";
-    if (taskScores[0]?.passedBenchmark && taskScores[1]?.passedBenchmark && taskScores[2]?.passedBenchmark && overallIntelligibilityScore >= 85) {
+    if (passedCount === 5 && overallIntelligibilityScore >= 92) {
+      estimatedLevel = "C2";
+    } else if (passedCount >= 4 && overallIntelligibilityScore >= 82) {
       estimatedLevel = "C1";
-    } else if (taskScores[0]?.passedBenchmark && (taskScores[1]?.passedBenchmark || overallIntelligibilityScore >= 75)) {
+    } else if (passedCount >= 2 && overallIntelligibilityScore >= 72) {
       estimatedLevel = "B2";
-    } else if (taskScores[0]?.passedBenchmark || overallIntelligibilityScore >= 65) {
+    } else if (passedCount >= 1 || overallIntelligibilityScore >= 60) {
       estimatedLevel = "B1";
     } else {
       estimatedLevel = "A2";
     }
 
     const confidence: "low" | "medium" | "high" =
-      input.tasks.length >= 3 ? "high" : "medium";
+      input.tasks.length >= 4 ? "high" : "medium";
 
     let feedback = "";
     let recommendedGrowthFocus = "";
 
-    if (estimatedLevel === "C1") {
+    if (estimatedLevel === "C1" || estimatedLevel === "C2") {
       feedback = "Outstanding instructional fluency, nuanced pedagogical rationale, and high spoken clarity. Your classroom discourse provides rich communicative models for learners.";
       recommendedGrowthFocus = "T3 Proficient Educator · AI Differentiation & Curriculum Leadership";
     } else if (estimatedLevel === "B2") {
@@ -156,6 +212,33 @@ export const TeachPlacementService = {
       recommendedGrowthFocus = "T1 Foundation · The First Coherent Lesson & Classroom English";
     }
 
+    // -------------------------------------------------------------
+    // Automated Course Assignment & Enrollment by Level
+    // -------------------------------------------------------------
+    const assignedCourseIds: string[] = [];
+    if (estimatedLevel === "C1" || estimatedLevel === "C2") {
+      assignedCourseIds.push(
+        "english-educators-b2-c1",
+        "designing-asynchronous-learning",
+        "teaching-specialized-industry-english"
+      );
+    } else if (estimatedLevel === "B2") {
+      assignedCourseIds.push(
+        "english-educators-b2-c1",
+        "assessment-supports-learning",
+        "ai-literacy-language-teachers"
+      );
+    } else {
+      assignedCourseIds.push(
+        "teaching-speaking-confidence",
+        "pronunciation-clearer-instruction"
+      );
+    }
+
+    const assignedCourses: TeachCourse[] = TEACH_MVP_COURSES.filter((c) =>
+      assignedCourseIds.includes(c.id)
+    );
+
     // Persist verified educator state into Lurexa Core
     const db = getServerFirestore();
     const evidenceRepository = new FirestoreLearningEvidenceRepository();
@@ -164,9 +247,30 @@ export const TeachPlacementService = {
     const verifiedCompetencies = [
       { id: "speaking-instruction", name: "Speaking instruction", level: estimatedLevel === "C1" ? 4 : 3 },
       { id: "pronunciation-pedagogy", name: "Pronunciation pedagogy", level: estimatedLevel === "C1" ? 4 : 3 },
+      { id: "formative-assessment", name: "Formative feedback", level: estimatedLevel === "C1" ? 4 : 3 },
+      { id: "ai-literacy", name: "AI literacy for teachers", level: estimatedLevel === "C1" ? 4 : 2 },
     ];
 
     await Promise.all([
+      // Update educatorProfiles
+      db.collection("educatorProfiles").doc(input.actor.uid).set(
+        {
+          userId: input.actor.uid,
+          cefrLevel: estimatedLevel,
+          verifiedCefrLevel: estimatedLevel,
+          verifiedCompetencies,
+          status: "approved",
+          diagnosticPlacement: {
+            estimatedLevel,
+            overallIntelligibilityScore,
+            confidence,
+            assignedCourseIds,
+            evaluatedAt,
+          },
+          updatedAt: evaluatedAt,
+        },
+        { merge: true }
+      ),
       // Update teach-profiles
       db.collection("teach-profiles").doc(input.actor.uid).set(
         {
@@ -174,11 +278,11 @@ export const TeachPlacementService = {
           cefrLevel: estimatedLevel,
           verifiedCefrLevel: estimatedLevel,
           verifiedCompetencies,
-          verifiedAt: evaluatedAt,
           diagnosticPlacement: {
             estimatedLevel,
             overallIntelligibilityScore,
             confidence,
+            assignedCourseIds,
             evaluatedAt,
           },
           updatedAt: evaluatedAt,
@@ -219,6 +323,7 @@ export const TeachPlacementService = {
           overallIntelligibilityScore,
           confidence,
           taskScores,
+          assignedCourseIds,
           pedagogicalStrengths: allStrengths,
         },
         provenance: {
@@ -227,12 +332,27 @@ export const TeachPlacementService = {
           confidence: 0.9,
         },
       }),
+      // Automatically enroll educator in assigned courses
+      ...assignedCourseIds.map((courseId) =>
+        db.collection("teachEnrollments").doc(`${input.actor.uid}_${courseId}`).set(
+          {
+            userId: input.actor.uid,
+            courseId,
+            progressPercent: 0,
+            status: "active",
+            enrolledAt: evaluatedAt,
+            assignedViaPlacement: true,
+            updatedAt: evaluatedAt,
+          },
+          { merge: true }
+        )
+      ),
     ]);
 
     // Reconcile awarded credentials (T1–T5)
     let awardedCredentialsCount = 0;
     try {
-      const profileData = (await db.collection("teach-profiles").doc(input.actor.uid).get()).data();
+      const profileData = (await db.collection("educatorProfiles").doc(input.actor.uid).get()).data();
       const educatorProfile = profileData ? ({ ...profileData, userId: input.actor.uid } as unknown as EducatorProfile) : null;
       for (const cred of TEACH_MVP_CREDENTIALS) {
         const credEval = evaluateTeachCredential(cred, educatorProfile, [], []);
@@ -273,6 +393,8 @@ export const TeachPlacementService = {
       pedagogicalStrengths: Array.from(new Set(allStrengths)),
       recommendedGrowthFocus,
       awardedCredentialsCount,
+      assignedCourses,
+      assignedCourseIds,
       feedback,
       evaluatedAt,
     };

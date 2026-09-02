@@ -10,6 +10,7 @@ import { Input } from "@lurexa/ui/Input";
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [accountType, setAccountType] = useState<"independent" | "institutional">("independent");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -25,10 +26,15 @@ export default function LoginPage() {
     try {
       if (mode === "login") {
         await AuthService.login(email, password);
+        router.replace("/dashboard");
       } else {
         await AuthService.register(email, password);
+        if (accountType === "independent") {
+          router.replace("/assessment/diagnostic?onboarding=1");
+        } else {
+          router.replace("/dashboard");
+        }
       }
-      router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "We could not complete that request.");
     } finally {
@@ -55,6 +61,44 @@ export default function LoginPage() {
         <form className="mt-7 space-y-4" onSubmit={submit}>
           {mode === "register" && (
             <>
+              {/* Account Pathway Selection */}
+              <div className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5">
+                <p className="text-xs font-black uppercase tracking-wider text-[var(--lx-muted)] mb-2.5">
+                  Educator Profile Type
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("independent")}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      accountType === "independent"
+                        ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-xs"
+                        : "border-[var(--lx-border)] bg-[var(--lx-canvas)] opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <span className="block text-xs font-black text-[var(--lx-ink)]">🌟 Independent Educator</span>
+                    <span className="mt-1 block text-[11px] text-[var(--lx-muted)]">
+                      Diagnostic placement test & level-based course assignment.
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("institutional")}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      accountType === "institutional"
+                        ? "border-[var(--lx-primary)] bg-[var(--lx-surface)] shadow-xs"
+                        : "border-[var(--lx-border)] bg-[var(--lx-canvas)] opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <span className="block text-xs font-black text-[var(--lx-ink)]">🏫 School / Campus</span>
+                    <span className="mt-1 block text-[11px] text-[var(--lx-muted)]">
+                      Affiliated with a partner school or university campus.
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               <label className="block text-xs font-extrabold text-[var(--lx-muted)]">
                 Full Name
                 <Input
@@ -140,7 +184,13 @@ export default function LoginPage() {
             disabled={busy}
             className="min-h-12 w-full rounded-xl bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] px-5 text-sm font-extrabold text-white shadow-md transition hover:brightness-105 disabled:opacity-60"
           >
-            {busy ? "Working…" : mode === "login" ? "Enter Lurexa Teach" : "Create Educator Profile"}
+            {busy
+              ? "Working…"
+              : mode === "login"
+              ? "Enter Lurexa Teach"
+              : accountType === "independent"
+              ? "Create Profile & Start Diagnostic Placement →"
+              : "Create Educator Profile"}
           </Button>
         </form>
 
