@@ -9,6 +9,7 @@ import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { ProductMark } from "@lurexa/ui/ProductMark";
+import { MasterMark } from "@lurexa/ui/MasterMark";
 import { WelcomeTourModal, type WelcomeTourStep } from "@lurexa/ui/WelcomeTourModal";
 import { AuthService, type AuthenticatedUser, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
@@ -397,7 +398,7 @@ export default function CoachDashboardPage() {
                   className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-teal-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
                 >
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
-                    <ProductMark product="core" compact size="sm" />
+                    <MasterMark compact size="sm" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
