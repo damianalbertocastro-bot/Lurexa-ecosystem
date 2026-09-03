@@ -9,6 +9,8 @@
     "./EcosystemDropdown": "./src/EcosystemDropdown.tsx",
     "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
+    "./navigation": "./src/navigation/index.ts",
+    "./navigation/*": "./src/navigation/*.ts*",
     "./*": "./src/*.tsx"
   },
   "scripts": {
