@@ -2,9 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Card } from "@lurexa/ui/Card";
-import { Badge } from "@lurexa/ui/Badge";
-import { Button } from "@lurexa/ui/button";
 import { InsightShell } from "../components/InsightShell";
 
 interface Intervention {
@@ -78,99 +75,107 @@ export default function InterventionsPage() {
     <InsightShell active="Intervention Routing">
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
         {/* Header */}
-        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--lx-border)] pb-6">
+        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Link href="/" className="text-xs font-bold text-[var(--lx-secondary)] hover:underline">
+              <Link href="/" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
                 ← Overview
               </Link>
-              <span className="text-[var(--lx-muted)]">/</span>
-              <span className="text-xs text-[var(--lx-muted)]">Intervention Routing</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-xs text-slate-500 font-medium">Intervention Routing</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Automated Instructional Interventions
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--lx-muted)]">
+            <p className="text-xs sm:text-sm text-slate-500">
               Real-time pedagogical intervention triggers connecting Mind diagnostics with Learn &amp; Coach assignments.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
+            <button
+              type="button"
               onClick={dispatchAll}
-              className="rounded-xl bg-[var(--lx-primary)] px-4 py-2 text-xs font-black text-white shadow-xs hover:opacity-95 transition"
+              className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 transition"
             >
               Dispatch All Pending
-            </Button>
+            </button>
           </div>
         </section>
 
         {statusMessage && (
-          <div className="animate-spring-pop rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-4 text-xs font-bold text-[var(--lx-secondary)] shadow-sm">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-800 shadow-sm">
             ✓ {statusMessage}
           </div>
         )}
 
         {/* Interventions Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {interventions.map((item) => (
-            <Card
-              key={item.id}
-              className="p-6 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[var(--lx-muted)]">{item.id}</span>
-                  <Badge
-                    variant={item.severity === "high" ? "warning" : "info"}
-                    className="text-[10px] font-bold uppercase"
-                  >
-                    {item.severity} severity
-                  </Badge>
+          {interventions.map((item) => {
+            const isHigh = item.severity === "high";
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-slate-400">{item.id}</span>
+                    <span
+                      className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                        isHigh
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
+                          : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                      }`}
+                    >
+                      {item.severity} severity
+                    </span>
+                  </div>
+                  {item.dispatched ? (
+                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      ✓ Dispatched
+                    </span>
+                  ) : (
+                    <span className="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      Pending
+                    </span>
+                  )}
                 </div>
-                {item.dispatched ? (
-                  <Badge variant="success" className="text-[10px]">
-                    ✓ Dispatched
-                  </Badge>
-                ) : (
-                  <Badge variant="default" className="text-[10px]">
-                    Pending
-                  </Badge>
-                )}
-              </div>
 
-              <div>
-                <h3 className="text-base font-bold text-[var(--lx-ink)]">{item.studentName}</h3>
-                <p className="text-xs text-[var(--lx-muted)]">{item.cohort}</p>
-              </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{item.studentName}</h3>
+                  <p className="text-xs text-slate-500">{item.cohort}</p>
+                </div>
 
-              <div className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5 space-y-1 text-xs">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
-                  Detected Pattern:
-                </p>
-                <p className="font-semibold text-[var(--lx-ink)]">{item.detectedPattern}</p>
-                <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-[var(--lx-muted)]">
-                  Action Recommendation:
-                </p>
-                <p className="text-[var(--lx-secondary)] font-medium">{item.suggestedAction}</p>
-              </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 space-y-1 text-xs">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Detected Pattern:
+                  </p>
+                  <p className="font-semibold text-slate-800">{item.detectedPattern}</p>
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Action Recommendation:
+                  </p>
+                  <p className="text-indigo-700 font-medium">{item.suggestedAction}</p>
+                </div>
 
-              <div className="flex items-center justify-end pt-2">
-                <Button
-                  disabled={item.dispatched}
-                  onClick={() => dispatchIntervention(item.id)}
-                  size="sm"
-                  className={`rounded-xl text-xs font-bold ${
-                    item.dispatched
-                      ? "opacity-60"
-                      : "bg-[var(--lx-secondary)] text-white hover:opacity-95"
-                  }`}
-                >
-                  {item.dispatched ? "Dispatched" : "Dispatch Intervention →"}
-                </Button>
+                <div className="flex items-center justify-end pt-2">
+                  <button
+                    type="button"
+                    disabled={item.dispatched}
+                    onClick={() => dispatchIntervention(item.id)}
+                    className={`rounded-lg text-xs font-semibold px-4 py-2 transition-colors ${
+                      item.dispatched
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                    }`}
+                  >
+                    {item.dispatched ? "Dispatched" : "Dispatch Intervention →"}
+                  </button>
+                </div>
               </div>
-            </Card>
-          ))}
+            );
+          })}
         </section>
       </div>
     </InsightShell>

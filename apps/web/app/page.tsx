@@ -90,8 +90,6 @@ export default function Home() {
   const [openAccordion, setOpenAccordion] = useState<string | null>("products");
   const [demoModalOpen, setDemoModalOpen] = useState(false);
 
-  const [logoPopupOpen, setLogoPopupOpen] = useState(false);
-
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -106,36 +104,11 @@ export default function Home() {
       {/* Sticky Top Ecosystem Navbar */}
       <header className={styles.navWrapper}>
         <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
-          <div
-            className={styles.brandWrapper}
-            onMouseEnter={() => setLogoPopupOpen(true)}
-            onMouseLeave={() => setLogoPopupOpen(false)}
-          >
+          <div className={styles.brandWrapper}>
             <a className={styles.brand} href="#top" onClick={scrollToTop} aria-label="Lurexa home - Scroll to top">
               <MasterMark compact size="sm" />
               <span>Lurexa</span>
-              <span className={styles.brandCaret}>▾</span>
             </a>
-
-            {logoPopupOpen && (
-              <div className={styles.logoAccordionPopup} role="menu">
-                <div className={styles.popupHeader}>
-                  <p className={styles.popupTitle}>Lurexa Ecosystem</p>
-                  <p className={styles.popupSubtitle}>One Learner. Adaptive Products.</p>
-                </div>
-                <div className={styles.popupItems}>
-                  {products.map((p) => (
-                    <a key={p.id} href={p.href} className={styles.popupItem}>
-                      <div className={styles.popupItemInfo}>
-                        <span className={styles.popupItemName}>{p.name}</span>
-                        <span className={styles.popupItemDesc}>{p.eyebrow}</span>
-                      </div>
-                      <span className={styles.popupItemBadge}>{p.status.split("•")[0]?.trim()}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className={styles.navLinks}>

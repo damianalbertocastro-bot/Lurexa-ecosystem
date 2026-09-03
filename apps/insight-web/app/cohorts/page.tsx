@@ -2,9 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Card } from "@lurexa/ui/Card";
-import { Badge } from "@lurexa/ui/Badge";
-import { Button } from "@lurexa/ui/button";
 import { InsightShell } from "../components/InsightShell";
 
 interface PhonemeCell {
@@ -42,19 +39,19 @@ export default function CohortHeatmapPage() {
     <InsightShell active="Phonemic Heatmaps">
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
         {/* Header */}
-        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--lx-border)] pb-6">
+        <section className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Link href="/" className="text-xs font-bold text-[var(--lx-secondary)] hover:underline">
+              <Link href="/" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
                 ← Overview
               </Link>
-              <span className="text-[var(--lx-muted)]">/</span>
-              <span className="text-xs text-[var(--lx-muted)]">Phonemic Heatmaps</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-xs text-slate-500 font-medium">Phonemic Heatmaps</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Cohort-Wide Phonemic Error Heatmap
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--lx-muted)]">
+            <p className="text-xs sm:text-sm text-slate-500">
               Granular analysis of L1 transfer patterns across acoustic evidence logs in Cloud Storage.
             </p>
           </div>
@@ -63,7 +60,7 @@ export default function CohortHeatmapPage() {
             <select
               value={selectedCohort}
               onChange={(e) => setSelectedCohort(e.target.value)}
-              className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3.5 py-2 text-xs font-bold text-[var(--lx-ink)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--lx-secondary)]"
+              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="Santo Domingo Cohort Alpha">Santo Domingo Cohort Alpha (140 Learners)</option>
               <option value="Santiago Regional ESL-2">Santiago Regional ESL-2 (210 Learners)</option>
@@ -77,44 +74,50 @@ export default function CohortHeatmapPage() {
             const isHigh = cell.errorRate >= 40;
             const isMed = cell.errorRate >= 25 && cell.errorRate < 40;
 
+            const badgeClass = isHigh
+              ? "bg-rose-50 text-rose-700 border border-rose-200"
+              : isMed
+              ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-emerald-50 text-emerald-700 border border-emerald-200";
+
             return (
-              <Card
+              <div
                 key={idx}
-                className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all space-y-4"
+                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow space-y-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="rounded-lg bg-[var(--lx-canvas)] px-2.5 py-1 text-xs font-mono font-bold text-[var(--lx-secondary)] border border-[var(--lx-border)]">
+                  <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono font-bold text-indigo-700 border border-slate-200">
                     {cell.phoneme}
                   </span>
-                  <Badge
-                    variant={isHigh ? "warning" : isMed ? "info" : "success"}
-                    className="text-xs font-bold"
-                  >
+                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeClass}`}>
                     {cell.errorRate}% Error Rate
-                  </Badge>
+                  </span>
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {cell.category}
                   </p>
-                  <p className="mt-1 text-sm font-bold text-[var(--lx-ink)]">
-                    Target: <span className="font-mono text-[var(--lx-primary)]">{cell.targetWord}</span>
+                  <p className="mt-1 text-sm font-bold text-slate-900">
+                    Target: <span className="font-mono text-indigo-600">{cell.targetWord}</span>
                   </p>
-                  <p className="text-xs text-[var(--lx-muted)]">
-                    Common L1 realization: <span className="font-mono text-[var(--lx-destructive)]">{cell.sampleWord}</span>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Common L1 realization: <span className="font-mono text-rose-600">{cell.sampleWord}</span>
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-[var(--lx-border)]">
-                  <span className="text-[11px] text-[var(--lx-muted)]">Evidence: 120+ audio logs</span>
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="text-[11px] text-slate-400">Evidence: 120+ audio logs</span>
                   <Link href="/interventions">
-                    <Button size="sm" variant="secondary" className="text-[11px] font-bold rounded-lg">
+                    <button
+                      type="button"
+                      className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    >
                       Dispatch Drill →
-                    </Button>
+                    </button>
                   </Link>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </section>
