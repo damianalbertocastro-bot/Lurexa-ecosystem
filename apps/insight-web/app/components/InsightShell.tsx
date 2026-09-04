@@ -125,7 +125,7 @@ export function InsightShell({
               <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white">
-                    <MasterMark compact size="sm" />
+                    <ProductMark product="insight" compact size="sm" />
                   </span>
                   <span className="font-bold text-slate-900 dark:text-white">Insight</span>
                 </div>
@@ -188,7 +188,7 @@ export function InsightShell({
           <div>
             <div className="flex items-center gap-2">
               <span className="grid h-7 w-7 place-items-center rounded-lg bg-indigo-600 text-white">
-                <MasterMark compact size="sm" />
+                <ProductMark product="insight" compact size="sm" />
               </span>
               <span className="font-bold text-slate-900 dark:text-white">Lurexa Insight</span>
             </div>
