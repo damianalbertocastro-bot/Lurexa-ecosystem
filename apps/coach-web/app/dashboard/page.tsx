@@ -175,14 +175,14 @@ export default function CoachDashboardPage() {
               action={<Badge variant="info">Priority Queue</Badge>}
             >
               <div className="space-y-4 pt-2">
-                <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 dark:border-rose-900/60 dark:bg-rose-950/40">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black uppercase tracking-wider text-rose-700">
+                    <span className="text-xs font-black uppercase tracking-wider text-rose-700 dark:text-rose-400">
                       🔴 High-Priority Remediation (1-Day Interval)
                     </span>
-                    <span className="text-xs font-mono font-bold text-rose-600">Accuracy: 58%</span>
+                    <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400">Accuracy: 58%</span>
                   </div>
-                  <p className="mt-1.5 text-sm font-bold text-slate-900">
+                  <p className="mt-1.5 text-sm font-bold text-slate-900 dark:text-white">
                     Initial /s/ Clusters without Prosthetic /e/ (es-DO Epenthesis)
                   </p>
                   <div className="mt-2.5 flex flex-wrap gap-2">
@@ -192,19 +192,19 @@ export default function CoachDashboardPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/60 dark:bg-amber-950/40">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-700">
+                    <span className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
                       🟡 Emerging Consolidation (3-Day Interval)
                     </span>
-                    <span className="text-xs font-mono font-bold text-amber-600">Accuracy: 74%</span>
+                    <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">Accuracy: 74%</span>
                   </div>
-                  <p className="mt-1.5 text-sm font-bold text-slate-900">
+                  <p className="mt-1.5 text-sm font-bold text-slate-900 dark:text-white">
                     Past Regular -ed Endings (/t/, /d/, /ɪd/)
                   </p>
                   <div className="mt-2.5 flex flex-wrap gap-2">
-                    <PhoneticChip ipa="/-t/" example="walked" category="consonant" />
-                    <PhoneticChip ipa="/-ɪd/" example="decided" category="consonant" />
+                    <PhoneticChip ipa="/-t/" example="walked" category="consonant" textColor="white" />
+                    <PhoneticChip ipa="/-ɪd/" example="decided" category="consonant" textColor="white" />
                   </div>
                 </div>
 
@@ -358,53 +358,53 @@ export default function CoachDashboardPage() {
 
             {/* Cross-Product Bridge Card with Visual Logos */}
             <Card
-              className="border-0 bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/60"
+              className="border border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-md"
               title="Connected Lurexa Workspace"
               subtitle="Continue learning across products"
             >
               <div className="space-y-3 pt-2">
                 <a
                   href={urls.learn}
-                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-indigo-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5 transition hover:bg-[var(--lx-surface)] hover:border-indigo-400 dark:hover:border-indigo-500"
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--lx-surface)] border border-[var(--lx-border)] shadow-xs transition group-hover:scale-105">
                     <ProductMark product="learn" compact size="sm" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-indigo-600 transition">Open Learn ↗</p>
+                      <p className="text-xs font-black text-[var(--lx-ink)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Open Learn ↗</p>
                     </div>
-                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Resume interactive curriculum and lessons.</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--lx-muted)] truncate">Resume interactive curriculum and lessons.</p>
                   </div>
                 </a>
 
                 <a
                   href={urls.teach}
-                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-violet-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5 transition hover:bg-[var(--lx-surface)] hover:border-violet-400 dark:hover:border-violet-500"
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--lx-surface)] border border-[var(--lx-border)] shadow-xs transition group-hover:scale-105">
                     <ProductMark product="teach" compact size="sm" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-violet-600 transition">Open Teach ↗</p>
+                      <p className="text-xs font-black text-[var(--lx-ink)] group-hover:text-violet-600 dark:group-hover:text-violet-400 transition">Open Teach ↗</p>
                     </div>
-                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Educator training &amp; CEFR growth.</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--lx-muted)] truncate">Educator training &amp; CEFR growth.</p>
                   </div>
                 </a>
 
                 <a
                   href={urls.ecosystem}
-                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition hover:bg-slate-100/90 hover:border-teal-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800"
+                  className="group flex items-center gap-3.5 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3.5 transition hover:bg-[var(--lx-surface)] hover:border-teal-400 dark:hover:border-teal-500"
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xs transition group-hover:scale-105">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--lx-surface)] border border-[var(--lx-border)] shadow-xs transition group-hover:scale-105">
                     <MasterMark compact size="sm" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-950 dark:text-white group-hover:text-teal-600 transition">All Lurexa products ↗</p>
+                      <p className="text-xs font-black text-[var(--lx-ink)] group-hover:text-teal-600 dark:group-hover:text-teal-400 transition">All Lurexa products ↗</p>
                     </div>
-                    <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400 truncate">Platform tools, docs, and services.</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--lx-muted)] truncate">Platform tools, docs, and services.</p>
                   </div>
                 </a>
               </div>

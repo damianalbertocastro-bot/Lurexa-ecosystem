@@ -8,6 +8,8 @@ export interface PhoneticChipProps {
   l1Note?: string;
   category?: "consonant" | "vowel" | "stress" | "cluster";
   className?: string;
+  buttonClassName?: string;
+  textColor?: "white" | "black" | "default";
 }
 
 export const PhoneticChip: React.FC<PhoneticChipProps> = ({
@@ -16,6 +18,8 @@ export const PhoneticChip: React.FC<PhoneticChipProps> = ({
   l1Note,
   category = "consonant",
   className = "",
+  buttonClassName = "",
+  textColor = "default",
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -26,6 +30,13 @@ export const PhoneticChip: React.FC<PhoneticChipProps> = ({
     cluster: "bg-violet-50 text-violet-800 border-violet-200 dark:bg-violet-950/50 dark:text-violet-300 dark:border-violet-800/60",
   };
 
+  const textStyle =
+    textColor === "white"
+      ? "text-white dark:text-white"
+      : textColor === "black"
+      ? "text-black dark:text-black"
+      : "";
+
   return (
     <div className={`relative inline-block ${className}`}>
       <button
@@ -33,13 +44,13 @@ export const PhoneticChip: React.FC<PhoneticChipProps> = ({
         onClick={() => setOpen(!open)}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
-        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold transition duration-150 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] ${categoryStyles[category]}`}
+        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold transition duration-150 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)] ${categoryStyles[category]} ${textStyle} ${buttonClassName}`}
         aria-expanded={open}
         aria-label={`Phonetic target: ${ipa} in ${example}`}
       >
-        <span className="font-mono text-xs font-black">{ipa}</span>
-        <span className="opacity-40">·</span>
-        <span className="font-semibold">{example}</span>
+        <span className={`font-mono text-xs font-black ${textStyle}`}>{ipa}</span>
+        <span className={`opacity-40 ${textStyle}`}>·</span>
+        <span className={`font-semibold ${textStyle}`}>{example}</span>
         {l1Note && (
           <span className="ml-0.5 rounded-full bg-amber-400/30 px-1.5 py-0.2 text-[9px] font-black text-amber-900 dark:text-amber-200">
             L1

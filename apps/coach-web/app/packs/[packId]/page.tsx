@@ -71,8 +71,8 @@ export default async function CoachPackRunnerPage({
 
           {pack.l1InterferenceFocus && (
             <div className="mt-6 rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs">
-              <strong className="text-amber-800 dark:text-amber-300">L1 Transfer Focus: </strong>
-              <span className="text-amber-950 dark:text-amber-100">{pack.l1InterferenceFocus}</span>
+              <strong className="text-black font-bold">L1 Transfer Focus: </strong>
+              <span className="text-black font-medium">{pack.l1InterferenceFocus}</span>
             </div>
           )}
 
@@ -93,7 +93,7 @@ export default async function CoachPackRunnerPage({
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--lx-muted)] mb-2">Target Phonemes:</p>
             <div className="flex flex-wrap gap-2">
               {pack.targetPhonemes.map((ph: string) => (
-                <PhoneticChip key={ph} ipa={`/${ph}/`} example={ph} category="consonant" />
+                <PhoneticChip key={ph} ipa={`/${ph}/`} example={ph} category="consonant" textColor="black" />
               ))}
             </div>
           </div>

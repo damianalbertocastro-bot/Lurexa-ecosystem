@@ -60,6 +60,11 @@ export function CoachShell({
     }
   };
 
+  const visibleNavItems = navItems.filter((item) => {
+    if (currentUser && item.href === "/") return false;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-[var(--lx-canvas)] text-[var(--lx-ink)] flex flex-col justify-between transition-colors duration-200">
       <header
@@ -72,12 +77,12 @@ export function CoachShell({
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           {/* Brand Logo & Main Nav */}
           <div className="flex items-center gap-6">
-            <Link href="/" aria-label="Lurexa Coach Home" className="flex items-center gap-2">
+            <Link href={currentUser ? "/dashboard" : "/"} aria-label="Lurexa Coach Home" className="flex items-center gap-2">
               <ProductMark product="coach" inverse={inverse} size="md" />
             </Link>
 
             <nav aria-label="Coach desktop navigation" className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const isActive = active === item.label;
                 return (
                   <Link
@@ -162,7 +167,7 @@ export function CoachShell({
           aria-label="Coach mobile navigation"
           className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 pb-2.5 pt-0.5 md:hidden"
         >
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = active === item.label;
             return (
               <Link
