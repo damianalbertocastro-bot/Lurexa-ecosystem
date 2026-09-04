@@ -109,6 +109,27 @@ export default function PracticePage() {
   async function finish() {
     if (!session || busy || ending) return;
     setEnding(true); setError("");
+
+    if (typeof window !== "undefined") {
+      try {
+        const guestData = window.sessionStorage.getItem("lurexa.coach.guest-session");
+        if (guestData) {
+          const parsed = JSON.parse(guestData) as { isGuest?: boolean };
+          if (parsed.isGuest) {
+            window.sessionStorage.setItem(
+              "lurexa.coach.guest-session",
+              JSON.stringify({ ...parsed, lessonsCompleted: 1 })
+            );
+            window.sessionStorage.removeItem(ACTIVE_SESSION_KEY);
+            window.location.assign("/login?mode=register&guestUpgrade=true");
+            return;
+          }
+        }
+      } catch {
+        // safe
+      }
+    }
+
     try {
       const completionResponse = await authenticatedFetch("/api/coach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "endSession", sessionId: session.id }) });
       const completion = await completionResponse.json() as CoachSessionEndResult & { error?: string };

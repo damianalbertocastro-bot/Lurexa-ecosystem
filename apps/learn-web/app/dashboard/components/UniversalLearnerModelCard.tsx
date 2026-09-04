@@ -202,11 +202,28 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
           </div>
 
           {recommendation && recommendation.recommendedTier !== activeTier && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-3 text-xs text-[var(--lx-muted)] flex items-center justify-between gap-2">
-              <span>Looking for live phonemic feedback? Upgrade to <strong>{recommendation.recommendedTier}</strong></span>
-              <a href="/#pricing" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline shrink-0">
-                Plans →
-              </a>
+            <div className="rounded-2xl border border-indigo-300 dark:border-indigo-800 bg-indigo-50/90 dark:bg-indigo-950/60 p-4 text-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                  Synergy Recommendation
+                </span>
+                <Badge variant="info">Upgrade to {recommendation.recommendedTier}</Badge>
+              </div>
+              <p className="text-xs text-indigo-950 dark:text-indigo-200 leading-relaxed font-medium">
+                {recommendation.reason}
+              </p>
+              <div className="pt-1">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+                  onClick={() => {
+                    window.location.href = `/billing?recommendedTier=${recommendation.recommendedTier}`;
+                  }}
+                >
+                  Explore {recommendation.recommendedTier} Plan →
+                </Button>
+              </div>
             </div>
           )}
         </div>

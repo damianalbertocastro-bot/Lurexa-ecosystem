@@ -36,7 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastProvider>
           {children}
           <TeacherGuidanceBanner />
-          <LearnRelatedExperiences />
           <OfflineIndicator />
           <EcosystemSupportWidget />
         </ToastProvider>

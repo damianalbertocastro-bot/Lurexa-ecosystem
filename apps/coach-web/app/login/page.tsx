@@ -15,11 +15,15 @@ function readSafeContinueTo(value: string | null): string | null {
 function CoachLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
+  const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const placementPending = searchParams.get("placementPending") === "true";
+  const guestUpgrade = searchParams.get("guestUpgrade") === "true";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -57,8 +61,29 @@ function CoachLoginForm() {
     }
   };
 
-  const handleDemoAccess = () => {
-    router.push("/dashboard");
+  const handleDemoAccess = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await AuthService.loginGuest();
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          "lurexa.coach.guest-session",
+          JSON.stringify({
+            isGuest: true,
+            lessonsCompleted: 0,
+            maxAllowedLessons: 1,
+            startedAt: new Date().toISOString(),
+          })
+        );
+      }
+      const continueTo = readSafeContinueTo(searchParams.get("continue"));
+      router.replace(continueTo || "/dashboard?guest=true");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to initialize demo guest access.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -79,6 +104,19 @@ function CoachLoginForm() {
             : "One account connects your practice across Coach, Learn, and Teach."}
         </p>
 
+        {placementPending && (
+          <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50/90 p-3.5 text-xs font-semibold text-indigo-950 text-left shadow-xs">
+            <span className="font-black text-indigo-700 block mb-0.5">🎙️ Spoken Placement Completed!</span>
+            Sign in or create your Lurexa account to view, save, and sync your official oral diagnostic results.
+          </div>
+        )}
+
+        {guestUpgrade && (
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/90 p-3.5 text-xs font-semibold text-amber-950 text-left shadow-xs">
+            <span className="font-black text-amber-700 block mb-0.5">🚀 Free Demo Lesson Completed</span>
+            Create your full Lurexa account to unlock continuous practice packs, voice minutes, and available subscription plans.
+          </div>
+        )}
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

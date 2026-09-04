@@ -63,6 +63,8 @@ const COACH_TOUR_STORAGE_KEY = "lurexa_coach_tour_seen";
 export default function CoachDashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestLessonsCompleted, setGuestLessonsCompleted] = useState(0);
   const [selectedLevel, setSelectedLevel] = useState<CefrLevel | "ALL">("ALL");
   const urls = resolveLurexaPublicUrls();
   const [learnerCefr, setLearnerCefr] = useState<CefrLevel>("A1");
@@ -72,10 +74,25 @@ export default function CoachDashboardPage() {
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
       setCurrentUser(user);
+      const guestStatus = AuthService.isGuestUser(user);
+      setIsGuest(guestStatus);
+
+      if (guestStatus && typeof window !== "undefined") {
+        try {
+          const guestData = window.sessionStorage.getItem("lurexa.coach.guest-session");
+          if (guestData) {
+            const parsed = JSON.parse(guestData) as { lessonsCompleted?: number };
+            setGuestLessonsCompleted(parsed.lessonsCompleted || 0);
+          }
+        } catch {
+          // safe
+        }
+      }
+
       if (user) {
         try {
           const hasSeenTour = localStorage.getItem(COACH_TOUR_STORAGE_KEY);
-          if (!hasSeenTour) {
+          if (!hasSeenTour && !guestStatus) {
             setIsTourOpen(true);
           }
         } catch {
@@ -101,12 +118,21 @@ export default function CoachDashboardPage() {
             }
           }
         } catch {
-          // Graceful fallback
+          // Fallback to initial local state
         }
       }
     });
-    return unsubscribe;
+
+    return () => unsubscribe();
   }, []);
+
+  const handleStartSession = (href: string) => {
+    if (isGuest && guestLessonsCompleted >= 1) {
+      router.push("/login?mode=register&guestUpgrade=true");
+      return;
+    }
+    router.push(href);
+  };
 
   const filteredPacks =
     selectedLevel === "ALL"
@@ -116,37 +142,50 @@ export default function CoachDashboardPage() {
   return (
     <CoachShell active="Dashboard">
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 space-y-8">
-        {/* Top Greeting Header */}
-        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a1931] via-[#15274f] to-[var(--lx-primary)] p-7 sm:p-10 text-white shadow-xl">
-          <div className="flex flex-wrap items-center justify-between gap-6">
+        {/* Guest Demo Banner */}
+        {isGuest && (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-950/50 p-4 text-xs font-semibold text-amber-950 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-fade-slide-up">
             <div>
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
-                  <span>🎙️</span>
-                  CONTINUOUS SPOKEN INTELLIGENCE
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsTourOpen(true)}
-                  className="rounded-full border border-white/20 bg-white/10 px-3 py-0.5 text-[11px] font-bold text-white hover:bg-white/20"
-                >
-                  ✦ Welcome Tour
-                </Button>
-              </div>
-              <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-4xl text-white">
-                {currentUser ? `Welcome back, ${currentUser.displayName || currentUser.email?.split("@")[0]}` : "Welcome to your Speaking Studio"}
+              <span className="font-black text-amber-800 dark:text-amber-300 block text-sm">
+                🚀 Guest Demo Account ({guestLessonsCompleted >= 1 ? "0" : "1"} Free Lesson Remaining)
+              </span>
+              <span>
+                {guestLessonsCompleted >= 1
+                  ? "You have completed your 1 free demo lesson. Create a full account or choose a plan for unlimited access."
+                  : "Enjoy 1 interactive speaking workout or practice pack. Sign up to save your universal progress and unlock unlimited practice."}
+              </span>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              className="bg-amber-600 hover:bg-amber-700 text-white shrink-0"
+              onClick={() => router.push("/login?mode=register&guestUpgrade=true")}
+            >
+              Sign Up / Unlock Plans →
+            </Button>
+          </div>
+        )}
+
+        {/* Hero Banner with Unified Progress Radar */}
+        <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--lx-primary)] to-[var(--color-brand-navy)] p-7 text-white shadow-xl sm:p-9">
+          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2 max-w-xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/20 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-200 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                Adaptive Dominican Speaking Studio
+              </span>
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+                Master English Spoken Fluency.
               </h1>
-              <p className="mt-2 text-sm text-indigo-100 max-w-2xl leading-relaxed">
-                Coach personalizes your daily oral fluency practice and spaced-repetition phoneme queue according to your latest speech evidence.
+              <p className="text-xs sm:text-sm text-indigo-100 font-medium leading-relaxed">
+                Acoustic intelligence, phonemic contrast drills, and conversational ease tailored for Dominican Spanish speakers.
               </p>
             </div>
 
-            {/* Metrics Chips */}
-            <div className="flex items-center gap-3 sm:gap-4 rounded-2xl bg-white/10 border border-white/15 p-4 backdrop-blur-md">
+            {/* Live Progress KPIs */}
+            <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-xl border border-white/15">
               <div className="text-center px-2">
-                <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">STREAK</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-cyan-300">DAILY RETENTION</p>
                 <p className="text-xl sm:text-2xl font-black text-white">🔥 Active</p>
               </div>
               <div className="h-8 w-px bg-white/20" />
@@ -211,7 +250,7 @@ export default function CoachDashboardPage() {
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <Button
                     variant="primary"
-                    onClick={() => router.push("/practice")}
+                    onClick={() => handleStartSession("/practice")}
                     className="bg-[var(--lx-primary)] hover:bg-[var(--lx-primary)]"
                   >
                     Start Today&apos;s Speaking Session 🎙️
@@ -285,7 +324,7 @@ export default function CoachDashboardPage() {
                         <Button
                           variant="primary"
                           className="w-full"
-                          onClick={() => router.push(`/packs/${pack.id}`)}
+                          onClick={() => handleStartSession(`/packs/${pack.id}`)}
                         >
                           Launch Pack 🎙️
                         </Button>

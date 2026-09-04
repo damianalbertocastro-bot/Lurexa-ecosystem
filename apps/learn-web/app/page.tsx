@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
+import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
 
 const proof = [
   {
@@ -25,16 +26,11 @@ const proof = [
 
 export default function HomePage() {
   return (
-    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-slate-950 text-white">
-          {/* Multi-layered ambient lighting */}
-          <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-0 h-[500px] w-[500px] rounded-full bg-violet-600/20 blur-[120px]" />
-          <div aria-hidden="true" className="pointer-events-none absolute -right-32 top-10 h-[500px] w-[500px] rounded-full bg-indigo-500/25 blur-[140px]" />
-          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-400/15 blur-[100px]" />
-
-          {/* Global Navigation */}
-          <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-5 sm:px-8">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950 flex flex-col justify-between">
+      <div>
+        {/* Sticky Global Navigation */}
+        <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
+          <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
             <div className="flex items-center gap-2 sm:gap-3">
               <EcosystemDropdown currentApp="learn" align="left" openOnHover inverse />
               <LurexaLearnLogo inverse />
@@ -54,6 +50,14 @@ export default function HomePage() {
               </Link>
             </div>
           </nav>
+        </header>
+
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-slate-950 text-white">
+          {/* Multi-layered ambient lighting */}
+          <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-0 h-[500px] w-[500px] rounded-full bg-violet-600/20 blur-[120px]" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-32 top-10 h-[500px] w-[500px] rounded-full bg-indigo-500/25 blur-[140px]" />
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-400/15 blur-[100px]" />
 
           {/* Hero Grid */}
           <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 pb-24 pt-12 sm:px-8 lg:grid-cols-[1.15fr_.85fr] lg:pb-32 lg:pt-16">
@@ -166,22 +170,28 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="border-t border-[var(--lx-border)] bg-[var(--lx-surface)] py-12 text-[var(--lx-muted)]">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 sm:flex-row sm:px-8">
-            <div className="flex items-center gap-3">
-              <LurexaLearnLogo />
-              <span className="text-xs font-bold text-[var(--lx-muted)]">
-                © {new Date().getFullYear()} Lurexa Learning Technologies. All rights reserved.
-              </span>
-            </div>
-            <nav aria-label="Footer" className="flex flex-wrap items-center gap-5 text-xs font-bold text-[var(--lx-muted)]">
-              <Link href="/onboarding" className="transition hover:text-[var(--lx-primary)]">Placement</Link>
-              <Link href="/login" className="transition hover:text-[var(--lx-primary)]">Student Sign In</Link>
-              <Link href="/signup?role=educator" className="transition hover:text-[var(--lx-primary)]">Educator Portal</Link>
-            </nav>
+        {/* Related Ecosystem Experiences */}
+        <div className="mb-8">
+          <LearnRelatedExperiences />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-[var(--lx-border)] bg-[var(--lx-surface)] py-12 text-[var(--lx-muted)]">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 sm:flex-row sm:px-8">
+          <div className="flex items-center gap-3">
+            <LurexaLearnLogo />
+            <span className="text-xs font-bold text-[var(--lx-muted)]">
+              © {new Date().getFullYear()} Lurexa Learning Technologies. All rights reserved.
+            </span>
           </div>
-        </footer>
-      </main>
+          <nav aria-label="Footer" className="flex flex-wrap items-center gap-5 text-xs font-bold text-[var(--lx-muted)]">
+            <Link href="/onboarding" className="transition hover:text-[var(--lx-primary)]">Placement</Link>
+            <Link href="/login" className="transition hover:text-[var(--lx-primary)]">Student Sign In</Link>
+            <Link href="/signup?role=educator" className="transition hover:text-[var(--lx-primary)]">Educator Portal</Link>
+          </nav>
+        </div>
+      </footer>
+    </main>
   );
 }

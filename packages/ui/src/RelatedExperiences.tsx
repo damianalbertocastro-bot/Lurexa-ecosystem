@@ -41,7 +41,7 @@ export function RelatedExperiences({
       className={`rounded-[32px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 shadow-[var(--lx-card-shadow)] sm:p-8 lg:p-10 ${className}`}
       {...props}
     >
-      <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
+      <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-start">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-secondary)]">
             {eyebrow}

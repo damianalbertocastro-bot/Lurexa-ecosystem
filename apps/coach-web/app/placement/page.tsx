@@ -8,6 +8,7 @@ import { AudioWaveform } from "@lurexa/ui/AudioWaveform";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import type { CefrLevel } from "@lurexa/types";
 import { Button } from "@lurexa/ui/button";
+import { AuthService } from "@lurexa/backend";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
 interface DiagnosticPrompt {
@@ -215,6 +216,28 @@ export default function CoachPlacementPage() {
     playSuccess();
   };
 
+  useEffect(() => {
+    // Auto-resume pending placement if returning from login/signup
+    if (typeof window !== "undefined") {
+      try {
+        const savedData = window.sessionStorage.getItem("lurexa.coach.pending-placement");
+        if (savedData) {
+          const parsed = JSON.parse(savedData) as { transcripts?: string[] };
+          if (Array.isArray(parsed.transcripts) && parsed.transcripts.length === DIAGNOSTIC_PROMPTS.length) {
+            setTranscripts(parsed.transcripts);
+            setRecordedBlobs(parsed.transcripts.map(() => new Blob(["saved-audio"], { type: "audio/webm" })));
+            setCurrentStep(DIAGNOSTIC_PROMPTS.length - 1);
+            if (AuthService.getCurrentUser()) {
+              void finishDiagnostic(parsed.transcripts);
+            }
+          }
+        }
+      } catch {
+        // safe
+      }
+    }
+  }, []);
+
   const handleNextStep = () => {
     if (currentStep < DIAGNOSTIC_PROMPTS.length - 1) {
       setCurrentStep((prev) => prev + 1);
@@ -223,21 +246,36 @@ export default function CoachPlacementPage() {
     }
   };
 
-  const finishDiagnostic = async () => {
+  const finishDiagnostic = async (overrideTranscripts?: string[]) => {
+    const activeTranscripts = overrideTranscripts || transcripts;
+
+    // Build tasks payload
+    const tasks = DIAGNOSTIC_PROMPTS.map((prompt, idx) => ({
+      taskIndex: idx,
+      targetLevel: prompt.level,
+      prompt: prompt.prompt,
+      transcript: activeTranscripts[idx] || prompt.sampleExpected,
+      durationMs: 4000,
+    }));
+
+    // If user is not signed in, save progress and redirect to Log in / Sign up page
+    const currentUser = AuthService.getCurrentUser();
+    if (!currentUser) {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          "lurexa.coach.pending-placement",
+          JSON.stringify({ tasks, transcripts: activeTranscripts })
+        );
+      }
+      router.push("/login?continue=/placement&placementPending=true");
+      return;
+    }
+
     setAnalyzing(true);
     setError(null);
     playAchievement();
 
     try {
-      // Build tasks payload
-      const tasks = DIAGNOSTIC_PROMPTS.map((prompt, idx) => ({
-        taskIndex: idx,
-        targetLevel: prompt.level,
-        prompt: prompt.prompt,
-        transcript: transcripts[idx] || prompt.sampleExpected,
-        durationMs: 4000,
-      }));
-
       const response = await authenticatedFetch("/api/coach/placement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,6 +287,9 @@ export default function CoachPlacementPage() {
         throw new Error(data.error ?? "Failed to evaluate spoken diagnostic.");
       }
 
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("lurexa.coach.pending-placement");
+      }
       setResult(data);
     } catch (err) {
       setError(
