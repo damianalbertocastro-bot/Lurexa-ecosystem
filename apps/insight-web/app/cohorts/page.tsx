@@ -75,39 +75,40 @@ export default function CohortHeatmapPage() {
           {data.map((cell, idx) => {
             const isHigh = cell.errorRate >= 40;
             const isMed = cell.errorRate >= 25 && cell.errorRate < 40;
-
-            const badgeClass = isHigh
-              ? "bg-rose-50 text-rose-700 border border-rose-200"
-              : isMed
-              ? "bg-amber-50 text-amber-700 border border-amber-200"
-              : "bg-emerald-50 text-emerald-700 border border-emerald-200";
+            const badgeVariant = isHigh ? "warning" : isMed ? "default" : "success";
 
             return (
-              <div
+              <Card
                 key={idx}
-                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow space-y-4"
+                className="space-y-4 p-6"
               >
                 <div className="flex items-center justify-between">
                   <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono font-bold text-indigo-700 border border-slate-200">
                     {cell.phoneme}
                   </span>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeClass}`}>
+                  <Badge variant={badgeVariant}>
                     {cell.errorRate}% Error Rate
-                  </span>
+                  </Badge>
                 </div>
 
                 <div>
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {cell.category}
                   </p>
-                  <p className="mt-1 text-sm font-bold text-slate-900">
-                    Target: <span className="font-mono text-indigo-600">{cell.targetWord}</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Common L1 realization: <span className="font-mono text-rose-600">{cell.sampleWord}</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">
+                    &quot;{cell.sampleWord}&quot; → &quot;{cell.targetWord}&quot;
                   </p>
                 </div>
 
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500"
+                    }`}
+                    style={{ width: `${cell.errorRate}%` }}
+                  />
+                </div>
+                
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                   <span className="text-[11px] text-slate-400">Evidence: 120+ audio logs</span>
                   <Link href="/interventions">
@@ -119,7 +120,7 @@ export default function CohortHeatmapPage() {
                     </button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </section>

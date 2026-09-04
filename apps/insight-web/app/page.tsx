@@ -60,46 +60,40 @@ export default function InsightOverviewPage() {
         {/* 2. Top-Row Metric KPI Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {/* Card 1: Active Cohort */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 flex items-center gap-1.5">
                 <span>👥</span> Active Cohort
               </span>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 font-medium text-xs px-2.5 py-0.5 rounded-full">
-                +18% MoM
-              </span>
+              <Badge variant="success">+18% MoM</Badge>
             </div>
             <p className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight my-2">
               {analytics.activeLearnersCount.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500 font-normal">Enrolled students in active terms</p>
-          </div>
+          </Card>
 
           {/* Card 2: Speaking Velocity */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 flex items-center gap-1.5">
                 <span>🎙️</span> Speaking Velocity
               </span>
-              <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium text-xs px-2.5 py-0.5 rounded-full">
-                Active Weekly
-              </span>
+              <Badge variant="info">Active Weekly</Badge>
             </div>
             <p className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight my-2">
               {analytics.averageSpeakingMinutesPerLearner} <span className="text-xl font-semibold text-slate-500">min</span>
             </p>
             <p className="text-xs text-slate-500 font-normal">Average weekly spoken practice</p>
-          </div>
+          </Card>
 
           {/* Card 3: Grading SLA */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 flex items-center gap-1.5">
                 <span>⏱️</span> Grading SLA (&lt;24h)
               </span>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 font-medium text-xs px-2.5 py-0.5 rounded-full">
-                Target Met
-              </span>
+              <Badge variant="success">Target Met</Badge>
             </div>
             <p className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight my-2">
               {Math.round(
@@ -112,23 +106,21 @@ export default function InsightOverviewPage() {
             <p className="text-xs text-slate-500 font-normal">
               Avg turnaround: {analytics.assignmentSla.averageGradingHours} hours
             </p>
-          </div>
+          </Card>
 
           {/* Card 4: Mind AI Grade Alignment */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 flex items-center gap-1.5">
                 <span>🤖</span> Mind AI Alignment
               </span>
-              <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium text-xs px-2.5 py-0.5 rounded-full">
-                Verified
-              </span>
+              <Badge variant="info">Verified</Badge>
             </div>
             <p className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight my-2">
               {analytics.assignmentSla.aiSuggestedGradesAcceptedPercent}%
             </p>
             <p className="text-xs text-slate-500 font-normal">Instructor review acceptance rate</p>
-          </div>
+          </Card>
         </section>
 
         {/* 3. CEFR Milestone Progression & Velocity Benchmarks Card */}

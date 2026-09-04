@@ -117,32 +117,20 @@ export default function InterventionsPage() {
             const isHigh = item.severity === "high";
 
             return (
-              <div
+              <Card
                 key={item.id}
-                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow space-y-4"
+                className="space-y-4 p-6"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold text-slate-400">{item.id}</span>
-                    <span
-                      className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
-                        isHigh
-                          ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                      }`}
-                    >
+                    <Badge variant={isHigh ? "warning" : "info"}>
                       {item.severity} severity
-                    </span>
+                    </Badge>
                   </div>
-                  {item.dispatched ? (
-                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      ✓ Dispatched
-                    </span>
-                  ) : (
-                    <span className="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Pending
-                    </span>
-                  )}
+                  <Badge variant={item.dispatched ? "success" : "default"}>
+                    {item.dispatched ? "✓ Dispatched" : "Pending"}
+                  </Badge>
                 </div>
 
                 <div>
@@ -175,7 +163,7 @@ export default function InterventionsPage() {
                     {item.dispatched ? "Dispatched" : "Dispatch Intervention →"}
                   </button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </section>

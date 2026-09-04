@@ -71,15 +71,15 @@ export default function ReportsPage() {
               format: "CSV / Parquet",
             },
           ].map((report, i) => (
-            <div
+            <Card
               key={i}
-              className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow space-y-4"
+              className="space-y-4 p-6"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400">{report.date}</span>
-                <span className="bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full">
+                <Badge variant="default" className="font-mono text-[11px]">
                   {report.format}
-                </span>
+                </Badge>
               </div>
 
               <div>
@@ -97,7 +97,7 @@ export default function ReportsPage() {
                   {downloading === report.title ? "Generating Data..." : "Export Report Data ↓"}
                 </button>
               </div>
-            </div>
+            </Card>
           ))}
         </section>
       </div>
