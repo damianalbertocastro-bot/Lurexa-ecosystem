@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
 import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
 
@@ -30,6 +31,18 @@ export function CoachShell({
   const router = useRouter();
   const urls = resolveLurexaPublicUrls();
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged((user) => {
@@ -89,6 +102,26 @@ export function CoachShell({
 
           {/* Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              aria-label="Open command palette"
+              className={`hidden items-center gap-2 rounded-xl border px-3 py-1.5 text-xs transition sm:inline-flex ${
+                inverse
+                  ? "border-white/15 bg-white/10 text-slate-300 hover:bg-white/15 hover:text-white"
+                  : "border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:bg-[var(--lx-surface)] hover:text-[var(--lx-ink)]"
+              }`}
+            >
+              <span>Search</span>
+              <kbd className={`rounded px-1.5 py-0.5 text-[10px] font-bold border ${
+                inverse
+                  ? "border-white/20 bg-white/10 text-slate-300"
+                  : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-muted)]"
+              }`}>
+                ⌘K
+              </kbd>
+            </button>
+
             <ThemeToggle />
             <EcosystemDropdown currentApp="coach" inverse={inverse} />
 
@@ -183,6 +216,10 @@ export function CoachShell({
           </div>
         </div>
       </footer>
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
     </div>
   );
 }

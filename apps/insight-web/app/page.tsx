@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { InstitutionalAnalyticsService, type InstitutionalCohortAnalytics } from "@lurexa/backend";
+import { Card } from "@lurexa/ui/card";
+import { Badge } from "@lurexa/ui/Badge";
 import { InsightShell } from "./components/InsightShell";
 
 export default function InsightOverviewPage() {

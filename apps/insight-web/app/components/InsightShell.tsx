@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { MasterMark } from "@lurexa/ui/MasterMark";
+import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
@@ -57,7 +57,7 @@ export function InsightShell({
             className="flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-sm shadow-indigo-500/20 text-white">
-              <MasterMark compact size="sm" />
+              <ProductMark product="insight" compact size="sm" />
             </span>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">

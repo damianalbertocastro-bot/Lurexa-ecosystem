@@ -2,12 +2,14 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+import { getEcosystemUrl } from "@lurexa/config/domains";
+
 export interface CommandItem {
   id: string;
   title: string;
   subtitle?: string;
   icon: string;
-  category: "Navigation" | "Learning" | "Teaching" | "Preferences";
+  category: "Navigation" | "Learning" | "Teaching" | "Analytics" | "Governance" | "Preferences";
   action: () => void;
   keywords?: string[];
 }
@@ -38,53 +40,88 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
         subtitle: "View current progress, streak, and daily learning path",
         icon: "🏠",
         category: "Navigation",
-        keywords: ["home", "stats", "today"],
-        action: () => navigate("/dashboard"),
+        keywords: ["home", "stats", "today", "dashboard", "learn"],
+        action: () => navigate(getEcosystemUrl("learn", "/dashboard")),
       },
       {
         id: "nav-coach",
-        title: "Lurexa Coach",
-        subtitle: "Interactive AI speaking & pronunciation space",
+        title: "Lurexa Coach (Oral Studio)",
+        subtitle: "Interactive AI speaking & pronunciation space with L1-transfer diagnostics",
         icon: "🎙️",
         category: "Learning",
-        keywords: ["speaking", "pronunciation", "voice", "practice"],
-        action: () => navigate("/coach"),
+        keywords: ["speaking", "pronunciation", "voice", "practice", "oral", "fluency", "phonetics"],
+        action: () => navigate(getEcosystemUrl("coach", "/")),
       },
       {
         id: "nav-placement",
         title: "CEFR Placement Test",
-        subtitle: "Diagnostic multi-skill proficiency evaluation",
+        subtitle: "Diagnostic multi-skill proficiency evaluation and adaptive start point",
         icon: "🎯",
         category: "Learning",
-        keywords: ["assessment", "diagnostic", "level", "test"],
-        action: () => navigate("/placement"),
+        keywords: ["assessment", "diagnostic", "level", "test", "placement", "cefr"],
+        action: () => navigate(getEcosystemUrl("learn", "/placement")),
       },
       {
         id: "nav-teacher-dash",
-        title: "Educator Dashboard",
-        subtitle: "Manage classes, student progression, and interventions",
+        title: "Educator Workspace",
+        subtitle: "Manage classes, student progression, live lessons, and interventions",
         icon: "👩‍🏫",
         category: "Teaching",
-        keywords: ["teacher", "classes", "educator"],
-        action: () => navigate("/teacher/dashboard"),
+        keywords: ["teacher", "classes", "educator", "operational"],
+        action: () => navigate(getEcosystemUrl("learn", "/teacher")),
+      },
+      {
+        id: "nav-teach",
+        title: "Lurexa Teach",
+        subtitle: "Professional teacher development, CEFR growth, credentials & community",
+        icon: "🎓",
+        category: "Teaching",
+        keywords: ["professional development", "growth", "certification", "teach", "educator credentials"],
+        action: () => navigate(getEcosystemUrl("teach", "/")),
+      },
+      {
+        id: "nav-insight",
+        title: "Lurexa Insight (Institutional Radar)",
+        subtitle: "Cohort telemetry, phonemic error heatmap & intervention analytics",
+        icon: "📊",
+        category: "Analytics",
+        keywords: ["analytics", "radar", "cohorts", "reports", "telemetry", "phonemic heatmap", "insight"],
+        action: () => navigate(getEcosystemUrl("insight", "/")),
       },
       {
         id: "nav-studio",
-        title: "Curriculum Studio",
-        subtitle: "Knowledge objects, 7-stage builder, and branching catalog",
+        title: "Lurexa Studio (Curriculum Builder)",
+        subtitle: "Knowledge objects, 7-stage authoring workbench, and schema linter",
         icon: "📐",
         category: "Teaching",
-        keywords: ["studio", "authoring", "lessons"],
-        action: () => navigate("/teacher/studio"),
+        keywords: ["studio", "authoring", "lessons", "curriculum", "workbench", "linter"],
+        action: () => navigate(getEcosystemUrl("studio", "/")),
       },
-
+      {
+        id: "nav-admin",
+        title: "Lurexa Admin",
+        subtitle: "Institutional governance, compliance, licenses & platform operations",
+        icon: "🛡️",
+        category: "Governance",
+        keywords: ["admin", "governance", "institution", "compliance", "licenses"],
+        action: () => navigate(getEcosystemUrl("admin", "/")),
+      },
+      {
+        id: "nav-docs",
+        title: "Lurexa Canonical Documentation",
+        subtitle: "Ecosystem architecture, curriculum specs & developer guides",
+        icon: "📚",
+        category: "Navigation",
+        keywords: ["docs", "specifications", "architecture", "api", "guides"],
+        action: () => navigate(getEcosystemUrl("docs", "/")),
+      },
       {
         id: "nav-theme",
         title: "Toggle Dark / Light Theme",
         subtitle: "Switch appearance mode",
         icon: "🌓",
         category: "Preferences",
-        keywords: ["dark", "light", "mode", "color"],
+        keywords: ["dark", "light", "mode", "color", "appearance", "theme"],
         action: () => {
           const current = document.documentElement.getAttribute("data-theme") || "light";
           const next = current === "light" ? "dark" : "light";
