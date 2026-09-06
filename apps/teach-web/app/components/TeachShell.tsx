@@ -10,6 +10,7 @@ import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import { useTeachAuth } from "./TeachAuthProvider";
 import { Button } from "@lurexa/ui/button";
+import { TeachRelatedExperiences } from "./TeachRelatedExperiences";
 
 const ecosystemUrl = getEcosystemUrl("root");
 const nav = [
@@ -192,6 +193,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
 
       <div className="flex-1 w-full">
         {children}
+        <TeachRelatedExperiences />
       </div>
 
       <footer className="mt-auto border-t border-[var(--lx-border)] bg-[var(--lx-surface)]">

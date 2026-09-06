@@ -157,7 +157,7 @@ export function EcosystemDropdown({
       ref={dropdownRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative inline-block text-left ${className}`}
+      className={`relative inline-block text-left ${isOpen ? "z-50" : ""} ${className}`}
       {...props}
     >
       <button

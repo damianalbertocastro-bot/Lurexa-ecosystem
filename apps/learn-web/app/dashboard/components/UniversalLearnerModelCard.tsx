@@ -216,9 +216,9 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
                 <Button
                   variant="primary"
                   size="sm"
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition active:scale-98"
                   onClick={() => {
-                    window.location.href = `/billing?recommendedTier=${recommendation.recommendedTier}`;
+                    window.location.assign(`/billing?recommendedTier=${recommendation.recommendedTier}`);
                   }}
                 >
                   Explore {recommendation.recommendedTier} Plan →

@@ -142,12 +142,13 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setDemoModalOpen(true)}
-              className="hidden sm:inline-flex items-center justify-center rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-2xs"
+              className={styles.ecosystemPillButton}
+              style={{ display: undefined }}
             >
               Book a demo
             </button>
             <a
-              className="inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-xs"
+              className={styles.navCta}
               href={learnUrl}
             >
               Start learning

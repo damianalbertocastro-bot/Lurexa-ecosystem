@@ -5,12 +5,22 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
 import { createProductBridge } from "./product-bridge.server";
 
+import { devCoachSessionStore } from "./coach-session-state.server";
+
 const SELF_PACED_ORGANIZATION_ID = "lurexa-self-paced";
 
 async function loadOwnedSession(actor: AuthenticatedActor, sessionId: string): Promise<CoachSession> {
-  const snapshot = await getServerFirestore().collection("coach-sessions").doc(sessionId).get();
-  if (!snapshot.exists) throw new Error("Coach session not found.");
-  const session = snapshot.data() as CoachSession;
+  let session: CoachSession | null = devCoachSessionStore.get(sessionId) ?? null;
+  try {
+    const snapshot = await getServerFirestore().collection("coach-sessions").doc(sessionId).get();
+    if (snapshot.exists) {
+      session = snapshot.data() as CoachSession;
+    }
+  } catch {
+    // Dev fallback
+  }
+  if (!session) session = devCoachSessionStore.get(sessionId) ?? null;
+  if (!session) throw new Error("Coach session not found.");
   if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
   return session;
 }

@@ -29,7 +29,8 @@ export default function TeachHome() {
               <div className="mt-9 flex flex-wrap gap-3">
                 <a
                   href="/dashboard"
-                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black shadow-xl transition hover:bg-slate-100"
+                  style={{ color: "#000000" }}
+                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black !text-black shadow-xl transition hover:bg-slate-100"
                 >
                   Start your growth path →
                 </a>
@@ -150,7 +151,8 @@ export default function TeachHome() {
             </p>
             <a
               href="/growth"
-              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black shadow-xl transition hover:bg-slate-100"
+              style={{ color: "#000000" }}
+              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black !text-black shadow-xl transition hover:bg-slate-100"
             >
               View the growth model →
             </a>

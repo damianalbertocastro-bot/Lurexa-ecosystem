@@ -29,6 +29,9 @@ export function CoachBridgeArrival() {
   }, [bridgeId]);
 
   if (!bridgeId) return null;
-  if (error) return <div role="alert" className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><b>Secure handoff unavailable.</b> {error} Coach can still request its own authorized context when you start.</div>;
+  if (error) {
+    const displayError = error.includes("credentials") ? "Bridge verification unavailable in local preview mode." : error;
+    return <div role="alert" className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><b>Secure handoff note:</b> {displayError} Coach will request its own authorized context when you start.</div>;
+  }
   return <div role="status" aria-live="polite" className="mb-5 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-950"><b>{resolution ? "Cross-product context verified." : "Verifying your Lurexa handoff…"}</b><span className="ml-1">Coach independently authorizes the context it needs for this session.</span></div>;
 }

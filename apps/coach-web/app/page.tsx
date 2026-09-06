@@ -268,7 +268,7 @@ export default function CoachHomePage() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/20 border border-cyan-400/30 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-300">
                   <span>✨</span> Unified Lurexa Platform
                 </span>
-                <h3 className="mt-4 text-2xl font-black sm:text-4xl tracking-tight">
+                <h3 className="mt-4 text-2xl font-black sm:text-4xl tracking-tight dark:text-black">
                   Seamlessly connected with Learn &amp; Teach.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-indigo-100 max-w-2xl">
