@@ -186,9 +186,12 @@ function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): strin
  * operations. Do not import this module from browser code or the root backend
  * barrel export.
  */
+const CORE_ADMIN_APP_NAME = "lurexa-core-admin";
+
 export function getFirebaseAdminApp(): App {
   const serviceAccount = readServiceAccount();
-  const existingApp = getApps()[0];
+  const existingApp = getApps().find((a) => a.name === CORE_ADMIN_APP_NAME)
+    ?? (serviceAccount ? null : getApps()[0]);
 
   if (serviceAccount) {
     // Keep environment aligned so Google Cloud SDKs and google-auth-library
@@ -204,28 +207,20 @@ export function getFirebaseAdminApp(): App {
     }
 
     if (existingApp) {
-      if (!existingApp.options.credential) {
-        try {
-          existingApp.options.credential = cert({
-            projectId: serviceAccount.project_id,
-            clientEmail: serviceAccount.client_email,
-            privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
-          });
-        } catch {
-          // ignore
-        }
-      }
       return existingApp;
     }
 
-    return initializeApp({
-      credential: cert({
+    return initializeApp(
+      {
+        credential: cert({
+          projectId: serviceAccount.project_id,
+          clientEmail: serviceAccount.client_email,
+          privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
+        }),
         projectId: serviceAccount.project_id,
-        clientEmail: serviceAccount.client_email,
-        privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
-      }),
-      projectId: serviceAccount.project_id,
-    });
+      },
+      CORE_ADMIN_APP_NAME,
+    );
   }
 
   if (existingApp) return existingApp;

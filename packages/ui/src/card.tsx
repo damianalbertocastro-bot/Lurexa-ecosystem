@@ -34,8 +34,7 @@ export const Card: React.FC<CardProps> = ({
           <div>
             {title && (
               <h3
-                className={`text-lg font-bold tracking-[-.03em] text-black !text-black ${titleClassName}`}
-                style={{ color: "#000000" }}
+                className={`text-lg font-bold tracking-[-.03em] text-black dark:text-white dark:!text-white ${titleClassName}`}
               >
                 {title}
               </h3>
