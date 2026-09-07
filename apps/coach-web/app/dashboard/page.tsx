@@ -14,6 +14,7 @@ import { WelcomeTourModal, type WelcomeTourStep } from "@lurexa/ui/WelcomeTourMo
 import { AuthService, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
+import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
 const COACH_TOUR_STEPS: WelcomeTourStep[] = [
   {
@@ -87,7 +88,7 @@ export default function CoachDashboardPage() {
         }
       }
 
-      if (user) {
+      if (user || guestStatus) {
         try {
           const hasSeenTour = localStorage.getItem(COACH_TOUR_STORAGE_KEY);
           if (!hasSeenTour && !guestStatus) {
@@ -98,11 +99,10 @@ export default function CoachDashboardPage() {
         }
 
         try {
-          const response = await fetch("/api/coach", {
+          const response = await authenticatedFetch("/api/coach", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${await user.getIdToken()}`,
             },
             body: JSON.stringify({ action: "startSession" }),
           });

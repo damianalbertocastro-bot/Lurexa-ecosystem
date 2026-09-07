@@ -2,6 +2,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInAnonymously,
+  signInWithCustomToken,
   signOut as firebaseSignOut,
   deleteUser,
   User as FirebaseUser,
@@ -29,6 +30,26 @@ export const AuthService = {
 
   async loginGuest(): Promise<FirebaseUser | { uid: string; isAnonymous: boolean; email: null }> {
     try {
+      if (typeof window !== "undefined") {
+        const response = await fetch("/api/coach/guest", { method: "POST" });
+        if (response.ok) {
+          const { customToken, guestSession } = await response.json();
+          if (customToken) {
+            const credential = await signInWithCustomToken(auth, customToken);
+            window.sessionStorage.setItem("lurexa.coach.guest-session", JSON.stringify(guestSession));
+            return credential.user;
+          }
+          if (guestSession) {
+            window.sessionStorage.setItem("lurexa.coach.guest-session", JSON.stringify(guestSession));
+            return { uid: guestSession.uid, isAnonymous: true, email: null };
+          }
+        }
+      }
+    } catch {
+      // Continue to client Firebase Anonymous sign-in attempt
+    }
+
+    try {
       const credential = await signInAnonymously(auth);
       return credential.user;
     } catch {
@@ -43,6 +64,7 @@ export const AuthService = {
           isGuest: true,
           uid: guestSession.uid,
           lessonsCompleted: 0,
+          maxAllowedLessons: 1,
           createdAt: new Date().toISOString(),
         }));
       }

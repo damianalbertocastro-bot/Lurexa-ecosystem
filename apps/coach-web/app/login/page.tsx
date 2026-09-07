@@ -65,15 +65,19 @@ function CoachLoginForm() {
     setLoading(true);
     setError(null);
     try {
-      await AuthService.loginGuest();
+      const guest = await AuthService.loginGuest();
       if (typeof window !== "undefined") {
+        const existing = window.sessionStorage.getItem("lurexa.coach.guest-session");
+        const parsed = existing ? JSON.parse(existing) : {};
         window.sessionStorage.setItem(
           "lurexa.coach.guest-session",
           JSON.stringify({
+            ...parsed,
             isGuest: true,
-            lessonsCompleted: 0,
+            uid: parsed.uid || guest.uid,
+            lessonsCompleted: parsed.lessonsCompleted || 0,
             maxAllowedLessons: 1,
-            startedAt: new Date().toISOString(),
+            startedAt: parsed.startedAt || new Date().toISOString(),
           })
         );
       }
