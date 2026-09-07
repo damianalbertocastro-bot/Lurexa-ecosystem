@@ -32,7 +32,8 @@ export default function PronunciationPage() {
           <h2 className="mt-3 text-3xl font-black tracking-[-.05em] text-white">Use these principles inside a live adaptive session.</h2>
           <Link
             href="/practice"
-            className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-slate-900 shadow-md transition hover:bg-slate-100"
+            className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black !text-black shadow-md transition hover:bg-slate-100"
+            style={{ color: "#000000" }}
           >
             Open Coach practice →
           </Link>

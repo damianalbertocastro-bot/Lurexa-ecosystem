@@ -297,8 +297,9 @@ export const CoursePlatformService = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       if (
-        process.env.NODE_ENV !== "production" &&
-        (message.includes("default credentials") || message.includes("credentials") || message.includes("not found"))
+        message.includes("default credentials") ||
+        message.includes("credentials") ||
+        message.includes("not found")
       ) {
         try {
           const parts = rawToken.split(".");

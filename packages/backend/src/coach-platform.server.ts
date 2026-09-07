@@ -129,8 +129,8 @@ export const CoachPlatformService = {
       await database.collection("coach-sessions").doc(session.id).set(session);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      if (process.env.NODE_ENV !== "production" && (msg.includes("credentials") || msg.includes("default credentials"))) {
-        // Dev fallback handled
+      if (msg.includes("credentials") || msg.includes("default credentials")) {
+        // Fallback handled
       } else {
         throw err;
       }

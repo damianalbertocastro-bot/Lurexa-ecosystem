@@ -7,6 +7,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   action?: React.ReactNode;
   interactive?: boolean;
   className?: string;
+  titleClassName?: string;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -16,6 +17,7 @@ export const Card: React.FC<CardProps> = ({
   action,
   interactive = false,
   className = "",
+  titleClassName = "",
   ...props
 }) => {
   const interactiveStyles = interactive
@@ -31,7 +33,10 @@ export const Card: React.FC<CardProps> = ({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             {title && (
-              <h3 className="text-lg font-bold tracking-[-.03em] text-[var(--lx-ink)]">
+              <h3
+                className={`text-lg font-bold tracking-[-.03em] text-black !text-black ${titleClassName}`}
+                style={{ color: "#000000" }}
+              >
                 {title}
               </h3>
             )}

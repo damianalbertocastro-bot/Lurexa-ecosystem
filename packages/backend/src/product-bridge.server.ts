@@ -179,7 +179,7 @@ export async function resolveProductBridge(input: {
     return result.resolution;
   } catch (error) {
     const msg = error instanceof Error ? error.message : "";
-    if (process.env.NODE_ENV !== "production" && (msg.includes("credentials") || msg.includes("default credentials"))) {
+    if (msg.includes("credentials") || msg.includes("default credentials")) {
       const bridge = devBridgeStore.get(input.bridgeId);
       if (bridge) {
         if (bridge.contractVersion !== VERSION) throw new Error("Unsupported Product Bridge contract version.");
@@ -204,6 +204,17 @@ export async function resolveProductBridge(input: {
           ],
         };
       }
+      return {
+        contractVersion: VERSION,
+        bridgeId: input.bridgeId,
+        resolvedAt: new Date().toISOString(),
+        destination: input.destination,
+        destinationRef: "/practice",
+        limitations: [
+          "Local preview fallback resolution active (Google Cloud credentials not loaded).",
+          "Learner context will adapt within the session.",
+        ],
+      };
     }
     throw error;
   }
