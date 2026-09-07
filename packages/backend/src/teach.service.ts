@@ -29,8 +29,12 @@ const now = () => new Date().toISOString();
 
 export const TeachService = {
   async getEducatorProfile(userId: string): Promise<EducatorProfile | null> {
-    const snap = await getDoc(doc(db, "educatorProfiles", userId));
-    return snap.exists() ? ({ ...snap.data(), userId: snap.id } as EducatorProfile) : null;
+    try {
+      const snap = await getDoc(doc(db, "educatorProfiles", userId));
+      return snap.exists() ? ({ ...snap.data(), userId: snap.id } as EducatorProfile) : null;
+    } catch {
+      return null;
+    }
   },
   async upsertEducatorProfile(profile: EducatorProfile): Promise<void> {
     await setDoc(doc(db, "educatorProfiles", profile.userId), { ...profile, updatedAt: now() }, { merge: true });
@@ -54,8 +58,12 @@ export const TeachService = {
     return TEACH_MVP_COURSES.find((course) => course.id === courseId) ?? null;
   },
   async listEnrollments(userId: string): Promise<TeachEnrollment[]> {
-    const snap = await getDocs(query(collection(db, "teachEnrollments"), where("userId", "==", userId)));
-    return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachEnrollment));
+    try {
+      const snap = await getDocs(query(collection(db, "teachEnrollments"), where("userId", "==", userId)));
+      return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachEnrollment));
+    } catch {
+      return [];
+    }
   },
   async enroll(userId: string, courseId: string): Promise<TeachEnrollment> {
     const existing = await getDocs(query(collection(db, "teachEnrollments"), where("userId", "==", userId), where("courseId", "==", courseId)));

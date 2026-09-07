@@ -78,7 +78,8 @@ export default function AssessmentPage() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Link
                   href="/assessment/diagnostic"
-                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-slate-950 shadow-md hover:bg-slate-100 transition"
+                  className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-black !text-black shadow-md hover:bg-slate-100 transition"
+                  style={{ color: "#000000" }}
                 >
                   🎙️ Take Spoken Diagnostic (B1–C2) →
                 </Link>

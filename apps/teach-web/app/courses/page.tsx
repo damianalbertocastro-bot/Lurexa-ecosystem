@@ -26,8 +26,8 @@ export default function CoursesPage() {
       try {
         const [nextCourses, nextEnrollments, nextProfile] = await Promise.all([
           TeachService.listPublishedCourses(),
-          TeachService.listEnrollments(user.uid),
-          TeachService.getEducatorProfile(user.uid),
+          TeachService.listEnrollments(user.uid).catch(() => []),
+          TeachService.getEducatorProfile(user.uid).catch(() => null),
         ]);
         setCourses(nextCourses);
         setEnrollments(nextEnrollments);
@@ -130,7 +130,13 @@ export default function CoursesPage() {
                 <h2 className="mt-3 text-3xl font-black tracking-[-.045em] text-white">Your profile should decide what comes next.</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-indigo-100">English level, goals, completed learning, verified evidence, and professional interests become inputs for Lurexa Mind recommendations.</p>
               </div>
-              <a href="/growth" className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-extrabold text-slate-900 shadow-md transition hover:bg-slate-100">View my growth map →</a>
+              <a
+                href="/growth"
+                className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-extrabold text-black !text-black shadow-md transition hover:bg-slate-100"
+                style={{ color: "#000000" }}
+              >
+                View my growth map →
+              </a>
             </div>
           </section>
         </main>

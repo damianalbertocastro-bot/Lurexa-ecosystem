@@ -441,9 +441,13 @@ export const CoursePlatformService = {
           : [];
       });
     const quizIds = lesson.contentBlocks.filter((block) => block.type === "quiz_embed").map((block) => block.id);
+    const totalRequiredIds = Array.from(new Set([...requiredActivityIds, ...quizIds]));
     const submittedIds = new Set(previous?.attempts.map((attempt) => attempt.quizId) ?? []);
-    const missingIds = [...requiredActivityIds, ...quizIds].filter((id) => !submittedIds.has(id));
-    if (missingIds.length) throw new Error("Complete each required activity and the quick check before finishing this lesson.");
+    const completedCount = totalRequiredIds.filter((id) => submittedIds.has(id)).length;
+    const completionPercent = totalRequiredIds.length === 0 ? 100 : Math.round((completedCount / totalRequiredIds.length) * 100);
+    if (completionPercent < 70) {
+      throw new Error(`Complete at least 70% of required activities and the quick check before finishing this lesson (current: ${completionPercent}%).`);
+    }
     const record: StudentProgress = {
       id: `${actor.uid}_${lessonId}`, studentId: actor.uid, lessonId, moduleId: lesson.moduleId, courseId,
       completed: true, timeSpentSeconds: Math.max(0, Math.min(Math.round(timeSpentSeconds), 86_400)), attempts: previous?.attempts ?? [],

@@ -88,7 +88,7 @@ async function main(): Promise<void> {
   await LearnProgressService.startLesson(learner, A1_PRODUCTION_COURSE_ID, lessonId);
   await rejects(
     () => LearnProgressService.completeLesson(learner, A1_PRODUCTION_COURSE_ID, lessonId, 120),
-    "Complete each required activity",
+    /Complete at least 70%/,
   );
   await rejects(
     () => RequiredLearningCapabilityService.assertCompleted(learner, A1_PRODUCTION_COURSE_ID, lessonId),
