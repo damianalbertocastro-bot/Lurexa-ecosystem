@@ -17,6 +17,19 @@ interface ValidFirebaseServiceAccount {
   project_id: string;
   client_email: string;
   private_key: string;
+  filePath?: string;
+}
+
+function stripQuotes(str?: string | null): string {
+  if (!str) return "";
+  const trimmed = str.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
 }
 
 export function getRawServiceAccountJson(): string | null {
@@ -24,70 +37,99 @@ export function getRawServiceAccountJson(): string | null {
   return serializedServiceAccount || null;
 }
 
+function parseServiceAccountContent(content: string, filePath?: string): ValidFirebaseServiceAccount | null {
+  try {
+    const parsed = JSON.parse(content) as FirebaseServiceAccount;
+    if (parsed.project_id && parsed.client_email && parsed.private_key) {
+      return {
+        project_id: parsed.project_id,
+        client_email: parsed.client_email,
+        private_key: parsed.private_key,
+        ...(filePath ? { filePath } : {}),
+      };
+    }
+  } catch {
+    // safe fallback
+  }
+  return null;
+}
+
 function readServiceAccount(): ValidFirebaseServiceAccount | null {
+  // 1. Check direct inline JSON environment variable
   const serializedServiceAccount = getRawServiceAccountJson();
-
   if (serializedServiceAccount) {
-    let parsedServiceAccount: unknown;
-    try {
-      parsedServiceAccount = JSON.parse(serializedServiceAccount);
-    } catch {
-      console.warn(`Warning: ${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} is not valid JSON; falling back to individual env variables or default credentials.`);
-      parsedServiceAccount = null;
-    }
-
-    if (
-      typeof parsedServiceAccount === "object"
-      && parsedServiceAccount !== null
-      && !Array.isArray(parsedServiceAccount)
-    ) {
-      const serviceAccount = parsedServiceAccount as FirebaseServiceAccount;
-      if (serviceAccount.project_id && serviceAccount.client_email && serviceAccount.private_key) {
-        return {
-          project_id: serviceAccount.project_id,
-          client_email: serviceAccount.client_email,
-          private_key: serviceAccount.private_key,
-        };
-      }
-    }
+    const parsed = parseServiceAccountContent(serializedServiceAccount);
+    if (parsed) return parsed;
+    console.warn(`Warning: ${SERVICE_ACCOUNT_ENVIRONMENT_VARIABLE} is not valid JSON; checking file candidates.`);
   }
 
-  // Check GOOGLE_APPLICATION_CREDENTIALS file path
-  const googleCredentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
+  // 2. Check GOOGLE_APPLICATION_CREDENTIALS file path (strip quotes if present)
+  const googleCredentialsPath = stripQuotes(process.env.GOOGLE_APPLICATION_CREDENTIALS);
   if (googleCredentialsPath && fs.existsSync(googleCredentialsPath)) {
     try {
       const fileContent = fs.readFileSync(googleCredentialsPath, "utf-8");
-      const parsed = JSON.parse(fileContent) as FirebaseServiceAccount;
-      if (parsed.project_id && parsed.client_email && parsed.private_key) {
-        return {
-          project_id: parsed.project_id,
-          client_email: parsed.client_email,
-          private_key: parsed.private_key,
-        };
-      }
+      const parsed = parseServiceAccountContent(fileContent, googleCredentialsPath);
+      if (parsed) return parsed;
     } catch {
       // safe fallback
     }
   }
 
-  // Check common local service-account file locations
-  const candidatePaths = [
-    path.resolve(process.cwd(), "service-account.json.json"),
-    path.resolve(process.cwd(), "service-account.json"),
-    path.resolve(process.cwd(), "..", "..", "service-account.json.json"),
-    path.resolve(process.cwd(), "..", "..", "service-account.json"),
+  // 3. Check FIREBASE_SERVICE_ACCOUNT_PATH if provided
+  const customPath = stripQuotes(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+  if (customPath && fs.existsSync(customPath)) {
+    try {
+      const fileContent = fs.readFileSync(customPath, "utf-8");
+      const parsed = parseServiceAccountContent(fileContent, customPath);
+      if (parsed) return parsed;
+    } catch {
+      // safe fallback
+    }
+  }
+
+  // 4. Check common and dynamic file locations ascending from cwd and repo root
+  const fileNames = [
+    "service-account.json.json",
+    "service-account.json",
+    "serviceAccountKey.json",
+    "firebase-service-account.json",
   ];
-  for (const candidate of candidatePaths) {
-    if (fs.existsSync(candidate)) {
+
+  const searchDirs = new Set<string>();
+  let currentDir = process.cwd();
+  for (let i = 0; i < 6; i++) {
+    searchDirs.add(currentDir);
+    const parent = path.dirname(currentDir);
+    if (parent === currentDir) break;
+    currentDir = parent;
+  }
+  // Explicit workspace root candidates
+  searchDirs.add("C:\\Users\\damia\\lurexa");
+  searchDirs.add("c:/Users/damia/lurexa");
+
+  for (const dir of searchDirs) {
+    for (const fileName of fileNames) {
+      const candidate = path.resolve(dir, fileName);
+      if (fs.existsSync(candidate)) {
+        try {
+          const fileContent = fs.readFileSync(candidate, "utf-8");
+          const parsed = parseServiceAccountContent(fileContent, candidate);
+          if (parsed) return parsed;
+        } catch {
+          // safe fallback
+        }
+      }
+    }
+
+    // Also check for .env.local in parent folders (e.g. monorepo root)
+    const envLocalCandidate = path.resolve(dir, ".env.local");
+    if (fs.existsSync(envLocalCandidate)) {
       try {
-        const fileContent = fs.readFileSync(candidate, "utf-8");
-        const parsed = JSON.parse(fileContent) as FirebaseServiceAccount;
-        if (parsed.project_id && parsed.client_email && parsed.private_key) {
-          return {
-            project_id: parsed.project_id,
-            client_email: parsed.client_email,
-            private_key: parsed.private_key,
-          };
+        const envContent = fs.readFileSync(envLocalCandidate, "utf-8");
+        const match = envContent.match(/FIREBASE_SERVICE_ACCOUNT_JSON\s*=\s*(['"])([\s\S]*?)\1/);
+        if (match && match[2]) {
+          const parsed = parseServiceAccountContent(match[2]);
+          if (parsed) return parsed;
         }
       } catch {
         // safe fallback
@@ -95,7 +137,7 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
     }
   }
 
-  // Check discrete individual environment variables
+  // 5. Check discrete individual environment variables
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY;
@@ -107,6 +149,7 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
       private_key: privateKey,
     };
   }
+
   return null;
 }
 
@@ -132,6 +175,20 @@ export function getFirebaseAdminApp(): App {
   const isFirestoreEmulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 
   if (serviceAccount) {
+    // Keep environment aligned so Google Cloud SDKs and google-auth-library
+    // can authenticate without ADC ("Could not load the default credentials") errors.
+    if (serviceAccount.filePath && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = serviceAccount.filePath;
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = stripQuotes(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    }
+    if (!process.env.GCLOUD_PROJECT) {
+      process.env.GCLOUD_PROJECT = serviceAccount.project_id;
+    }
+    if (!process.env.FIREBASE_PROJECT_ID) {
+      process.env.FIREBASE_PROJECT_ID = serviceAccount.project_id;
+    }
+
     return initializeApp({
       credential: cert({
         projectId: serviceAccount.project_id,

@@ -203,11 +203,15 @@ export async function getEducatorBenefitEntitlements(
   const isRecognizedEducator = (teachEducator || learnTeacher || explicitLearnTeacher || verifiedEducator) && !suspended;
 
   const isDevEducator =
-    process.env.NODE_ENV !== "production" &&
     !suspended &&
     (userId.toLowerCase().includes("teacher") ||
       userId.toLowerCase().includes("educator") ||
-      Boolean(context?.email && /teacher|educator/i.test(context.email)));
+      Boolean(
+        context?.email &&
+          (/teacher|educator|profesor|maestro|instructor|faculty/i.test(context.email) ||
+            context.email.endsWith("@lurexa.org") ||
+            context.email.endsWith("@lurexa.com"))
+      ));
 
   const hasEducatorBenefit = isRecognizedEducator || isDevEducator;
 

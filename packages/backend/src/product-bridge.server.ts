@@ -1,4 +1,7 @@
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import type {
   ProductBridgePurpose,
   ProductBridgeResolutionV1,
@@ -61,6 +64,35 @@ function normalizeTtl(value?: number): number {
  */
 const devBridgeStore = new Map<string, PersistedBridge>();
 
+function getSharedBridgePath(bridgeId: string): string {
+  const dir = path.join(os.tmpdir(), "lurexa-product-bridges");
+  if (!fs.existsSync(dir)) {
+    try { fs.mkdirSync(dir, { recursive: true }); } catch { /* ignore */ }
+  }
+  return path.join(dir, `${bridgeId}.json`);
+}
+
+function saveDevBridge(bridge: PersistedBridge): void {
+  devBridgeStore.set(bridge.bridgeId, { ...bridge });
+  try {
+    fs.writeFileSync(getSharedBridgePath(bridge.bridgeId), JSON.stringify(bridge), "utf-8");
+  } catch { /* ignore */ }
+}
+
+function getDevBridge(bridgeId: string): PersistedBridge | undefined {
+  const mem = devBridgeStore.get(bridgeId);
+  if (mem) return mem;
+  try {
+    const file = getSharedBridgePath(bridgeId);
+    if (fs.existsSync(file)) {
+      const data = JSON.parse(fs.readFileSync(file, "utf-8")) as PersistedBridge;
+      devBridgeStore.set(bridgeId, data);
+      return data;
+    }
+  } catch { /* ignore */ }
+  return undefined;
+}
+
 export async function createProductBridge(input: CreateProductBridgeInput): Promise<ProductBridgeV1> {
   assertNonEmpty("actorId", input.actorId);
   assertNonEmpty("destinationRef", input.destinationRef);
@@ -88,14 +120,14 @@ export async function createProductBridge(input: CreateProductBridgeInput): Prom
     singleUse: input.singleUse ?? true,
   };
 
-  devBridgeStore.set(bridge.bridgeId, { ...bridge });
+  saveDevBridge({ ...bridge });
 
   try {
     await getServerFirestore().collection(COLLECTION).doc(bridge.bridgeId).set(bridge);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (process.env.NODE_ENV !== "production" && (msg.includes("credentials") || msg.includes("default credentials"))) {
-      // In-memory dev fallback handled
+      // In-memory/filesystem dev fallback handled
     } else {
       throw err;
     }
@@ -180,7 +212,7 @@ export async function resolveProductBridge(input: {
   } catch (error) {
     const msg = error instanceof Error ? error.message : "";
     if (msg.includes("credentials") || msg.includes("default credentials")) {
-      const bridge = devBridgeStore.get(input.bridgeId);
+      const bridge = getDevBridge(input.bridgeId);
       if (bridge) {
         if (bridge.contractVersion !== VERSION) throw new Error("Unsupported Product Bridge contract version.");
         if (bridge.actorId !== input.actorId) throw new Error("You are not authorized to use this Product Bridge.");
@@ -189,7 +221,10 @@ export async function resolveProductBridge(input: {
         if (bridge.singleUse && bridge.consumedAt) throw new Error("Product Bridge has already been used.");
 
         const resolvedAt = new Date().toISOString();
-        if (bridge.singleUse) bridge.consumedAt = resolvedAt;
+        if (bridge.singleUse) {
+          bridge.consumedAt = resolvedAt;
+          saveDevBridge(bridge);
+        }
 
         return {
           contractVersion: VERSION,
