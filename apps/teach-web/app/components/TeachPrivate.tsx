@@ -37,7 +37,7 @@ export function TeachPrivate({ children }: { children: React.ReactNode }) {
               ? "Educator Access Not Approved"
               : isPendingApproval
               ? "Educator Access Pending Approval"
-              : "Educator Authorization Required for Learn Students"}
+              : "Educator Authorization Required"}
           </h2>
 
           <p className="mt-3 text-sm leading-relaxed text-[var(--lx-muted)]">

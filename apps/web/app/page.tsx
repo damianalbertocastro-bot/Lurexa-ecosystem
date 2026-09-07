@@ -203,7 +203,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-
               {/* Accordion Item: Platform Sections */}
               <div className={styles.accordionItem}>
                 <button
@@ -606,7 +605,6 @@ export default function Home() {
           <a href="#why-lurexa">Why Lurexa</a> · <a href="#pricing">Pricing</a> · <a href="#about">About</a> · <a href="#contact">Contact</a> · <a href={getEcosystemUrl("docs")}>Docs</a>
         </div>
       </footer>
-
       <DemoModal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} />
     </main>
   );

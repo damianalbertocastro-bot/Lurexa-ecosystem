@@ -107,7 +107,6 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
       private_key: privateKey,
     };
   }
-
   return null;
 }
 
