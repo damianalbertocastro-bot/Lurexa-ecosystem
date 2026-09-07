@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import type { LurexaProductId } from "@lurexa/config/product-registry";
+import styles from "../page.module.css";
 
 interface AudienceSection {
   id: "learners" | "educators" | "institutions";
@@ -160,31 +161,38 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
   };
 
   return (
-    <div id="products" className="relative w-full max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 py-20 lg:py-28">
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-        <p className="text-xs font-black tracking-[0.2em] text-[var(--color-brand-primary)] uppercase mb-3">
-          THE PRODUCT ECOSYSTEM
-        </p>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[var(--color-brand-navy)] tracking-[-0.05em] leading-tight">
+    <section id="products" className={styles.pricingSection} style={{ padding: "96px 40px" }} aria-labelledby="products-heading">
+      {/* Section Heading matching .sectionHeading */}
+      <div className={styles.sectionHeading} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "48px" }}>
+        <p className={styles.kicker}>THE PRODUCT ECOSYSTEM</p>
+        <h2 id="products-heading" style={{ fontSize: "clamp(36px, 4.8vw, 60px)", fontWeight: 900, letterSpacing: "-0.05em", margin: "16px 0 0", color: "var(--color-brand-navy)", lineHeight: 1.08 }}>
           Purpose-built platforms. <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-[var(--color-brand-primary)] via-[var(--color-brand-secondary)] to-[var(--color-brand-accent-cyan)] bg-clip-text text-transparent">
-            One intelligent ecosystem.
-          </span>
+          <em style={{ fontStyle: "normal" }}>One intelligent ecosystem.</em>
         </h2>
-        <p className="mt-4 text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
+        <p style={{ maxWidth: "620px", margin: "18px auto 0", color: "var(--color-text-secondary)", fontSize: "1.0625rem", lineHeight: 1.6 }}>
           Every Lurexa product has a distinct role—adapting seamlessly for learners, educators, and enterprise institutions.
         </p>
       </div>
 
-      {/* 1. Sticky Audience Anchor Navigation */}
+      {/* 1. Sticky Audience Tabs (matching .pricingTabs and .pricingTab / .pricingTabActive) */}
       <nav
         ref={navRef}
         role="tablist"
         aria-label="Product audiences"
-        className="sticky top-[72px] z-30 mb-14 -mx-4 sm:mx-0 px-4 sm:px-0 py-2"
+        style={{
+          position: "sticky",
+          top: "70px",
+          zIndex: 30,
+          padding: "10px 0 16px",
+          marginBottom: "48px",
+          background: "rgba(255, 255, 255, 0.85)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          display: "flex",
+          justifyContent: "center",
+        }}
       >
-        <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar py-2 px-3 max-w-fit mx-auto rounded-full bg-white/90 backdrop-blur-xl border border-[rgba(74,76,173,0.12)] shadow-[0_8px_24px_rgba(40,50,146,0.06)]">
+        <div className={styles.pricingTabs} style={{ margin: 0 }}>
           {audienceSections.map((section) => {
             const isActive = activeTab === section.id;
             return (
@@ -196,11 +204,8 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                 aria-controls={section.id}
                 aria-current={isActive ? "location" : undefined}
                 onClick={(e) => handleTabClick(e, section.id)}
-                className={`shrink-0 rounded-full px-6 py-2.5 text-xs sm:text-sm font-extrabold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/40 ${
-                  isActive
-                    ? "bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] text-white shadow-[0_6px_18px_rgba(47,52,184,0.28)]"
-                    : "text-[#475569] hover:text-[var(--color-brand-primary)] hover:bg-[#f1f5f9]/80"
-                }`}
+                className={`${styles.pricingTab} ${isActive ? styles.pricingTabActive : ""}`}
+                style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
               >
                 {section.tabLabel}
               </a>
@@ -210,7 +215,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
       </nav>
 
       {/* Audience Sections */}
-      <div className="space-y-20 lg:space-y-28">
+      <div style={{ display: "flex", flexDirection: "column", gap: "96px" }}>
         {audienceSections.map((section) => (
           <section
             key={section.id}
@@ -219,27 +224,43 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
             aria-labelledby={`${section.id}-heading`}
             className="scroll-mt-28 lg:scroll-mt-32"
           >
-            {/* Audience Section Header (Centered) */}
-            <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-              <span className="inline-block text-[11px] font-black tracking-[0.2em] text-[var(--color-brand-primary)] uppercase mb-2">
+            {/* Audience Section Header (Centered with .planBadge) */}
+            <div style={{ textAlign: "center", maxWidth: "680px", margin: "0 auto 36px" }}>
+              <span className={styles.planBadge} style={{ display: "inline-block", margin: "0 auto 12px" }}>
                 {section.eyebrow}
               </span>
               <h3
                 id={`${section.id}-heading`}
-                className="text-2xl sm:text-3xl lg:text-4xl font-black text-[var(--color-brand-navy)] tracking-[-0.04em] leading-tight"
+                style={{
+                  fontSize: "clamp(24px, 3.2vw, 36px)",
+                  fontWeight: 900,
+                  letterSpacing: "-0.04em",
+                  margin: 0,
+                  color: "var(--color-brand-navy)",
+                  lineHeight: 1.15,
+                }}
               >
                 {section.heading}
               </h3>
             </div>
 
-            {/* Flagship (60%) vs. Companion (40%) Cards */}
-            <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center">
-              {/* Flagship (Primary): 60% Width */}
-              <article className="group relative lg:w-[60%] flex flex-col justify-between rounded-[28px] border border-[rgba(74,76,173,0.14)] bg-gradient-to-br from-white via-[rgba(255,255,255,0.95)] to-[#f4f7ff] p-8 lg:p-10 shadow-[0_14px_36px_rgba(40,50,146,0.07)] backdrop-blur-md hover:shadow-[0_22px_48px_rgba(31,40,125,0.13)] hover:-translate-y-1 transition-all duration-300">
+            {/* Flagship (60%) vs. Companion (40%) Cards matching .pricingCard / .pricingCardFeatured */}
+            <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center max-w-5xl mx-auto">
+              {/* Flagship Card (Primary): 60% Width, .pricingCard + .pricingCardFeatured */}
+              <article
+                className={`${styles.pricingCard} ${styles.pricingCardFeatured} group relative lg:w-[60%]`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  padding: "40px 36px",
+                  borderRadius: "32px",
+                }}
+              >
                 {/* Full-card link layer */}
                 <a
                   href={section.flagship.href}
-                  className="absolute inset-0 z-10 rounded-[28px] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]"
+                  className="absolute inset-0 z-10 rounded-[32px] focus:outline-none"
                   aria-label={`${section.flagship.name}: ${section.flagship.description}`}
                   onClick={(e) => {
                     if (section.flagship.href === "#institutional-cta") {
@@ -257,7 +278,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-3.5">
-                      <div className="relative size-12 shrink-0 rounded-[18px] bg-gradient-to-br from-white to-[#eef2ff] p-2 shadow-xs border border-[rgba(74,76,173,0.12)]">
+                      <div className="relative size-14 shrink-0 rounded-2xl bg-gradient-to-br from-white to-[#eef2ff] p-2.5 shadow-xs border border-[rgba(74,76,173,0.12)]">
                         <Image
                           src={productMarkSrc[section.flagship.productId]}
                           alt={`${section.flagship.name} logo`}
@@ -267,41 +288,50 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--color-brand-primary)]">
+                        <span className={styles.planBadgeHighlight} style={{ marginBottom: "4px", fontSize: "0.625rem", padding: "3px 10px" }}>
                           Primary Platform
                         </span>
-                        <h4 className="text-xl sm:text-2xl font-black text-[var(--color-brand-navy)] tracking-tight">
+                        <h4 style={{ fontSize: "1.625rem", fontWeight: 800, margin: 0, color: "var(--color-brand-navy)", letterSpacing: "-0.03em" }}>
                           {section.flagship.name}
                         </h4>
                       </div>
                     </div>
 
                     {section.flagship.badge && (
-                      <span className="rounded-full bg-[#e0e7ff] border border-[#c7d2fe] px-3.5 py-1 text-[11px] font-extrabold text-[#3730a3]">
+                      <span className={styles.planBadge} style={{ margin: 0 }}>
                         {section.flagship.badge}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed font-normal">
+                  <p className={styles.planDescription} style={{ margin: "0 0 24px", fontSize: "0.9375rem", color: "var(--color-text-secondary)", lineHeight: 1.65 }}>
                     {section.flagship.description}
                   </p>
                 </div>
 
-                {/* Flagship CTA Button */}
-                <div className="mt-8 pt-5 border-t border-[rgba(74,76,173,0.08)]">
-                  <span className="relative z-20 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] px-6 py-3 text-xs sm:text-sm font-extrabold text-white shadow-[0_8px_20px_rgba(47,52,184,0.25)] hover:shadow-[0_12px_28px_rgba(47,52,184,0.35)] transition-all">
+                {/* Flagship CTA Button matching .planButtonPrimary */}
+                <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid rgba(74, 76, 173, 0.08)" }}>
+                  <span className={styles.planButtonPrimary} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", textDecoration: "none" }}>
                     {section.flagship.cta}
                   </span>
                 </div>
               </article>
 
-              {/* Companion (Secondary): 40% Width */}
-              <article className="group relative lg:w-[40%] flex flex-col justify-between rounded-[28px] border border-[rgba(74,76,173,0.12)] bg-white/90 p-8 lg:p-10 shadow-[0_10px_28px_rgba(40,50,146,0.05)] backdrop-blur-md hover:shadow-[0_18px_40px_rgba(31,40,125,0.1)] hover:-translate-y-1 transition-all duration-300">
+              {/* Companion Card (Secondary): 40% Width, .pricingCard */}
+              <article
+                className={`${styles.pricingCard} group relative lg:w-[40%]`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  padding: "40px 32px",
+                  borderRadius: "32px",
+                }}
+              >
                 {/* Full-card link layer */}
                 <a
                   href={section.companion.href}
-                  className="absolute inset-0 z-10 rounded-[28px] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]"
+                  className="absolute inset-0 z-10 rounded-[32px] focus:outline-none"
                   aria-label={`${section.companion.name}: ${section.companion.description}`}
                 />
 
@@ -309,7 +339,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-3.5">
-                      <div className="relative size-12 shrink-0 rounded-[18px] bg-[#f8fafc] p-2 shadow-xs border border-[rgba(74,76,173,0.08)]">
+                      <div className="relative size-14 shrink-0 rounded-2xl bg-[#f8fafc] p-2.5 shadow-xs border border-[rgba(74,76,173,0.08)]">
                         <Image
                           src={productMarkSrc[section.companion.productId]}
                           alt={`${section.companion.name} logo`}
@@ -319,30 +349,30 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[#7581a4]">
+                        <span className={styles.planBadge} style={{ marginBottom: "4px", fontSize: "0.625rem", padding: "3px 10px" }}>
                           Specialized Engine
                         </span>
-                        <h4 className="text-xl sm:text-2xl font-black text-[var(--color-brand-navy)] tracking-tight">
+                        <h4 style={{ fontSize: "1.625rem", fontWeight: 800, margin: 0, color: "var(--color-brand-navy)", letterSpacing: "-0.03em" }}>
                           {section.companion.name}
                         </h4>
                       </div>
                     </div>
 
                     {section.companion.badge && (
-                      <span className="rounded-full bg-slate-100 border border-slate-200 px-3.5 py-1 text-[11px] font-bold text-[#475569]">
+                      <span className={styles.planBadge} style={{ margin: 0 }}>
                         {section.companion.badge}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed font-normal">
+                  <p className={styles.planDescription} style={{ margin: "0 0 24px", fontSize: "0.9375rem", color: "var(--color-text-secondary)", lineHeight: 1.65 }}>
                     {section.companion.description}
                   </p>
                 </div>
 
-                {/* Companion CTA Link */}
-                <div className="mt-8 pt-5 border-t border-[rgba(74,76,173,0.08)]">
-                  <span className="relative z-20 inline-flex items-center gap-2 rounded-full border border-[rgba(74,76,173,0.18)] bg-white px-5 py-2.5 text-xs sm:text-sm font-extrabold text-[var(--color-brand-primary)] shadow-2xs transition-all group-hover:border-[var(--color-brand-primary)] group-hover:bg-[#f8faff]">
+                {/* Companion CTA Button matching .planButtonSecondary */}
+                <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid rgba(74, 76, 173, 0.08)" }}>
+                  <span className={styles.planButtonSecondary} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", textDecoration: "none" }}>
                     <span>{section.companion.cta.replace(" →", "")}</span>
                     <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
                       →
@@ -355,31 +385,37 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
         ))}
       </div>
 
-      {/* 5. Institutional Closing CTA Banner (Centered) */}
+      {/* 5. Institutional Closing CTA Banner matching .whyCtaBanner */}
       <section
         id="institutional-cta"
-        className="mt-20 lg:mt-28 rounded-[32px] border border-[rgba(74,76,173,0.2)] bg-gradient-to-br from-[#0a1931] via-[#162858] 60% to-[var(--color-brand-primary)] p-8 sm:p-12 lg:p-16 text-white shadow-[0_20px_50px_rgba(10,25,49,0.25)] relative overflow-hidden text-center flex flex-col items-center justify-center"
+        className={styles.whyCtaBanner}
+        style={{
+          marginTop: "96px",
+          borderRadius: "32px",
+          padding: "48px 40px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          justifyContent: "center",
+        }}
         aria-labelledby="institutional-closing-heading"
       >
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-96 h-96 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-96 h-96 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center">
-          <span className="inline-block text-xs font-black tracking-[0.2em] text-teal-300 uppercase mb-3">
+        <div style={{ maxWidth: "700px", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <p className={styles.kicker} style={{ color: "#50e3c2", marginBottom: "8px" }}>
             INSTITUTIONAL DEPLOYMENT
-          </span>
+          </p>
           <h3
             id="institutional-closing-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.05em] text-white leading-tight"
+            style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 900, letterSpacing: "-0.04em", margin: "0 0 14px", color: "#ffffff", lineHeight: 1.12 }}
           >
             Bring Lurexa to your school.
           </h3>
-          <p className="mt-4 text-base sm:text-lg text-[#c0cef5] leading-relaxed max-w-2xl mx-auto font-normal">
+          <p style={{ margin: "0 auto 32px", color: "#c0cef5", fontSize: "1.0625rem", lineHeight: 1.65, maxWidth: "600px" }}>
             Deploy Admin governance, Insight analytics, and Teach modules across your district or university.
           </p>
 
-          {/* Action Pair (Centered) */}
-          <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "16px" }}>
             <a
               href="mailto:contact@lurexa.org?subject=Institutional%20School%20Demo%20Request"
               onClick={(e) => {
@@ -388,7 +424,15 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                   onOpenDemoModal();
                 }
               }}
-              className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs sm:text-sm font-black text-slate-950 shadow-xl hover:bg-slate-100 hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-400/40"
+              className={styles.primaryCta}
+              style={{
+                background: "#ffffff",
+                color: "#0a1931",
+                padding: "14px 28px",
+                fontSize: "0.875rem",
+                boxShadow: "0 10px 24px rgba(0, 0, 0, 0.15)",
+                cursor: "pointer",
+              }}
             >
               Book a demo
             </a>
@@ -396,13 +440,22 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
               href={docsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-xs sm:text-sm font-extrabold text-white backdrop-blur-md hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-white/20"
+              className={styles.ecosystemPillButton}
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                color: "#ffffff",
+                borderColor: "rgba(255, 255, 255, 0.25)",
+                padding: "14px 28px",
+                fontSize: "0.875rem",
+                backdropFilter: "blur(10px)",
+                cursor: "pointer",
+              }}
             >
               Review system specs ↗
             </a>
           </div>
         </div>
       </section>
-    </div>
+    </section>
   );
 }
