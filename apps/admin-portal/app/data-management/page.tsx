@@ -13,9 +13,11 @@ import { getEcosystemUrl } from "@lurexa/config/domains";
 
 const ecosystemUrl = getEcosystemUrl("root");
 
+type TargetType = "placement" | "progress" | "evidence" | "course" | "user";
+
 export default function MasterDataManagementPage() {
   const router = useRouter();
-  const [targetType, setTargetType] = useState<"placement" | "progress" | "evidence" | "course" | "user">("placement");
+  const [targetType, setTargetType] = useState<TargetType>("placement");
   const [targetId, setTargetId] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -142,17 +144,17 @@ export default function MasterDataManagementPage() {
                 Entity Category
               </label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                {[
+                {([
                   { id: "placement", label: "Placement Test", desc: "Reset diagnostic" },
                   { id: "progress", label: "Lesson Progress", desc: "Wipe scores" },
                   { id: "evidence", label: "Evidence Submissions", desc: "Delete artifacts" },
                   { id: "course", label: "Drafted Course", desc: "Remove course" },
                   { id: "user", label: "Full User Account", desc: "Purge account" },
-                ].map((item) => (
+                ] as Array<{ id: TargetType; label: string; desc: string }>).map((item) => (
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setTargetType(item.id as any)}
+                    onClick={() => setTargetType(item.id)}
                     className={`flex flex-col items-center rounded-2xl border p-3 text-center transition ${
                       targetType === item.id
                         ? "border-rose-600 bg-rose-50 text-rose-950 font-bold ring-2 ring-rose-500/20"

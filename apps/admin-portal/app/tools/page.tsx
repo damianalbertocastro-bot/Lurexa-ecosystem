@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
-import { ProductMark } from "@lurexa/ui/ProductMark";
+import { ProductMark, type LurexaProduct } from "@lurexa/ui/ProductMark";
 import { Button } from "@lurexa/ui/button";
 import { Badge } from "@lurexa/ui/Badge";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
@@ -13,7 +13,14 @@ import { getEcosystemUrl } from "@lurexa/config/domains";
 
 const ecosystemUrl = getEcosystemUrl("root");
 
-const PRODUCTS = [
+const PRODUCTS: Array<{
+  id: LurexaProduct;
+  name: string;
+  url: string;
+  desc: string;
+  roleCapability: string;
+  color: string;
+}> = [
   {
     id: "learn",
     name: "Lurexa Learn",
@@ -129,7 +136,7 @@ export default function AdminToolsPage() {
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <ProductMark product={prod.id as any} />
+                  <ProductMark product={prod.id} />
                   <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-violet-800">
                     Superadmin SSO
                   </span>

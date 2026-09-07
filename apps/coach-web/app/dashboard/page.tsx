@@ -11,7 +11,7 @@ import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { MasterMark } from "@lurexa/ui/MasterMark";
 import { WelcomeTourModal, type WelcomeTourStep } from "@lurexa/ui/WelcomeTourModal";
-import { AuthService, type AuthenticatedUser, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
+import { AuthService, COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import type { CefrLevel } from "@lurexa/types";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
 
@@ -62,7 +62,6 @@ const COACH_TOUR_STORAGE_KEY = "lurexa_coach_tour_seen";
 
 export default function CoachDashboardPage() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [guestLessonsCompleted, setGuestLessonsCompleted] = useState(0);
   const [selectedLevel, setSelectedLevel] = useState<CefrLevel | "ALL">("ALL");
@@ -73,7 +72,6 @@ export default function CoachDashboardPage() {
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
-      setCurrentUser(user);
       const guestStatus = AuthService.isGuestUser(user);
       setIsGuest(guestStatus);
 

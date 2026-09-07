@@ -49,7 +49,6 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
 
   const learnUrl = getEcosystemUrl("learn");
   const teachUrl = getEcosystemUrl("teach");
-  const adminUrl = getEcosystemUrl("admin");
   const coachUrl = process.env.NEXT_PUBLIC_LUREXA_COACH_URL ?? getEcosystemUrl("coach");
   const insightUrl = process.env.NEXT_PUBLIC_LUREXA_INSIGHT_URL ?? getEcosystemUrl("insight");
   const studioUrl = process.env.NEXT_PUBLIC_LUREXA_STUDIO_URL ?? getEcosystemUrl("studio");
@@ -135,8 +134,9 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
           // Sort by top offset to select the topmost active section
           visibleEntries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
           const topVisible = visibleEntries[0];
-          if (topVisible?.target.id && sectionIds.includes(topVisible.target.id as any)) {
-            setActiveTab(topVisible.target.id as "learners" | "educators" | "institutions");
+          const targetId = topVisible?.target.id;
+          if (targetId === "learners" || targetId === "educators" || targetId === "institutions") {
+            setActiveTab(targetId);
           }
         }
       },

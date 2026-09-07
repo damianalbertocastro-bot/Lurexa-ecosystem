@@ -7,7 +7,7 @@ import { Button } from "@lurexa/ui/button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProductMark } from "@lurexa/ui/ProductMark";
-import { SUBSCRIPTION_PRICING_PLANS, DEFAULT_TIER_QUOTAS, type SubscriptionTier } from "@lurexa/types";
+import { DEFAULT_TIER_QUOTAS, type SubscriptionTier } from "@lurexa/types";
 
 function BillingContent() {
   const searchParams = useSearchParams();

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@lurexa/ui/Badge";
 import { Button } from "@lurexa/ui/Button";
 import { SkillRadarChart } from "@lurexa/ui/SkillRadarChart";
@@ -101,6 +102,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
   cefrLevel = "A1",
   activeTier = "BASIC",
 }) => {
+  const router = useRouter();
   const safeLevel: CefrLevel = (["PRE_A1", "A1", "A2", "B1", "B2", "C1", "C2"].includes(cefrLevel) ? cefrLevel : "A1") as CefrLevel;
 
   const transferItems = DOMINICAN_TRANSFER_BY_LEVEL[safeLevel] || DOMINICAN_TRANSFER_BY_LEVEL.A1;
@@ -218,7 +220,7 @@ export const UniversalLearnerModelCard: React.FC<UniversalLearnerModelProps> = (
                   size="sm"
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition active:scale-98"
                   onClick={() => {
-                    window.location.assign(`/billing?recommendedTier=${recommendation.recommendedTier}`);
+                    router.push(`/billing?recommendedTier=${recommendation.recommendedTier}`);
                   }}
                 >
                   Explore {recommendation.recommendedTier} Plan →

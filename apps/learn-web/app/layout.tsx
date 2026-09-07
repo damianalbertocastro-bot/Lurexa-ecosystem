@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
 import { Inter } from "next/font/google";
-import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
 import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import { OfflineIndicator } from "@lurexa/ui/OfflineIndicator";
 import { ToastProvider } from "@lurexa/ui/Toast";

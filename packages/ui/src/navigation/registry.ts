@@ -1,7 +1,6 @@
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import type {
   EcosystemNavigationRegistry,
-  NavigationDomain,
   WorkspaceKey,
   ActiveNavigationContext,
 } from "./types";

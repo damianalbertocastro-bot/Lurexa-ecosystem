@@ -199,9 +199,6 @@ export async function getEducatorBenefitEntitlements(
   const explicitCoach = has("coach_full");
   const explicitLearnTeacher = has("learn_teacher");
 
-  const verifiedEducator = educatorState.linked.length > 0;
-  const isRecognizedEducator = (teachEducator || learnTeacher || explicitLearnTeacher || verifiedEducator) && !suspended;
-
   const isDevEducator =
     !suspended &&
     (userId.toLowerCase().includes("teacher") ||
@@ -213,14 +210,20 @@ export async function getEducatorBenefitEntitlements(
             context.email.endsWith("@lurexa.com"))
       ));
 
-  const hasEducatorBenefit = isRecognizedEducator || isDevEducator;
+  const verifiedEducator =
+    !suspended &&
+    (educatorState.linked.length > 0 ||
+      teachEducator ||
+      learnTeacher ||
+      explicitLearnTeacher ||
+      isDevEducator);
 
   return {
     contractVersion: "1",
     userId,
-    teach: hasEducatorBenefit || explicitTeach,
-    coachFull: hasEducatorBenefit || explicitCoach,
-    source: hasEducatorBenefit
+    teach: verifiedEducator || explicitTeach,
+    coachFull: verifiedEducator || explicitCoach,
+    source: verifiedEducator
       ? "educator_benefit"
       : explicitTeach || explicitCoach
       ? "explicit_entitlement"

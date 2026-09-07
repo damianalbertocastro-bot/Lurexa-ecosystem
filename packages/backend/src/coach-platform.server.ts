@@ -85,7 +85,11 @@ import { devCoachSessionStore } from "./coach-session-state.server";
 
 export const CoachPlatformService = {
   async startSession(actor: AuthenticatedActor): Promise<CoachSessionStartResult> {
-    let scopedContext = { proficiency: { cefr: "A1" } } as any;
+    let scopedContext: CoachSessionStartResult["learnerContext"] = {
+      learnerId: actor.uid,
+      generatedAt: new Date().toISOString(),
+      proficiency: { cefr: "A1" },
+    };
     try {
       const scoped = await getScopedLearnerContext({
         actorId: actor.uid,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductMark } from "@lurexa/ui/ProductMark";
@@ -216,6 +216,72 @@ export default function CoachPlacementPage() {
     playSuccess();
   };
 
+  const finishDiagnostic = useCallback(
+    async (overrideTranscripts?: string[]) => {
+      const activeTranscripts = overrideTranscripts || transcripts;
+
+      // Build tasks payload
+      const tasks = DIAGNOSTIC_PROMPTS.map((prompt, idx) => ({
+        taskIndex: idx,
+        targetLevel: prompt.level,
+        prompt: prompt.prompt,
+        transcript: activeTranscripts[idx] || prompt.sampleExpected,
+        durationMs: 4000,
+      }));
+
+      // If user is not signed in, save progress and redirect to Log in / Sign up page
+      const currentUser = AuthService.getCurrentUser();
+      if (!currentUser || AuthService.isGuestUser(currentUser)) {
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            "lurexa.coach.pending-placement",
+            JSON.stringify({ tasks, transcripts: activeTranscripts })
+          );
+        }
+        router.push("/login?continue=/placement&placementPending=true");
+        return;
+      }
+
+      setAnalyzing(true);
+      setError(null);
+      playAchievement();
+
+      try {
+        const response = await authenticatedFetch("/api/coach/placement", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tasks }),
+        });
+
+        const data = (await response.json()) as OralPlacementResult & { error?: string };
+        if (!response.ok || !data.estimatedLevel) {
+          throw new Error(data.error ?? "Failed to evaluate spoken diagnostic.");
+        }
+
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem("lurexa.coach.pending-placement");
+        }
+        setResult(data);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Unable to complete oral diagnostic assessment.";
+        if (msg === "Sign in is required.") {
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem(
+              "lurexa.coach.pending-placement",
+              JSON.stringify({ tasks, transcripts: activeTranscripts })
+            );
+          }
+          router.push("/login?continue=/placement&placementPending=true");
+          return;
+        }
+        setError(msg);
+      } finally {
+        setAnalyzing(false);
+      }
+    },
+    [transcripts, router, playAchievement]
+  );
+
   useEffect(() => {
     // Auto-resume pending placement if returning from login/signup
     const unsubscribe = AuthService.onUserChanged((user) => {
@@ -237,76 +303,13 @@ export default function CoachPlacementPage() {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [finishDiagnostic]);
 
   const handleNextStep = () => {
     if (currentStep < DIAGNOSTIC_PROMPTS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       void finishDiagnostic();
-    }
-  };
-
-  const finishDiagnostic = async (overrideTranscripts?: string[]) => {
-    const activeTranscripts = overrideTranscripts || transcripts;
-
-    // Build tasks payload
-    const tasks = DIAGNOSTIC_PROMPTS.map((prompt, idx) => ({
-      taskIndex: idx,
-      targetLevel: prompt.level,
-      prompt: prompt.prompt,
-      transcript: activeTranscripts[idx] || prompt.sampleExpected,
-      durationMs: 4000,
-    }));
-
-    // If user is not signed in, save progress and redirect to Log in / Sign up page
-    const currentUser = AuthService.getCurrentUser();
-    if (!currentUser || AuthService.isGuestUser(currentUser)) {
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          "lurexa.coach.pending-placement",
-          JSON.stringify({ tasks, transcripts: activeTranscripts })
-        );
-      }
-      router.push("/login?continue=/placement&placementPending=true");
-      return;
-    }
-
-    setAnalyzing(true);
-    setError(null);
-    playAchievement();
-
-    try {
-      const response = await authenticatedFetch("/api/coach/placement", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks }),
-      });
-
-      const data = (await response.json()) as OralPlacementResult & { error?: string };
-      if (!response.ok || !data.estimatedLevel) {
-        throw new Error(data.error ?? "Failed to evaluate spoken diagnostic.");
-      }
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.removeItem("lurexa.coach.pending-placement");
-      }
-      setResult(data);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unable to complete oral diagnostic assessment.";
-      if (msg === "Sign in is required.") {
-        if (typeof window !== "undefined") {
-          window.sessionStorage.setItem(
-            "lurexa.coach.pending-placement",
-            JSON.stringify({ tasks, transcripts: activeTranscripts })
-          );
-        }
-        router.push("/login?continue=/placement&placementPending=true");
-        return;
-      }
-      setError(msg);
-    } finally {
-      setAnalyzing(false);
     }
   };
 

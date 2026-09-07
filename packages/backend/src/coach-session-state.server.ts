@@ -39,7 +39,11 @@ export async function resumeCoachSession(
   if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
   if (session.status !== "active") throw new Error("This Coach session has already been completed.");
 
-  let scopedContext = { proficiency: { cefr: "A1" } } as any;
+  let scopedContext: CoachSessionStartResult["learnerContext"] = {
+    learnerId: actor.uid,
+    generatedAt: new Date().toISOString(),
+    proficiency: { cefr: "A1" },
+  };
   try {
     const scoped = await getScopedLearnerContext({
       actorId: actor.uid,
