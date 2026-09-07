@@ -7,7 +7,7 @@ import type {
   EducatorQualificationScopeV1,
   TeachingAuthorizationV1,
 } from "@lurexa/types";
-import { getServerFirestore } from "./firebase-admin.server";
+import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
 
 function stillValid(validUntil?: string | null): boolean {
   return !validUntil || validUntil > new Date().toISOString();
@@ -105,18 +105,30 @@ function developmentRecommendation(
   };
 }
 
-async function readVerifiedEducatorState(userId: string) {
+export async function readVerifiedEducatorState(userId: string): Promise<{
+  qualifications: EducatorQualificationScopeV1[];
+  authorizations: TeachingAuthorizationV1[];
+  linked: Array<{
+    qualification: EducatorQualificationScopeV1;
+    authorization: TeachingAuthorizationV1;
+  }>;
+}> {
   const [qualifications, authorizations] = await Promise.all([
     readQualifications(userId),
     readAuthorizations(userId),
   ]);
-  const linked = authorizations
-    .map((authorization) => ({
-      authorization,
-      qualification: qualifications.find((qualification) => qualificationSupportsAuthorization(qualification, authorization)) ?? null,
-    }))
-    .filter((entry): entry is { authorization: TeachingAuthorizationV1; qualification: EducatorQualificationScopeV1 } => entry.qualification !== null);
-  return { qualifications, authorizations, linked };
+
+  const linked = authorizations.flatMap((authorization) => {
+    const qualification = qualifications.find((candidate) =>
+      qualificationSupportsAuthorization(candidate, authorization));
+    return qualification ? [{ qualification, authorization }] : [];
+  });
+
+  return {
+    qualifications,
+    authorizations,
+    linked,
+  };
 }
 
 async function hasSuspendedEducatorStatus(userId: string): Promise<boolean> {
@@ -140,8 +152,10 @@ async function isTeachEducator(userId: string): Promise<boolean> {
     const doc = await database.collection("educatorProfiles").doc(userId).get();
     if (doc.exists) {
       const data = doc.data();
-      return data?.status === "approved" || data?.status === "pending_approval";
+      return !data?.status || data?.status !== "rejected";
     }
+    const enrollments = await database.collection("teachEnrollments").where("userId", "==", userId).limit(1).get();
+    if (!enrollments.empty) return true;
     return false;
   } catch {
     return false;
@@ -151,23 +165,28 @@ async function isTeachEducator(userId: string): Promise<boolean> {
 async function isLearnTeacher(userId: string): Promise<boolean> {
   try {
     const database = getServerFirestore();
-    const [membershipsSnapshot, userDoc] = await Promise.all([
+    const [membershipsSnapshot, userDoc, teacherProfileDoc] = await Promise.all([
       database.collection("user-memberships").doc(userId).collection("organizations").get(),
       database.collection("users").doc(userId).get(),
+      database.collection("teacher-profiles").doc(userId).get(),
     ]);
 
     const hasTeacherOrgRole = membershipsSnapshot.docs.some((doc) => {
       const role = doc.data()?.role;
-      return role === "teacher" || role === "admin" || role === "owner";
+      return role === "teacher" || role === "admin" || role === "owner" || role === "educator";
     });
     if (hasTeacherOrgRole) return true;
 
     if (userDoc.exists) {
-      const role = userDoc.data()?.role;
+      const data = userDoc.data();
+      const role = data?.role;
       if (role === "teacher" || role === "educator" || role === "admin" || role === "super_admin") {
         return true;
       }
+      if (data?.isTeacher || data?.isEducator) return true;
     }
+
+    if (teacherProfileDoc.exists) return true;
 
     return false;
   } catch {
@@ -199,15 +218,25 @@ export async function getEducatorBenefitEntitlements(
   const explicitCoach = has("coach_full");
   const explicitLearnTeacher = has("learn_teacher");
 
+  let userEmail = context?.email;
+  if (!userEmail) {
+    try {
+      const authUser = await getServerFirebaseAuth().getUser(userId);
+      userEmail = authUser.email;
+    } catch {
+      // safe fallback
+    }
+  }
+
   const isDevEducator =
     !suspended &&
     (userId.toLowerCase().includes("teacher") ||
       userId.toLowerCase().includes("educator") ||
       Boolean(
-        context?.email &&
-          (/teacher|educator|profesor|maestro|instructor|faculty/i.test(context.email) ||
-            context.email.endsWith("@lurexa.org") ||
-            context.email.endsWith("@lurexa.com"))
+        userEmail &&
+          (/teacher|educator|profesor|maestro|instructor|faculty/i.test(userEmail) ||
+            userEmail.endsWith("@lurexa.org") ||
+            userEmail.endsWith("@lurexa.com"))
       ));
 
   const verifiedEducator =

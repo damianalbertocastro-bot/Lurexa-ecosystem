@@ -39,7 +39,8 @@ export function getRawServiceAccountJson(): string | null {
 
 function parseServiceAccountContent(content: string, filePath?: string): ValidFirebaseServiceAccount | null {
   try {
-    const parsed = JSON.parse(content) as FirebaseServiceAccount;
+    const cleaned = content.replace(/^\uFEFF/, "").trim();
+    const parsed = JSON.parse(cleaned) as FirebaseServiceAccount;
     if (parsed.project_id && parsed.client_email && parsed.private_key) {
       return {
         project_id: parsed.project_id,
@@ -87,7 +88,26 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
     }
   }
 
-  // 4. Check common and dynamic file locations ascending from cwd and repo root
+  // 4. Direct repo-root candidates
+  const directCandidates = [
+    "C:\\Users\\damia\\lurexa\\service-account.json.json",
+    "C:\\Users\\damia\\lurexa\\service-account.json",
+    "c:/Users/damia/lurexa/service-account.json.json",
+    "c:/Users/damia/lurexa/service-account.json",
+  ];
+  for (const direct of directCandidates) {
+    if (fs.existsSync(direct)) {
+      try {
+        const fileContent = fs.readFileSync(direct, "utf-8");
+        const parsed = parseServiceAccountContent(fileContent, direct);
+        if (parsed) return parsed;
+      } catch {
+        // safe fallback
+      }
+    }
+  }
+
+  // 5. Check common and dynamic file locations ascending from cwd and repo root
   const fileNames = [
     "service-account.json.json",
     "service-account.json",
@@ -137,7 +157,7 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
     }
   }
 
-  // 5. Check discrete individual environment variables
+  // 6. Check discrete individual environment variables
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY;
@@ -167,26 +187,35 @@ function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): strin
  * barrel export.
  */
 export function getFirebaseAdminApp(): App {
-  const existingApp = getApps()[0];
-  if (existingApp) return existingApp;
-
   const serviceAccount = readServiceAccount();
-  const projectId = getProjectId(serviceAccount);
-  const isFirestoreEmulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+  const existingApp = getApps()[0];
 
   if (serviceAccount) {
     // Keep environment aligned so Google Cloud SDKs and google-auth-library
     // can authenticate without ADC ("Could not load the default credentials") errors.
-    if (serviceAccount.filePath && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    if (serviceAccount.filePath) {
       process.env.GOOGLE_APPLICATION_CREDENTIALS = serviceAccount.filePath;
-    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      process.env.GOOGLE_APPLICATION_CREDENTIALS = stripQuotes(process.env.GOOGLE_APPLICATION_CREDENTIALS);
     }
     if (!process.env.GCLOUD_PROJECT) {
       process.env.GCLOUD_PROJECT = serviceAccount.project_id;
     }
     if (!process.env.FIREBASE_PROJECT_ID) {
       process.env.FIREBASE_PROJECT_ID = serviceAccount.project_id;
+    }
+
+    if (existingApp) {
+      if (!existingApp.options.credential) {
+        try {
+          existingApp.options.credential = cert({
+            projectId: serviceAccount.project_id,
+            clientEmail: serviceAccount.client_email,
+            privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
+          });
+        } catch {
+          // ignore
+        }
+      }
+      return existingApp;
     }
 
     return initializeApp({
@@ -198,6 +227,11 @@ export function getFirebaseAdminApp(): App {
       projectId: serviceAccount.project_id,
     });
   }
+
+  if (existingApp) return existingApp;
+
+  const projectId = getProjectId(serviceAccount);
+  const isFirestoreEmulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 
   if (isFirestoreEmulator || process.env.NODE_ENV !== "production" || projectId) {
     return initializeApp({ projectId });

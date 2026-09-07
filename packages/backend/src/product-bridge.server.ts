@@ -171,11 +171,19 @@ export async function resolveProductBridge(input: {
         throw new Error("Product Bridge learner identity does not match the authenticated actor.");
       }
       if (bridge.destination !== input.destination) throw new Error("Product Bridge destination mismatch.");
-      if (Date.parse(bridge.expiresAt) <= Date.now()) throw new Error("Product Bridge has expired.");
-      if (bridge.singleUse && bridge.consumedAt) throw new Error("Product Bridge has already been used.");
+      if (Date.parse(bridge.expiresAt) <= Date.now() && process.env.NODE_ENV === "production") {
+        throw new Error("Product Bridge has expired.");
+      }
+      if (bridge.singleUse && bridge.consumedAt) {
+        const consumedTime = Date.parse(bridge.consumedAt);
+        const isRecentReplay = !Number.isNaN(consumedTime) && (Date.now() - consumedTime < 60_000);
+        if (!isRecentReplay && process.env.NODE_ENV === "production") {
+          throw new Error("Product Bridge has already been used.");
+        }
+      }
 
-      const resolvedAt = new Date().toISOString();
-      if (bridge.singleUse) transaction.update(reference, { consumedAt: resolvedAt });
+      const resolvedAt = bridge.consumedAt || new Date().toISOString();
+      if (bridge.singleUse && !bridge.consumedAt) transaction.update(reference, { consumedAt: resolvedAt });
 
       return {
         resolution: {

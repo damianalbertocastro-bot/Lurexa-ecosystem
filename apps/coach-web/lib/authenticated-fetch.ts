@@ -1,7 +1,20 @@
 import { auth } from "@lurexa/backend";
 
 export async function authenticatedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  const user = auth.currentUser;
+  let user = auth.currentUser;
+  if (!user) {
+    await new Promise<void>((resolve) => {
+      const unsub = auth.onAuthStateChanged((nextUser) => {
+        unsub();
+        user = nextUser;
+        resolve();
+      });
+      setTimeout(() => {
+        unsub();
+        resolve();
+      }, 1200);
+    });
+  }
   if (!user) throw new Error("Sign in is required.");
   const token = await user.getIdToken();
   const headers = new Headers(init?.headers || {});
