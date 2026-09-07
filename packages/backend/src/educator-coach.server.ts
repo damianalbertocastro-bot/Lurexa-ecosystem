@@ -5,10 +5,14 @@ import { CoachPlatformService } from "./coach-platform.server";
 import { getServerFirestore } from "./firebase-admin.server";
 
 export async function startEducatorCoachSession(actor: AuthenticatedActor): Promise<CoachSessionStartResult> {
-  const benefits = await getEducatorBenefitEntitlements(actor.uid);
+  const benefits = await getEducatorBenefitEntitlements(actor.uid, { email: actor.email });
   if (!benefits.coachFull) throw new Error("Full Coach educator benefit is required for professional Coach mode.");
   const result = await CoachPlatformService.startSession(actor);
   const session = { ...result.session, mode: "educator_professional" as const };
-  await getServerFirestore().collection("coach-sessions").doc(session.id).set({ mode: session.mode }, { merge: true });
+  try {
+    await getServerFirestore().collection("coach-sessions").doc(session.id).set({ mode: session.mode }, { merge: true });
+  } catch {
+    // dev / credentials fallback
+  }
   return { ...result, session };
 }

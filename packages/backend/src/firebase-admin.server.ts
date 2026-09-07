@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
@@ -46,6 +48,49 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
           client_email: serviceAccount.client_email,
           private_key: serviceAccount.private_key,
         };
+      }
+    }
+  }
+
+  // Check GOOGLE_APPLICATION_CREDENTIALS file path
+  const googleCredentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
+  if (googleCredentialsPath && fs.existsSync(googleCredentialsPath)) {
+    try {
+      const fileContent = fs.readFileSync(googleCredentialsPath, "utf-8");
+      const parsed = JSON.parse(fileContent) as FirebaseServiceAccount;
+      if (parsed.project_id && parsed.client_email && parsed.private_key) {
+        return {
+          project_id: parsed.project_id,
+          client_email: parsed.client_email,
+          private_key: parsed.private_key,
+        };
+      }
+    } catch {
+      // safe fallback
+    }
+  }
+
+  // Check common local service-account file locations
+  const candidatePaths = [
+    path.resolve(process.cwd(), "service-account.json.json"),
+    path.resolve(process.cwd(), "service-account.json"),
+    path.resolve(process.cwd(), "..", "..", "service-account.json.json"),
+    path.resolve(process.cwd(), "..", "..", "service-account.json"),
+  ];
+  for (const candidate of candidatePaths) {
+    if (fs.existsSync(candidate)) {
+      try {
+        const fileContent = fs.readFileSync(candidate, "utf-8");
+        const parsed = JSON.parse(fileContent) as FirebaseServiceAccount;
+        if (parsed.project_id && parsed.client_email && parsed.private_key) {
+          return {
+            project_id: parsed.project_id,
+            client_email: parsed.client_email,
+            private_key: parsed.private_key,
+          };
+        }
+      } catch {
+        // safe fallback
       }
     }
   }

@@ -30,3 +30,6 @@ firestore-debug.log
 # Test outputs
 test-results/
 playwright-report/
+
+# Credentials & Service Account Keys
+service-account*.json*
