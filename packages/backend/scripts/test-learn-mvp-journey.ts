@@ -23,8 +23,15 @@ const learner: AuthenticatedActor = { uid: `learn-mvp-${Date.now()}`, email: "le
 const outsider: AuthenticatedActor = { uid: `learn-outsider-${Date.now()}`, email: "outsider@example.test" };
 const lessonId = "a1-introduce-yourself";
 
-async function rejects(action: () => Promise<unknown>, expectedMessage: string): Promise<void> {
-  await assert.rejects(action, (error: unknown) => error instanceof Error && error.message.includes(expectedMessage));
+async function rejects(action: () => Promise<unknown>, expectedMessage: string | RegExp): Promise<void> {
+  await assert.rejects(action, (error: unknown) => {
+    if (!(error instanceof Error)) {
+      return false;
+    }
+    return typeof expectedMessage === "string"
+      ? error.message.includes(expectedMessage)
+      : expectedMessage.test(error.message);
+  });
 }
 
 async function appendCapabilityEvidence(input: {
