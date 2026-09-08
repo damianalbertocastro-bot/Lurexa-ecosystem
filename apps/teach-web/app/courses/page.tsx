@@ -21,19 +21,29 @@ export default function CoursesPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Load published catalog immediately so all 5 categories are accessible to independent learners
+    (async () => {
+      try {
+        const nextCourses = await TeachService.listPublishedCourses();
+        setCourses(nextCourses);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unable to load professional learning.");
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     (async () => {
       try {
-        const [nextCourses, nextEnrollments, nextProfile] = await Promise.all([
-          TeachService.listPublishedCourses(),
+        const [nextEnrollments, nextProfile] = await Promise.all([
           TeachService.listEnrollments(user.uid).catch(() => []),
           TeachService.getEducatorProfile(user.uid).catch(() => null),
         ]);
-        setCourses(nextCourses);
         setEnrollments(nextEnrollments);
         setProfile(nextProfile);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unable to load professional learning.");
+      } catch {
+        // user-specific data fallbacks
       }
     })();
   }, [user]);

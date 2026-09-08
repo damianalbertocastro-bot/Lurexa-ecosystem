@@ -456,7 +456,7 @@ function GrowthContent() {
             )}
 
             {error && (
-              <p role="alert" className="mt-5 rounded-2xl bg-[var(--lx-destructive)] p-4 text-sm font-bold text-[var(--lx-destructive)]">
+              <p role="alert" className="mt-5 rounded-2xl border border-rose-300 bg-rose-50 p-4 text-sm font-bold text-black dark:border-rose-800 dark:bg-rose-950/40 dark:text-white">
                 {error}
               </p>
             )}

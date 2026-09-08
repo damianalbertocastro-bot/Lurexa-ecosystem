@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
         await AuthService.logout();
         throw new Error("This account does not have Lurexa Admin access.");
       }
-      router.replace("/");
+      router.replace("/dashboard");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to complete action.");
     } finally {

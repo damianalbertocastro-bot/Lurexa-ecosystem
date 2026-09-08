@@ -85,7 +85,7 @@ export default function AdminToolsPage() {
             </a>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="info">Superadmin</Badge>
-              <Link href="/" className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 hover:bg-white/10 hover:text-white">
+              <Link href="/dashboard" className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 hover:bg-white/10 hover:text-white">
                 Overview
               </Link>
               <Link href="/users" className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 hover:bg-white/10 hover:text-white">
@@ -96,6 +96,9 @@ export default function AdminToolsPage() {
               </Link>
               <Link href="/data-management" className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-rose-200 hover:bg-rose-500/20 hover:text-white">
                 Master Deletion 🗑️
+              </Link>
+              <Link href="/profile" className="rounded-xl px-3 py-1.5 text-xs font-extrabold text-indigo-100 hover:bg-white/10 hover:text-white">
+                Profile
               </Link>
               <ThemeToggle />
               <EcosystemDropdown currentApp="admin" inverse />

@@ -48,3 +48,25 @@ export interface Invitation {
   expiresAtMillis: number;
   usedAt?: string | null;
 }
+
+export type PrimaryLearningGoal = "academic" | "career" | "daily_conversation";
+export type PreferredAccentDialect = "general_american" | "dominican" | "british" | "neutral_international";
+
+export interface UserProfileDetails {
+  id: string;
+  email: string;
+  displayName: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  avatarUrl?: string;
+  targetCefrLevel?: string;
+  primaryGoal?: PrimaryLearningGoal | string;
+  preferredAccent?: PreferredAccentDialect | string;
+  interests?: string[];
+  nativeLanguage?: string;
+  dailyTargetMinutes?: number;
+  role?: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}

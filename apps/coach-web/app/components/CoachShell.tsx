@@ -17,6 +17,7 @@ const navItems = [
   { label: "Pronunciation", href: "/pronunciation" },
   { label: "History", href: "/history" },
   { label: "Educators", href: "/educator" },
+  { label: "Profile", href: "/profile" },
 ] as const;
 
 export function CoachShell({

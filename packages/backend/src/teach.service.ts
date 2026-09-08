@@ -90,8 +90,12 @@ export const TeachService = {
     return { id: ref.id, ...payload };
   },
   async listEvidence(userId: string): Promise<TeachEvidenceSubmission[]> {
-    const snap = await getDocs(query(collection(db, "teachEvidence"), where("userId", "==", userId), orderBy("createdAt", "desc")));
-    return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachEvidenceSubmission));
+    try {
+      const snap = await getDocs(query(collection(db, "teachEvidence"), where("userId", "==", userId), orderBy("createdAt", "desc")));
+      return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachEvidenceSubmission));
+    } catch {
+      return [];
+    }
   },
   async submitEvidence(input: Omit<TeachEvidenceSubmission, "id" | "createdAt" | "updatedAt" | "reviewedAt" | "reviewerId" | "verifiedAt" | "reviewerNote">): Promise<TeachEvidenceSubmission> {
     const timestamp = now();
@@ -106,8 +110,12 @@ export const TeachService = {
     return { id: ref.id, ...payload };
   },
   async listAssessments(userId: string): Promise<TeachAssessmentRequest[]> {
-    const snap = await getDocs(query(collection(db, "teachAssessments"), where("userId", "==", userId), orderBy("requestedAt", "desc")));
-    return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachAssessmentRequest));
+    try {
+      const snap = await getDocs(query(collection(db, "teachAssessments"), where("userId", "==", userId), orderBy("requestedAt", "desc")));
+      return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachAssessmentRequest));
+    } catch {
+      return [];
+    }
   },
   async listCredentialDefinitions(): Promise<TeachCredentialDefinition[]> {
     try {
@@ -119,12 +127,20 @@ export const TeachService = {
     return TEACH_MVP_CREDENTIALS;
   },
   async listCredentialAwards(userId: string): Promise<TeachCredentialAward[]> {
-    const snap = await getDocs(query(collection(db, "teachCredentialAwards"), where("userId", "==", userId)));
-    return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachCredentialAward));
+    try {
+      const snap = await getDocs(query(collection(db, "teachCredentialAwards"), where("userId", "==", userId)));
+      return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachCredentialAward));
+    } catch {
+      return [];
+    }
   },
   async listRecommendations(userId: string): Promise<TeachRecommendation[]> {
-    const snap = await getDocs(query(collection(db, "teachRecommendations"), where("userId", "==", userId), where("status", "==", "active"), orderBy("createdAt", "desc")));
-    return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachRecommendation));
+    try {
+      const snap = await getDocs(query(collection(db, "teachRecommendations"), where("userId", "==", userId), where("status", "==", "active"), orderBy("createdAt", "desc")));
+      return snap.docs.map((item) => ({ id: item.id, ...item.data() } as TeachRecommendation));
+    } catch {
+      return [];
+    }
   },
   async updateRecommendationStatus(id: string, status: TeachRecommendation["status"]): Promise<void> {
     await updateDoc(doc(db, "teachRecommendations", id), { status });

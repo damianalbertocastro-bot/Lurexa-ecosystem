@@ -59,6 +59,12 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
               ⌘K
             </kbd>
           </Button>
+          <Link
+            href="/profile"
+            className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm"
+          >
+            Profile
+          </Link>
           <ThemeToggle />
           <EcosystemDropdown currentApp="learn" />
           <Button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm">Sign out</Button>

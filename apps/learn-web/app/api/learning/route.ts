@@ -1,6 +1,5 @@
 import { CoursePlatformService } from "@lurexa/backend/course-platform.server";
 import { LearnProgressService } from "@lurexa/backend/learn-progress.server";
-import { RequiredLearningCapabilityService } from "@lurexa/backend/required-learning-capabilities.server";
 import type { ContentBlock, Course } from "@lurexa/types";
 
 export const runtime = "nodejs";
