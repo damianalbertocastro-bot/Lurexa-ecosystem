@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    unoptimized: true,
+  },
+  serverExternalPackages: ["sharp"],
   reactStrictMode: true,
   transpilePackages: [
     "@lurexa/ui",

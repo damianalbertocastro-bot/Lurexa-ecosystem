@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { CoachSession, CoachSessionEndResult, CoachSessionStartResult, LearnerContext, ProductBridgeResolutionV1 } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
@@ -13,12 +14,8 @@ function Bubble({ sender, text }: { sender: "coach" | "learner"; text: string })
   return <div className={`flex ${coach ? "justify-start" : "justify-end"}`}><article className={`max-w-[86%] rounded-[22px] px-5 py-4 text-sm leading-6 shadow-sm sm:max-w-[74%] ${coach ? "rounded-tl-md border border-violet-100 bg-white text-[var(--color-brand-navy)]" : "rounded-tr-md bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] text-white"}`}><p className={`mb-1 text-[10px] font-black uppercase tracking-[.16em] ${coach ? "text-[var(--lx-primary)]" : "text-cyan-100"}`}>{coach ? "Lurexa Coach" : "You"}</p><p className="whitespace-pre-wrap">{text}</p></article></div>;
 }
 
-function goTo(ref: string) {
-  if (/^https?:\/\//i.test(ref)) window.location.assign(ref);
-  else window.location.assign(ref);
-}
-
 export default function PracticePage() {
+  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [session, setSession] = useState<CoachSession | null>(null);
   const [context, setContext] = useState<LearnerContext | null>(null);
@@ -121,7 +118,7 @@ export default function PracticePage() {
               JSON.stringify({ ...parsed, lessonsCompleted: 1 })
             );
             window.sessionStorage.removeItem(ACTIVE_SESSION_KEY);
-            window.location.assign("/login?mode=register&guestUpgrade=true");
+            router.push("/login?mode=register&guestUpgrade=true");
             return;
           }
         }
@@ -139,7 +136,11 @@ export default function PracticePage() {
       const resolution = await resolutionResponse.json() as ProductBridgeResolutionV1 & { error?: string };
       if (!resolutionResponse.ok || !resolution.destinationRef) throw new Error(resolution.error ?? "The return to your Lurexa product could not be validated.");
       window.sessionStorage.removeItem(ACTIVE_SESSION_KEY);
-      goTo(resolution.destinationRef);
+      if (resolution.destinationRef.startsWith("/")) {
+        router.push(resolution.destinationRef);
+      } else {
+        window.location.assign(resolution.destinationRef);
+      }
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to finish this Coach session."); setEnding(false); }
   }
 
