@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { CoachShell } from "../components/CoachShell";
 import { Card } from "@lurexa/ui/Card";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
-import { Badge } from "@lurexa/ui/Badge";
 import { AuthService, UserService, type AuthenticatedUser } from "@lurexa/backend";
 import {
   StandardProfileView,
@@ -18,9 +17,23 @@ export default function CoachProfilePage() {
   const router = useRouter();
   const urls = resolveLurexaPublicUrls();
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
-  const [isGuest, setIsGuest] = useState(false);
   const [profileData, setProfileData] = useState<StandardProfileData | null>(null);
-  const [turnsCount, setTurnsCount] = useState(14);
+  const [turnsCount] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const guestData = window.sessionStorage.getItem("lurexa.coach.guest-session");
+        if (guestData) {
+          const parsed = JSON.parse(guestData) as { lessonsCompleted?: number };
+          if (parsed.lessonsCompleted) {
+            return parsed.lessonsCompleted * 8;
+          }
+        }
+      } catch {
+        // safe
+      }
+    }
+    return 14;
+  });
   const [intelligibility] = useState(78);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +41,6 @@ export default function CoachProfilePage() {
     const unsub = AuthService.onUserChanged(async (currentUser) => {
       setUser(currentUser);
       const guest = AuthService.isGuestUser(currentUser);
-      setIsGuest(guest);
 
       if (currentUser) {
         try {
@@ -75,21 +87,6 @@ export default function CoachProfilePage() {
       }
       setLoading(false);
     });
-
-    // Try reading stored turns or preferences
-    if (typeof window !== "undefined") {
-      try {
-        const guestData = window.sessionStorage.getItem("lurexa.coach.guest-session");
-        if (guestData) {
-          const parsed = JSON.parse(guestData) as { lessonsCompleted?: number };
-          if (parsed.lessonsCompleted) {
-            setTurnsCount(parsed.lessonsCompleted * 8);
-          }
-        }
-      } catch {
-        // safe
-      }
-    }
 
     return () => unsub();
   }, [router]);

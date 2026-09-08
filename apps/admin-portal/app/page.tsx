@@ -5,9 +5,6 @@ import Link from "next/link";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
-import { Badge } from "@lurexa/ui/Badge";
-import { Button } from "@lurexa/ui/button";
-import { Card } from "@lurexa/ui/card";
 import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 
@@ -16,12 +13,10 @@ type TelemetryTab = "tenants" | "mind" | "governance";
 export default function AdminLandingPage() {
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [activeTab, setActiveTab] = useState<TelemetryTab>("tenants");
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const unsub = AuthService.onUserChanged((user) => {
       setCurrentUser(user);
-      setAuthChecked(true);
     });
     return () => unsub();
   }, []);

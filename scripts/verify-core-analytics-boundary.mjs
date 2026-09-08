@@ -19,7 +19,7 @@ const paths = {
   legacyAnalytics: "packages/backend/src/analytics.service.ts",
   backendBarrel: "packages/backend/src/index.ts",
   adminApi: "apps/admin-portal/app/api/admin/platform/route.ts",
-  adminPage: "apps/admin-portal/app/page.tsx",
+  adminPage: "apps/admin-portal/app/dashboard/page.tsx",
   adminLogin: "apps/admin-portal/app/login/page.tsx",
 };
 
@@ -57,7 +57,7 @@ requireText(paths.adminApi, content.adminApi, "PlatformAdminService.getSnapshot"
 requireText(paths.adminApi, content.adminApi, "PlatformAdminService.updateOrganizationStatus");
 forbidText(paths.adminApi, content.adminApi, "PlatformAdminService.authenticate");
 
-requireText(paths.adminPage, content.adminPage, 'from "../lib/authenticated-fetch"');
+requireText(paths.adminPage, content.adminPage, 'from "../../lib/authenticated-fetch"');
 forbidText(paths.adminPage, content.adminPage, "AdminService");
 forbidText(paths.adminPage, content.adminPage, "firebase/firestore");
 forbidText(paths.adminPage, content.adminPage, "monthlyRecurringRevenue.toLocaleString");
