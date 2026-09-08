@@ -78,7 +78,10 @@
       "protobufjs",
       "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "@opennextjs/cloudflare": "patches/@opennextjs__cloudflare.patch"
+    }
   },
   "devDependencies": {
     "firebase-tools": "^15.27.0",

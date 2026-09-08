@@ -1,0 +1,48 @@
+diff --git a/dist/cli/build/bundle-server.js b/dist/cli/build/bundle-server.js
+index f59e677181f1d0007993e36e05901f1f012689f9..137a7ba671a2fe5870444d46b7d1d5b44071738b 100644
+--- a/dist/cli/build/bundle-server.js
++++ b/dist/cli/build/bundle-server.js
+@@ -124,6 +124,9 @@ export async function bundleServer(buildOpts, projectOpts) {
+             // `@next/env` is used by Next to load environment variables from files.
+             // OpenNext inlines the values at build time so this is not needed.
+             "@next/env": path.join(buildOpts.outputDir, "cloudflare-templates/shims/env.js"),
++            // Sharp is not supported in Cloudflare Workers and contains native binaries.
++            // Next.js falls back cleanly when sharp is not available.
++            sharp: path.join(buildOpts.outputDir, "cloudflare-templates/shims/empty.js"),
+         },
+         define: {
+             // config file used by Next.js, see: https://github.com/vercel/next.js/blob/68a7128/packages/next/src/build/utils.ts#L2137-L2139
+diff --git a/dist/cli/build/patches/plugins/next-server.js b/dist/cli/build/patches/plugins/next-server.js
+index d816e838c1b2a23355161f0859ba9cd81f76d6d0..f6e8f0db179297bb8d5524e086599642b5cad795 100644
+--- a/dist/cli/build/patches/plugins/next-server.js
++++ b/dist/cli/build/patches/plugins/next-server.js
+@@ -28,6 +28,7 @@ export function patchNextServer(updater, buildOpts) {
+                 contents = patchCode(contents, createComposableCacheHandlersRule(composableCacheHandler));
+                 // Node middleware are not supported on Cloudflare yet
+                 contents = patchCode(contents, disableNodeMiddlewareRule);
++                contents = patchCode(contents, middlewareManifestRule);
+                 contents = patchCode(contents, attachRequestMetaRule);
+                 return contents;
+             },
+@@ -45,6 +46,21 @@ fix: |-
+     // patched by open next
+   }
+ `;
++export const middlewareManifestRule = `
++rule:
++  pattern:
++    selector: method_definition
++    context: "class { getMiddlewareManifest($$$PARAMS) { $$$_ } }"
++fix: |-
++  getMiddlewareManifest($$$PARAMS) {
++    if (this.minimalMode) return null;
++    try {
++      return (0, _loadmanifestexternal.loadManifest)(this.middlewareManifestPath, true) || { version: 3, middleware: {}, sortedMiddleware: [], functions: {} };
++    } catch {
++      return { version: 3, middleware: {}, sortedMiddleware: [], functions: {} };
++    }
++  }
++`;
+ export const buildIdRule = `
+ rule:
+   pattern:
