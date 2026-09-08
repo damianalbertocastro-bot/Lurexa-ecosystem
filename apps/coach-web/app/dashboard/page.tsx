@@ -309,13 +309,13 @@ export default function CoachDashboardPage() {
                     }
                   >
                     <div className="space-y-4 pt-2 flex-1 flex flex-col justify-between">
-                      <p className="text-xs leading-relaxed text-slate-900 dark:text-slate-100 font-medium line-clamp-2">
+                      <p className="text-xs leading-relaxed text-black dark:text-white font-medium line-clamp-2">
                         {pack.description}
                       </p>
 
                       <div className="space-y-2 border-t border-slate-100 pt-3">
-                        <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-slate-300 font-bold">
-                          <span>Partner: <strong className="text-slate-950 dark:text-white">{pack.scenarioRole}</strong></span>
+                        <div className="flex items-center justify-between text-[11px] text-black dark:text-white font-bold">
+                          <span>Partner: <strong className="text-black dark:text-white">{pack.scenarioRole}</strong></span>
                           <span>{pack.suggestedTurns} Turns</span>
                         </div>
 

@@ -65,14 +65,14 @@ export default async function CoachPackRunnerPage({
           <p className="mt-1 text-sm font-semibold text-[var(--lx-primary)]">
             {pack.subtitle}
           </p>
-          <p className="mt-3 text-sm leading-6 text-[var(--lx-muted)] max-w-3xl">
+          <p className="mt-3 text-sm leading-6 text-black dark:text-white font-medium max-w-3xl">
             {pack.description}
           </p>
 
           {pack.l1InterferenceFocus && (
             <div className="mt-6 rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs">
-              <strong className="text-black font-bold">L1 Transfer Focus: </strong>
-              <span className="text-black font-medium">{pack.l1InterferenceFocus}</span>
+              <strong className="text-black dark:text-white font-bold">L1 Transfer Focus: </strong>
+              <span className="text-black dark:text-white font-medium">{pack.l1InterferenceFocus}</span>
             </div>
           )}
 

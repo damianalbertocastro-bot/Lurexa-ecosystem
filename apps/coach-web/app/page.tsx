@@ -238,12 +238,12 @@ export default function CoachHomePage() {
 
                     <h3 className="mt-4 text-base font-bold text-[var(--lx-ink)]">{pack.title}</h3>
                     <p className="text-xs font-semibold text-[var(--lx-primary)] mt-0.5">{pack.subtitle}</p>
-                    <p className="mt-2 text-xs leading-5 text-[var(--lx-muted)] line-clamp-3">
+                    <p className="mt-2 text-xs leading-5 text-black dark:text-white line-clamp-3 font-medium">
                       {pack.description}
                     </p>
 
-                    <div className="mt-4 pt-3 border-t border-[var(--lx-border)] text-[11px] text-[var(--lx-muted)] flex items-center justify-between">
-                      <span>Partner: <strong>{pack.scenarioRole}</strong></span>
+                    <div className="mt-4 pt-3 border-t border-[var(--lx-border)] text-[11px] text-black dark:text-white flex items-center justify-between">
+                      <span>Partner: <strong className="text-black dark:text-white">{pack.scenarioRole}</strong></span>
                       <span className="font-semibold text-emerald-600">Adaptive AI</span>
                     </div>
                   </div>

@@ -74,10 +74,10 @@ export function CoachShell({
             : "border-[var(--lx-border)] bg-[var(--lx-surface)]/95 text-[var(--lx-ink)]"
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <div className="mx-auto flex w-full max-w-[1720px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
           {/* Brand Logo & Main Nav */}
-          <div className="flex items-center gap-6">
-            <Link href={currentUser ? "/dashboard" : "/"} aria-label="Lurexa Coach Home" className="flex items-center gap-2">
+          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+            <Link href={currentUser ? "/dashboard" : "/"} aria-label="Lurexa Coach Home" className="flex items-center gap-2 shrink-0">
               <ProductMark product="coach" inverse={inverse} size="md" />
             </Link>
 
@@ -88,7 +88,7 @@ export function CoachShell({
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition ${
+                    className={`rounded-xl px-3 py-2 text-xs font-extrabold transition ${
                       isActive
                         ? inverse
                           ? "bg-white/15 text-[var(--lx-accent)]"
@@ -106,12 +106,12 @@ export function CoachShell({
           </div>
 
           {/* Action Area */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <button
               type="button"
               onClick={() => setCommandPaletteOpen(true)}
               aria-label="Open command palette"
-              className={`hidden items-center gap-2 rounded-xl border px-3 py-1.5 text-xs transition sm:inline-flex ${
+              className={`hidden items-center gap-2 rounded-xl border px-3 py-1.5 text-xs transition lg:inline-flex ${
                 inverse
                   ? "border-white/15 bg-white/10 text-slate-300 hover:bg-white/15 hover:text-white"
                   : "border-[var(--lx-border)] bg-[var(--lx-canvas)] text-[var(--lx-muted)] hover:bg-[var(--lx-surface)] hover:text-[var(--lx-ink)]"
@@ -130,12 +130,42 @@ export function CoachShell({
             <ThemeToggle />
             <EcosystemDropdown currentApp="coach" inverse={inverse} />
 
+            <Link
+              href="/practice"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-3.5 py-2 text-xs font-black text-slate-900 shadow-xs transition hover:brightness-105 active:scale-95 shrink-0"
+            >
+              <span>🎙️</span>
+              <span className="hidden sm:inline">Quick Practice</span>
+              <span className="sm:hidden">Practice</span>
+            </Link>
+
+            {/* Profile Button */}
+            <Link
+              href="/profile"
+              aria-label="Learner Profile"
+              className={`inline-flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-xs font-extrabold transition shrink-0 ${
+                active === "Profile"
+                  ? "border-[var(--lx-primary)] bg-[var(--lx-primary)]/10 text-[var(--lx-primary)]"
+                  : inverse
+                  ? "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20 hover:text-white"
+                  : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-ink)] hover:border-[var(--lx-primary)]/60 hover:bg-[var(--lx-canvas)] shadow-xs"
+              }`}
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--lx-primary)] text-[11px] font-black text-white">
+                {currentUser?.displayName ? currentUser.displayName.slice(0, 1).toUpperCase() : (currentUser?.email ? currentUser.email.slice(0, 1).toUpperCase() : "👤")}
+              </span>
+              <span className="hidden sm:inline font-bold">
+                {currentUser?.displayName || (currentUser?.email ? currentUser.email.split("@")[0] : "Profile")}
+              </span>
+            </Link>
+
             {currentUser ? (
               <button
                 type="button"
                 onClick={handleSignOut}
-                className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
-                  inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
+                aria-label="Sign out"
+                className={`rounded-xl px-2.5 py-1.5 text-xs font-bold transition ${
+                  inverse ? "text-slate-300 hover:bg-white/10 hover:text-white" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
                 }`}
               >
                 Sign out
@@ -143,29 +173,20 @@ export function CoachShell({
             ) : (
               <Link
                 href="/login"
-                className={`rounded-xl px-3 py-2 text-xs font-bold transition sm:text-sm ${
-                  inverse ? "text-slate-200 hover:bg-white/10" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
+                className={`rounded-xl px-2.5 py-1.5 text-xs font-bold transition ${
+                  inverse ? "text-slate-300 hover:bg-white/10 hover:text-white" : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
                 }`}
               >
                 Sign in
               </Link>
             )}
-
-            <Link
-              href="/practice"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--lx-accent)] to-[var(--lx-accent)] px-4 py-2 text-xs font-black text-slate-900 shadow-sm transition hover:brightness-105 active:scale-95"
-            >
-              <span>🎙️</span>
-              <span className="hidden sm:inline">Quick Practice</span>
-              <span className="sm:hidden">Practice</span>
-            </Link>
           </div>
         </div>
 
         {/* Mobile Horizontal Sub-Navigation */}
         <nav
           aria-label="Coach mobile navigation"
-          className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 pb-2.5 pt-0.5 md:hidden"
+          className="mx-auto flex w-full max-w-[1720px] gap-1 overflow-x-auto px-4 pb-2.5 pt-0.5 md:hidden"
         >
           {visibleNavItems.map((item) => {
             const isActive = active === item.label;
