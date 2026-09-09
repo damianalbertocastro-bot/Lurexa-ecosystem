@@ -52,6 +52,14 @@ export function DataTableResponsive<T>({
   return (
     <div className={`relative w-full rounded-2xl border border-[var(--lx-border,#e2e8f0)] bg-[var(--lx-surface,#ffffff)] shadow-xs overflow-hidden ${className}`}>
       {/* Scroll indicator overlay for touch devices */}
+      {canScrollLeft && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[var(--lx-surface,#ffffff)]/80 to-transparent z-20 flex items-center justify-start pl-1 text-[var(--lx-muted,#64748b)] md:hidden"
+        >
+          <span className="text-xs animate-pulse">←</span>
+        </div>
+      )}
       {canScrollRight && (
         <div
           aria-hidden="true"

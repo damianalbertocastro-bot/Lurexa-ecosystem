@@ -35,53 +35,44 @@ export default function TeacherDashboard() {
     setTimeout(() => setFeedbackMessage(null), 5000);
   };
 
-  const loadCourses = async (orgId?: string | null) => {
-    setIsLoadingCourses(true);
-    try {
-      const response = await authenticatedFetch("/api/learning?teacherDashboard=1");
-      if (response.ok) {
-        const payload = (await response.json()) as TeacherCourseSummary[];
-        setCourses(payload);
-        return;
-      }
-      // Edge/Cloudflare Workers fallback: query via client CourseService
-      const targetOrg = orgId ?? currentOrgId;
-      if (targetOrg) {
-        const orgCourses = await CourseService.getCoursesByOrg(targetOrg);
-        setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
-        return;
-      }
-    } catch {
-      const targetOrg = orgId ?? currentOrgId;
-      if (targetOrg) {
-        try {
-          const orgCourses = await CourseService.getCoursesByOrg(targetOrg);
-          setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
-          return;
-        } catch {
-          // Both paths failed
-        }
-      }
-      showFeedback("Unable to load teaching courses. Please refresh or check connection.", "error");
-    } finally {
-      setIsLoadingCourses(false);
-    }
-  };
-
-  const loadInvitations = async (orgId: string) => {
-    setIsLoadingInvitations(true);
-    try {
-      const loadedInvitations = await OrganizationService.getInvitationsForOrganization(orgId);
-      setInvitations(loadedInvitations);
-      setCurrentTimestamp(new Date().getTime());
-    } catch (error: unknown) {
-      showFeedback(error instanceof Error ? error.message : "Unable to load invitations.", "error");
-    } finally {
-      setIsLoadingInvitations(false);
-    }
-  };
-
   useEffect(() => {
+    const loadCourses = async (orgId: string) => {
+      setIsLoadingCourses(true);
+      try {
+        const response = await authenticatedFetch("/api/learning?teacherDashboard=1");
+        if (response.ok) {
+          const payload = (await response.json()) as TeacherCourseSummary[];
+          setCourses(payload);
+          return;
+        }
+        // Edge/Cloudflare Workers fallback: query via client CourseService
+        const orgCourses = await CourseService.getCoursesByOrg(orgId);
+        setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
+      } catch {
+        try {
+          const orgCourses = await CourseService.getCoursesByOrg(orgId);
+          setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
+        } catch {
+          showFeedback("Unable to load teaching courses. Please refresh or check connection.", "error");
+        }
+      } finally {
+        setIsLoadingCourses(false);
+      }
+    };
+
+    const loadInvitations = async (orgId: string) => {
+      setIsLoadingInvitations(true);
+      try {
+        const loadedInvitations = await OrganizationService.getInvitationsForOrganization(orgId);
+        setInvitations(loadedInvitations);
+        setCurrentTimestamp(new Date().getTime());
+      } catch (error: unknown) {
+        showFeedback(error instanceof Error ? error.message : "Unable to load invitations.", "error");
+      } finally {
+        setIsLoadingInvitations(false);
+      }
+    };
+
     const unsubscribe = AuthService.onUserChanged(async (user) => {
       if (user) {
         const memberships = await OrganizationService.getMembershipsForUser(user.uid);
@@ -95,6 +86,7 @@ export default function TeacherDashboard() {
         }
       }
       setIsLoadingInvitations(false);
+      setIsLoadingCourses(false);
     });
     return unsubscribe;
   }, []);

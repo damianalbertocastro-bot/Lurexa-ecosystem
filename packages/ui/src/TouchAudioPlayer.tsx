@@ -58,7 +58,7 @@ export function TouchAudioPlayer({
         audioRef.current = null;
       };
     }
-  }, [src, onEnded]);
+  }, [src, speed, onEnded]);
 
   // Update playback speed dynamically
   useEffect(() => {
@@ -66,13 +66,6 @@ export function TouchAudioPlayer({
       audioRef.current.playbackRate = speed;
     }
   }, [speed]);
-
-  // Auto-play when mounted if configured and user has already interacted
-  useEffect(() => {
-    if (autoPlayOnMount && hasInteracted) {
-      playAudio();
-    }
-  }, [autoPlayOnMount, hasInteracted]);
 
   const playSpeechSynthesis = useCallback(
     (text: string, rate: number) => {
@@ -112,6 +105,13 @@ export function TouchAudioPlayer({
       playSpeechSynthesis(textToSpeak, speed);
     }
   }, [src, textToSpeak, speed, playSpeechSynthesis]);
+
+  // Auto-play when mounted if configured and user has already interacted
+  useEffect(() => {
+    if (autoPlayOnMount && hasInteracted) {
+      playAudio();
+    }
+  }, [autoPlayOnMount, hasInteracted, playAudio]);
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
