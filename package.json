@@ -80,7 +80,8 @@
       "unrs-resolver"
     ],
     "patchedDependencies": {
-      "@opennextjs/cloudflare": "patches/@opennextjs__cloudflare.patch"
+      "@opennextjs/cloudflare": "patches/@opennextjs__cloudflare.patch",
+      "@protobufjs/codegen@2.0.5": "patches/@protobufjs__codegen@2.0.5.patch"
     }
   },
   "devDependencies": {

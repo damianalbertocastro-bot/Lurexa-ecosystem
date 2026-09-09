@@ -11,3 +11,11 @@ binding = "ASSETS"
 
 [vars]
 ENVIRONMENT = "production"
+
+[[routes]]
+pattern = "lurexa.org"
+custom_domain = true
+
+[[routes]]
+pattern = "www.lurexa.org"
+custom_domain = true
