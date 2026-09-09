@@ -1,16 +1,37 @@
+@import "../../../packages/tokens/src/theme.css";
 @import "tailwindcss";
+@source "../../../packages/ui/src";
 
 :root {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --lx-canvas: #F8FAFC;
+  --lx-surface: #FFFFFF;
+  --lx-border: #E2E8F0;
+  --lx-ink: #0F172A;
+  --lx-muted: #64748B;
+  --lx-primary: #4F46E5;
+  --lx-secondary: #2563EB;
+  --lx-accent: #0284C7;
+  --lx-success: #059669;
+  --lx-warning: #D97706;
+  --lx-destructive: #E11D48;
+}
+
+[data-theme="dark"] {
   --background: #0B0F19;
   --foreground: #F8FAFC;
-  --card-bg: #131B2E;
-  --card-border: #1E293B;
-  --primary: #6366F1;
-  --primary-hover: #4F46E5;
-  --accent-cyan: #06B6D4;
-  --accent-emerald: var(--lx-success);
-  --accent-amber: var(--lx-warning);
-  --accent-rose: #F43F5E;
+  --lx-canvas: #0B0F19;
+  --lx-surface: #131B2E;
+  --lx-border: #1E293B;
+  --lx-ink: #F8FAFC;
+  --lx-muted: #94A3B8;
+  --lx-primary: #6366F1;
+  --lx-secondary: #3B82F6;
+  --lx-accent: #38BDF8;
+  --lx-success: #10B981;
+  --lx-warning: #F59E0B;
+  --lx-destructive: #F43F5E;
 }
 
 body {

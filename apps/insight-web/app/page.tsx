@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { InstitutionalAnalyticsService, type InstitutionalCohortAnalytics } from "@lurexa/backend";
-import { Card } from "@lurexa/ui/Card";
+import { Card } from "@lurexa/ui/card";
 import { Badge } from "@lurexa/ui/Badge";
-import { Button } from "@lurexa/ui/button";
-import { ProgressBar } from "@lurexa/ui/ProgressBar";
 import { InsightShell } from "./components/InsightShell";
 
 export default function InsightOverviewPage() {
@@ -17,91 +15,87 @@ export default function InsightOverviewPage() {
   return (
     <InsightShell active="Overview">
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 space-y-8">
-        {/* Executive Hero / Header */}
-        <section className="relative overflow-hidden rounded-3xl border border-[var(--lx-border)] bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-canvas)] to-[var(--lx-surface)] p-6 sm:p-8 shadow-[var(--lx-card-shadow)]">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="space-y-3">
+        {/* Executive SaaS Hero Header */}
+        <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-2.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[.18em] text-[var(--lx-secondary)]">
-                  INSTITUTIONAL INTELLIGENCE
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:bg-indigo-950/60 dark:border-indigo-800/80 dark:text-indigo-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                  Institutional Intelligence
                 </span>
-                <span className="text-[var(--lx-muted)]">·</span>
-                <Badge variant="info" className="text-[10px]">
+                <span className="rounded-full bg-slate-100 border border-slate-200 px-3 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
                   {analytics.organizationName}
-                </Badge>
-                <Badge variant="success" className="text-[10px]">
-                  Core Governed
-                </Badge>
+                </span>
+                <span className="rounded-full bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:border-emerald-800/80 dark:text-emerald-300">
+                  ✓ Core Governed
+                </span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Executive CEFR Velocity &amp; Learning Radar
               </h1>
-              <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-[var(--lx-muted)]">
+              <p className="max-w-2xl text-sm leading-relaxed text-slate-500 font-normal dark:text-slate-400">
                 Longitudinal CEFR progression, Dominican Spanish linguistic transfer metrics, and dropout early-warning telemetry calibrated with Lurexa Mind models.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link href="/cohorts">
-                <Button className="rounded-xl bg-[var(--lx-primary)] px-4 py-2.5 text-xs font-black text-white shadow-xs hover:opacity-95 transition">
-                  Phonemic Heatmaps →
-                </Button>
+              <Link
+                href="/cohorts"
+                className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+              >
+                Phonemic Heatmaps →
               </Link>
-              <Link href="/interventions">
-                <Button
-                  variant="secondary"
-                  className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-4 py-2.5 text-xs font-bold text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)]"
-                >
-                  Active Interventions
-                </Button>
+              <Link
+                href="/interventions"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+              >
+                Active Interventions
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Top-Level KPI Metric Cards */}
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+        {/* 2. Top-Row Metric KPI Cards */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {/* Card 1: Active Cohort */}
+          <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Active Cohort
+              <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>👥</span> Active Cohort
               </span>
-              <Badge variant="success" className="text-[10px]">
-                ↑ +18% MoM
-              </Badge>
+              <Badge variant="success">+18% MoM</Badge>
             </div>
-            <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+            <p className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight my-2">
               {analytics.activeLearnersCount.toLocaleString()}
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Enrolled students in active terms</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">Enrolled students in active terms</p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          {/* Card 2: Speaking Velocity */}
+          <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Speaking Velocity
+              <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>🎙️</span> Speaking Velocity
               </span>
-              <Badge variant="info" className="text-[10px]">
-                Active Weekly
-              </Badge>
+              <Badge variant="info">Active Weekly</Badge>
             </div>
-            <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
-              {analytics.averageSpeakingMinutesPerLearner} min
+            <p className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight my-2">
+              {analytics.averageSpeakingMinutesPerLearner} <span className="text-xl font-semibold text-slate-500 dark:text-slate-400">min</span>
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Average weekly spoken practice</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">Average weekly spoken practice</p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          {/* Card 3: Grading SLA */}
+          <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Grading SLA (&lt;24h)
+              <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>⏱️</span> Grading SLA (&lt;24h)
               </span>
-              <Badge variant="success" className="text-[10px]">
-                Target Met
-              </Badge>
+              <Badge variant="success">Target Met</Badge>
             </div>
-            <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+            <p className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight my-2">
               {Math.round(
                 (analytics.assignmentSla.gradedWithin24Hours /
                   analytics.assignmentSla.totalSubmitted) *
@@ -109,166 +103,188 @@ export default function InsightOverviewPage() {
               )}
               %
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">
               Avg turnaround: {analytics.assignmentSla.averageGradingHours} hours
             </p>
           </Card>
 
-          <Card className="p-5 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] hover:border-[var(--lx-secondary)] transition-all">
+          {/* Card 4: Mind AI Grade Alignment */}
+          <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--lx-muted)] uppercase tracking-wider">
-                Mind AI Grade Alignment
+              <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>🤖</span> Mind AI Alignment
               </span>
-              <Badge variant="warning" className="text-[10px]">
-                Educator Verified
-              </Badge>
+              <Badge variant="info">Verified</Badge>
             </div>
-            <p className="mt-3 text-3xl font-black tracking-[-0.04em] text-[var(--lx-ink)]">
+            <p className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight my-2">
               {analytics.assignmentSla.aiSuggestedGradesAcceptedPercent}%
             </p>
-            <p className="mt-1 text-xs text-[var(--lx-muted)]">Instructor review acceptance rate</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">Instructor review acceptance rate</p>
           </Card>
         </section>
 
-        {/* CEFR Longitudinal Velocity Radar */}
-        <Card className="p-6 sm:p-8 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[var(--lx-border)] pb-4">
+        {/* 3. CEFR Milestone Progression & Velocity Benchmarks Card */}
+        <section className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
             <div>
-              <h2 className="text-lg font-black text-[var(--lx-ink)]">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 CEFR Milestone Progression &amp; Velocity Benchmarks
               </h2>
-              <p className="text-xs text-[var(--lx-muted)]">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Empirical time-to-proficiency compared against international CEFR duration guidelines
               </p>
             </div>
-            <Badge variant="success" className="w-fit text-xs font-bold">
+            <span className="bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-medium text-xs px-3 py-1 rounded-full w-fit dark:bg-indigo-950/60 dark:border-indigo-800/80 dark:text-indigo-300">
               ⚡ Accelerated Progression Rate
-            </Badge>
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {analytics.cefrVelocity.map((v, idx) => (
-              <div
-                key={idx}
-                className="rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-5 space-y-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm font-black text-[var(--lx-secondary)]">
-                    {v.fromLevel} → {v.toLevel}
-                  </span>
-                  <Badge variant="info" className="text-[10px]">
-                    {Math.round(v.completionRate * 100)}% Pass Rate
-                  </Badge>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            {analytics.cefrVelocity.map((v, idx) => {
+              const passRatePercent = Math.round(v.completionRate * 100);
+              const progressWidth = Math.min(
+                100,
+                Math.round((v.benchmarkWeeks / v.averageWeeksToComplete) * 75)
+              );
 
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex justify-between text-[var(--lx-muted)]">
-                    <span>Observed Velocity:</span>
-                    <b className="text-[var(--lx-ink)]">{v.averageWeeksToComplete} weeks</b>
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 space-y-4 dark:bg-slate-800/60 dark:border-slate-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="milestone-title font-semibold text-slate-900 dark:text-white text-sm">
+                      {v.fromLevel} → {v.toLevel}
+                    </span>
+                    <span className="bg-white text-slate-700 border border-slate-200 font-semibold text-xs px-2 py-0.5 rounded shadow-2xs dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600">
+                      {passRatePercent}% Pass Rate
+                    </span>
                   </div>
-                  <div className="flex justify-between text-[var(--lx-muted)]">
-                    <span>Standard Timeline:</span>
-                    <span>{v.benchmarkWeeks} weeks</span>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Observed Velocity</span>
+                      <span className="font-bold text-slate-900 dark:text-white text-sm">{v.averageWeeksToComplete} weeks</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Standard Benchmark</span>
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{v.benchmarkWeeks} weeks</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full bg-slate-200/80 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${progressWidth}%` }}
+                    />
                   </div>
                 </div>
-
-                <ProgressBar
-                  value={Math.min(
-                    100,
-                    Math.round((v.benchmarkWeeks / v.averageWeeksToComplete) * 75)
-                  )}
-                  className="h-2"
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </Card>
+        </section>
 
-        {/* Dominican Spanish Linguistic Transfer Overview */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] space-y-5">
-            <div className="flex items-center justify-between border-b border-[var(--lx-border)] pb-3">
+        {/* 4. Bottom Grid: Phonological Patterns & At-Risk Interventions */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Card: Top Dominican Phonological Transfer Patterns */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
               <div>
-                <h3 className="font-black text-[var(--lx-ink)]">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   Top Dominican Phonological Transfer Patterns
                 </h3>
-                <p className="text-xs text-[var(--lx-muted)]">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Acoustic error frequency detected in speaking submissions
                 </p>
               </div>
-              <Link href="/cohorts" className="text-xs font-bold text-[var(--lx-secondary)] hover:underline">
+              <Link href="/cohorts" className="text-sm font-semibold text-indigo-600 hover:text-indigo-400 dark:text-indigo-400">
                 View Heatmap →
               </Link>
             </div>
 
             <div className="space-y-3">
               {[
-                { rule: "Coda /s/ Aspiration / Deletion", error: "48%", impact: "Loss of plural & 3rd-person inflections", severity: "warning" as const },
-                { rule: "Initial /s/-cluster Epenthesis", error: "42%", impact: "Vowel insertion before 'sp-', 'st-', 'sk-'", severity: "warning" as const },
-                { rule: "Liquid Neutralization (/l/ vs /r/)", error: "31%", impact: "Lateralization in syllable codas", severity: "info" as const },
-                { rule: "Tense vs. Lax Vowel Confusion (/i/ vs /ɪ/)", error: "25%", impact: "Minimal pair distinction (sheep vs ship)", severity: "info" as const },
+                { rule: "Coda /s/ Aspiration / Deletion", error: "48%", impact: "Loss of plural & 3rd-person inflections" },
+                { rule: "Initial /s/-cluster Epenthesis", error: "42%", impact: "Vowel insertion before 'sp-', 'st-', 'sk-'" },
+                { rule: "Liquid Neutralization (/l/ vs /r/)", error: "31%", impact: "Lateralization in syllable codas" },
+                { rule: "Tense vs. Lax Vowel Confusion (/i/ vs /ɪ/)", error: "25%", impact: "Minimal pair distinction (sheep vs ship)" },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3 text-xs"
+                  className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors dark:border-slate-800 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                 >
                   <div className="space-y-0.5">
-                    <p className="font-bold text-[var(--lx-ink)]">{item.rule}</p>
-                    <p className="text-[11px] text-[var(--lx-muted)]">{item.impact}</p>
+                    <p className="font-semibold text-sm text-slate-900 dark:text-white">{item.rule}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{item.impact}</p>
                   </div>
-                  <Badge variant={item.severity} className="text-xs font-bold">
+                  <span className="bg-slate-200/80 text-slate-800 dark:bg-slate-700 dark:text-slate-200 font-bold text-xs px-2.5 py-1 rounded-md">
                     {item.error}
-                  </Badge>
+                  </span>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
 
-          <Card className="p-6 border-[var(--lx-border)] bg-[var(--lx-surface)] shadow-[var(--lx-card-shadow)] space-y-5">
-            <div className="flex items-center justify-between border-b border-[var(--lx-border)] pb-3">
+          {/* Right Card: At-Risk Cohort Early Warning Telemetry */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
               <div>
-                <h3 className="font-black text-[var(--lx-ink)]">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   At-Risk Cohort Early Warning Telemetry
                 </h3>
-                <p className="text-xs text-[var(--lx-muted)]">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Real-time indicators for learners falling behind pace
                 </p>
               </div>
-              <Link href="/interventions" className="text-xs font-bold text-[var(--lx-secondary)] hover:underline">
+              <Link href="/interventions" className="text-sm font-semibold text-indigo-600 hover:text-indigo-400 dark:text-indigo-400">
                 Manage Interventions →
               </Link>
             </div>
 
             <div className="space-y-3">
               {[
-                { name: "Carlos Ramirez", cohort: "Santo Domingo Cohort Alpha", risk: "3 inactive days after failed /s/-cluster quiz", action: "Trigger 5-min Coach Drill" },
-                { name: "Maria Santos", cohort: "Santiago Regional ESL-2", risk: "Liquid neutralization blocking A1 capstone", action: "Assign Studio Remediation" },
-                { name: "Yomaira Gomez", cohort: "UASD English Immersion B1", risk: "Speaking practice duration 40% below target", action: "Send Study Reminder" },
+                {
+                  name: "Carlos Ramirez",
+                  cohort: "Santo Domingo Cohort Alpha",
+                  risk: "3 inactive days after failed /s/-cluster quiz",
+                  action: "Trigger 5-min Coach Drill",
+                  btnClass: "bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm dark:bg-indigo-600 dark:hover:bg-indigo-500",
+                },
+                {
+                  name: "Maria Santos",
+                  cohort: "Santiago Regional ESL-2",
+                  risk: "Liquid neutralization blocking A1 capstone",
+                  action: "Assign Studio Remediation",
+                  btnClass: "bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold px-4 py-2 rounded-lg transition-colors dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300",
+                },
+                {
+                  name: "Yomaira Gomez",
+                  cohort: "UASD English Immersion B1",
+                  risk: "Speaking practice duration 40% below target",
+                  action: "Send Study Reminder",
+                  btnClass: "bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-lg transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300",
+                },
               ].map((student, i) => (
                 <div
                   key={i}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-3 text-xs"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/50"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <b className="text-[var(--lx-ink)]">{student.name}</b>
-                      <span className="text-[11px] text-[var(--lx-muted)]">({student.cohort})</span>
+                      <span className="font-semibold text-sm text-slate-900 dark:text-white">{student.name}</span>
+                      <span className="text-xs text-slate-400 font-normal">({student.cohort})</span>
                     </div>
-                    <p className="text-[11px] text-[var(--lx-destructive)] font-medium">{student.risk}</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium">{student.risk}</p>
                   </div>
-                  <Link href="/interventions">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="rounded-lg text-[11px] font-bold border-[var(--lx-border)]"
-                    >
+                  <Link href="/interventions" className="shrink-0">
+                    <button type="button" className={student.btnClass}>
                       {student.action}
-                    </Button>
+                    </button>
                   </Link>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         </section>
       </div>
     </InsightShell>

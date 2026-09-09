@@ -13,6 +13,7 @@ const nav = [
   ["Author Workbench", "/author"],
   ["Governed Catalog", "/catalog"],
   ["CEFR Linter", "/linter"],
+  ["Profile", "/profile"],
 ] as const;
 
 export function StudioShell({

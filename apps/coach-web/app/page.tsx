@@ -238,12 +238,12 @@ export default function CoachHomePage() {
 
                     <h3 className="mt-4 text-base font-bold text-[var(--lx-ink)]">{pack.title}</h3>
                     <p className="text-xs font-semibold text-[var(--lx-primary)] mt-0.5">{pack.subtitle}</p>
-                    <p className="mt-2 text-xs leading-5 text-[var(--lx-muted)] line-clamp-3">
+                    <p className="mt-2 text-xs leading-5 text-black dark:text-white line-clamp-3 font-medium">
                       {pack.description}
                     </p>
 
-                    <div className="mt-4 pt-3 border-t border-[var(--lx-border)] text-[11px] text-[var(--lx-muted)] flex items-center justify-between">
-                      <span>Partner: <strong>{pack.scenarioRole}</strong></span>
+                    <div className="mt-4 pt-3 border-t border-[var(--lx-border)] text-[11px] text-black dark:text-white flex items-center justify-between">
+                      <span>Partner: <strong className="text-black dark:text-white">{pack.scenarioRole}</strong></span>
                       <span className="font-semibold text-emerald-600">Adaptive AI</span>
                     </div>
                   </div>
@@ -268,7 +268,7 @@ export default function CoachHomePage() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/20 border border-cyan-400/30 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-300">
                   <span>✨</span> Unified Lurexa Platform
                 </span>
-                <h3 className="mt-4 text-2xl font-black sm:text-4xl tracking-tight">
+                <h3 className="mt-4 text-2xl font-black sm:text-4xl tracking-tight dark:text-black">
                   Seamlessly connected with Learn &amp; Teach.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-indigo-100 max-w-2xl">

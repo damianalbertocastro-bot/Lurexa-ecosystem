@@ -165,9 +165,14 @@ export function VoiceRecorder({
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-end gap-2">
+      <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
         {isRecording ? (
-          <Button variant="destructive" size="sm" onClick={stopRecording}>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={stopRecording}
+            className="h-12 sm:h-9 w-full sm:w-auto min-touch-target rounded-xl font-bold active:scale-95 transition shadow-md shadow-rose-500/20 ring-2 ring-rose-500/30"
+          >
             ⏹ Stop Recording
           </Button>
         ) : (
@@ -175,7 +180,7 @@ export function VoiceRecorder({
             variant="primary"
             size="sm"
             onClick={startRecording}
-            className="shadow-md transition hover:shadow-lg"
+            className="h-12 sm:h-9 w-full sm:w-auto min-touch-target rounded-xl font-bold shadow-md shadow-indigo-500/20 transition hover:shadow-lg active:scale-95"
           >
             🎙️ {audioUrl ? "Record Again" : "Record Your Voice"}
           </Button>

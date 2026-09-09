@@ -15,6 +15,10 @@ function Guard({ children }: { children: ReactNode }) {
     const unsubscribe = AuthService.onUserChanged((user) => {
       if (!active) return;
       if (!user) {
+        if (AuthService.isGuestUser()) {
+          setAuthorized(true);
+          return;
+        }
         const query = searchParams.toString();
         const continueTo = `${pathname}${query ? `?${query}` : ""}`;
         router.replace(`/login?continue=${encodeURIComponent(continueTo)}`);

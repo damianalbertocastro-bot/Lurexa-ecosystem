@@ -1,0 +1,50 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "lurexa-studio"
+main = ".open-next/worker.js"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat", "enable_weak_ref", "allow_eval_during_startup"]
+workers_dev = true
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[vars]
+ENVIRONMENT = "production"
+NEXT_PUBLIC_APP_ENV = "production"
+
+# Firebase Client Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY = "AIzaSyCSmgwnKVgVjyuywl2IpbZ_YAJH56pBkB0"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = "lurexa-app.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID = "lurexa-app"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = "lurexa-app.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = "945367564620"
+NEXT_PUBLIC_FIREBASE_APP_ID = "1:945367564620:web:c64a1f5b825e086c96cfe9"
+
+# Firebase Server Configuration
+FIREBASE_PROJECT_ID = "lurexa-app"
+FIREBASE_STORAGE_BUCKET = "lurexa-app.firebasestorage.app"
+
+# Ecosystem URLs
+NEXT_PUBLIC_LUREXA_ECOSYSTEM_URL = "https://lurexa.org"
+NEXT_PUBLIC_ECOSYSTEM_URL = "https://lurexa.org"
+NEXT_PUBLIC_LUREXA_LEARN_URL = "https://learn.lurexa.org"
+NEXT_PUBLIC_LEARN_URL = "https://learn.lurexa.org"
+NEXT_PUBLIC_LUREXA_TEACHER_URL = "https://learn.lurexa.org/teacher"
+NEXT_PUBLIC_LUREXA_TEACH_URL = "https://teach.lurexa.org"
+NEXT_PUBLIC_TEACH_URL = "https://teach.lurexa.org"
+NEXT_PUBLIC_LUREXA_COACH_URL = "https://coach.lurexa.org"
+NEXT_PUBLIC_COACH_URL = "https://coach.lurexa.org"
+NEXT_PUBLIC_LUREXA_STUDIO_URL = "https://studio.lurexa.org"
+NEXT_PUBLIC_STUDIO_URL = "https://studio.lurexa.org"
+NEXT_PUBLIC_LUREXA_INSIGHT_URL = "https://insight.lurexa.org"
+NEXT_PUBLIC_INSIGHT_URL = "https://insight.lurexa.org"
+NEXT_PUBLIC_LUREXA_ADMIN_URL = "https://admin.lurexa.org"
+NEXT_PUBLIC_ADMIN_URL = "https://admin.lurexa.org"
+NEXT_PUBLIC_LUREXA_DOCS_URL = "https://docs.lurexa.org"
+NEXT_PUBLIC_DOCS_URL = "https://docs.lurexa.org"
+NEXT_PUBLIC_LUREXA_CAMPUS_URL = "https://lurexa.org"
+
+[[routes]]
+pattern = "studio.lurexa.org"
+custom_domain = true

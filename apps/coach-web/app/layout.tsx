@@ -1,7 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
+import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#071d67",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -10,6 +20,12 @@ export const metadata: Metadata = {
   },
   description:
     "Focused, context-aware English speaking, pronunciation, and fluency practice optimizing for intelligibility and communicative control.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Lurexa Coach",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -24,7 +40,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <SkipToContent targetId="main-content" />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <EcosystemSupportWidget />
+        </ToastProvider>
       </body>
     </html>
   );

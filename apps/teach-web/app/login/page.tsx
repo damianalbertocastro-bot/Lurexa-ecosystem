@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@lurexa/backend";
 import { ProductMark } from "@lurexa/ui/ProductMark";
@@ -45,7 +46,13 @@ export default function LoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
       <section className="w-full max-w-lg rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-[0_24px_70px_rgba(31,50,120,.12)] sm:p-9">
-        <ProductMark product="teach" />
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-2 cursor-pointer transition-all duration-200 hover:opacity-85 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--lx-primary)] rounded-xl p-1.5"
+          aria-label="Return to Lurexa Teach home"
+        >
+          <ProductMark product="teach" className="transition-transform group-hover:scale-[1.02]" />
+        </Link>
         <p className="mt-8 text-[10px] font-black tracking-[.18em] text-[var(--lx-primary)]">
           PROFESSIONAL GROWTH SPACE
         </p>

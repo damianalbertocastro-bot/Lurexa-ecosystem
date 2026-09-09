@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import { MasterMark } from "@lurexa/ui/MasterMark";
-import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import Image from "next/image";
 import {
   lurexaProducts,
   type LurexaProductId,
 } from "@lurexa/config/product-registry";
 import { getEcosystemUrl } from "@lurexa/config/domains";
+import { ProductShowcase } from "./components/ProductShowcase";
+import { DemoModal } from "./components/DemoModal";
 import styles from "./page.module.css";
 
 type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
@@ -87,6 +88,7 @@ export default function Home() {
   const [pricingTab, setPricingTab] = useState<"individual" | "institutional">("individual");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("products");
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -100,34 +102,60 @@ export default function Home() {
   return (
     <main className={styles.page}>
       {/* Sticky Top Ecosystem Navbar */}
-      <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
-        <a className={styles.brand} href="#top" onClick={scrollToTop} aria-label="Lurexa home - Scroll to top">
-          <MasterMark compact size="sm" />
-          <span>Lurexa</span>
-        </a>
-        <div className={styles.navLinks}>
-          <a href="#why-lurexa">Why Lurexa</a>
-          <a href="#products">Products</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#shared-intelligence">How it works</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <button
-            type="button"
-            className={styles.menuToggle}
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open Navigation Sidebar"
-          >
-            ☰
-          </button>
-          <EcosystemDropdown currentApp="root" />
-          <a className={styles.navCta} href={learnUrl}>
-            Enter Learn <span>↗</span>
-          </a>
-        </div>
-      </nav>
+      <header className={styles.navWrapper}>
+        <nav className={styles.nav} aria-label="Lurexa ecosystem navigation">
+          <div className={styles.brandWrapper}>
+            <a className={styles.brand} href="#top" onClick={scrollToTop} aria-label="Lurexa home - Scroll to top">
+              <MasterMark compact size="sm" />
+              <span>Lurexa</span>
+            </a>
+          </div>
+
+          <div className={styles.navLinks}>
+            <a href="#why-lurexa">Why Lurexa</a>
+            <a href="#learners">Learners</a>
+            <a href="#educators">Educators</a>
+            <a href="#institutions">Institutions</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#shared-intelligence">Architecture</a>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <button
+              type="button"
+              className={styles.menuToggle}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open Navigation Sidebar"
+            >
+              ☰
+            </button>
+            <button
+              type="button"
+              className={styles.ecosystemPillButton}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open Ecosystem Accordion Menu"
+            >
+              <span>🌐</span>
+              <span>Ecosystem</span>
+              <span>▾</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDemoModalOpen(true)}
+              className={styles.ecosystemPillButton}
+              style={{ display: undefined }}
+            >
+              Book a demo
+            </button>
+            <a
+              className={styles.navCta}
+              href={learnUrl}
+            >
+              Start learning
+            </a>
+          </div>
+        </nav>
+      </header>
 
       {/* Responsive Slide-out Sidebar Accordion */}
       {sidebarOpen && (
@@ -175,7 +203,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-
               {/* Accordion Item: Platform Sections */}
               <div className={styles.accordionItem}>
                 <button
@@ -188,6 +215,15 @@ export default function Home() {
                 </button>
                 {openAccordion === "explore" && (
                   <div className={styles.accordionContent}>
+                    <a href="#learners" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
+                      🎯 For Learners (#learners)
+                    </a>
+                    <a href="#educators" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
+                      👩‍🏫 For Educators (#educators)
+                    </a>
+                    <a href="#institutions" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
+                      🏛️ For Institutions (#institutions)
+                    </a>
                     <a href="#why-lurexa" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
                       Why Lurexa (Comparative Overview)
                     </a>
@@ -352,31 +388,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Products Grid */}
-      <section id="products" className={styles.products}>
-        <div className={styles.sectionHeading}>
-          <p className={styles.kicker}>THE PRODUCT FAMILY</p>
-          <h2>Distinct experiences.<br/><em>One intelligent relationship.</em></h2>
-          <p>Every product has its own role, visual signature, and purpose—while contributing to the same evolving learner model.</p>
-        </div>
-        <div className={styles.productGrid}>
-          {products.map((product, index) => (
-            <a key={product.id} href={product.href} className={`${styles.productCard} ${styles[`product${index}`]}`}>
-              <div className={styles.productTop}>
-                <span className={styles.iconTile}><ProductLogo product={product.id} /></span>
-                <span className={styles.cardArrow}>↗</span>
-              </div>
-              <p>{product.eyebrow}</p>
-              <h3>Lurexa <strong>{product.shortName}</strong></h3>
-              <span className={styles.cardLine}/>
-              <div className={styles.cardBottom}>
-                <span>{product.description}</span>
-                <b>{product.status}</b>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
+      {/* Products Showcase & Sticky Audience Anchor Navigation */}
+      <ProductShowcase onOpenDemoModal={() => setDemoModalOpen(true)} />
 
       {/* Pricing Section (Individuals vs Companies & Institutions) */}
       <section id="pricing" className={styles.pricingSection} aria-labelledby="pricing-heading">
@@ -592,6 +605,7 @@ export default function Home() {
           <a href="#why-lurexa">Why Lurexa</a> · <a href="#pricing">Pricing</a> · <a href="#about">About</a> · <a href="#contact">Contact</a> · <a href={getEcosystemUrl("docs")}>Docs</a>
         </div>
       </footer>
+      <DemoModal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} />
     </main>
   );
 }

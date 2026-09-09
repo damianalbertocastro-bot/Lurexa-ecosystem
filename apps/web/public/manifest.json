@@ -1,0 +1,16 @@
+{
+  "name": "Lurexa - Intelligent Language Learning Ecosystem",
+  "short_name": "Lurexa",
+  "description": "Adaptive, evidence-grounded language learning technologies powered by Lurexa Mind & Core",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1c55",
+  "theme_color": "#592bd6",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

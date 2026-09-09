@@ -454,10 +454,17 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
           passed: true,
           kind: "notice",
           message: retrievalScheduled
-            ? "Lesson complete! +25 XP earned and spaced retrieval scheduled."
-            : "Lesson complete! +25 XP earned and progress saved.",
+            ? "Lesson complete! +25 XP earned and spaced retrieval scheduled. Continuing to next lesson…"
+            : "Lesson complete! +25 XP earned and progress saved. Continuing to next lesson…",
         },
       }));
+
+      const nextId = payload.nextLesson?.id;
+      if (nextId) {
+        setTimeout(() => {
+          router.push(`/learn/${courseId}/${nextId}`);
+        }, 1200);
+      }
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Unable to finish this learning step.";
       let targetId: string | null = null;

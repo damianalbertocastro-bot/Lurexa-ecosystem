@@ -1,6 +1,10 @@
 {
   "extends": "@lurexa/typescript-config/nextjs.json",
   "compilerOptions": {
+    "skipLibCheck": true,
+    "types": [
+      "@cloudflare/workers-types"
+    ],
     "plugins": [
       {
         "name": "next"

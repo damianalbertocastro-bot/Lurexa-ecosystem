@@ -6,7 +6,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
-import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
+import { AuthService, CourseService, UserService, type AuthenticatedUser } from "@lurexa/backend";
 import type { CefrLevel, Course, LearnerRecommendationAction, Lesson, NextLearningAction } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { DashboardGreetingHeader } from "./components/DashboardGreetingHeader";
@@ -14,7 +14,6 @@ import { DashboardTourModal } from "./components/DashboardTourModal";
 import { VisualStreakTracker } from "./components/VisualStreakTracker";
 import { MilestoneAchievementsCard } from "./components/MilestoneAchievementsCard";
 import { CoachPracticeCard } from "./components/CoachPracticeCard";
-import { SupportHelpModal } from "./components/SupportHelpModal";
 import { SignatureExperiencePanel } from "./components/SignatureExperiencePanel";
 import { UniversalLearnerModelCard } from "./components/UniversalLearnerModelCard";
 import { SpecializedTracksCard } from "./components/SpecializedTracksCard";
@@ -91,8 +90,40 @@ export default function StudentDashboardPage() {
             authenticatedFetch("/api/learning?studentDashboard=1"),
             authenticatedFetch("/api/learning/adaptation"),
           ]);
-          if (!dashboardResponse.ok) throw new Error("Unable to load dashboard.");
-          const dashboard = (await dashboardResponse.json()) as LearnerDashboardSummary;
+          let dashboard: LearnerDashboardSummary | null = null;
+          if (dashboardResponse.ok) {
+            dashboard = (await dashboardResponse.json()) as LearnerDashboardSummary;
+          } else {
+            // Edge/Cloudflare Workers fallback
+            try {
+              const [fallbackCourses, userProfile] = await Promise.all([
+                CourseService.getCoursesByOrg("lurexa-self-paced"),
+                UserService.getUserProfile(user.uid),
+              ]);
+              dashboard = {
+                courses: fallbackCourses.map((course) => ({
+                  course,
+                  completedLessons: 0,
+                  totalLessons: course.moduleIds?.length ?? 0,
+                  progressPercent: 0,
+                  nextLesson: null,
+                })),
+                gamification: {
+                  streakDays: 0,
+                  totalPoints: 0,
+                  lastActivityAt: null,
+                },
+                nextStep: null,
+                placement: userProfile?.targetCefrLevel ? {
+                  completed: true,
+                  estimatedLevel: userProfile.targetCefrLevel,
+                } : null,
+                cefrLevel: userProfile?.targetCefrLevel ?? "A1",
+              };
+            } catch {
+              throw new Error("Unable to load dashboard.");
+            }
+          }
           setCourses(dashboard.courses);
           setGamification(dashboard.gamification);
           setPlacement(dashboard.placement ?? null);
@@ -108,6 +139,10 @@ export default function StudentDashboardPage() {
             const hasSeenTour = localStorage.getItem(TOUR_STORAGE_KEY);
             if (!hasSeenTour) {
               setIsTourOpen(true);
+            }
+            const storedLevel = localStorage.getItem("lurexa_placement_level");
+            if (storedLevel && !dashboard.cefrLevel) {
+              setCefrLevel(storedLevel);
             }
           } catch {
             // LocalStorage might be inaccessible in some sandbox contexts
@@ -331,14 +366,14 @@ export default function StudentDashboardPage() {
               onStartLesson={handleStartFirstLesson}
             />
 
-            {placement?.completed ? (
+            {(placement?.completed || (typeof window !== "undefined" && localStorage.getItem("lurexa_placement_completed") === "true")) ? (
               <Card
                 className="border-0 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 shadow-md"
                 title="CEFR Standing Calibrated"
-                subtitle={`Level ${cefrLevel || placement.estimatedLevel || "A1"} Confirmed`}
+                subtitle={`Level ${cefrLevel || placement?.estimatedLevel || "A1"} Confirmed`}
               >
                 <div className="space-y-2.5 pt-2 text-xs text-emerald-950 dark:text-emerald-200 font-medium">
-                  <p>Your curriculum pathway is optimized for <strong>{cefrLevel || placement.estimatedLevel || "A1"}</strong>.</p>
+                  <p>Your curriculum pathway is optimized for <strong>{cefrLevel || placement?.estimatedLevel || "A1"}</strong>.</p>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -414,8 +449,6 @@ export default function StudentDashboardPage() {
         isOpen={isTourOpen}
         onClose={() => setIsTourOpen(false)}
       />
-
-      <SupportHelpModal />
     </div>
   );
 }

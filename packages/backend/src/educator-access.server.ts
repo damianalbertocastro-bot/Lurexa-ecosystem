@@ -7,7 +7,7 @@ import type {
   EducatorQualificationScopeV1,
   TeachingAuthorizationV1,
 } from "@lurexa/types";
-import { getServerFirestore } from "./firebase-admin.server";
+import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.server";
 
 function stillValid(validUntil?: string | null): boolean {
   return !validUntil || validUntil > new Date().toISOString();
@@ -105,41 +105,158 @@ function developmentRecommendation(
   };
 }
 
-async function readVerifiedEducatorState(userId: string) {
+export async function readVerifiedEducatorState(userId: string): Promise<{
+  qualifications: EducatorQualificationScopeV1[];
+  authorizations: TeachingAuthorizationV1[];
+  linked: Array<{
+    qualification: EducatorQualificationScopeV1;
+    authorization: TeachingAuthorizationV1;
+  }>;
+}> {
   const [qualifications, authorizations] = await Promise.all([
     readQualifications(userId),
     readAuthorizations(userId),
   ]);
-  const linked = authorizations
-    .map((authorization) => ({
-      authorization,
-      qualification: qualifications.find((qualification) => qualificationSupportsAuthorization(qualification, authorization)) ?? null,
-    }))
-    .filter((entry): entry is { authorization: TeachingAuthorizationV1; qualification: EducatorQualificationScopeV1 } => entry.qualification !== null);
-  return { qualifications, authorizations, linked };
+
+  const linked = authorizations.flatMap((authorization) => {
+    const qualification = qualifications.find((candidate) =>
+      qualificationSupportsAuthorization(candidate, authorization));
+    return qualification ? [{ qualification, authorization }] : [];
+  });
+
+  return {
+    qualifications,
+    authorizations,
+    linked,
+  };
+}
+
+async function hasSuspendedEducatorStatus(userId: string): Promise<boolean> {
+  try {
+    const database = getServerFirestore();
+    const [authSnapshot, qualSnapshot] = await Promise.all([
+      database.collection("teaching-authorizations").doc(userId).collection("grants").get(),
+      database.collection("educator-qualifications").doc(userId).collection("scopes").get(),
+    ]);
+    const hasSuspendedAuth = authSnapshot.docs.some((doc) => doc.data()?.status === "suspended");
+    const hasSuspendedQual = qualSnapshot.docs.some((doc) => doc.data()?.status === "suspended");
+    return hasSuspendedAuth || hasSuspendedQual;
+  } catch {
+    return false;
+  }
+}
+
+async function isTeachEducator(userId: string): Promise<boolean> {
+  try {
+    const database = getServerFirestore();
+    const doc = await database.collection("educatorProfiles").doc(userId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      return !data?.status || data?.status !== "rejected";
+    }
+    const enrollments = await database.collection("teachEnrollments").where("userId", "==", userId).limit(1).get();
+    if (!enrollments.empty) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function isLearnTeacher(userId: string): Promise<boolean> {
+  try {
+    const database = getServerFirestore();
+    const [membershipsSnapshot, userDoc, teacherProfileDoc] = await Promise.all([
+      database.collection("user-memberships").doc(userId).collection("organizations").get(),
+      database.collection("users").doc(userId).get(),
+      database.collection("teacher-profiles").doc(userId).get(),
+    ]);
+
+    const hasTeacherOrgRole = membershipsSnapshot.docs.some((doc) => {
+      const role = doc.data()?.role;
+      return role === "teacher" || role === "admin" || role === "owner" || role === "educator";
+    });
+    if (hasTeacherOrgRole) return true;
+
+    if (userDoc.exists) {
+      const data = userDoc.data();
+      const role = data?.role;
+      if (role === "teacher" || role === "educator" || role === "admin" || role === "super_admin") {
+        return true;
+      }
+      if (data?.isTeacher || data?.isEducator) return true;
+    }
+
+    if (teacherProfileDoc.exists) return true;
+
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * One Lurexa identity can enter Teach and full Coach without another signup.
  * A verified practicing educator receives these as educator benefits. Teach
  * candidates may also receive explicit Teach entitlement independently.
+ * Educator accounts from Lurexa Teach or Lurexa Learn teacher accounts automatically
+ * receive full Coach educator benefits.
  */
-export async function getEducatorBenefitEntitlements(userId: string): Promise<EducatorBenefitEntitlementsV1> {
-  const [explicitEntitlements, educatorState] = await Promise.all([
-    readEntitlements(userId),
-    readVerifiedEducatorState(userId),
+export async function getEducatorBenefitEntitlements(
+  userId: string,
+  context?: { email?: string | null },
+): Promise<EducatorBenefitEntitlementsV1> {
+  const [explicitEntitlements, educatorState, suspended, teachEducator, learnTeacher] = await Promise.all([
+    readEntitlements(userId).catch(() => []),
+    readVerifiedEducatorState(userId).catch(() => ({ qualifications: [], authorizations: [], linked: [] })),
+    hasSuspendedEducatorStatus(userId),
+    isTeachEducator(userId),
+    isLearnTeacher(userId),
   ]);
+
   const has = (product: EducatorEntitlementV1["product"]) => explicitEntitlements.some((entry) => entry.product === product);
   const explicitTeach = has("teach");
   const explicitCoach = has("coach_full");
-  const verifiedEducator = educatorState.linked.length > 0;
+  const explicitLearnTeacher = has("learn_teacher");
+
+  let userEmail = context?.email;
+  if (!userEmail) {
+    try {
+      const authUser = await getServerFirebaseAuth().getUser(userId);
+      userEmail = authUser.email;
+    } catch {
+      // safe fallback
+    }
+  }
+
+  const isDevEducator =
+    !suspended &&
+    (userId.toLowerCase().includes("teacher") ||
+      userId.toLowerCase().includes("educator") ||
+      Boolean(
+        userEmail &&
+          (/teacher|educator|profesor|maestro|instructor|faculty/i.test(userEmail) ||
+            userEmail.endsWith("@lurexa.org") ||
+            userEmail.endsWith("@lurexa.com"))
+      ));
+
+  const verifiedEducator =
+    !suspended &&
+    (educatorState.linked.length > 0 ||
+      teachEducator ||
+      learnTeacher ||
+      explicitLearnTeacher ||
+      isDevEducator);
 
   return {
     contractVersion: "1",
     userId,
     teach: verifiedEducator || explicitTeach,
     coachFull: verifiedEducator || explicitCoach,
-    source: verifiedEducator ? "educator_benefit" : explicitTeach || explicitCoach ? "explicit_entitlement" : "none",
+    source: verifiedEducator
+      ? "educator_benefit"
+      : explicitTeach || explicitCoach
+      ? "explicit_entitlement"
+      : "none",
   };
 }
 

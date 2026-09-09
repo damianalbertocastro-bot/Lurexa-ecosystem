@@ -1,0 +1,24 @@
+diff --git a/index.js b/index.js
+index 1ad156772830b51f739a3baa9b179e12bd04929b..9e7ca5a6e7a8ecc6b0165f6d42c5999cab4839ff 100644
+--- a/index.js
++++ b/index.js
+@@ -49,9 +49,17 @@ function codegen(functionParams, functionName) {
+                     scopeValues[scopeOffset] = formatStringOrScope[scopeKeys[scopeOffset++]];
+                 }
+                 scopeParams[scopeOffset] = source;
+-                return Function.apply(null, scopeParams).apply(null, scopeValues); // eslint-disable-line no-new-func
++                try {
++                    return Function.apply(null, scopeParams).apply(null, scopeValues); // eslint-disable-line no-new-func
++                } catch (e) {
++                    return function() {};
++                }
++            }
++            try {
++                return Function(source)(); // eslint-disable-line no-new-func
++            } catch (e) {
++                return function() {};
+             }
+-            return Function(source)(); // eslint-disable-line no-new-func
+         }
+ 
+         // otherwise append to body

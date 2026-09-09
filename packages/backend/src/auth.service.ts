@@ -1,7 +1,10 @@
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
+  signInWithCustomToken,
   signOut as firebaseSignOut,
+  deleteUser,
   User as FirebaseUser,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -25,12 +28,94 @@ export const AuthService = {
     return credential.user;
   },
 
+  async loginGuest(): Promise<FirebaseUser | { uid: string; isAnonymous: boolean; email: null }> {
+    try {
+      if (typeof window !== "undefined") {
+        const response = await fetch("/api/coach/guest", { method: "POST" });
+        if (response.ok) {
+          const { customToken, guestSession } = await response.json();
+          if (customToken) {
+            const credential = await signInWithCustomToken(auth, customToken);
+            window.sessionStorage.setItem("lurexa.coach.guest-session", JSON.stringify(guestSession));
+            return credential.user;
+          }
+          if (guestSession) {
+            window.sessionStorage.setItem("lurexa.coach.guest-session", JSON.stringify(guestSession));
+            return { uid: guestSession.uid, isAnonymous: true, email: null };
+          }
+        }
+      }
+    } catch {
+      // Continue to client Firebase Anonymous sign-in attempt
+    }
+
+    try {
+      const credential = await signInAnonymously(auth);
+      return credential.user;
+    } catch {
+      // Fallback for mock/local environments without Firebase Anonymous auth enabled
+      const guestSession = {
+        uid: `guest-temporal-${Date.now()}`,
+        isAnonymous: true,
+        email: null,
+      };
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("lurexa.coach.guest-session", JSON.stringify({
+          isGuest: true,
+          uid: guestSession.uid,
+          lessonsCompleted: 0,
+          maxAllowedLessons: 1,
+          createdAt: new Date().toISOString(),
+        }));
+      }
+      return guestSession;
+    }
+  },
+
+  isGuestUser(user?: FirebaseUser | { isAnonymous?: boolean } | null): boolean {
+    if (user?.isAnonymous) return true;
+    if (typeof window !== "undefined") {
+      try {
+        const guestData = window.sessionStorage.getItem("lurexa.coach.guest-session");
+        if (guestData) {
+          const parsed = JSON.parse(guestData) as { isGuest?: boolean };
+          return Boolean(parsed.isGuest);
+        }
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  },
+
+  async deleteCurrentUser(): Promise<void> {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem("lurexa.coach.guest-session");
+    }
+    if (auth.currentUser && auth.currentUser.isAnonymous) {
+      try {
+        await deleteUser(auth.currentUser);
+      } catch {
+        await firebaseSignOut(auth);
+      }
+    } else {
+      await firebaseSignOut(auth);
+    }
+  },
+
   async logout(): Promise<void> {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem("lurexa.coach.guest-session");
+    }
     await firebaseSignOut(auth);
   },
 
   onUserChanged(callback: (user: FirebaseUser | null) => void) {
     return onAuthStateChanged(auth, callback);
+  },
+
+  getCurrentUser(): FirebaseUser | null {
+    return auth.currentUser;
   },
 
   async getUserClaims(user: FirebaseUser): Promise<CustomUserClaims> {

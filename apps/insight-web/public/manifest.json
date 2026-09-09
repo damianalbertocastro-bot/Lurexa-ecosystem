@@ -1,0 +1,16 @@
+{
+  "name": "Lurexa Insight - Learning Analytics & Intelligence",
+  "short_name": "Lurexa Insight",
+  "description": "Cross-product institutional analytics, CEFR tracking, and pedagogical evidence insights",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a192f",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

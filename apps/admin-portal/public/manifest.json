@@ -1,0 +1,16 @@
+{
+  "name": "Lurexa Admin - Central Governance & Operations",
+  "short_name": "Lurexa Admin",
+  "description": "Institutional governance, security, authorization, and platform operations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070c1d",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
