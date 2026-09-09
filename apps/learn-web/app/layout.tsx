@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import React from "react";
 import { Inter } from "next/font/google";
 import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
@@ -14,10 +14,25 @@ const inter = Inter({
   variable: "--font-geist-sans",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: { default: "Lurexa Learn | Connected learning", template: "%s | Lurexa Learn" },
   description: "Structured, adaptive learning experiences that connect learner progress, trustworthy evidence, and personalized support across Lurexa.",
   applicationName: "Lurexa Learn",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Lurexa Learn",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -54,12 +54,14 @@ export function StandardSignupCard({
     setError("");
 
     try {
-      if (mode === "teacher" && !orgName.trim()) {
-        throw new Error("School or institution name is required.");
-      }
       if (mode === "student" && studentPath === "class" && !inviteCode.trim()) {
         throw new Error("Invitation code is required to join a class.");
       }
+
+      const resolvedOrgName =
+        mode === "teacher"
+          ? orgName.trim() || `${firstName.trim() || "Educator"}'s Workspace`
+          : undefined;
 
       await onRegister({
         mode,
@@ -68,7 +70,7 @@ export function StandardSignupCard({
         phone: phone.trim() || undefined,
         email: email.trim(),
         password,
-        orgName: orgName.trim() || undefined,
+        orgName: resolvedOrgName,
         studentPath: mode === "student" ? studentPath : undefined,
         inviteCode: mode === "student" && studentPath === "class" ? inviteCode.trim() : undefined,
       });
@@ -86,13 +88,15 @@ export function StandardSignupCard({
       className={`w-full max-w-md border-[var(--lx-border)] p-7 sm:p-8 shadow-xl ${className}`}
     >
       {showModeToggle && (
-        <div className="mb-6 flex rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-1">
-          <Button
+        <div className="mb-6 flex rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1.5" role="tablist">
+          <button
             type="button"
-            className={`flex-1 rounded-lg py-2 text-xs font-black transition ${
+            role="tab"
+            aria-selected={mode === "student"}
+            className={`flex-1 rounded-lg py-2.5 text-xs transition-all duration-200 ${
               mode === "student"
-                ? "bg-[var(--lx-canvas)] text-[var(--color-brand-navy)] shadow-xs"
-                : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+                ? "bg-white font-black text-[var(--lx-primary)] shadow-sm dark:bg-slate-800 dark:text-white"
+                : "font-semibold text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
             }`}
             onClick={() => {
               setMode("student");
@@ -100,13 +104,15 @@ export function StandardSignupCard({
             }}
           >
             I am a Student
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            className={`flex-1 rounded-lg py-2 text-xs font-black transition ${
+            role="tab"
+            aria-selected={mode === "teacher"}
+            className={`flex-1 rounded-lg py-2.5 text-xs transition-all duration-200 ${
               mode === "teacher"
-                ? "bg-[var(--lx-canvas)] text-[var(--lx-ink)] shadow-xs"
-                : "text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
+                ? "bg-white font-black text-[var(--lx-primary)] shadow-sm dark:bg-slate-800 dark:text-white"
+                : "font-semibold text-[var(--lx-muted)] hover:text-[var(--lx-ink)]"
             }`}
             onClick={() => {
               setMode("teacher");
@@ -114,7 +120,7 @@ export function StandardSignupCard({
             }}
           >
             I am an Educator
-          </Button>
+          </button>
         </div>
       )}
 
@@ -179,11 +185,10 @@ export function StandardSignupCard({
         {mode === "teacher" ? (
           <Input
             id="organization-name"
-            label="School / Institution Name"
-            placeholder="e.g. Lincoln High School"
+            label="School or Institution Name (Optional)"
+            placeholder="e.g. Lincoln High School or leave blank for independent tutor"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
-            required
             className="text-black dark:text-white"
           />
         ) : (
@@ -271,7 +276,7 @@ export function StandardSignupCard({
           {loading
             ? "Creating account…"
             : mode === "teacher"
-            ? "Create School Account →"
+            ? "Create Educator Account →"
             : studentPath === "self-paced"
             ? "Create Learning Path →"
             : "Join Class & Start →"}

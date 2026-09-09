@@ -1,0 +1,16 @@
+{
+  "name": "Lurexa Teach - Educator Development & Certification",
+  "short_name": "Lurexa Teach",
+  "description": "Professional growth, CEFR proficiency development, and credentials for language educators",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a1c55",
+  "theme_color": "#1d5add",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

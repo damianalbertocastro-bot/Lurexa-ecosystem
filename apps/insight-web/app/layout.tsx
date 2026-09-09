@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import { InsightRelatedExperiences } from "./components/InsightRelatedExperiences";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#0a192f",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -12,6 +21,12 @@ export const metadata: Metadata = {
   },
   description:
     "Enterprise cohort diagnostics, phonemic error heatmaps, and instructional intervention routing.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Lurexa Insight",
+  },
 };
 
 export default function InsightLayout({

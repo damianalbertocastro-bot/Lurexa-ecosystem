@@ -80,7 +80,7 @@ export function ContextualSidebarTier2({
   return (
     <nav
       aria-label="Contextual Sidebar"
-      className={`relative z-30 flex h-full flex-col border-r border-[var(--lx-border)] bg-[var(--lx-surface)] transition-all duration-200 ease-in-out select-none ${
+      className={`relative z-30 hidden md:flex h-full flex-col border-r border-[var(--lx-border)] bg-[var(--lx-surface)] transition-all duration-200 ease-in-out select-none ${
         collapsed ? "w-12" : "w-56"
       } ${className}`}
     >

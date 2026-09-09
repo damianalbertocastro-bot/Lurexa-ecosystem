@@ -11,6 +11,7 @@ import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { useToast } from "@lurexa/ui/Toast";
 import { Button } from "@lurexa/ui/button";
+import { LearnerMobileBottomBar } from "@lurexa/ui/navigation";
 
 interface ProductShellProps { children: ReactNode; area: "Learner space" | "Educator space" | "Practice space" | "Creator space"; homeHref: string; product?: LurexaProduct; }
 
@@ -43,11 +44,13 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
     }
   }
 
+  const isLearnerSpace = area === "Learner space" || area === "Practice space";
+
   return <div className="min-h-screen bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
     <header className="sticky top-0 z-30 border-b border-[var(--lx-border)] bg-[var(--lx-surface)]/90 shadow-[0_8px_24px_rgba(32,52,128,.05)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3"><Link href={homeHref} aria-label={`${product === "learn" ? "Lurexa Learn" : `Lurexa ${product[0].toUpperCase()}${product.slice(1)}`} home`} className="rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--lx-focus-ring)] focus:ring-offset-2"><ProductMark product={product}/></Link><span className="hidden h-6 w-px bg-[var(--lx-border)] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-muted)] sm:block">{area}</span></div>
-        <nav aria-label="Account controls" className="flex items-center gap-2">
+      <div className="mx-auto flex min-h-[64px] sm:min-h-[72px] max-w-7xl items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3"><Link href={homeHref} aria-label={`${product === "learn" ? "Lurexa Learn" : `Lurexa ${product[0].toUpperCase()}${product.slice(1)}`} home`} className="rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--lx-focus-ring)] focus:ring-offset-2"><ProductMark product={product}/></Link><span className="hidden h-6 w-px bg-[var(--lx-border)] sm:block"/><span className="hidden text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--lx-muted)] sm:block">{area}</span></div>
+        <nav aria-label="Account controls" className="flex items-center gap-1.5 sm:gap-2">
           <Button
             type="button"
             onClick={() => setCommandPaletteOpen(true)}
@@ -61,17 +64,20 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
           </Button>
           <Link
             href="/profile"
-            className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm"
+            className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:text-sm"
           >
             Profile
           </Link>
           <ThemeToggle />
           <EcosystemDropdown currentApp="learn" />
-          <Button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:px-3.5 sm:text-sm">Sign out</Button>
+          <Button type="button" onClick={signOut} className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs font-extrabold text-[var(--lx-ink)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--lx-border)] hover:bg-[var(--lx-canvas)] sm:text-sm">Sign out</Button>
         </nav>
       </div>
     </header>
-    {children}
+    <main className={isLearnerSpace ? "pb-20 md:pb-0" : ""}>
+      {children}
+    </main>
+    {isLearnerSpace && <LearnerMobileBottomBar />}
     <CommandPalette
       isOpen={commandPaletteOpen}
       onClose={() => setCommandPaletteOpen(false)}

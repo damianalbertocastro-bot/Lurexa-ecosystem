@@ -6,7 +6,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function failure(error: unknown): Response {
-  const message = error instanceof Error ? error.message : "Request failed.";
+  const rawMessage = error instanceof Error ? error.message : "Request failed.";
+  const message = rawMessage.includes("unenv") || rawMessage.includes("not implemented") || rawMessage.includes("https.request")
+    ? "Edge runtime service temporarily constrained. Please retry or access platform services directly."
+    : rawMessage;
   const normalized = message.toLocaleLowerCase();
   const status = message === "Authentication is required."
     ? 401

@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import type { NavigationDomain, WorkspaceKey, NavigationRoute } from "./types";
-import { resolveNavigationContext } from "./registry";
+import { resolveNavigationContext, ECOSYSTEM_NAVIGATION_REGISTRY } from "./registry";
 import { GlobalDockTier1 } from "./GlobalDockTier1";
 import { ContextualSidebarTier2 } from "./ContextualSidebarTier2";
+import { LearnerMobileBottomBar } from "./LearnerMobileBottomBar";
+import { EducatorMobileDrawer } from "./EducatorMobileDrawer";
 
 export interface EcosystemNavigationLayoutProps {
   children: React.ReactNode;
@@ -63,9 +65,24 @@ export function EcosystemNavigationLayout({
     }
   };
 
+  const isLearnerProduct = activeWorkspaceKey === "coach";
+  const activeWorkspace = activeWorkspaceKey ? ECOSYSTEM_NAVIGATION_REGISTRY.workspaces[activeWorkspaceKey] : null;
+
   return (
-    <div className={`flex h-screen w-screen overflow-hidden bg-[var(--lx-canvas)] text-[var(--lx-ink)] ${className}`}>
-      {/* Tier 1: Fixed Global Dock (Leftmost Rail, 56px) - Permanent DOM Mount */}
+    <div className={`flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-[var(--lx-canvas)] text-[var(--lx-ink)] ${className}`}>
+      {/* Mobile Educator/Admin Drawer (screens < md) */}
+      {!isLearnerProduct && activeWorkspace && (
+        <EducatorMobileDrawer
+          title={activeWorkspace.name}
+          subtitle={activeWorkspace.tagline}
+          roleBadge={activeWorkspace.shortName}
+          routes={activeWorkspace.routes}
+          userDisplayName={userDisplayName}
+          userEmail={userEmail}
+        />
+      )}
+
+      {/* Tier 1: Fixed Global Dock (Leftmost Rail, 56px) - Desktop Mount */}
       <GlobalDockTier1
         activeDomain={activeDomain}
         activeWorkspaceKey={activeWorkspaceKey}
@@ -75,7 +92,7 @@ export function EcosystemNavigationLayout({
         onOpenSettings={onOpenSettings}
       />
 
-      {/* Tier 2: Contextual Sidebar Panel (Collapsible, ~220px) */}
+      {/* Tier 2: Contextual Sidebar Panel (Collapsible, ~220px) - Desktop Mount */}
       <ContextualSidebarTier2
         activeDomain={activeDomain}
         activeWorkspaceKey={activeWorkspaceKey}
@@ -84,9 +101,12 @@ export function EcosystemNavigationLayout({
       />
 
       {/* Primary Application / Content Area */}
-      <main className="relative flex-1 overflow-y-auto overflow-x-hidden bg-[var(--lx-canvas)] focus:outline-none">
+      <main className={`relative flex-1 overflow-y-auto overflow-x-hidden bg-[var(--lx-canvas)] focus:outline-none ${isLearnerProduct ? "pb-20 md:pb-0" : ""}`}>
         {children}
       </main>
+
+      {/* Mobile Learner Bottom Bar (screens < md for learner products) */}
+      {isLearnerProduct && <LearnerMobileBottomBar activeHref={activeRouteHref} />}
     </div>
   );
 }

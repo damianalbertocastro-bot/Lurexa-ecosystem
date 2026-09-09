@@ -7,7 +7,7 @@ import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { Input } from "@lurexa/ui/Input";
 import { Modal } from "@lurexa/ui/Modal";
-import { AuthService, OrganizationService } from "@lurexa/backend";
+import { AuthService, CourseService, OrganizationService } from "@lurexa/backend";
 import { Course, Invitation, Lesson } from "@lurexa/types";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 import { TeacherWorkspaceBanner } from "../components/TeacherWorkspaceBanner";
@@ -28,16 +28,41 @@ export default function TeacherDashboard() {
   const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
   const [courses, setCourses] = useState<TeacherCourseSummary[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
-  const loadCourses = async () => {
+  const showFeedback = (text: string, type: "error" | "success" = "error") => {
+    setFeedbackMessage({ text, type });
+    setTimeout(() => setFeedbackMessage(null), 5000);
+  };
+
+  const loadCourses = async (orgId?: string | null) => {
     setIsLoadingCourses(true);
     try {
       const response = await authenticatedFetch("/api/learning?teacherDashboard=1");
-      const payload = await response.json() as TeacherCourseSummary[] & { error?: string };
-      if (!response.ok) throw new Error(payload.error ?? "Unable to load courses.");
-      setCourses(payload);
-    } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : "Unable to load courses.");
+      if (response.ok) {
+        const payload = (await response.json()) as TeacherCourseSummary[];
+        setCourses(payload);
+        return;
+      }
+      // Edge/Cloudflare Workers fallback: query via client CourseService
+      const targetOrg = orgId ?? currentOrgId;
+      if (targetOrg) {
+        const orgCourses = await CourseService.getCoursesByOrg(targetOrg);
+        setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
+        return;
+      }
+    } catch {
+      const targetOrg = orgId ?? currentOrgId;
+      if (targetOrg) {
+        try {
+          const orgCourses = await CourseService.getCoursesByOrg(targetOrg);
+          setCourses(orgCourses.map((c) => ({ course: c, lessons: [] })));
+          return;
+        } catch {
+          // Both paths failed
+        }
+      }
+      showFeedback("Unable to load teaching courses. Please refresh or check connection.", "error");
     } finally {
       setIsLoadingCourses(false);
     }
@@ -50,7 +75,7 @@ export default function TeacherDashboard() {
       setInvitations(loadedInvitations);
       setCurrentTimestamp(new Date().getTime());
     } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : "Unable to load invitations.");
+      showFeedback(error instanceof Error ? error.message : "Unable to load invitations.", "error");
     } finally {
       setIsLoadingInvitations(false);
     }
@@ -65,7 +90,7 @@ export default function TeacherDashboard() {
         );
         if (membership) {
           setCurrentOrgId(membership.orgId);
-          await Promise.all([loadInvitations(membership.orgId), loadCourses()]);
+          await Promise.all([loadInvitations(membership.orgId), loadCourses(membership.orgId)]);
           return;
         }
       }
@@ -88,21 +113,20 @@ export default function TeacherDashboard() {
       setGeneratedInvite(invite);
       setInvitations((currentInvitations) => [invite, ...currentInvitations]);
       setStudentEmail("");
+      showFeedback("Student invitation created successfully!", "success");
     } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : "Failed to generate invite.");
+      showFeedback(error instanceof Error ? error.message : "Failed to generate invite.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-
-
   const handleCopyInviteCode = async (invite: Invitation) => {
-
     try {
       await navigator.clipboard.writeText(invite.code);
+      showFeedback("Access code copied to clipboard!", "success");
     } catch {
-      alert("Unable to copy the access code. Please copy it manually.");
+      showFeedback("Unable to copy the access code automatically. Please copy it manually.", "error");
     }
   };
 
@@ -115,8 +139,9 @@ export default function TeacherDashboard() {
       setInvitations((currentInvitations) =>
         currentInvitations.filter((currentInvite) => currentInvite.id !== invite.id),
       );
+      showFeedback(`Invitation for ${invite.email} has been revoked.`, "success");
     } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : "Unable to revoke invitation.");
+      showFeedback(error instanceof Error ? error.message : "Unable to revoke invitation.", "error");
     } finally {
       setRevokingInvitationId(null);
     }
@@ -144,26 +169,55 @@ export default function TeacherDashboard() {
         }
       />
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {feedbackMessage && (
+          <div
+            role="alert"
+            className={`flex items-center justify-between rounded-xl border p-4 text-sm font-semibold transition ${
+              feedbackMessage.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/30 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-800/40 dark:bg-rose-950/30 dark:text-rose-300"
+            }`}
+          >
+            <span>{feedbackMessage.text}</span>
+            <button
+              type="button"
+              onClick={() => setFeedbackMessage(null)}
+              className="ml-4 text-xs font-bold uppercase tracking-wider opacity-70 hover:opacity-100"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Workspace navigation */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60" title="Active Students" subtitle="View roster and manage invitations">
-            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/students")}>
-              <span className="text-3xl font-bold text-indigo-600">{invitations.filter((invite) => getInvitationStatus(invite).label === "Active").length}</span>
-              <span className="mt-2 block text-sm font-medium text-indigo-600">Manage students →</span>
-            </Button>
+            <div className="flex items-baseline justify-between pt-2">
+              <span className="text-4xl font-black tracking-tight text-[var(--lx-ink)]">
+                {invitations.filter((invite) => getInvitationStatus(invite).label === "Active").length}
+              </span>
+              <Button variant="secondary" size="sm" onClick={() => router.push("/teacher/students")}>
+                Manage students →
+              </Button>
+            </div>
           </Card>
           <Card className="border-0 bg-[var(--lx-surface)] shadow-lg shadow-slate-200/60" title="Active Courses" subtitle="Create and manage courses and lessons">
-            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/courses")}>
-              <span className="text-3xl font-bold text-emerald-600">{courses.filter(({ course }) => course.status === "published").length}</span>
-              <span className="mt-2 block text-sm font-medium text-emerald-600">Manage courses →</span>
-            </Button>
+            <div className="flex items-baseline justify-between pt-2">
+              <span className="text-4xl font-black tracking-tight text-[var(--lx-ink)]">
+                {courses.filter(({ course }) => course.status === "published").length}
+              </span>
+              <Button variant="secondary" size="sm" onClick={() => router.push("/teacher/courses")}>
+                Manage courses →
+              </Button>
+            </div>
           </Card>
           <Card className="border-0 bg-[var(--learn-mint)] shadow-lg shadow-emerald-950/5" title="Current Plan" subtitle="Organization tier and billing">
-            <Button type="button" className="w-full text-left" onClick={() => router.push("/teacher/billing")}>
+            <div className="flex items-baseline justify-between pt-2">
               <Badge variant="info">Free Tier</Badge>
-              <span className="mt-2 block text-sm font-medium text-indigo-600">View plan →</span>
-            </Button>
+              <Button variant="secondary" size="sm" onClick={() => router.push("/teacher/billing")}>
+                View plan →
+              </Button>
+            </div>
           </Card>
         </div>
 

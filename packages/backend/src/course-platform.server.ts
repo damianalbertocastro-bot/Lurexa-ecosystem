@@ -302,7 +302,10 @@ export const CoursePlatformService = {
       if (
         message.includes("default credentials") ||
         message.includes("credentials") ||
-        message.includes("not found")
+        message.includes("not found") ||
+        message.includes("not implemented") ||
+        message.includes("unenv") ||
+        message.includes("https.request")
       ) {
         try {
           const parts = rawToken.split(".");

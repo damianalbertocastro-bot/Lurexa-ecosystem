@@ -83,7 +83,7 @@ export function GlobalDockTier1({
   return (
     <aside
       aria-label="Ecosystem Dock"
-      className={`relative z-40 flex h-full w-14 shrink-0 flex-col items-center justify-between border-r border-slate-800 bg-[#0B0F19] py-3 text-slate-400 select-none ${className}`}
+      className={`relative z-40 hidden md:flex h-full w-14 shrink-0 flex-col items-center justify-between border-r border-slate-800 bg-[#0B0F19] py-3 text-slate-400 select-none ${className}`}
     >
       {/* Top: Monogram Logo (Clicks to Public Marketing) */}
       <div className="flex flex-col items-center gap-3">

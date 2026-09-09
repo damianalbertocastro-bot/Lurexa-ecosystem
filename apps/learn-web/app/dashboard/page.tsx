@@ -6,7 +6,7 @@ import { Button } from "@lurexa/ui/Button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProgressBar } from "@lurexa/ui/ProgressBar";
-import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
+import { AuthService, CourseService, UserService, type AuthenticatedUser } from "@lurexa/backend";
 import type { CefrLevel, Course, LearnerRecommendationAction, Lesson, NextLearningAction } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { DashboardGreetingHeader } from "./components/DashboardGreetingHeader";
@@ -90,8 +90,40 @@ export default function StudentDashboardPage() {
             authenticatedFetch("/api/learning?studentDashboard=1"),
             authenticatedFetch("/api/learning/adaptation"),
           ]);
-          if (!dashboardResponse.ok) throw new Error("Unable to load dashboard.");
-          const dashboard = (await dashboardResponse.json()) as LearnerDashboardSummary;
+          let dashboard: LearnerDashboardSummary | null = null;
+          if (dashboardResponse.ok) {
+            dashboard = (await dashboardResponse.json()) as LearnerDashboardSummary;
+          } else {
+            // Edge/Cloudflare Workers fallback
+            try {
+              const [fallbackCourses, userProfile] = await Promise.all([
+                CourseService.getCoursesByOrg("lurexa-self-paced"),
+                UserService.getUserProfile(user.uid),
+              ]);
+              dashboard = {
+                courses: fallbackCourses.map((course) => ({
+                  course,
+                  completedLessons: 0,
+                  totalLessons: course.moduleIds?.length ?? 0,
+                  progressPercent: 0,
+                  nextLesson: null,
+                })),
+                gamification: {
+                  streakDays: 0,
+                  totalPoints: 0,
+                  lastActivityAt: null,
+                },
+                nextStep: null,
+                placement: userProfile?.targetCefrLevel ? {
+                  completed: true,
+                  estimatedLevel: userProfile.targetCefrLevel,
+                } : null,
+                cefrLevel: userProfile?.targetCefrLevel ?? "A1",
+              };
+            } catch {
+              throw new Error("Unable to load dashboard.");
+            }
+          }
           setCourses(dashboard.courses);
           setGamification(dashboard.gamification);
           setPlacement(dashboard.placement ?? null);
