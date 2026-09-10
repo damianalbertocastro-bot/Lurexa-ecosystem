@@ -11,6 +11,7 @@ export const SUPPORTED_LOCALES: readonly LocaleInfo[] = [
     name: "English",
     englishName: "English (US / Global)",
     regionalBadge: "Default",
+    flag: "🇺🇸",
     dir: "ltr",
   },
   {
@@ -18,6 +19,7 @@ export const SUPPORTED_LOCALES: readonly LocaleInfo[] = [
     name: "Español",
     englishName: "Spanish (Dominicana / LatAm)",
     regionalBadge: "Dominican AI",
+    flag: "🇩🇴",
     dir: "ltr",
   },
   {
@@ -25,6 +27,7 @@ export const SUPPORTED_LOCALES: readonly LocaleInfo[] = [
     name: "Français",
     englishName: "French (Standard)",
     regionalBadge: "Standard",
+    flag: "🇫🇷",
     dir: "ltr",
   },
 ] as const;

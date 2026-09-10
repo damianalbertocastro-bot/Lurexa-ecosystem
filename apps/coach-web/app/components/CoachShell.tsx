@@ -78,6 +78,19 @@ export function CoachShell({
     }
   };
 
+  const getNavLabel = (label: string) => {
+    switch (label) {
+      case "Home": return t("nav.home");
+      case "Dashboard": return t("nav.dashboard");
+      case "Speaking Studio": return t("nav.speakingStudio");
+      case "Pronunciation": return t("nav.pronunciation");
+      case "History": return t("nav.history");
+      case "Educators": return t("nav.educators");
+      case "Profile": return t("nav.profile");
+      default: return label;
+    }
+  };
+
   const visibleNavItems = navItems.filter((item) => {
     if (currentUser && item.href === "/") return false;
     return true;
@@ -116,7 +129,7 @@ export function CoachShell({
                         : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
                     }`}
                   >
-                    {item.label}
+                    {getNavLabel(item.label)}
                   </Link>
                 );
               })}

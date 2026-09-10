@@ -48,6 +48,19 @@ export function TeachShell({ active, children }: { active: string; children: Rea
     await logout();
     router.replace("/");
   };
+  const getNavLabel = (label: string) => {
+    switch (label) {
+      case "Home": return t("nav.home");
+      case "Dashboard": return t("nav.dashboard");
+      case "Learning": return t("nav.learning");
+      case "Growth Plan": return t("nav.growthPlan");
+      case "Evidence": return t("nav.evidence");
+      case "Community": return t("nav.community");
+      case "Assessment": return t("nav.assessment");
+      case "Credentials": return t("nav.credentials");
+      default: return label;
+    }
+  };
 
   const visibleNav = [
     ...nav.filter(([label]) => !(user && label === "Home")),
@@ -91,7 +104,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                     : "text-[var(--lx-muted)] hover:bg-[var(--lx-canvas)] hover:text-[var(--lx-ink)]"
                 }`}
               >
-                {label}
+                {getNavLabel(label)}
               </Link>
             ))}
           </nav>
@@ -191,7 +204,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                   : "border-[var(--lx-border)] bg-[var(--lx-surface)] text-[var(--lx-muted)]"
               }`}
             >
-              {label}
+              {getNavLabel(label)}
             </Link>
           ))}
         </nav>

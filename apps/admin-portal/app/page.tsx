@@ -8,10 +8,12 @@ import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
 import { getEcosystemUrl } from "@lurexa/config/domains";
+import { useTranslation } from "@lurexa/i18n";
 
 type TelemetryTab = "tenants" | "mind" | "governance";
 
 export default function AdminLandingPage() {
+  const { t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
   const [activeTab, setActiveTab] = useState<TelemetryTab>("tenants");
 
@@ -23,7 +25,7 @@ export default function AdminLandingPage() {
   }, []);
 
   const consoleHref = currentUser ? "/dashboard" : "/login";
-  const consoleLabel = currentUser ? "Enter Console →" : "Sign In to Console";
+  const consoleLabel = currentUser ? `${t("admin.openConsole")} →` : t("admin.adminConsole");
 
   return (
     <div className="min-h-screen bg-[#070e1c] text-slate-100 selection:bg-indigo-500 selection:text-white">
@@ -80,19 +82,19 @@ export default function AdminLandingPage() {
                 href="#telemetry"
                 className="rounded-xl px-3.5 py-2 text-xs font-black text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
-                Telemetry
+                {t("admin.navTelemetry")}
               </a>
               <a
                 href="#rostering"
                 className="rounded-xl px-3.5 py-2 text-xs font-black text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
-                SIS Rostering
+                {t("admin.navRostering")}
               </a>
               <a
                 href="#security"
                 className="rounded-xl px-3.5 py-2 text-xs font-black text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
-                Security
+                {t("admin.navSecurity")}
               </a>
             </nav>
           </div>
@@ -106,7 +108,7 @@ export default function AdminLandingPage() {
               href={consoleHref}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 px-4 py-2 text-xs font-black text-white shadow-lg shadow-indigo-500/20 transition hover:brightness-110 active:scale-95"
             >
-              <span>{currentUser ? "Open Console" : "Admin Console"}</span>
+              <span>{consoleLabel}</span>
               <span>→</span>
             </Link>
           </div>
@@ -130,17 +132,15 @@ export default function AdminLandingPage() {
           <div className="mx-auto max-w-3xl text-center space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-950/60 px-4 py-1.5 text-xs font-extrabold uppercase tracking-[.18em] text-indigo-300 shadow-inner">
               <span>🛡️</span>
-              <span>ENTERPRISE PLATFORM CONTROL · LUREXA CORE &amp; MIND</span>
+              <span>{t("admin.eyebrow")}</span>
             </div>
 
             <h1 className="text-4xl font-black tracking-[-0.05em] text-white sm:text-6xl leading-[1.1]">
-              Ecosystem oversight, governance, and real-time telemetry.
+              {t("admin.title")}
             </h1>
 
             <p className="text-base sm:text-lg leading-relaxed text-slate-300 font-medium">
-              The unified operational control plane governing multi-tenant districts,
-              real-time AI learning telemetry, and strict pedagogical data privacy
-              across the entire Lurexa ecosystem.
+              {t("admin.subtitle")}
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
