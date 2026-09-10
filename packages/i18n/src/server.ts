@@ -37,20 +37,23 @@ export function getServerDictionary(locale: SupportedLocale = DEFAULT_LOCALE): L
 export function tServer(
   locale: SupportedLocale,
   path: string,
-  values?: Record<string, string | number>,
+  valuesOrFallback?: Record<string, string | number> | string,
+  fallbackArg?: string,
 ): string {
+  const values = typeof valuesOrFallback === "object" && valuesOrFallback !== null ? valuesOrFallback : undefined;
+  const fallbackText = typeof valuesOrFallback === "string" ? valuesOrFallback : fallbackArg;
   const dict = getDictionary(locale);
   const parts = path.split(".");
-  let current: any = dict;
+  let current: unknown = dict;
 
   for (const part of parts) {
-    if (current && typeof current === "object" && part in current) {
-      current = current[part];
+    if (current && typeof current === "object" && part in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[part];
     } else {
-      let fallback: any = getDictionary("en");
+      let fallback: unknown = getDictionary("en");
       for (const fbPart of parts) {
-        if (fallback && typeof fallback === "object" && fbPart in fallback) {
-          fallback = fallback[fbPart];
+        if (fallback && typeof fallback === "object" && fbPart in (fallback as Record<string, unknown>)) {
+          fallback = (fallback as Record<string, unknown>)[fbPart];
         } else {
           fallback = null;
           break;
@@ -59,12 +62,13 @@ export function tServer(
       if (typeof fallback === "string") {
         return interpolate(fallback, values);
       }
-      return path;
+      return fallbackText ?? path;
     }
   }
 
   if (typeof current === "string") {
     return interpolate(current, values);
   }
-  return path;
+  return fallbackText ?? path;
 }
+

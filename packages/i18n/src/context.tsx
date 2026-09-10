@@ -11,7 +11,7 @@ export interface I18nContextValue {
   localeInfo: LocaleInfo;
   dictionary: LocaleDictionary;
   setLocale: (nextLocale: SupportedLocale, options?: { refresh?: boolean }) => void;
-  t: (path: string, values?: Record<string, string | number>) => string;
+  t: (path: string, valuesOrFallback?: Record<string, string | number> | string, fallback?: string) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -44,21 +44,20 @@ function resolveClientInitialLocale(initialLocale?: SupportedLocale): SupportedL
   return DEFAULT_LOCALE;
 }
 
-export interface I18nProviderProps {
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
   children: ReactNode;
   initialLocale?: SupportedLocale;
-}
-
-export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
-  const [locale, setLocaleState] = useState<SupportedLocale>(() =>
-    initialLocale && isSupportedLocale(initialLocale) ? initialLocale : resolveClientInitialLocale(initialLocale),
-  );
+}) {
+  const [locale, setLocaleState] = useState<SupportedLocale>(() => resolveClientInitialLocale(initialLocale));
 
   useEffect(() => {
     if (initialLocale && isSupportedLocale(initialLocale) && initialLocale !== locale) {
       setLocaleState(initialLocale);
     }
-  }, [initialLocale]);
+  }, [initialLocale, locale]);
 
   const setLocale = useCallback(
     (nextLocale: SupportedLocale, options?: { refresh?: boolean }) => {
@@ -66,7 +65,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
       setLocaleState(nextLocale);
 
       // Persist to document.cookie (1 year, shared across lurexa.org subdomains in prod)
-      if (typeof document !== "undefined") {
+      if (typeof window !== "undefined") {
         const domain = window.location.hostname.endsWith("lurexa.org") ? "; domain=.lurexa.org" : "";
         document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax${domain}`;
         try {
@@ -88,19 +87,21 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const localeInfo = useMemo(() => getLocaleInfo(locale), [locale]);
 
   const t = useCallback(
-    (path: string, values?: Record<string, string | number>): string => {
+    (path: string, valuesOrFallback?: Record<string, string | number> | string, fallbackArg?: string): string => {
+      const values = typeof valuesOrFallback === "object" && valuesOrFallback !== null ? valuesOrFallback : undefined;
+      const fallbackText = typeof valuesOrFallback === "string" ? valuesOrFallback : fallbackArg;
       const parts = path.split(".");
-      let current: any = dictionary;
+      let current: unknown = dictionary;
 
       for (const part of parts) {
-        if (current && typeof current === "object" && part in current) {
-          current = current[part];
+        if (current && typeof current === "object" && part in (current as Record<string, unknown>)) {
+          current = (current as Record<string, unknown>)[part];
         } else {
           // Fallback to English dictionary if key is missing
-          let fallback: any = getDictionary("en");
+          let fallback: unknown = getDictionary("en");
           for (const fbPart of parts) {
-            if (fallback && typeof fallback === "object" && fbPart in fallback) {
-              fallback = fallback[fbPart];
+            if (fallback && typeof fallback === "object" && fbPart in (fallback as Record<string, unknown>)) {
+              fallback = (fallback as Record<string, unknown>)[fbPart];
             } else {
               fallback = null;
               break;
@@ -109,14 +110,14 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
           if (typeof fallback === "string") {
             return interpolate(fallback, values);
           }
-          return path;
+          return fallbackText ?? path;
         }
       }
 
       if (typeof current === "string") {
         return interpolate(current, values);
       }
-      return path;
+      return fallbackText ?? path;
     },
     [dictionary],
   );
@@ -146,17 +147,19 @@ export function useI18n(): I18nContextValue {
       localeInfo: getLocaleInfo(fallbackLocale),
       dictionary: fallbackDict,
       setLocale: () => {},
-      t: (path: string, values?: Record<string, string | number>) => {
+      t: (path: string, valuesOrFallback?: Record<string, string | number> | string, fallbackArg?: string) => {
+        const values = typeof valuesOrFallback === "object" && valuesOrFallback !== null ? valuesOrFallback : undefined;
+        const fallbackText = typeof valuesOrFallback === "string" ? valuesOrFallback : fallbackArg;
         const parts = path.split(".");
-        let curr: any = fallbackDict;
+        let curr: unknown = fallbackDict;
         for (const p of parts) {
-          if (curr && typeof curr === "object" && p in curr) {
-            curr = curr[p];
+          if (curr && typeof curr === "object" && p in (curr as Record<string, unknown>)) {
+            curr = (curr as Record<string, unknown>)[p];
           } else {
-            return path;
+            return fallbackText ?? path;
           }
         }
-        return typeof curr === "string" ? interpolate(curr, values) : path;
+        return typeof curr === "string" ? interpolate(curr, values) : (fallbackText ?? path);
       },
     };
   }

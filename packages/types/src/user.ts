@@ -1,4 +1,4 @@
-export type UserRole = "student" | "teacher" | "admin" | "super_admin";
+export type UserRole = "student" | "teacher" | "admin" | "super_admin" | "author";
 
 export interface User {
   id: string;
@@ -62,6 +62,7 @@ export interface UserProfileDetails {
   lastName?: string;
   phone?: string;
   avatarUrl?: string;
+  headline?: string;
   targetCefrLevel?: string;
   primaryGoal?: PrimaryLearningGoal | string;
   preferredAccent?: PreferredAccentDialect | string;

@@ -74,12 +74,12 @@ export function LanguageSelector({
   let buttonClasses = "";
   if (variant === "segmented") {
     buttonClasses = inverse
-      ? "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-black text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      : "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-black text-[var(--lx-ink)] hover:bg-[var(--lx-surface)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)]";
+      ? `inline-flex ${compact ? "h-7 sm:h-8 px-1.5" : "h-8 sm:h-9 px-2"} items-center gap-1.5 rounded-lg text-xs font-black text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
+      : `inline-flex ${compact ? "h-7 sm:h-8 px-1.5" : "h-8 sm:h-9 px-2"} items-center gap-1.5 rounded-lg text-xs font-black text-[var(--lx-ink)] hover:bg-[var(--lx-surface)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)]`;
   } else {
     buttonClasses = inverse
-      ? "inline-flex h-9 sm:h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-2.5 sm:px-3 text-xs font-black text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      : "inline-flex h-9 sm:h-10 items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/95 px-2.5 sm:px-3 text-xs font-black text-[var(--lx-ink)] shadow-xs backdrop-blur-md transition-all hover:bg-[var(--lx-canvas)] hover:border-[var(--lx-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)]";
+      ? `inline-flex ${compact ? "h-8 px-2" : "h-9 sm:h-10 px-2.5 sm:px-3"} items-center gap-2 rounded-xl border border-white/15 bg-white/10 text-xs font-black text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
+      : `inline-flex ${compact ? "h-8 px-2" : "h-9 sm:h-10 px-2.5 sm:px-3"} items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/95 text-xs font-black text-[var(--lx-ink)] shadow-xs backdrop-blur-md transition-all hover:bg-[var(--lx-canvas)] hover:border-[var(--lx-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lx-focus-ring)]`;
   }
 
   const dropdownAlignClasses = align === "left" ? "left-0 origin-top-left" : "right-0 origin-top-right";

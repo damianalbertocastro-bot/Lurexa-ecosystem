@@ -359,7 +359,7 @@ export default function OnboardingPage() {
                 ? "Launching…"
                 : startingPoint === "placement"
                 ? "Start Placement Test (L-PDA) →"
-                : "Start my A1 lesson →"}
+                : "Start my A1 lesson"}
             </Button>
           </div>
         </div>

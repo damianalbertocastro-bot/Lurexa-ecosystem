@@ -36,17 +36,17 @@ export default function HomePage() {
               <EcosystemDropdown currentApp="learn" align="left" openOnHover inverse />
               <LurexaLearnLogo inverse />
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               <LanguageSelector inverse />
               <Link
                 href="/login"
-                className="rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
               >
                 Sign in
               </Link>
               <Link
                 href="/onboarding"
-                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:text-sm"
+                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:py-2 sm:text-sm whitespace-nowrap"
               >
                 Start free
               </Link>
