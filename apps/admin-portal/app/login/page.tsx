@@ -8,16 +8,42 @@ import { Card } from "@lurexa/ui/card";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { Input } from "@lurexa/ui/Input";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { useTranslation } from "@lurexa/i18n";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"signin" | "setup">("signin");
   const [email, setEmail] = useState("damianalbertocastro@gmail.com");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  async function handleGoogleSignIn(): Promise<void> {
+    setGoogleLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const { user } = await AuthService.loginWithGoogle();
+      const claims = await AuthService.getUserClaims(user);
+      if (claims.role !== "super_admin") {
+        await AuthService.logout();
+        throw new Error("This Google account does not have verified Lurexa Admin privileges.");
+      }
+      router.replace("/dashboard");
+    } catch (caught: unknown) {
+      if (!AuthService.isPopupDismissedError(caught)) {
+        setError(caught instanceof Error ? caught.message : "Unable to complete Google sign-in.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -114,6 +140,22 @@ export default function AdminLoginPage() {
               Set / Reset Password
             </button>
           </div>
+
+          {mode === "signin" && (
+            <div className="mb-4 space-y-3">
+              <GoogleSignInButton
+                onClick={handleGoogleSignIn}
+                isLoading={googleLoading}
+                disabled={loading || googleLoading}
+              />
+              <div className="relative flex items-center justify-center">
+                <div className="w-full border-t border-[var(--lx-border)]" />
+                <span className="relative bg-[var(--lx-surface)] px-3 text-[11px] font-bold text-[var(--lx-muted)]">
+                  {t("actions.orContinueWithEmail", "or continue with email")}
+                </span>
+              </div>
+            </div>
+          )}
 
           <form className="space-y-4 pt-2" onSubmit={(event) => void submit(event)}>
             <div>

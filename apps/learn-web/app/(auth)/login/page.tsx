@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
+import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { useTranslation } from "@lurexa/i18n";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
 
@@ -16,10 +18,47 @@ function readSafeContinueTo(value: string | null): string | null {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError("");
+
+    try {
+      const { user, isNewUser } = await AuthService.loginWithGoogle();
+      const continueTo = readSafeContinueTo(searchParams.get("continue"));
+
+      if (isNewUser) {
+        router.replace(continueTo || "/onboarding");
+        return;
+      }
+
+      const claims = await AuthService.getUserClaims(user);
+      const memberships = await OrganizationService.getMembershipsForUser(user.uid);
+      const isTeacher = memberships.some((membership) =>
+        ["owner", "admin", "teacher"].includes(membership.role),
+      );
+
+      if (continueTo) {
+        router.replace(continueTo);
+      } else if (claims.role === "teacher" || claims.role === "admin" || isTeacher) {
+        router.replace("/teacher/dashboard");
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (cause: unknown) {
+      if (!AuthService.isPopupDismissedError(cause)) {
+        setError(cause instanceof Error ? cause.message : "Google sign-in failed.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +145,21 @@ function LoginForm() {
             subtitle="Sign in to continue your personalized learning journey."
             className="border-[var(--lx-border)] p-8 shadow-[var(--lx-card-shadow)]"
           >
-            <form onSubmit={handleLogin} className="space-y-4 pt-2">
+            <div className="space-y-4 pt-1">
+              <GoogleSignInButton
+                onClick={handleGoogleLogin}
+                isLoading={googleLoading}
+                disabled={loading || googleLoading}
+              />
+              <div className="relative flex items-center justify-center">
+                <div className="w-full border-t border-[var(--lx-border)]" />
+                <span className="relative bg-[var(--lx-surface)] px-3 text-[11px] font-bold text-[var(--lx-muted)]">
+                  {t("actions.orContinueWithEmail", "or continue with email")}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4 pt-3">
               <Input
                 id="email"
                 label="Email Address"

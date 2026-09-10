@@ -12,6 +12,7 @@
     "./DataTableResponsive": "./src/DataTableResponsive.tsx",
     "./TouchAudioPlayer": "./src/TouchAudioPlayer.tsx",
     "./LanguageSelector": "./src/LanguageSelector.tsx",
+    "./GoogleSignInButton": "./src/GoogleSignInButton.tsx",
     "./navigation": "./src/navigation/index.ts",
     "./navigation/*": "./src/navigation/*.ts*",
     "./*": "./src/*.tsx"

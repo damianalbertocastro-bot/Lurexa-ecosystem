@@ -42,6 +42,8 @@ export const frCommon: CommonDictionary = {
     close: "Fermer",
     viewAll: "Tout afficher",
     open: "Ouvrir",
+    continueWithGoogle: "Continuer avec Google",
+    orContinueWithEmail: "ou continuer par e-mail",
   },
   languages: {
     en: "English",

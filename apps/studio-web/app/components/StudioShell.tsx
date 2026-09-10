@@ -27,6 +27,7 @@ export function StudioShell({
 }) {
   const { t } = useTranslation();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [user, setUser] = useState<{ displayName: string | null; email: string | null } | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,6 +38,16 @@ export function StudioShell({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    void import("@lurexa/backend").then(({ AuthService }) => {
+      unsubscribe = AuthService.onUserChanged((u) => {
+        setUser(u ? { displayName: u.displayName, email: u.email } : null);
+      });
+    });
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -99,6 +110,22 @@ export function StudioShell({
                 + {t("nav.newAsset")}
               </Button>
             </Link>
+
+            {user ? (
+              <Link
+                href="/profile"
+                className="hidden rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-extrabold text-[var(--lx-ink)] shadow-2xs transition hover:bg-[var(--lx-canvas)] sm:inline-flex"
+              >
+                {user.displayName || "Profile"}
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 py-1.5 text-xs font-extrabold text-[var(--lx-ink)] shadow-2xs transition hover:border-[var(--lx-primary)] hover:text-[var(--lx-primary)]"
+              >
+                {t("nav.signIn", "Sign in")}
+              </Link>
+            )}
           </div>
         </div>
 

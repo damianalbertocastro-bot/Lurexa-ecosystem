@@ -7,6 +7,8 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AuthService } from "@lurexa/backend";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { useTranslation } from "@lurexa/i18n";
 
 function readSafeContinueTo(value: string | null): string | null {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
@@ -15,15 +17,34 @@ function readSafeContinueTo(value: string | null): string | null {
 function CoachLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
   const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const placementPending = searchParams.get("placementPending") === "true";
   const guestUpgrade = searchParams.get("guestUpgrade") === "true";
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError(null);
+
+    try {
+      await AuthService.loginWithGoogle();
+      const continueTo = readSafeContinueTo(searchParams.get("continue"));
+      router.replace(continueTo || "/dashboard");
+    } catch (cause: unknown) {
+      if (!AuthService.isPopupDismissedError(cause)) {
+        setError(cause instanceof Error ? cause.message : "Google sign-in failed.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -125,6 +146,20 @@ function CoachLoginForm() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="rounded-3xl border border-[var(--lx-border)] bg-white p-7 sm:p-9 shadow-[0_24px_70px_rgba(31,50,120,0.1)]">
+          <div className="mb-5 space-y-4">
+            <GoogleSignInButton
+              onClick={handleGoogleLogin}
+              isLoading={googleLoading}
+              disabled={loading || googleLoading}
+            />
+            <div className="relative flex items-center justify-center">
+              <div className="w-full border-t border-slate-200" />
+              <span className="relative bg-white px-3 text-[11px] font-bold text-slate-500">
+                {t("actions.orContinueWithEmail", "or continue with email")}
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div

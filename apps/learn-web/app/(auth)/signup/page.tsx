@@ -47,6 +47,26 @@ export default function SignupPage() {
     );
   };
 
+  const handleGoogleRegister = async () => {
+    try {
+      const { user, isNewUser } = await AuthService.loginWithGoogle();
+      if (isNewUser) {
+        router.replace("/onboarding");
+      } else {
+        const claims = await AuthService.getUserClaims(user);
+        if (claims.role === "teacher" || claims.role === "admin") {
+          router.replace("/teacher/dashboard");
+        } else {
+          router.replace("/dashboard");
+        }
+      }
+    } catch (cause: unknown) {
+      if (!AuthService.isPopupDismissedError(cause)) {
+        throw cause;
+      }
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--learn-canvas)] p-4 sm:p-8">
       <div className="mb-7">
@@ -58,6 +78,7 @@ export default function SignupPage() {
         defaultMode="student"
         showModeToggle={true}
         onRegister={handleRegister}
+        onGoogleSignIn={handleGoogleRegister}
         loginUrl="/login"
       />
     </div>

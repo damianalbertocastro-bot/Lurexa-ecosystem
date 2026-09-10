@@ -7,9 +7,12 @@ import { AuthService } from "@lurexa/backend";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { useTranslation } from "@lurexa/i18n";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [accountType, setAccountType] = useState<"independent" | "institutional">("independent");
   const [email, setEmail] = useState("");
@@ -18,7 +21,27 @@ export default function LoginPage() {
   const [teachingFocus, setTeachingFocus] = useState("secondary-english");
   const [cefrGoal, setCefrGoal] = useState("C1");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const handleGoogleLogin = async () => {
+    setGoogleBusy(true);
+    setError("");
+    try {
+      const { isNewUser } = await AuthService.loginWithGoogle();
+      if (mode === "register" || (isNewUser && accountType === "independent")) {
+        router.replace("/assessment/diagnostic?onboarding=1");
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (err: unknown) {
+      if (!AuthService.isPopupDismissedError(err)) {
+        setError(err instanceof Error ? err.message : "We could not complete Google sign-in.");
+      }
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -65,7 +88,21 @@ export default function LoginPage() {
             : "Create your professional educator profile to unlock personalized pedagogical development, diagnostic benchmarks, and verified credentials."}
         </p>
 
-        <form className="mt-7 space-y-4" onSubmit={submit}>
+        <div className="mt-7 mb-5 space-y-4">
+          <GoogleSignInButton
+            onClick={handleGoogleLogin}
+            isLoading={googleBusy}
+            disabled={busy || googleBusy}
+          />
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-[var(--lx-border)]" />
+            <span className="relative bg-[var(--lx-surface)] px-3 text-[11px] font-bold text-[var(--lx-muted)]">
+              {t("actions.orContinueWithEmail", "or continue with email")}
+            </span>
+          </div>
+        </div>
+
+        <form className="mt-5 space-y-4" onSubmit={submit}>
           {mode === "register" && (
             <>
               {/* Account Pathway Selection */}

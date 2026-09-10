@@ -50,6 +50,8 @@ export interface CommonDictionary {
     close: string;
     viewAll: string;
     open: string;
+    continueWithGoogle: string;
+    orContinueWithEmail: string;
   };
   languages: {
     en: string;

@@ -42,6 +42,8 @@ export const enCommon: CommonDictionary = {
     close: "Close",
     viewAll: "View all",
     open: "Open",
+    continueWithGoogle: "Continue with Google",
+    orContinueWithEmail: "or continue with email",
   },
   languages: {
     en: "English",

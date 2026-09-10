@@ -26,6 +26,7 @@ export function InsightShell({
   const { t } = useTranslation();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState<{ displayName: string | null; email: string | null } | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,6 +37,16 @@ export function InsightShell({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    void import("@lurexa/backend").then(({ AuthService }) => {
+      unsubscribe = AuthService.onUserChanged((u) => {
+        setUser(u ? { displayName: u.displayName, email: u.email } : null);
+      });
+    });
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -118,6 +129,19 @@ export function InsightShell({
               <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
               <EcosystemDropdown currentApp="insight" compact className="border-0 bg-transparent shadow-none" />
             </div>
+
+            {user ? (
+              <span className="hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-2xs sm:inline-flex">
+                {user.displayName || user.email || "Institutional Lead"}
+              </span>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-xl border border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950/70 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 shadow-2xs transition hover:bg-indigo-100 dark:hover:bg-indigo-900"
+              >
+                {t("nav.signIn", "Sign in")}
+              </Link>
+            )}
           </div>
         </div>
 
