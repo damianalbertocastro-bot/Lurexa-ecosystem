@@ -10,6 +10,7 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AuthService } from "@lurexa/backend";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import type { AdminOrgOverview, PlatformAdminSnapshot } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Input } from "@lurexa/ui/Input";
@@ -172,6 +173,7 @@ export default function AdminDashboardPage() {
                 Profile
               </Link>
               <ThemeToggle />
+              <LanguageSelector inverse />
               <EcosystemDropdown currentApp="admin" inverse />
               <Button
                 type="button"

@@ -52,6 +52,8 @@ export interface Invitation {
 export type PrimaryLearningGoal = "academic" | "career" | "daily_conversation";
 export type PreferredAccentDialect = "general_american" | "dominican" | "british" | "neutral_international";
 
+export type SupportedLocale = "en" | "es" | "fr";
+
 export interface UserProfileDetails {
   id: string;
   email: string;
@@ -65,6 +67,7 @@ export interface UserProfileDetails {
   preferredAccent?: PreferredAccentDialect | string;
   interests?: string[];
   nativeLanguage?: string;
+  preferredLocale?: SupportedLocale;
   dailyTargetMinutes?: number;
   role?: UserRole;
   createdAt: string;

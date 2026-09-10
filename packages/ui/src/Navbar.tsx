@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { getEcosystemUrl, type EcosystemAppKey } from "@lurexa/config/domains";
 import { MasterMark } from "./MasterMark";
 import { EcosystemDropdown } from "./EcosystemDropdown";
+import { LanguageSelector } from "./LanguageSelector";
 
 export interface NavbarLink {
   label: string;
@@ -85,7 +86,8 @@ export function Navbar({
           </nav>
         )}
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <LanguageSelector inverse={inverse} />
           <EcosystemDropdown currentApp={currentApp} inverse={inverse} />
           {rightSlot}
         </div>

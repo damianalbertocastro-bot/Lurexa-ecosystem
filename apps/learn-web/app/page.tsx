@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
 
 const proof = [
@@ -36,6 +37,7 @@ export default function HomePage() {
               <LurexaLearnLogo inverse />
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
+              <LanguageSelector inverse />
               <Link
                 href="/login"
                 className="rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"

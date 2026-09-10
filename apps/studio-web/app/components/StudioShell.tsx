@@ -5,8 +5,10 @@ import Link from "next/link";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { Button } from "@lurexa/ui/button";
+import { useTranslation } from "@lurexa/i18n";
 
 const nav = [
   ["Dashboard", "/"],
@@ -23,6 +25,7 @@ export function StudioShell({
   active: string;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   useEffect(() => {
@@ -76,18 +79,24 @@ export function StudioShell({
               aria-label="Open search palette"
               className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-[var(--lx-muted)] shadow-xs transition hover:border-[var(--lx-border)] hover:text-[var(--lx-ink)] sm:inline-flex"
             >
-              <span>Search</span>
+              <span>{t("nav.search")}</span>
               <kbd className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 shadow-xs dark:bg-slate-800">
-                ⌘K
+                {t("nav.searchShortcut")}
               </kbd>
             </Button>
 
-            <ThemeToggle />
-            <EcosystemDropdown currentApp="studio" />
+            {/* Unified Utility Capsule (Proposal 1 Approved) */}
+            <div className="flex items-center gap-1 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1 shadow-2xs">
+              <LanguageSelector variant="segmented" compact />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-surface)]" />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <EcosystemDropdown currentApp="studio" compact className="border-0 bg-transparent shadow-none" />
+            </div>
 
             <Link href="/author">
               <Button className="rounded-xl bg-[var(--lx-primary)] px-3.5 py-1.5 text-xs font-black text-white shadow-xs hover:opacity-95 transition">
-                + New Asset
+                + {t("nav.newAsset")}
               </Button>
             </Link>
           </div>

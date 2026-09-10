@@ -5,7 +5,9 @@ import Link from "next/link";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
+import { useTranslation } from "@lurexa/i18n";
 
 const nav = [
   ["Overview", "/"],
@@ -21,6 +23,7 @@ export function InsightShell({
   active: string;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -101,14 +104,20 @@ export function InsightShell({
               aria-label="Open search palette"
               className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs text-slate-500 shadow-2xs transition hover:border-slate-300 hover:text-slate-800 sm:inline-flex dark:border-slate-800 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             >
-              <span>Search</span>
+              <span>{t("nav.search")}</span>
               <kbd className="rounded bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 border border-slate-200 shadow-2xs dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300">
-                ⌘K
+                {t("nav.searchShortcut")}
               </kbd>
             </button>
 
-            <ThemeToggle />
-            <EcosystemDropdown currentApp="insight" />
+            {/* Unified Utility Capsule (Proposal 1 Approved) */}
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-800 p-1 shadow-2xs">
+              <LanguageSelector variant="segmented" compact />
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+              <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-slate-200 dark:hover:bg-slate-700" />
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+              <EcosystemDropdown currentApp="insight" compact className="border-0 bg-transparent shadow-none" />
+            </div>
           </div>
         </div>
 

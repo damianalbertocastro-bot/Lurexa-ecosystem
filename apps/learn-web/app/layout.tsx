@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import React from "react";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import { OfflineIndicator } from "@lurexa/ui/OfflineIndicator";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
+import { I18nProvider } from "@lurexa/i18n";
+import { resolveServerLocale } from "@lurexa/i18n/server";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,9 +38,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const locale = resolveServerLocale(cookieStore);
+
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={inter.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -46,13 +52,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased bg-slate-50 text-slate-900">
-        <SkipToContent targetId="main-content" />
-        <ToastProvider>
-          {children}
-          <TeacherGuidanceBanner />
-          <OfflineIndicator />
-          <EcosystemSupportWidget />
-        </ToastProvider>
+        <I18nProvider initialLocale={locale}>
+          <SkipToContent targetId="main-content" />
+          <ToastProvider>
+            {children}
+            <TeacherGuidanceBanner />
+            <OfflineIndicator />
+            <EcosystemSupportWidget />
+          </ToastProvider>
+        </I18nProvider>
       </body>
     </html>
   );

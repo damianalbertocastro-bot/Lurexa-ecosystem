@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { MasterMark } from "@lurexa/ui/MasterMark";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import Image from "next/image";
 import {
   lurexaProducts,
@@ -129,6 +130,7 @@ export default function Home() {
             >
               ☰
             </button>
+            <LanguageSelector />
             <button
               type="button"
               className={styles.ecosystemPillButton}
@@ -179,6 +181,10 @@ export default function Home() {
               >
                 ✕
               </button>
+            </div>
+
+            <div style={{ padding: "0.75rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <LanguageSelector inverse />
             </div>
 
             <div className={styles.accordionContainer}>

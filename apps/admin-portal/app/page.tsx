@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { AuthService, type AuthenticatedUser } from "@lurexa/backend";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 
@@ -96,7 +97,8 @@ export default function AdminLandingPage() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <LanguageSelector inverse />
             <ThemeToggle />
             <EcosystemDropdown currentApp="admin" inverse />
 

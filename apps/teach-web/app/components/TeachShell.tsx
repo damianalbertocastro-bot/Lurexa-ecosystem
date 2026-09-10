@@ -6,11 +6,13 @@ import Link from "next/link";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { CommandPalette } from "@lurexa/ui/CommandPalette";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import { useTeachAuth } from "./TeachAuthProvider";
 import { Button } from "@lurexa/ui/button";
 import { TeachRelatedExperiences } from "./TeachRelatedExperiences";
+import { useTranslation } from "@lurexa/i18n";
 
 const ecosystemUrl = getEcosystemUrl("root");
 const nav = [
@@ -27,8 +29,10 @@ const nav = [
 export function TeachShell({ active, children }: { active: string; children: React.ReactNode }) {
   const { user, profile, isApprover, loading, logout } = useTeachAuth();
   const router = useRouter();
+  const { t } = useTranslation();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,16 +104,19 @@ export function TeachShell({ active, children }: { active: string; children: Rea
               aria-label="Open search palette"
               className="hidden items-center gap-2 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 shadow-xs transition hover:border-[var(--lx-primary)] sm:inline-flex"
             >
-              <span>Search</span>
+              <span>{t("nav.search")}</span>
               <kbd className="rounded bg-[var(--lx-surface)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--lx-muted)] border border-[var(--lx-border)]">
-                ⌘K
+                {t("nav.searchShortcut")}
               </kbd>
             </Button>
 
-            <div className="flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1">
-              <ThemeToggle />
-              <div className="h-4 w-px bg-[var(--lx-border)]" />
-              <EcosystemDropdown currentApp="teach" />
+            {/* Unified Utility Capsule (Proposal 1 Approved) */}
+            <div className="flex items-center gap-1 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1 shadow-2xs">
+              <LanguageSelector variant="segmented" compact />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-surface)]" />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <EcosystemDropdown currentApp="teach" compact className="border-0 bg-transparent shadow-none" />
             </div>
 
             {!loading && user ? (
@@ -120,7 +127,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                   className="inline-flex min-h-9 items-center rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 text-xs font-extrabold text-slate-950 dark:text-white hover:border-[var(--lx-primary)] transition"
                 >
                   <span className="sm:hidden" aria-hidden="true">◉</span>
-                  <span className="hidden sm:inline">{profile?.displayName || "Profile"}</span>
+                  <span className="hidden sm:inline">{profile?.displayName || t("nav.profile")}</span>
                 </Link>
                 <Button
                   type="button"
@@ -128,7 +135,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                   aria-label="Sign out"
                   className="min-h-9 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)] px-3 text-xs font-extrabold text-slate-950 dark:text-white hover:bg-[var(--lx-canvas)] transition"
                 >
-                  Sign out
+                  {t("nav.signOut")}
                 </Button>
               </div>
             ) : (
@@ -136,7 +143,7 @@ export function TeachShell({ active, children }: { active: string; children: Rea
                 href="/login"
                 className="inline-flex min-h-9 items-center rounded-xl bg-gradient-to-br from-[var(--lx-primary)] to-[var(--lx-secondary)] px-4 text-xs font-extrabold text-white shadow-md transition hover:opacity-90"
               >
-                Sign in
+                {t("nav.signIn")}
               </Link>
             )}
           </div>

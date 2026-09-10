@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DocsMark } from "@lurexa/ui/DocsMark";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 
 const sections = [
   ["Architecture", "/architecture"],
@@ -26,6 +27,7 @@ export function DocsShell({ active, children }: { active?: string; children: Rea
             <span aria-hidden="true">⌕</span>
             <span className="ml-2 hidden sm:inline">Search</span>
           </Link>
+          <LanguageSelector />
           <ThemeToggle />
           <EcosystemDropdown currentApp="docs" />
         </div>
