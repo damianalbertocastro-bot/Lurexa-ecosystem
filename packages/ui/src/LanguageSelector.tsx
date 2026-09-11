@@ -73,20 +73,24 @@ export function LanguageSelector({
   );
 
   // Determine button styling based on variant & theme with fixed, jitter-free dimensions
+  const segDim = compact ? "h-8 w-[76px] min-w-[76px] max-w-[76px]" : "h-9 w-[80px] min-w-[80px] max-w-[80px]";
+  const standDim = compact ? "h-9 w-[82px] min-w-[82px] max-w-[82px]" : "h-10 w-[86px] min-w-[86px] max-w-[86px]";
+  const pillDim = compact ? "h-9 w-[88px] min-w-[88px] max-w-[88px]" : "h-10 w-[92px] min-w-[92px] max-w-[92px]";
+
   let buttonClasses = "";
   if (variant === "segmented") {
     buttonClasses = inverse
-      ? "inline-flex h-8 w-[76px] min-w-[76px] max-w-[76px] shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      : "inline-flex h-8 w-[76px] min-w-[76px] max-w-[76px] shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+      ? `inline-flex ${segDim} shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
+      : `inline-flex ${segDim} shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
   } else if (variant === "pill") {
     buttonClasses = inverse
-      ? "inline-flex h-9 sm:h-10 w-[92px] min-w-[92px] max-w-[92px] shrink-0 items-center justify-between rounded-full border border-white/20 bg-white/10 px-3 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      : "inline-flex h-9 sm:h-10 w-[92px] min-w-[92px] max-w-[92px] shrink-0 items-center justify-between rounded-full border border-slate-200/90 bg-white/95 px-3 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+      ? `inline-flex ${pillDim} shrink-0 items-center justify-between rounded-full border border-white/20 bg-white/10 px-3 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
+      : `inline-flex ${pillDim} shrink-0 items-center justify-between rounded-full border border-slate-200/90 bg-white/95 px-3 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
   } else {
     // Default standalone: matches EcosystemDropdown and navbar controls with locked width
     buttonClasses = inverse
-      ? "group inline-flex h-9 sm:h-10 w-[86px] min-w-[86px] max-w-[86px] shrink-0 items-center justify-between rounded-xl border border-white/15 bg-white/10 px-2.5 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      : "group inline-flex h-9 sm:h-10 w-[86px] min-w-[86px] max-w-[86px] shrink-0 items-center justify-between rounded-xl border border-slate-200/90 bg-white/95 px-2.5 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+      ? `group inline-flex ${standDim} shrink-0 items-center justify-between rounded-xl border border-white/15 bg-white/10 px-2.5 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
+      : `group inline-flex ${standDim} shrink-0 items-center justify-between rounded-xl border border-slate-200/90 bg-white/95 px-2.5 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
   }
 
   const dropdownAlignClasses = align === "left" ? "left-0 origin-top-left" : "right-0 origin-top-right";
