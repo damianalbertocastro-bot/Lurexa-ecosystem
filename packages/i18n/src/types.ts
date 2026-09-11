@@ -215,6 +215,7 @@ export interface CommonDictionary {
     titleHighlight: string;
     subtitle: string;
     startFree: string;
+    startLearningFree: string;
     educatorCta: string;
     microcopy: string;
     proof1Tag: string;

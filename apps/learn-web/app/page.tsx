@@ -90,7 +90,7 @@ export default function HomePage() {
                   href="/onboarding"
                   className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-7 py-3.5 text-center font-black text-slate-950 shadow-xl shadow-sky-500/25 transition hover:-translate-y-0.5 hover:shadow-cyan-400/35"
                 >
-                  {t("learn.startFree")}
+                  {t("learn.startLearningFree")}
                 </Link>
                 <Link
                   href="/signup?role=educator"

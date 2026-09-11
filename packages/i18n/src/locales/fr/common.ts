@@ -206,6 +206,7 @@ export const frCommon: CommonDictionary = {
     titleHighlight: "Prêt à l'utiliser en toute confiance.",
     subtitle: "Lurexa Learn transforme la pratique authentique de l'oral et de l'écoute en un parcours personnel adaptatif, stimulant votre confiance à chaque leçon.",
     startFree: "Commencer gratuitement",
+    startLearningFree: "Commencer à apprendre gratuitement",
     educatorCta: "Je suis éducateur",
     microcopy: "✓ Sans carte de crédit  ·  ✓ Test de niveau gratuit  ·  ✓ CECRL A1–C2",
     proof1Tag: "Maîtrise Adaptative",
