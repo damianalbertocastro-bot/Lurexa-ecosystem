@@ -100,9 +100,14 @@ export default function AdminLandingPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
-            <LanguageSelector inverse />
-            <ThemeToggle />
-            <EcosystemDropdown currentApp="admin" inverse />
+            {/* Unified Utility Capsule (Language + Theme + Ecosystem) */}
+            <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/10 p-1 shadow-2xs">
+              <LanguageSelector variant="segmented" compact inverse />
+              <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+              <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-white/10" />
+              <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+              <EcosystemDropdown currentApp="admin" compact inverse className="border-0 bg-transparent shadow-none" />
+            </div>
 
             <Link
               href={consoleHref}

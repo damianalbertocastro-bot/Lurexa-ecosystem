@@ -7,6 +7,8 @@ import { Button } from "@lurexa/ui/Button";
 import { Input } from "@lurexa/ui/Input";
 import { Card } from "@lurexa/ui/Card";
 import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { useTranslation } from "@lurexa/i18n";
 import { AuthService, OrganizationService } from "@lurexa/backend";
 import { LurexaLearnLogo } from "../../components/LurexaLearnLogo";
@@ -93,7 +95,14 @@ function LoginForm() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 bg-[var(--lx-canvas)]">
+    <div className="relative grid min-h-screen lg:grid-cols-2 bg-[var(--lx-canvas)]">
+      {/* Top Utility Controls */}
+      <div className="fixed right-6 top-6 z-30 flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-md p-1 shadow-2xs">
+        <LanguageSelector variant="segmented" compact />
+        <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+        <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-canvas)]" />
+      </div>
+
       {/* Left Brand Panel — hidden on mobile */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-950 p-12 text-white lg:flex">
         {/* Ambient Glows */}

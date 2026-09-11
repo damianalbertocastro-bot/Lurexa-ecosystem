@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { MasterMark } from "@lurexa/ui/MasterMark";
 import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { useTranslation } from "@lurexa/i18n";
 import Image from "next/image";
 import {
@@ -124,25 +125,13 @@ export default function Home() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <button
-              type="button"
-              className={styles.menuToggle}
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open Navigation Sidebar"
-            >
-              ☰
-            </button>
-            <LanguageSelector />
-            <button
-              type="button"
-              className={styles.ecosystemPillButton}
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open Ecosystem Accordion Menu"
-            >
-              <span>🌐</span>
-              <span>{t("landing.nav.ecosystem", "Ecosystem")}</span>
-              <span>▾</span>
-            </button>
+            {/* Unified Utility Capsule (Language + Ecosystem) */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px", borderRadius: "14px", border: "1px solid rgba(71,87,188,0.18)", background: "rgba(255,255,255,0.95)", boxShadow: "0 2px 8px rgba(31,50,120,0.04)" }}>
+              <LanguageSelector variant="segmented" compact />
+              <div style={{ width: "1px", height: "18px", background: "rgba(71,87,188,0.18)" }} aria-hidden="true" />
+              <EcosystemDropdown currentApp="root" compact className="border-0 bg-transparent shadow-none" />
+            </div>
+
             <button
               type="button"
               onClick={() => setDemoModalOpen(true)}
@@ -157,6 +146,14 @@ export default function Home() {
             >
               {t("landing.nav.startLearning", "Start learning")}
             </a>
+            <button
+              type="button"
+              className={styles.menuToggle}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open Navigation Sidebar"
+            >
+              ☰
+            </button>
           </div>
         </nav>
       </header>
@@ -186,7 +183,9 @@ export default function Home() {
             </div>
 
             <div style={{ padding: "0.75rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              <LanguageSelector inverse />
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 8px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.08)" }}>
+                <LanguageSelector variant="segmented" compact inverse />
+              </div>
             </div>
 
             <div className={styles.accordionContainer}>

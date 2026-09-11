@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
 import { useTranslation } from "@lurexa/i18n";
 
@@ -37,11 +38,18 @@ export default function HomePage() {
         <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
           <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
             <div className="flex items-center gap-2 sm:gap-3">
-              <EcosystemDropdown currentApp="learn" align="left" openOnHover inverse />
               <LurexaLearnLogo inverse />
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-3">
-              <LanguageSelector inverse />
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Unified Utility Capsule (Language + Theme + Ecosystem) */}
+              <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/10 p-1 shadow-2xs">
+                <LanguageSelector variant="segmented" compact inverse />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-white/10" />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <EcosystemDropdown currentApp="learn" compact inverse className="border-0 bg-transparent shadow-none" />
+              </div>
+
               <Link
                 href="/login"
                 className="hidden sm:inline-flex rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
@@ -50,7 +58,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/onboarding"
-                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:py-2 sm:text-sm whitespace-nowrap"
+                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:py-2 sm:text-sm whitespace-nowrap"
               >
                 {t("learn.startFree")}
               </Link>

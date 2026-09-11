@@ -8,6 +8,8 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
 import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { useTranslation } from "@lurexa/i18n";
 
 export default function LoginPage() {
@@ -67,7 +69,14 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
+    <main className="relative grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
+      {/* Top Utility Controls */}
+      <div className="fixed right-6 top-6 z-20 flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-md p-1 shadow-2xs">
+        <LanguageSelector variant="segmented" compact />
+        <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+        <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-canvas)]" />
+      </div>
+
       <section className="w-full max-w-lg rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-[0_24px_70px_rgba(31,50,120,.12)] sm:p-9">
         <Link
           href="/"

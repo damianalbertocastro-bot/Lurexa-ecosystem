@@ -8,6 +8,8 @@ import { AuthService } from "@lurexa/backend";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
 import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { useTranslation } from "@lurexa/i18n";
 
 function readSafeContinueTo(value: string | null): string | null {
@@ -112,7 +114,14 @@ function CoachLoginForm() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-surface)] to-[var(--lx-surface)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <main className="relative min-h-screen bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-surface)] to-[var(--lx-surface)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Top Utility Controls */}
+      <div className="fixed right-6 top-6 z-20 flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-md p-1 shadow-2xs">
+        <LanguageSelector variant="segmented" compact />
+        <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+        <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-canvas)]" />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="inline-block transition-transform hover:scale-105">
           <ProductMark product="coach" size="lg" />

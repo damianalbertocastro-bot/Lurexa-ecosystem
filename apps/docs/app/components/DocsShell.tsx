@@ -51,9 +51,14 @@ export function DocsShell({ active, children }: { active?: string; children: Rea
               <span aria-hidden="true">⌕</span>
               <span className="ml-2 hidden sm:inline">{t("nav.search")}</span>
             </Link>
-            <LanguageSelector />
-            <ThemeToggle />
-            <EcosystemDropdown currentApp="docs" />
+            {/* Unified Utility Capsule (Language + Theme + Ecosystem) */}
+            <div className="flex items-center gap-1 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1 shadow-2xs">
+              <LanguageSelector variant="segmented" compact />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-surface)]" />
+              <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+              <EcosystemDropdown currentApp="docs" compact className="border-0 bg-transparent shadow-none" />
+            </div>
           </div>
         </div>
         <nav className="mx-auto flex max-w-[1480px] gap-2 overflow-x-auto px-5 pb-3 xl:hidden" aria-label="Documentation mobile sections">

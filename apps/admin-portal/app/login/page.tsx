@@ -8,6 +8,7 @@ import { Card } from "@lurexa/ui/card";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { Input } from "@lurexa/ui/Input";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
 import { useTranslation } from "@lurexa/i18n";
 
@@ -91,9 +92,11 @@ export default function AdminLoginPage() {
 
   return (
     <main className="relative grid min-h-screen place-items-center bg-gradient-to-br from-[var(--lx-surface)] via-[var(--lx-canvas)] to-[var(--lx-surface)] px-5 py-10 text-[var(--color-brand-navy)]">
-      {/* Light / Dark Mode Toggle */}
-      <div className="fixed right-6 top-6 z-20">
-        <ThemeToggle />
+      {/* Top Utility Controls */}
+      <div className="fixed right-6 top-6 z-20 flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-md p-1 shadow-2xs">
+        <LanguageSelector variant="segmented" compact />
+        <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+        <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-canvas)]" />
       </div>
 
       <div className="w-full max-w-md">

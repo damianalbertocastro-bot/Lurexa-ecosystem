@@ -14,6 +14,7 @@ export interface LanguageSelectorProps extends HTMLAttributes<HTMLDivElement> {
   inverse?: boolean;
   variant?: "standalone" | "segmented" | "pill";
   compact?: boolean;
+  refresh?: boolean;
   onLocaleChange?: (locale: SupportedLocale) => void;
   className?: string;
 }
@@ -23,6 +24,7 @@ export function LanguageSelector({
   inverse = false,
   variant = "standalone",
   compact = false,
+  refresh = true,
   onLocaleChange,
   className = "",
   ...props
@@ -58,8 +60,8 @@ export function LanguageSelector({
 
   const handleSelect = useCallback(
     (code: SupportedLocale) => {
-      setLocale(code);
       setIsOpen(false);
+      setLocale(code, { refresh });
       if (onLocaleChange) {
         onLocaleChange(code);
       }
@@ -67,24 +69,24 @@ export function LanguageSelector({
         window.dispatchEvent(new CustomEvent("lurexa-locale-change", { detail: { locale: code } }));
       }
     },
-    [setLocale, onLocaleChange],
+    [setLocale, onLocaleChange, refresh],
   );
 
-  // Determine button styling based on variant & theme
+  // Determine button styling based on variant & theme with fixed, jitter-free dimensions
   let buttonClasses = "";
   if (variant === "segmented") {
     buttonClasses = inverse
-      ? `inline-flex ${compact ? "h-7 sm:h-8 px-1.5" : "h-8 sm:h-9 px-2"} items-center gap-1.5 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
-      : `inline-flex ${compact ? "h-7 sm:h-8 px-1.5" : "h-8 sm:h-9 px-2"} items-center gap-1.5 rounded-lg text-xs font-bold text-slate-800 hover:bg-slate-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
+      ? "inline-flex h-8 w-[76px] min-w-[76px] max-w-[76px] shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      : "inline-flex h-8 w-[76px] min-w-[76px] max-w-[76px] shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
   } else if (variant === "pill") {
     buttonClasses = inverse
-      ? `inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
-      : `inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200/90 bg-white/95 px-3.5 py-2 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
+      ? "inline-flex h-9 sm:h-10 w-[92px] min-w-[92px] max-w-[92px] shrink-0 items-center justify-between rounded-full border border-white/20 bg-white/10 px-3 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      : "inline-flex h-9 sm:h-10 w-[92px] min-w-[92px] max-w-[92px] shrink-0 items-center justify-between rounded-full border border-slate-200/90 bg-white/95 px-3 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
   } else {
-    // Default standalone: matches EcosystemDropdown and navbar controls
+    // Default standalone: matches EcosystemDropdown and navbar controls with locked width
     buttonClasses = inverse
-      ? `group inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/10 ${compact ? "px-2.5 py-1.5 text-xs" : "px-3 py-2 text-xs"} font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
-      : `group inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200/90 bg-white/95 ${compact ? "px-2.5 py-1.5 text-xs" : "px-3 py-2 text-xs"} font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
+      ? "group inline-flex h-9 sm:h-10 w-[86px] min-w-[86px] max-w-[86px] shrink-0 items-center justify-between rounded-xl border border-white/15 bg-white/10 px-2.5 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      : "group inline-flex h-9 sm:h-10 w-[86px] min-w-[86px] max-w-[86px] shrink-0 items-center justify-between rounded-xl border border-slate-200/90 bg-white/95 px-2.5 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
   }
 
   const dropdownAlignClasses = align === "left" ? "left-0 origin-top-left" : "right-0 origin-top-right";
@@ -92,7 +94,7 @@ export function LanguageSelector({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-block text-left ${isOpen ? "z-50" : ""} ${className}`}
+      className={`relative inline-block shrink-0 text-left ${isOpen ? "z-50" : ""} ${className}`}
       {...props}
     >
       <button
@@ -106,7 +108,7 @@ export function LanguageSelector({
       >
         {/* Globe Icon */}
         <svg
-          className={`h-4 w-4 shrink-0 transition-colors ${
+          className={`h-3.5 w-3.5 shrink-0 transition-colors ${
             inverse ? "text-slate-300 group-hover:text-white" : "text-slate-500 group-hover:text-indigo-600"
           }`}
           fill="none"
@@ -121,14 +123,14 @@ export function LanguageSelector({
         </svg>
 
         {/* Current Locale Flag + Code */}
-        <span className="flex items-center gap-1 font-mono tracking-wider font-extrabold uppercase text-[11px] sm:text-xs">
-          <span>{localeInfo.flag ?? "🌐"}</span>
+        <span className="flex items-center gap-0.5 font-mono tracking-wide font-extrabold uppercase text-[11px]">
+          <span aria-hidden="true">{localeInfo.flag ?? "🌐"}</span>
           <span>{locale.toUpperCase()}</span>
         </span>
 
         {/* Dropdown Chevron */}
         <svg
-          className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""} ${
+          className={`h-3 w-3 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""} ${
             inverse ? "text-slate-300" : "text-slate-400 group-hover:text-slate-600"
           }`}
           fill="none"
@@ -144,7 +146,7 @@ export function LanguageSelector({
       {/* Floating Language Menu Popover */}
       {isOpen && (
         <div
-          className={`absolute ${dropdownAlignClasses} mt-2 w-76 rounded-2xl p-2 z-[9999] transition-all duration-200 ${
+          className={`absolute ${dropdownAlignClasses} top-full mt-2 w-72 rounded-2xl p-2 z-[9999] transition-all duration-200 ${
             inverse
               ? "border border-slate-800 bg-slate-900/98 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 text-slate-100"
               : "border border-slate-200/90 bg-white/98 backdrop-blur-2xl shadow-2xl shadow-indigo-950/10 ring-1 ring-slate-900/5 text-slate-800"

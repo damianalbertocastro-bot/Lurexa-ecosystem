@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import type { SupportedLocale, LocaleInfo, LocaleDictionary } from "./types";
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY, getLocaleInfo, isSupportedLocale } from "./constants";
 import { getDictionary } from "./locales";
@@ -52,12 +52,15 @@ export function I18nProvider({
   initialLocale?: SupportedLocale;
 }) {
   const [locale, setLocaleState] = useState<SupportedLocale>(() => resolveClientInitialLocale(initialLocale));
+  const prevInitialRef = useRef(initialLocale);
 
+  // Sync only when initialLocale itself changes from server revalidation, not on client user selection
   useEffect(() => {
-    if (initialLocale && isSupportedLocale(initialLocale) && initialLocale !== locale) {
+    if (initialLocale && isSupportedLocale(initialLocale) && initialLocale !== prevInitialRef.current) {
+      prevInitialRef.current = initialLocale;
       setLocaleState(initialLocale);
     }
-  }, [initialLocale, locale]);
+  }, [initialLocale]);
 
   const setLocale = useCallback(
     (nextLocale: SupportedLocale, options?: { refresh?: boolean }) => {
@@ -66,8 +69,14 @@ export function I18nProvider({
 
       // Persist to document.cookie (1 year, shared across lurexa.org subdomains in prod)
       if (typeof window !== "undefined") {
-        const domain = window.location.hostname.endsWith("lurexa.org") ? "; domain=.lurexa.org" : "";
-        document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax${domain}`;
+        const hostname = window.location.hostname;
+        const isLurexaProd = hostname === "lurexa.org" || hostname.endsWith(".lurexa.org");
+        // Always write root cookie for the current host/origin:
+        document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        // If on lurexa.org domain or subdomain, also set domain-wide cookie
+        if (isLurexaProd) {
+          document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax; domain=.lurexa.org`;
+        }
         try {
           localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
         } catch {
