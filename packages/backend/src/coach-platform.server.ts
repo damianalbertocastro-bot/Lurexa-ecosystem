@@ -35,7 +35,7 @@ function buildOpeningMessage(result: CoachSessionStartResult["learnerContext"]):
 
 function detectLinguisticObservation(learnerText: string) {
   const normalized = learnerText.trim().toLowerCase();
-  if (/\b(e|es)(student|special|speak|school|start|spanish|study)\b/i.test(normalized)) {
+  if (/\b(e|es)[-]?(student|special|speak|school|start|spanish|study)\b/i.test(normalized)) {
     return {
       patternId: "DO-ENG-PRO-002",
       domain: "E01" as const,

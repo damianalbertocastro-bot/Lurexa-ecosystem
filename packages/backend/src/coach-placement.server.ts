@@ -65,7 +65,7 @@ function evaluateTaskSpokenSample(task: SpokenTaskEvaluationInput): TaskDiagnost
   if (task.taskIndex === 0) {
     const hasIntro = /\b(name is|i am|i'm|my name|live in|from)\b/i.test(text);
     const hasRoutine = /\b(usually|every day|work|study|weekdays|morning|afternoon|night|always|often)\b/i.test(text);
-    const hasEpenthesis = /\b(e|es)(student|special|speak|school|start|spanish|study)\b/i.test(text);
+    const hasEpenthesis = /\b(e|es)[-]?(student|special|speak|school|start|spanish|study)\b/i.test(text);
 
     if (hasEpenthesis) {
       detectedPatterns.push("Initial /s/ cluster epenthesis (e.g., 'eschool')");
