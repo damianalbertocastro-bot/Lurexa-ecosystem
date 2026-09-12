@@ -137,6 +137,30 @@ export function EcosystemSupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"chat" | "faq">("chat");
   const [inputQuery, setInputQuery] = useState("");
+  const [pathname, setPathname] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname);
+      const updatePath = () => setPathname(window.location.pathname);
+      window.addEventListener("popstate", updatePath);
+      const timer = setInterval(updatePath, 800);
+      return () => {
+        window.removeEventListener("popstate", updatePath);
+        clearInterval(timer);
+      };
+    }
+  }, []);
+
+  const isFocusedWorkflow = useMemo(() => {
+    if (!pathname) return false;
+    return (
+      pathname.startsWith("/onboarding") ||
+      pathname.includes("/learn/") ||
+      pathname.startsWith("/placement")
+    );
+  }, [pathname]);
+
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       id: "msg-welcome",
@@ -220,14 +244,18 @@ export function EcosystemSupportWidget() {
     "Where is the placement diagnostic?",
   ];
 
+  if (isFocusedWorkflow) {
+    return null;
+  }
+
   return (
     <>
       {/* Persistent Floating Bottom-Right Support Button */}
-      <aside className="fixed bottom-6 right-6 z-50 select-none" aria-label="Support and AI Assistant">
+      <aside className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 select-none" aria-label="Support and AI Assistant">
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-600 text-white shadow-2xl shadow-indigo-600/40 transition-all duration-300 hover:scale-110 hover:shadow-indigo-600/50 focus:outline-none focus:ring-4 focus:ring-indigo-400/40"
+          className="group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-600 text-white shadow-2xl shadow-indigo-600/40 transition-all duration-300 hover:scale-110 hover:shadow-indigo-600/50 focus:outline-none focus:ring-4 focus:ring-indigo-400/40"
           aria-label={isOpen ? "Close Lurexa Assistant" : "Open Lurexa Assistant & Support"}
           title="Lurexa Assistant & FAQs (Press ?)"
         >

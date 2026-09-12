@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import { AdminRelatedExperiences } from "./components/AdminRelatedExperiences";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
+import { I18nProvider } from "@lurexa/i18n";
+import { resolveServerLocale } from "@lurexa/i18n/server";
 import "./globals.css";
 
 const inter = localFont({ src: "./fonts/InterVariable.woff2", display: "swap", weight: "100 900" });
@@ -29,9 +32,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies();
+  const locale = resolveServerLocale(cookieStore);
+
   return (
-    <html lang="en" className={`${inter.className} h-full antialiased`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.className} h-full antialiased`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -40,12 +46,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <SkipToContent targetId="main-content" />
-        <ToastProvider>
-          {children}
-          <AdminRelatedExperiences />
-          <EcosystemSupportWidget />
-        </ToastProvider>
+        <I18nProvider initialLocale={locale}>
+          <SkipToContent targetId="main-content" />
+          <ToastProvider>
+            {children}
+            <AdminRelatedExperiences />
+            <EcosystemSupportWidget />
+          </ToastProvider>
+        </I18nProvider>
       </body>
     </html>
   );

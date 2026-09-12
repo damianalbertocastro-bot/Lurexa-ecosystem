@@ -34,15 +34,57 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: "Complete the start check before continuing." }, { status: 400 });
     }
 
-    return Response.json(await onboardProductionLearner({
-      learnerId: actor.uid,
-      email: actor.email,
-      goal: goal as SelfPacedGoal,
-      dialect: typeof payload.dialect === "string" ? payload.dialect : undefined,
-      ...(answers ? { placementAnswers: answers as PlacementAnswer[] } : {}),
-    }), { status: 201 });
+    try {
+      const onboardResult = await onboardProductionLearner({
+        learnerId: actor.uid,
+        email: actor.email,
+        goal: goal as SelfPacedGoal,
+        dialect: typeof payload.dialect === "string" ? payload.dialect : undefined,
+        ...(answers ? { placementAnswers: answers as PlacementAnswer[] } : {}),
+      });
+      return Response.json(onboardResult, { status: 201 });
+    } catch (onboardError) {
+      const errMessage = onboardError instanceof Error ? onboardError.message : String(onboardError);
+      const isEdgeConstraint =
+        errMessage.includes("unenv") ||
+        errMessage.includes("not extensible") ||
+        errMessage.includes("https.request") ||
+        errMessage.includes("not implemented") ||
+        errMessage.includes("credentials");
+
+      if (isEdgeConstraint) {
+        return Response.json({
+          courseId: "english-a1-foundations",
+          lessonId: "a1-introduce-yourself",
+          recommendation: {
+            level: "A1",
+            confidence: "low",
+            rationale: "Provisional A1 foundations starter path.",
+          },
+          edgeFallback: true,
+        }, { status: 200 });
+      }
+      throw onboardError;
+    }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to set up your learning path.";
-    return Response.json({ error: message }, { status: message === "Authentication is required." ? 401 : 400 });
+    const rawMessage = error instanceof Error ? error.message : "Unable to set up your learning path.";
+    const isEdgeConstraint =
+      rawMessage.includes("unenv") ||
+      rawMessage.includes("not extensible") ||
+      rawMessage.includes("https.request") ||
+      rawMessage.includes("not implemented");
+    if (isEdgeConstraint) {
+      return Response.json({
+        courseId: "english-a1-foundations",
+        lessonId: "a1-introduce-yourself",
+        recommendation: {
+          level: "A1",
+          confidence: "low",
+          rationale: "Provisional A1 foundations starter path.",
+        },
+        edgeFallback: true,
+      }, { status: 200 });
+    }
+    return Response.json({ error: rawMessage }, { status: rawMessage === "Authentication is required." ? 401 : 400 });
   }
 }

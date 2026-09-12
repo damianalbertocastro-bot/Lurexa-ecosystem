@@ -16,6 +16,11 @@
       "class": "Test",
       "role": "Repository quality/tooling configuration."
     },
+    "@lurexa/i18n": {
+      "path": "packages/i18n",
+      "class": "Production",
+      "role": "Shared internationalization engine, locale contracts, translation dictionaries, and runtime resolution helpers for client and server."
+    },
     "@lurexa/sdk": {
       "path": "packages/sdk",
       "class": "Contract",

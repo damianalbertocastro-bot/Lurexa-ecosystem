@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Button } from "./button";
 import { Input } from "./Input";
 import { Card } from "./card";
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { useTranslation } from "@lurexa/i18n";
 
 export interface StandardSignupPayload {
   mode: "student" | "teacher";
@@ -23,6 +25,7 @@ export interface StandardSignupCardProps {
   defaultMode?: "student" | "teacher";
   showModeToggle?: boolean;
   onRegister: (data: StandardSignupPayload) => Promise<void>;
+  onGoogleSignIn?: () => Promise<void>;
   loginUrl?: string;
   className?: string;
 }
@@ -33,6 +36,7 @@ export function StandardSignupCard({
   defaultMode = "student",
   showModeToggle = true,
   onRegister,
+  onGoogleSignIn,
   loginUrl = "/login",
   className = "",
 }: StandardSignupCardProps) {
@@ -47,6 +51,22 @@ export function StandardSignupCard({
   const [studentPath, setStudentPath] = useState<"self-paced" | "class">("self-paced");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { t } = useTranslation();
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleClick = async () => {
+    if (!onGoogleSignIn) return;
+    setGoogleLoading(true);
+    setError("");
+    try {
+      await onGoogleSignIn();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +141,22 @@ export function StandardSignupCard({
           >
             I am an Educator
           </button>
+        </div>
+      )}
+
+      {onGoogleSignIn && (
+        <div className="mb-5 space-y-4">
+          <GoogleSignInButton
+            onClick={handleGoogleClick}
+            isLoading={googleLoading}
+            disabled={loading || googleLoading}
+          />
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-[var(--lx-border)]" />
+            <span className="relative bg-[var(--lx-surface)] px-3 text-[11px] font-bold text-[var(--lx-muted)]">
+              {t("actions.orContinueWithEmail", "or continue with email")}
+            </span>
+          </div>
         </div>
       )}
 

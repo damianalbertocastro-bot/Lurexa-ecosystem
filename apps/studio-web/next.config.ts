@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   transpilePackages: [
     "@lurexa/backend",
     "@lurexa/config",
+    "@lurexa/i18n",
     "@lurexa/tokens",
     "@lurexa/types",
     "@lurexa/ui",

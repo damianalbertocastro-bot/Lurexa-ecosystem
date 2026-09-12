@@ -7,9 +7,14 @@ import { AuthService } from "@lurexa/backend";
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { GoogleSignInButton } from "@lurexa/ui/GoogleSignInButton";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { useTranslation } from "@lurexa/i18n";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [accountType, setAccountType] = useState<"independent" | "institutional">("independent");
   const [email, setEmail] = useState("");
@@ -18,7 +23,27 @@ export default function LoginPage() {
   const [teachingFocus, setTeachingFocus] = useState("secondary-english");
   const [cefrGoal, setCefrGoal] = useState("C1");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const handleGoogleLogin = async () => {
+    setGoogleBusy(true);
+    setError("");
+    try {
+      const { isNewUser } = await AuthService.loginWithGoogle();
+      if (mode === "register" || (isNewUser && accountType === "independent")) {
+        router.replace("/assessment/diagnostic?onboarding=1");
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (err: unknown) {
+      if (!AuthService.isPopupDismissedError(err)) {
+        setError(err instanceof Error ? err.message : "We could not complete Google sign-in.");
+      }
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -44,7 +69,14 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
+    <main className="relative grid min-h-screen place-items-center bg-[var(--lx-canvas)] px-5 py-10">
+      {/* Top Utility Controls */}
+      <div className="fixed right-6 top-6 z-20 flex items-center gap-1.5 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-surface)]/90 backdrop-blur-md p-1 shadow-2xs">
+        <LanguageSelector variant="segmented" compact />
+        <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
+        <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-canvas)]" />
+      </div>
+
       <section className="w-full max-w-lg rounded-[30px] border border-[var(--lx-border)] bg-[var(--lx-surface)] p-7 shadow-[0_24px_70px_rgba(31,50,120,.12)] sm:p-9">
         <Link
           href="/"
@@ -65,7 +97,21 @@ export default function LoginPage() {
             : "Create your professional educator profile to unlock personalized pedagogical development, diagnostic benchmarks, and verified credentials."}
         </p>
 
-        <form className="mt-7 space-y-4" onSubmit={submit}>
+        <div className="mt-7 mb-5 space-y-4">
+          <GoogleSignInButton
+            onClick={handleGoogleLogin}
+            isLoading={googleBusy}
+            disabled={busy || googleBusy}
+          />
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-[var(--lx-border)]" />
+            <span className="relative bg-[var(--lx-surface)] px-3 text-[11px] font-bold text-[var(--lx-muted)]">
+              {t("actions.orContinueWithEmail", "or continue with email")}
+            </span>
+          </div>
+        </div>
+
+        <form className="mt-5 space-y-4" onSubmit={submit}>
           {mode === "register" && (
             <>
               {/* Account Pathway Selection */}

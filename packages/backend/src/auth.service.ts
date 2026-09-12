@@ -7,6 +7,10 @@ import {
   deleteUser,
   User as FirebaseUser,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  linkWithPopup,
+  getAdditionalUserInfo,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -26,6 +30,58 @@ export const AuthService = {
   async register(email: string, pass: string): Promise<FirebaseUser> {
     const credential = await createUserWithEmailAndPassword(auth, email, pass);
     return credential.user;
+  },
+
+  async loginWithGoogle(): Promise<{ user: FirebaseUser; isNewUser: boolean }> {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await signInWithPopup(auth, provider);
+    const user = credential.user;
+    const additionalInfo = getAdditionalUserInfo(credential);
+    const isNewUser = Boolean(additionalInfo?.isNewUser);
+
+    if (user) {
+      try {
+        const { UserService } = await import("./user.service");
+        const existingProfile = await UserService.getUserProfile(user.uid);
+        if (!existingProfile) {
+          const names = (user.displayName || "").trim().split(" ");
+          const firstName = names[0] || undefined;
+          const lastName = names.slice(1).join(" ") || undefined;
+          await UserService.updateUserProfile(user.uid, {
+            id: user.uid,
+            email: user.email || "",
+            displayName: user.displayName || "Learner",
+            firstName,
+            lastName,
+            avatarUrl: user.photoURL || undefined,
+            role: "student",
+          });
+        }
+      } catch (profileError) {
+        console.warn("Non-fatal: failed to seed profile for Google user", profileError);
+      }
+    }
+
+    return { user, isNewUser };
+  },
+
+  async linkGoogleToCurrentUser(): Promise<FirebaseUser> {
+    if (!auth.currentUser) {
+      throw new Error("No active user session to link Google credential to.");
+    }
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await linkWithPopup(auth.currentUser, provider);
+    return credential.user;
+  },
+
+  isPopupDismissedError(error: unknown): boolean {
+    if (typeof error === "object" && error !== null && "code" in error) {
+      const code = String((error as { code?: unknown }).code);
+      return code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request";
+    }
+    return false;
   },
 
   async loginGuest(): Promise<FirebaseUser | { uid: string; isAnonymous: boolean; email: null }> {

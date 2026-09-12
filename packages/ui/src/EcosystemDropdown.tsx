@@ -189,29 +189,42 @@ export function EcosystemDropdown({
       </button>
 
       {isOpen && (
-        <div
-          role="menu"
-          aria-orientation="vertical"
-          aria-label="Lurexa ecosystem surfaces"
-          className={`absolute z-[9999] mt-2.5 w-88 sm:w-96 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-2xl p-2.5 shadow-2xl ring-1 ring-slate-900/5 focus:outline-none dark:border-slate-800 dark:bg-slate-900/95 dark:ring-white/10 ${
-            align === "right" ? "right-0" : "left-0"
-          } animate-scale-in`}
-        >
-          {/* Header */}
-          <div className="rounded-xl bg-slate-50/80 p-3.5 border border-slate-100 dark:bg-slate-800/50 dark:border-slate-800/80">
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-sky-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 dark:bg-sky-400 animate-pulse" />
-                Lurexa Ecosystem
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400">
-                Unified Architecture
-              </span>
+        <>
+          {/* Mobile Backdrop for slide-up drawer */}
+          <div
+            className="fixed inset-0 z-[9998] bg-slate-950/60 backdrop-blur-xs sm:hidden"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+
+          <div
+            role="menu"
+            aria-orientation="vertical"
+            aria-label="Lurexa ecosystem surfaces"
+            className={`fixed inset-x-0 bottom-0 z-[9999] rounded-t-[32px] border-t border-slate-200/90 bg-white/95 backdrop-blur-2xl p-4 pb-8 max-h-[85vh] overflow-y-auto overscroll-contain shadow-2xl ring-1 ring-slate-900/5 focus:outline-none dark:border-slate-800 dark:bg-slate-900/95 dark:ring-white/10 sm:absolute sm:top-full sm:bottom-auto sm:inset-x-auto sm:mt-2.5 sm:w-96 sm:rounded-2xl sm:border sm:p-2.5 sm:max-h-[calc(100vh-6rem)] ${
+              align === "right" ? "sm:right-0 sm:left-auto" : "sm:left-0 sm:right-auto"
+            } transition-all duration-300 motion-reduce:transition-none`}
+          >
+            {/* Mobile Drag Handle */}
+            <div className="sm:hidden flex justify-center pb-2.5">
+              <div className="h-1.5 w-12 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
-            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
-              One evolving Learner Model across all specialized surfaces.
-            </p>
-          </div>
+
+            {/* Header */}
+            <div className="rounded-2xl sm:rounded-xl bg-slate-50/80 p-3.5 border border-slate-100 dark:bg-slate-800/50 dark:border-slate-800/80">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-sky-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 dark:bg-sky-400 animate-pulse" />
+                  Lurexa Ecosystem
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400">
+                  Unified Architecture
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
+                One evolving Learner Model across all specialized surfaces.
+              </p>
+            </div>
 
           {/* App Items */}
           <div className="mt-2 space-y-1">
@@ -263,6 +276,7 @@ export function EcosystemDropdown({
             })}
           </div>
         </div>
+        </>
       )}
     </div>
   );

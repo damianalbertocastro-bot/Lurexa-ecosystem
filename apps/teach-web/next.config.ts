@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   serverExternalPackages: ["sharp"],
-  transpilePackages: ["@lurexa/ui"],
+  transpilePackages: ["@lurexa/ui", "@lurexa/i18n"],
 };
 
 export default nextConfig;

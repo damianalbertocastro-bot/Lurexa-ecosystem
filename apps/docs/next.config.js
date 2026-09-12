@@ -9,7 +9,7 @@ const nextConfig = {
     unoptimized: true,
   },
   serverExternalPackages: ["sharp"],
-  transpilePackages: ["@lurexa/ui"],
+  transpilePackages: ["@lurexa/ui", "@lurexa/i18n", "@lurexa/config"],
   outputFileTracingRoot: path.join(__dirname, "../.."),
   outputFileTracingIncludes: {
     "/*": ["../../Docs/**/*.md"],
