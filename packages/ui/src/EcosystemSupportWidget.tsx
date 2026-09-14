@@ -135,9 +135,17 @@ function generateBotResponse(input: string): { text: string; links?: Array<{ lab
 
 export function EcosystemSupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "faq">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "faq" | "feedback">("chat");
   const [inputQuery, setInputQuery] = useState("");
   const [pathname, setPathname] = useState<string>("");
+
+  // Feedback State
+  const [feedbackCategory, setFeedbackCategory] = useState<"audio" | "content" | "bug" | "suggestion" | "other">("audio");
+  const [feedbackRating, setFeedbackRating] = useState<number>(5);
+  const [feedbackMessage, setFeedbackMessage] = useState<string>("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState<boolean>(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState<boolean>(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -237,6 +245,48 @@ export function EcosystemSupportWidget() {
     }, 350);
   };
 
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackMessage.trim() || feedbackSubmitting) return;
+
+    setFeedbackSubmitting(true);
+    setFeedbackError(null);
+
+    try {
+      const diagnostics = {
+        currentUrl: typeof window !== "undefined" ? window.location.href : undefined,
+        viewport: typeof window !== "undefined" ? { width: window.innerWidth, height: window.innerHeight } : undefined,
+        userAgent: typeof window !== "undefined" ? window.navigator.userAgent : undefined,
+        audioSupported: typeof window !== "undefined" ? Boolean(window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext) : undefined,
+        online: typeof window !== "undefined" ? window.navigator.onLine : undefined,
+        locale: typeof window !== "undefined" ? window.navigator.language : undefined,
+      };
+
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: feedbackCategory,
+          sentimentScore: feedbackRating,
+          message: feedbackMessage.trim(),
+          diagnostics,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "Failed to submit feedback.");
+      }
+
+      setFeedbackSuccess(true);
+      setFeedbackMessage("");
+    } catch (err) {
+      setFeedbackError(err instanceof Error ? err.message : "Submission failed. Please try again.");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
   const quickPrompts = [
     "How does Coach speaking practice work?",
     "Can I learn offline without internet?",
@@ -244,33 +294,51 @@ export function EcosystemSupportWidget() {
     "Where is the placement diagnostic?",
   ];
 
-  if (isFocusedWorkflow) {
-    return null;
+  // In focused learning workflows, render a minimal non-distracting pill rather than hiding completely
+  if (isFocusedWorkflow && !isOpen) {
+    return (
+      <aside className="fixed bottom-4 right-4 z-40 select-none" aria-label="Quick Feedback & Help">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("feedback");
+            setIsOpen(true);
+          }}
+          className="flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+          title="Report an issue or give feedback"
+        >
+          <span>🐞</span>
+          <span>Report Issue</span>
+        </button>
+      </aside>
+    );
   }
 
   return (
     <>
       {/* Persistent Floating Bottom-Right Support Button */}
-      <aside className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 select-none" aria-label="Support and AI Assistant">
-        <button
-          type="button"
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-600 text-white shadow-2xl shadow-indigo-600/40 transition-all duration-300 hover:scale-110 hover:shadow-indigo-600/50 focus:outline-none focus:ring-4 focus:ring-indigo-400/40"
-          aria-label={isOpen ? "Close Lurexa Assistant" : "Open Lurexa Assistant & Support"}
-          title="Lurexa Assistant & FAQs (Press ?)"
-        >
-          <span className="text-2xl transition-transform duration-200 group-hover:scale-110">
-            {isOpen ? "✕" : "💬"}
-          </span>
-
-          {!isOpen && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
-              <span className="relative inline-flex h-4 w-4 rounded-full bg-teal-500 border-2 border-white" />
+      {!isFocusedWorkflow && (
+        <aside className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 select-none" aria-label="Support and AI Assistant">
+          <button
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-600 text-white shadow-2xl shadow-indigo-600/40 transition-all duration-300 hover:scale-110 hover:shadow-indigo-600/50 focus:outline-none focus:ring-4 focus:ring-indigo-400/40"
+            aria-label={isOpen ? "Close Lurexa Assistant" : "Open Lurexa Assistant & Support"}
+            title="Lurexa Assistant & FAQs (Press ?)"
+          >
+            <span className="text-2xl transition-transform duration-200 group-hover:scale-110">
+              {isOpen ? "✕" : "💬"}
             </span>
-          )}
-        </button>
-      </aside>
+
+            {!isOpen && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex h-4 w-4 rounded-full bg-teal-500 border-2 border-white" />
+              </span>
+            )}
+          </button>
+        </aside>
+      )}
 
       {/* Floating Assistant Modal / Window */}
       {isOpen && (
@@ -334,7 +402,21 @@ export function EcosystemSupportWidget() {
                     : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
               >
-                📚 Quick FAQs
+                📚 FAQs
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("feedback");
+                  setFeedbackSuccess(false);
+                }}
+                className={`flex-1 border-b-2 pb-2.5 text-xs font-extrabold transition ${
+                  activeTab === "feedback"
+                    ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                    : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                🐞 Feedback
               </button>
             </div>
 
@@ -418,7 +500,7 @@ export function EcosystemSupportWidget() {
                   </form>
                 </div>
               </div>
-            ) : (
+            ) : activeTab === "faq" ? (
               /* FAQ Mode */
               <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900/30">
                 <p className="text-[11px] font-medium text-slate-500">
@@ -463,6 +545,119 @@ export function EcosystemSupportWidget() {
                     Open Lurexa Documentation ↗
                   </a>
                 </div>
+              </div>
+            ) : (
+              /* Feedback & Bug Reporting Mode */
+              <div className="flex flex-1 flex-col overflow-y-auto p-4 bg-slate-50/50 dark:bg-slate-900/30">
+                {feedbackSuccess ? (
+                  <div className="my-auto flex flex-col items-center justify-center p-6 text-center">
+                    <div className="grid size-12 place-items-center rounded-full bg-emerald-100 dark:bg-emerald-950 text-2xl text-emerald-600 dark:text-emerald-400">
+                      ✓
+                    </div>
+                    <h4 className="mt-3 text-sm font-bold text-slate-900 dark:text-white">
+                      Thank you for your feedback!
+                    </h4>
+                    <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                      Your diagnostics and observations have been submitted to the Lurexa engineering and pedagogy team.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFeedbackSuccess(false);
+                        setActiveTab("chat");
+                      }}
+                      className="mt-4 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 transition"
+                    >
+                      Back to Assistant
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmitFeedback} className="space-y-3.5">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                        Category
+                      </label>
+                      <div className="mt-1.5 grid grid-cols-3 gap-1.5 text-[11px]">
+                        {[
+                          { id: "audio", label: "🎙️ Audio/Mic" },
+                          { id: "content", label: "📖 Content" },
+                          { id: "bug", label: "🐛 Glitch" },
+                          { id: "suggestion", label: "💡 Idea" },
+                          { id: "other", label: "❓ Other" },
+                        ].map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setFeedbackCategory(cat.id as typeof feedbackCategory)}
+                            className={`rounded-xl border px-2 py-1.5 font-bold transition text-center ${
+                              feedbackCategory === cat.id
+                                ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
+                                : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                        Experience Rating
+                      </label>
+                      <div className="mt-1 flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setFeedbackRating(star)}
+                            className="text-lg transition hover:scale-125 focus:outline-none"
+                            aria-label={`${star} star`}
+                          >
+                            {star <= feedbackRating ? "★" : "☆"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="feedback-text" className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                        What happened or what could be better?
+                      </label>
+                      <textarea
+                        id="feedback-text"
+                        rows={3}
+                        required
+                        value={feedbackMessage}
+                        onChange={(e) => setFeedbackMessage(e.target.value)}
+                        placeholder="E.g., sound wouldn't play on question 3, mic volume was low, button was hard to tap on mobile..."
+                        className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      />
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 p-2.5 text-[10px] text-slate-500">
+                      <p className="font-semibold text-slate-700 dark:text-slate-300">
+                        Auto-Diagnostics Attached:
+                      </p>
+                      <p className="truncate mt-0.5">URL: {pathname || "/"}</p>
+                      <p>Audio Engine: Web Audio API</p>
+                    </div>
+
+                    {feedbackError && (
+                      <p className="rounded-lg bg-rose-50 p-2 text-xs font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+                        {feedbackError}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={feedbackSubmitting || !feedbackMessage.trim()}
+                      className="w-full rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-indigo-700 disabled:opacity-50 transition"
+                    >
+                      {feedbackSubmitting ? "Submitting..." : "Send Report & Diagnostics →"}
+                    </button>
+                  </form>
+                )}
               </div>
             )}
           </div>
