@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: [
     "@lurexa/ui",
+    "@lurexa/i18n",
     "@lurexa/tokens",
     "@lurexa/types",
     "@lurexa/utils",

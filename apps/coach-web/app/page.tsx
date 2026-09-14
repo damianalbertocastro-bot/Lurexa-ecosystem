@@ -7,34 +7,33 @@ import { PhoneticChip } from "@lurexa/ui/PhoneticChip";
 import { COACH_PRACTICE_PACKS, type CoachPracticePack } from "@lurexa/backend";
 import { resolveLurexaPublicUrls } from "@lurexa/config/product-urls";
 import { Button } from "@lurexa/ui/button";
-
-const corePillars = [
-  {
-    icon: "🎯",
-    tag: "Intelligibility First",
-    title: "Clarity without Accent Erasure",
-    description:
-      "Coach focuses on real-world communicative comprehension. We celebrate your authentic voice while targeting specific phonetic and articulatory friction points.",
-  },
-  {
-    icon: "⚡",
-    tag: "Adaptive Memory",
-    title: "Continuous Learner Model",
-    description:
-      "Every speech turn and conversation contributes to your persistent Learner Model in Lurexa Core—so Coach never asks you to start over.",
-  },
-  {
-    icon: "🇩🇴",
-    tag: "L1 Transfer Intelligence",
-    title: "Dominican & Hispanic Focus",
-    description:
-      "Deeply calibrated for Dominican and Latin American Spanish speakers, proactively addressing vowel epenthesis, coda deletions, and rhythm transfer.",
-  },
-];
+import { useTranslation } from "@lurexa/i18n";
 
 export default function CoachHomePage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("A1");
   const urls = resolveLurexaPublicUrls();
+
+  const corePillars = [
+    {
+      icon: "🎯",
+      tag: "Intelligibility First",
+      title: t("coach.pillar1Title"),
+      description: t("coach.pillar1Desc"),
+    },
+    {
+      icon: "⚡",
+      tag: "Adaptive Memory",
+      title: t("coach.pillar2Title"),
+      description: t("coach.pillar2Desc"),
+    },
+    {
+      icon: "🇩🇴",
+      tag: "L1 Transfer Intelligence",
+      title: t("coach.pillar3Title"),
+      description: t("coach.pillar3Desc"),
+    },
+  ];
 
   const previewPacks = COACH_PRACTICE_PACKS.filter((p: CoachPracticePack) => p.cefrLevel === activeTab);
 
@@ -62,20 +61,19 @@ export default function CoachHomePage() {
             <div className="animate-fade-slide-up">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-cyan-300 backdrop-blur-md">
                 <span className="h-2 w-2 animate-ping rounded-full bg-cyan-400" />
-                AI ENGLISH SPEAKING &amp; PRONUNCIATION STUDIO
+                {t("coach.eyebrow")}
               </div>
 
               <h1 className="mt-6 text-4xl font-black leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">
-                Speak English.
+                {t("coach.titleBefore")}
                 <br />
                 <span className="bg-gradient-to-r from-cyan-300 via-sky-200 to-indigo-300 bg-clip-text text-transparent">
-                  Sound like you—only clearer.
+                  {t("coach.titleHighlight")}
                 </span>
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Lurexa Coach is your personal oral fluency and pronunciation partner. Practice spontaneous
-                conversations, refine sound contrasts, and build spoken confidence with real-time feedback.
+                {t("coach.subtitle")}
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -83,13 +81,13 @@ export default function CoachHomePage() {
                   href="/placement"
                   className="rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 px-7 py-3.5 text-center font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:-translate-y-0.5 hover:shadow-cyan-400/35 active:scale-95"
                 >
-                  Take Free Speaking Test 🎯
+                  {t("coach.startFree")}
                 </Link>
                 <Link
                   href="/dashboard"
                   className="rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-center font-bold text-slate-100 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/10"
                 >
-                  Open Speaking Dashboard
+                  {t("coach.explorePacks")}
                 </Link>
               </div>
 

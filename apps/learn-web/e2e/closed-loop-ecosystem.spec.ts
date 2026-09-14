@@ -5,7 +5,7 @@ test.describe("Closed-Loop Lurexa Ecosystem E2E Suite", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /learn english/i })).toBeVisible();
 
-    const startBtn = page.getByRole("link", { name: /start learning free/i });
+    const startBtn = page.getByRole("link", { name: /start learning free/i }).first();
     await expect(startBtn).toBeVisible();
     await startBtn.click();
 

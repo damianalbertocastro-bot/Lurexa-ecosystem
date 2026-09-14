@@ -9,6 +9,7 @@ const nextConfig = {
     '@lurexa/ui',
     '@lurexa/backend',
     '@lurexa/sdk',
+    '@lurexa/i18n',
   ],
   reactStrictMode: true,
 };

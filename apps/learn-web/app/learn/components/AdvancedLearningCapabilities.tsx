@@ -16,6 +16,7 @@ import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
 import { Input } from "@lurexa/ui/Input";
+import { AudioPreflightModal } from "@lurexa/ui/AudioPreflightModal";
 
 type CapabilityContext = {
   courseId: string;
@@ -242,8 +243,19 @@ export function RecordedSpeakingActivity({
   const [modelAudioSource, setModelAudioSource] = useState<string | null>(null);
   const [modelAudioLoading, setModelAudioLoading] = useState(false);
   const [modelAudioError, setModelAudioError] = useState<string | null>(null);
+  const [showPreflight, setShowPreflight] = useState(false);
 
   const { playClick, playAchievement } = useSoundEffects();
+
+  function handleStartRecordingClick() {
+    playClick();
+    const isVerified = typeof window !== "undefined" && window.sessionStorage.getItem("lurexa_audio_preflight_verified") === "true";
+    if (!isVerified) {
+      setShowPreflight(true);
+    } else {
+      void startRecording();
+    }
+  }
 
   useEffect(() => () => {
     if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
@@ -461,7 +473,16 @@ export function RecordedSpeakingActivity({
   const meetsDuration = durationMs >= capability.minimumSeconds * 1000;
 
   return (
-    <section className="rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
+    <>
+      <AudioPreflightModal
+        isOpen={showPreflight}
+        onClose={() => setShowPreflight(false)}
+        onComplete={() => {
+          setShowPreflight(false);
+          void startRecording();
+        }}
+      />
+      <section className="rounded-3xl bg-[var(--lx-surface)] p-6 shadow-sm ring-1 ring-slate-200/80 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <span className="rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-700">
@@ -534,10 +555,7 @@ export function RecordedSpeakingActivity({
         {!recording ? (
           <Button
             type="button"
-            onClick={() => {
-              playClick();
-              void startRecording();
-            }}
+            onClick={handleStartRecordingClick}
             className="rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 transition flex items-center gap-2 active:scale-95"
           >
             <span className="h-3 w-3 rounded-full bg-rose-400 animate-pulse" />
@@ -633,6 +651,7 @@ export function RecordedSpeakingActivity({
         </div>
       ) : null}
     </section>
+    </>
   );
 }
 

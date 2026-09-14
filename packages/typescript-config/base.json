@@ -11,6 +11,9 @@
     "paths": {
       "@lurexa/config": ["../../packages/config/src/index.ts"],
       "@lurexa/config/*": ["../../packages/config/src/*"],
+      "@lurexa/i18n": ["../../packages/i18n/src/index.ts"],
+      "@lurexa/i18n/server": ["../../packages/i18n/src/server.ts"],
+      "@lurexa/i18n/*": ["../../packages/i18n/src/*"],
       "@lurexa/ui/Button": ["../../packages/ui/src/button.tsx"],
       "@lurexa/ui/Card": ["../../packages/ui/src/card.tsx"],
       "@lurexa/ui/Code": ["../../packages/ui/src/code.tsx"],

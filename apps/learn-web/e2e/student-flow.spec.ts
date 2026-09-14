@@ -5,7 +5,7 @@ test.describe("Learner entry journey", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: /learn english/i })).toBeVisible();
-    await page.getByRole("link", { name: /start learning free/i }).click();
+    await page.getByRole("link", { name: /start learning free/i }).first().click();
     await expect(page).toHaveURL(/\/onboarding$/);
 
     await expect(page.getByRole("heading", { name: /what do you want english to help you do/i })).toBeVisible();

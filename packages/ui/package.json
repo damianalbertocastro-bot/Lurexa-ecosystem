@@ -11,6 +11,8 @@
     "./card": "./src/card.tsx",
     "./DataTableResponsive": "./src/DataTableResponsive.tsx",
     "./TouchAudioPlayer": "./src/TouchAudioPlayer.tsx",
+    "./LanguageSelector": "./src/LanguageSelector.tsx",
+    "./GoogleSignInButton": "./src/GoogleSignInButton.tsx",
     "./navigation": "./src/navigation/index.ts",
     "./navigation/*": "./src/navigation/*.ts*",
     "./*": "./src/*.tsx"
@@ -21,7 +23,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@lurexa/config": "workspace:*"
+    "@lurexa/config": "workspace:*",
+    "@lurexa/i18n": "workspace:*"
   },
   "devDependencies": {
     "@lurexa/eslint-config": "workspace:*",

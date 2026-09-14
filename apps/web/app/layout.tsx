@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
+import { I18nProvider } from "@lurexa/i18n";
+import { resolveServerLocale } from "@lurexa/i18n/server";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -27,17 +30,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = resolveServerLocale(cookieStore);
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body>
-        <SkipToContent targetId="main-content" />
-        {children}
-        <EcosystemSupportWidget />
+        <I18nProvider initialLocale={locale}>
+          <SkipToContent targetId="main-content" />
+          {children}
+          <EcosystemSupportWidget />
+        </I18nProvider>
       </body>
     </html>
   );

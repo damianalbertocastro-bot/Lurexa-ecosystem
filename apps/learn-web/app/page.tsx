@@ -1,30 +1,36 @@
+"use client";
+
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
+import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
 import { LearnRelatedExperiences } from "./components/LearnRelatedExperiences";
-
-const proof = [
-  {
-    tag: "Adaptive Mastery",
-    title: "Built around you",
-    description: "One evolving Learner Model connects your goals, targeted speaking practice, and the next most useful step.",
-    icon: "🎯",
-  },
-  {
-    tag: "Real-World Context",
-    title: "Made for real life",
-    description: "Speak, understand, and use English with confidence in Caribbean, Latin American, and international situations.",
-    icon: "🌍",
-  },
-  {
-    tag: "Educator Synchrony",
-    title: "Guidance that empowers",
-    description: "Teachers see the exact moments to intervene and guide without losing authentic human interaction.",
-    icon: "🤝",
-  },
-];
+import { useTranslation } from "@lurexa/i18n";
 
 export default function HomePage() {
+  const { t } = useTranslation();
+
+  const proof = [
+    {
+      tag: t("learn.proof1Tag"),
+      title: t("learn.proof1Title"),
+      description: t("learn.proof1Desc"),
+      icon: "🎯",
+    },
+    {
+      tag: t("learn.proof2Tag"),
+      title: t("learn.proof2Title"),
+      description: t("learn.proof2Desc"),
+      icon: "🌍",
+    },
+    {
+      tag: t("learn.proof3Tag"),
+      title: t("learn.proof3Title"),
+      description: t("learn.proof3Desc"),
+      icon: "🤝",
+    },
+  ];
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950 flex flex-col justify-between">
       <div>
@@ -32,21 +38,29 @@ export default function HomePage() {
         <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
           <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
             <div className="flex items-center gap-2 sm:gap-3">
-              <EcosystemDropdown currentApp="learn" align="left" openOnHover inverse />
               <LurexaLearnLogo inverse />
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Unified Utility Capsule (Language + Theme + Ecosystem) */}
+              <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/10 p-1 shadow-2xs">
+                <LanguageSelector variant="segmented" compact inverse />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-white/10" />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <EcosystemDropdown currentApp="learn" compact inverse className="border-0 bg-transparent shadow-none" />
+              </div>
+
               <Link
                 href="/login"
-                className="rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
               >
-                Sign in
+                {t("nav.signIn")}
               </Link>
               <Link
                 href="/onboarding"
-                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:text-sm"
+                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md shadow-cyan-500/20 transition hover:brightness-110 sm:px-5 sm:py-2 sm:text-sm whitespace-nowrap"
               >
-                Start free
+                {t("learn.startFree")}
               </Link>
             </div>
           </nav>
@@ -64,19 +78,19 @@ export default function HomePage() {
             <div className="animate-fade-slide-up">
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/30 bg-sky-400/10 px-3.5 py-1 text-xs font-extrabold tracking-wide text-sky-300 backdrop-blur-md">
                 <span aria-hidden="true" className="h-2 w-2 animate-ping rounded-full bg-sky-400" />
-                ENGLISH THAT ADAPTS TO REAL LIFE
+                {t("learn.eyebrow")}
               </div>
 
               <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Learn English.
+                {t("learn.titleBefore")}
                 <br />
                 <span className="bg-gradient-to-r from-sky-300 via-cyan-200 to-indigo-300 bg-clip-text text-transparent">
-                  Feel ready to use it.
+                  {t("learn.titleHighlight")}
                 </span>
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Lurexa Learn turns meaningful speaking and listening practice into an adaptive personal path — so every lesson moves your confidence forward.
+                {t("learn.subtitle")}
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -84,18 +98,18 @@ export default function HomePage() {
                   href="/onboarding"
                   className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-7 py-3.5 text-center font-black text-slate-950 shadow-xl shadow-sky-500/25 transition hover:-translate-y-0.5 hover:shadow-cyan-400/35"
                 >
-                  Start learning free
+                  {t("learn.startLearningFree")}
                 </Link>
                 <Link
                   href="/signup?role=educator"
                   className="rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-center font-bold text-slate-100 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/10"
                 >
-                  I&apos;m an educator
+                  {t("learn.educatorCta")}
                 </Link>
               </div>
 
               <p className="mt-4 text-xs font-medium text-[var(--lx-muted)]">
-                ✓ No credit card required &nbsp;·&nbsp; ✓ Free placement check &nbsp;·&nbsp; ✓ CEFR A1–C2
+                {t("learn.microcopy")}
               </p>
             </div>
 
@@ -182,7 +196,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <LurexaLearnLogo />
             <span className="text-xs font-bold text-[var(--lx-muted)]">
-              © {new Date().getFullYear()} Lurexa Learning Technologies. All rights reserved.
+              © {new Date().getFullYear()} Lurexa Learning Technologies. {t("common.allRightsReserved")}
             </span>
           </div>
           <nav aria-label="Footer" className="flex flex-wrap items-center gap-5 text-xs font-bold text-[var(--lx-muted)]">

@@ -33,10 +33,10 @@ export default function InsightOverviewPage() {
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Executive CEFR Velocity &amp; Learning Radar
+                Executive CEFR Velocity &amp; Phonemic Transfer Radar
               </h1>
               <p className="max-w-2xl text-sm leading-relaxed text-slate-500 font-normal dark:text-slate-400">
-                Longitudinal CEFR progression, Dominican Spanish linguistic transfer metrics, and dropout early-warning telemetry calibrated with Lurexa Mind models.
+                Longitudinal CEFR progression, Dominican Spanish linguistic phonemic transfer radar metrics, and dropout early-warning telemetry calibrated with Lurexa Mind models.
               </p>
             </div>
 
@@ -128,7 +128,7 @@ export default function InsightOverviewPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
             <div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                CEFR Milestone Progression &amp; Velocity Benchmarks
+                CEFR Cohort Velocity Radar &amp; Progression Benchmarks
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Empirical time-to-proficiency compared against international CEFR duration guidelines
@@ -230,7 +230,7 @@ export default function InsightOverviewPage() {
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  At-Risk Cohort Early Warning Telemetry
+                  Early Warning Radar: At-Risk Cohort Telemetry
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Real-time indicators for learners falling behind pace
@@ -242,44 +242,25 @@ export default function InsightOverviewPage() {
             </div>
 
             <div className="space-y-3">
-              {[
-                {
-                  name: "Carlos Ramirez",
-                  cohort: "Santo Domingo Cohort Alpha",
-                  risk: "3 inactive days after failed /s/-cluster quiz",
-                  action: "Trigger 5-min Coach Drill",
-                  btnClass: "bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm dark:bg-indigo-600 dark:hover:bg-indigo-500",
-                },
-                {
-                  name: "Maria Santos",
-                  cohort: "Santiago Regional ESL-2",
-                  risk: "Liquid neutralization blocking A1 capstone",
-                  action: "Assign Studio Remediation",
-                  btnClass: "bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold px-4 py-2 rounded-lg transition-colors dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300",
-                },
-                {
-                  name: "Yomaira Gomez",
-                  cohort: "UASD English Immersion B1",
-                  risk: "Speaking practice duration 40% below target",
-                  action: "Send Study Reminder",
-                  btnClass: "bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-lg transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300",
-                },
-              ].map((student, i) => (
+              {analytics.earlyWarningRisks.map((student, i) => (
                 <div
-                  key={i}
+                  key={student.learnerId || i}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/50"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-slate-900 dark:text-white">{student.name}</span>
-                      <span className="text-xs text-slate-400 font-normal">({student.cohort})</span>
+                      <span className="font-semibold text-sm text-slate-900 dark:text-white">{student.learnerName}</span>
+                      <span className="text-xs text-slate-400 font-normal">({student.currentCefr})</span>
                     </div>
-                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium">{student.risk}</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium">
+                      {student.daysInactive} days inactive • Risk score: {student.riskScore}/100 ({student.riskFactor.replace('_', ' ')})
+                    </p>
                   </div>
-                  <Link href="/interventions" className="shrink-0">
-                    <button type="button" className={student.btnClass}>
-                      {student.action}
-                    </button>
+                  <Link
+                    href="/interventions"
+                    className="shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 transition-colors shadow-sm dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                  >
+                    {student.recommendedAction}
                   </Link>
                 </div>
               ))}

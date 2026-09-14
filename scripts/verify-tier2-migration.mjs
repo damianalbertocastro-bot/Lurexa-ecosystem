@@ -9,7 +9,7 @@ import path from "node:path";
 function walk(dir, exts, results = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (["node_modules", "dist", "build", ".next"].includes(entry.name)) continue;
+    if (["node_modules", "dist", "build", ".next", ".open-next", ".turbo", "out"].includes(entry.name)) continue;
     if (entry.isDirectory()) {
       walk(full, exts, results);
     } else if (exts.some((e) => entry.name.endsWith(e))) {

@@ -15,6 +15,7 @@
   "dependencies": {
     "@lurexa/backend": "workspace:*",
     "@lurexa/config": "workspace:*",
+    "@lurexa/i18n": "workspace:*",
     "@lurexa/tokens": "workspace:*",
     "@lurexa/types": "workspace:*",
     "@lurexa/ui": "workspace:*",

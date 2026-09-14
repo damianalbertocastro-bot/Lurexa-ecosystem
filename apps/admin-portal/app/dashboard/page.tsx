@@ -10,6 +10,7 @@ import { ProductMark } from "@lurexa/ui/ProductMark";
 import { AuthService } from "@lurexa/backend";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { ThemeToggle } from "@lurexa/ui/ThemeToggle";
+import { LanguageSelector } from "@lurexa/ui/LanguageSelector";
 import type { AdminOrgOverview, PlatformAdminSnapshot } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Input } from "@lurexa/ui/Input";
@@ -171,8 +172,13 @@ export default function AdminDashboardPage() {
               >
                 Profile
               </Link>
-              <ThemeToggle />
-              <EcosystemDropdown currentApp="admin" inverse />
+              <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/10 p-1 shadow-2xs">
+                <LanguageSelector variant="segmented" compact inverse />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-white/10" />
+                <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                <EcosystemDropdown currentApp="admin" compact inverse className="border-0 bg-transparent shadow-none" />
+              </div>
               <Button
                 type="button"
                 onClick={() => void signOut()}

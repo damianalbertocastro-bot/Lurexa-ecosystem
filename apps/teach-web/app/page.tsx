@@ -1,14 +1,19 @@
+"use client";
+
 import { ProductMark } from "@lurexa/ui/ProductMark";
 import { TeachShell } from "./components/TeachShell";
-
-const pillars = [
-  ["Language growth", "Strengthen your English from your current CEFR level with a path built for educators.", "A2 → C2"],
-  ["Teaching practice", "Develop classroom skills through evidence-informed courses, demonstrations, and practical challenges.", "Practice"],
-  ["Professional evidence", "Build a verified record of completed learning, projects, badges, and credentials.", "Credentials"],
-  ["Teacher community", "Exchange ideas, resources, feedback, and support with educators who are growing too.", "Community"],
-];
+import { useTranslation } from "@lurexa/i18n";
 
 export default function TeachHome() {
+  const { t } = useTranslation();
+
+  const pillars = [
+    [t("teach.pillar1Title"), t("teach.pillar1Desc"), "A2 → C2"],
+    [t("teach.pillar2Title"), t("teach.pillar2Desc"), "Practice"],
+    [t("teach.pillar3Title"), t("teach.pillar3Desc"), "Credentials"],
+    [t("teach.pillar4Title"), t("teach.pillar4Desc"), "Community"],
+  ];
+
   return (
     <TeachShell active="Home">
       <main className="space-y-12 pb-16">
@@ -18,13 +23,13 @@ export default function TeachHome() {
           <div className="mx-auto grid max-w-[1440px] gap-14 px-5 py-20 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:py-28">
             <div className="relative">
               <p className="text-[11px] font-black tracking-[.2em] text-[#50e3c2]">
-                PROFESSIONAL LEARNING FOR EDUCATORS
+                {t("teach.eyebrow")}
               </p>
               <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[.94] tracking-[-.065em] text-white sm:text-7xl">
-                Become the teacher your learners need next.
+                {t("teach.title")}
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-indigo-100">
-                Lurexa Teach connects English growth, teaching knowledge, real classroom practice, professional credentials, and a community of educators in one evolving professional profile.
+                {t("teach.subtitle")}
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <a
@@ -32,17 +37,17 @@ export default function TeachHome() {
                   style={{ color: "#000000" }}
                   className="inline-flex min-h-12 items-center rounded-xl bg-white px-6 text-sm font-black text-black !text-black shadow-xl transition hover:bg-slate-100"
                 >
-                  Start your growth path →
+                  {t("teach.startPath")}
                 </a>
                 <a
                   href="/courses"
                   className="inline-flex min-h-12 items-center rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-extrabold text-white transition hover:bg-white/20"
                 >
-                  Explore learning
+                  {t("teach.exploreLearning")}
                 </a>
               </div>
               <p className="mt-5 text-xs font-bold text-indigo-200">
-                One educator profile. Language + pedagogy + evidence + community.
+                {t("teach.microcopy")}
               </p>
             </div>
             <div className="relative grid place-items-center">
