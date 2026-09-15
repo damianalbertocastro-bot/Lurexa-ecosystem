@@ -46,41 +46,50 @@ for (const surface of SURFACES) {
   }
 
   // 2. Compatibility flags check
-  if (!content.includes('"nodejs_compat"') && !content.includes("'nodejs_compat'")) {
-    fail(`${surface.dir}/wrangler.toml must declare compatibility_flags with 'nodejs_compat'`);
+  const REQUIRED_FLAGS = ["nodejs_compat", "enable_weak_ref", "allow_eval_during_startup"];
+  for (const flag of REQUIRED_FLAGS) {
+    if (!content.includes(`"${flag}"`) && !content.includes(`'${flag}'`)) {
+      fail(`${surface.dir}/wrangler.toml must declare compatibility_flags with '${flag}'`);
+    }
+  }
+  pass(`${surface.workerName}: compatibility_flags includes all required runtime flags`);
+
+  // 3. Cloudflare Workers Builds build command check
+  if (!content.includes("[build]") || !content.includes('command = "opennextjs-cloudflare build"')) {
+    fail(`${surface.dir}/wrangler.toml must declare [build] with command = "opennextjs-cloudflare build" for Cloudflare production deployment`);
   } else {
-    pass(`${surface.workerName}: compatibility_flags includes nodejs_compat`);
+    pass(`${surface.workerName}: build command configured for Cloudflare Workers Builds`);
   }
 
-  // 3. Asset binding
+  // 4. Asset binding
   if (!content.includes(".open-next/assets") || !content.includes('binding = "ASSETS"')) {
     fail(`${surface.dir}/wrangler.toml is missing valid [assets] binding to .open-next/assets`);
   } else {
     pass(`${surface.workerName}: assets binding properly configured`);
   }
 
-  // 4. Custom domain route
+  // 5. Custom domain route
   if (!content.includes(surface.domain)) {
     fail(`${surface.dir}/wrangler.toml route pattern missing canonical domain '${surface.domain}'`);
   } else {
     pass(`${surface.workerName}: custom domain '${surface.domain}' configured`);
   }
 
-  // 5. No raw secrets in [vars]
+  // 6. No raw secrets in [vars]
   for (const forbidden of FORBIDDEN_SECRETS_IN_VARS) {
     if (content.includes(`${forbidden} =`) || content.includes(`${forbidden}=`)) {
       fail(`${surface.dir}/wrangler.toml contains forbidden private secret '${forbidden}' in [vars]`);
     }
   }
 
-  // 6. Build script in package.json
+  // 7. Scripts in package.json
   const pkgPath = path.join(root, surface.dir, "package.json");
   if (fs.existsSync(pkgPath)) {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-    if (!pkg.scripts?.["build:worker"] && !pkg.scripts?.build) {
-      fail(`${surface.dir}/package.json missing worker build script`);
+    if (!pkg.scripts?.["build:worker"] || !pkg.scripts?.["deploy:worker"]) {
+      fail(`${surface.dir}/package.json missing build:worker or deploy:worker script`);
     } else {
-      pass(`${surface.workerName}: build script available in package.json`);
+      pass(`${surface.workerName}: worker lifecycle scripts verified in package.json`);
     }
   }
 }

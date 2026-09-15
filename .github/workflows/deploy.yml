@@ -25,6 +25,8 @@ jobs:
       teach: ${{ steps.filter.outputs.teach }}
       admin: ${{ steps.filter.outputs.admin }}
       docs: ${{ steps.filter.outputs.docs }}
+      insight: ${{ steps.filter.outputs.insight }}
+      studio: ${{ steps.filter.outputs.studio }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -73,6 +75,22 @@ jobs:
               - 'turbo.json'
             docs:
               - 'apps/docs/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            insight:
+              - 'apps/insight-web/**'
+              - 'packages/**'
+              - 'tooling/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            studio:
+              - 'apps/studio-web/**'
               - 'packages/**'
               - 'tooling/**'
               - 'package.json'
@@ -128,3 +146,19 @@ jobs:
     uses: ./.github/workflows/product-check.yml
     with:
       workspace: docs
+
+  insight:
+    name: Lurexa Insight Web
+    needs: changes
+    if: needs.changes.outputs.insight == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: '@lurexa/insight-web'
+
+  studio:
+    name: Lurexa Studio Web
+    needs: changes
+    if: needs.changes.outputs.studio == 'true'
+    uses: ./.github/workflows/product-check.yml
+    with:
+      workspace: '@lurexa/studio-web'
