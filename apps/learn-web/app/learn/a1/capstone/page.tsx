@@ -33,6 +33,70 @@ export default function A1CapstonePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [defenseText, setDefenseText] = useState("");
+  const [portfolioNotes, setPortfolioNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [defenseFeedback, setDefenseFeedback] = useState<{
+    score: number;
+    passed: boolean;
+    fluency: number;
+    intelligibility: number;
+    feedback: string;
+  } | null>(null);
+
+  const reloadCapstone = async () => {
+    try {
+      const response = await authenticatedFetch("/api/learning/capstone");
+      const body: unknown = await response.json();
+      if (response.ok) {
+        setPayload(body as Payload);
+      }
+    } catch {
+      // safe
+    }
+  };
+
+  const handleDefenseSubmit = async () => {
+    if (!defenseText.trim()) return;
+    setSubmitting(true);
+    setDefenseFeedback(null);
+    try {
+      const res = await authenticatedFetch("/api/learning/capstone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          oralTranscript: defenseText,
+          portfolioNotes,
+        }),
+      });
+      const data = (await res.json()) as {
+        evaluation?: {
+          score: number;
+          passed: boolean;
+          fluency: number;
+          intelligibility: number;
+          feedback: string;
+        };
+        capstoneResult?: CapstoneAssessmentResult;
+        error?: string;
+      };
+      if (!res.ok || !data.evaluation) {
+        throw new Error(data.error || "Failed to submit oral defense.");
+      }
+      setDefenseFeedback(data.evaluation);
+      if (data.capstoneResult && payload) {
+        setPayload({
+          definition: payload.definition,
+          result: data.capstoneResult,
+        });
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Oral defense submission error.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
       if (!user) {
@@ -82,6 +146,72 @@ export default function A1CapstonePage() {
             </Link>
           </article>
         ))}
+      </section>
+
+      {/* Interactive Oral Defense & Portfolio Evaluation */}
+      <section className="mt-10 rounded-[2rem] border border-[var(--lx-border)] bg-white p-6 sm:p-8 shadow-sm space-y-6">
+        <div>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+            Oral Defense &amp; Portfolio Submission
+          </span>
+          <h2 className="mt-2 text-2xl font-black text-slate-950">
+            Submit Your Oral Defense: &quot;My Life, My English&quot;
+          </h2>
+          <p className="mt-1 text-sm text-[var(--lx-muted)]">
+            Deliver your 3-part oral presentation: introduce yourself, state your daily routine, and demonstrate an active clarification phrase in English.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Spoken Defense Statement / Transcript
+            </label>
+            <textarea
+              rows={3}
+              value={defenseText}
+              onChange={(e) => setDefenseText(e.target.value)}
+              placeholder="Hello! My name is Kelvin. I live in Santo Domingo and work every day. I study English in the morning. Could you please repeat that question? Thank you!"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium focus:border-indigo-600 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Portfolio Reflection Notes (Optional)
+            </label>
+            <input
+              type="text"
+              value={portfolioNotes}
+              onChange={(e) => setPortfolioNotes(e.target.value)}
+              placeholder="I practiced my coda /s/ and feel much more confident introducing myself."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-indigo-600 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              disabled={submitting || !defenseText.trim()}
+              onClick={handleDefenseSubmit}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 transition"
+            >
+              {submitting ? "Evaluating Oral Defense…" : "Submit Defense to Mind →"}
+            </button>
+          </div>
+
+          {defenseFeedback && (
+            <div className={`p-5 rounded-2xl border text-sm font-medium ${
+              defenseFeedback.passed ? "bg-emerald-50 border-emerald-200 text-emerald-950" : "bg-amber-50 border-amber-200 text-amber-950"
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-bold">Score: {defenseFeedback.score}% ({defenseFeedback.passed ? "Passed" : "Needs Revision"})</span>
+                <span className="text-xs">Intelligibility: {defenseFeedback.intelligibility}% · Fluency: {defenseFeedback.fluency}%</span>
+              </div>
+              <p>{defenseFeedback.feedback}</p>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="mt-10">

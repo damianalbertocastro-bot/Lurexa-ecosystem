@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { TeacherGuidanceBanner } from "./components/TeacherGuidanceBanner";
 import { OfflineIndicator } from "@lurexa/ui/OfflineIndicator";
+import { PwaOfflineSyncProvider } from "@lurexa/ui/PwaOfflineSyncProvider";
 import { ToastProvider } from "@lurexa/ui/Toast";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
@@ -54,12 +55,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="antialiased bg-slate-50 text-slate-900">
         <I18nProvider initialLocale={locale}>
           <SkipToContent targetId="main-content" />
-          <ToastProvider>
-            {children}
-            <TeacherGuidanceBanner />
-            <OfflineIndicator />
-            <EcosystemSupportWidget />
-          </ToastProvider>
+          <PwaOfflineSyncProvider>
+            <ToastProvider>
+              {children}
+              <TeacherGuidanceBanner />
+              <OfflineIndicator />
+              <EcosystemSupportWidget />
+            </ToastProvider>
+          </PwaOfflineSyncProvider>
         </I18nProvider>
       </body>
     </html>

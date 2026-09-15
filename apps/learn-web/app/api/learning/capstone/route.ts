@@ -20,3 +20,27 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ error: message }, { status });
   }
 }
+
+export async function POST(request: Request): Promise<Response> {
+  try {
+    const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
+    const body = (await request.json()) as { oralTranscript?: string; portfolioNotes?: string };
+    if (!body.oralTranscript) {
+      throw new Error("oralTranscript is required to submit your A1 oral defense.");
+    }
+    const outcome = await A1CapstoneService.submitOralDefense(actor, {
+      oralTranscript: body.oralTranscript,
+      portfolioNotes: body.portfolioNotes,
+    });
+    return Response.json(outcome);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to evaluate oral defense submission.";
+    const status = message === "Authentication is required."
+      ? 401
+      : message.includes("access")
+        ? 403
+        : 400;
+    return Response.json({ error: message }, { status });
+  }
+}
+

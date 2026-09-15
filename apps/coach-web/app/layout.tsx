@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { ToastProvider } from "@lurexa/ui/Toast";
+import { PwaOfflineSyncProvider } from "@lurexa/ui/PwaOfflineSyncProvider";
 import { SkipToContent } from "@lurexa/ui/SkipToContent";
 import { EcosystemSupportWidget } from "@lurexa/ui/EcosystemSupportWidget";
 import { I18nProvider } from "@lurexa/i18n";
@@ -47,10 +48,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <I18nProvider initialLocale={locale}>
           <SkipToContent targetId="main-content" />
-          <ToastProvider>
-            {children}
-            <EcosystemSupportWidget />
-          </ToastProvider>
+          <PwaOfflineSyncProvider>
+            <ToastProvider>
+              {children}
+              <EcosystemSupportWidget />
+            </ToastProvider>
+          </PwaOfflineSyncProvider>
         </I18nProvider>
       </body>
     </html>

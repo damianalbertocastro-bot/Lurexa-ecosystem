@@ -94,3 +94,39 @@ export interface CascadedDialogueTurn {
   timestamp: string;
 }
 
+export interface CoachStreamingTokenRequest {
+  sessionId: string;
+  targetCefr?: CefrLevel;
+}
+
+export interface CoachStreamingTokenResponse {
+  token: string;
+  expiresAt: string;
+  wsUrl: string;
+  model: string;
+  audioSampleRateHz: number;
+  systemInstruction: string;
+  fallbackAvailable: boolean;
+}
+
+export interface SelectivePhonemeEvidence {
+  phoneme: string;
+  category: string; // e.g. "coda_weakening", "s_cluster_epenthesis", "liquid_neutralization"
+  observedIpa?: string;
+  expectedIpa: string;
+  score: number; // 0 to 1
+  sampleWord: string;
+  targetWord: string;
+}
+
+export interface CoachSelectiveEvidenceSubmission {
+  sessionId: string;
+  turnId: string;
+  spokenText?: string;
+  intelligibilityScore: number;
+  fluencyScore?: number;
+  phonemeEvidences: SelectivePhonemeEvidence[];
+  backgroundNoiseDetected?: boolean;
+}
+
+
