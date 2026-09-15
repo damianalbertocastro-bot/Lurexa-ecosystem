@@ -6,7 +6,6 @@ import type {
   User,
   KnowledgeObjectValidationError,
 } from "@lurexa/types";
-import { getServerFirestore } from "./firebase-admin.server";
 
 export type { CefrLinguisticValidationReportV1, StudioKnowledgeObjectDraftV1, EnglishSkill, KnowledgeObjectValidationError };
 
@@ -132,13 +131,6 @@ export class StudioAuthoringService {
     };
 
     StudioAuthoringService.knowledgeObjects.set(id, draft);
-    try {
-      const database = getServerFirestore();
-      await database.collection("knowledge-objects").doc(id).set(draft);
-    } catch {
-      // In-memory fallback
-    }
-
     return draft;
   }
 
@@ -147,36 +139,16 @@ export class StudioAuthoringService {
     status?: string;
   }): Promise<StudioKnowledgeObjectDraftV1[]> {
     let list = Array.from(StudioAuthoringService.knowledgeObjects.values());
-    try {
-      const database = getServerFirestore();
-      let query: FirebaseFirestore.Query = database.collection("knowledge-objects");
-      if (filter?.cefrLevel) query = query.where("cefrLevel", "==", filter.cefrLevel);
-      if (filter?.status) query = query.where("status", "==", filter.status);
-      const snapshot = await query.get();
-      if (!snapshot.empty) {
-        list = snapshot.docs.map((doc) => doc.data() as StudioKnowledgeObjectDraftV1);
-      }
-    } catch {
-      if (filter?.cefrLevel) {
-        list = list.filter((ko) => ko.cefrLevel === filter.cefrLevel);
-      }
-      if (filter?.status) {
-        list = list.filter((ko) => ko.status === filter.status);
-      }
+    if (filter?.cefrLevel) {
+      list = list.filter((ko) => ko.cefrLevel === filter.cefrLevel);
+    }
+    if (filter?.status) {
+      list = list.filter((ko) => ko.status === filter.status);
     }
     return list;
   }
 
   public static async getKnowledgeObject(id: string): Promise<StudioKnowledgeObjectDraftV1 | null> {
-    try {
-      const database = getServerFirestore();
-      const doc = await database.collection("knowledge-objects").doc(id).get();
-      if (doc.exists) {
-        return doc.data() as StudioKnowledgeObjectDraftV1;
-      }
-    } catch {
-      // In-memory fallback
-    }
     return StudioAuthoringService.knowledgeObjects.get(id) ?? null;
   }
 
@@ -200,12 +172,6 @@ export class StudioAuthoringService {
     };
 
     StudioAuthoringService.knowledgeObjects.set(id, updated);
-    try {
-      const database = getServerFirestore();
-      await database.collection("knowledge-objects").doc(id).set(updated, { merge: true });
-    } catch {
-      // In-memory fallback
-    }
     return updated;
   }
 
@@ -230,12 +196,6 @@ export class StudioAuthoringService {
     };
 
     StudioAuthoringService.knowledgeObjects.set(id, approved);
-    try {
-      const database = getServerFirestore();
-      await database.collection("knowledge-objects").doc(id).set(approved, { merge: true });
-    } catch {
-      // In-memory fallback
-    }
     return approved;
   }
 
@@ -262,12 +222,6 @@ export class StudioAuthoringService {
     };
 
     StudioAuthoringService.knowledgeObjects.set(id, published);
-    try {
-      const database = getServerFirestore();
-      await database.collection("knowledge-objects").doc(id).set(published, { merge: true });
-    } catch {
-      // In-memory fallback
-    }
     return published;
   }
 
