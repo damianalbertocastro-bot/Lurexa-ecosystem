@@ -47,3 +47,14 @@ Each deployable web application in the monorepo has an autonomous OpenNext/Cloud
 - `deployment/products.json` historically configured individual Vercel projects for each surface.
 - Per repository change request, Vercel deployments are temporarily disabled while Cloudflare Workers serves as the primary edge deployment target.
 - Verification scripts (`deploy-vercel-product.mjs`) remain intact to validate preview build packaging contracts without blocking the primary Cloudflare CI/CD pipeline.
+
+---
+
+## 4. Production Deployment Branch Standard
+
+- **Authoritative Production Branch:** `main` is the designated deployment branch for production across all Cloudflare Workers.
+- **Continuous Deployment Policy:** All Cloudflare Worker services (`lurexa-web`, `lurexa-learn`, `lurexa-coach`, `lurexa-teach`, `lurexa-admin`, `lurexa-docs`, `lurexa-insight`, `lurexa-studio`) are bound to the `main` branch.
+- **Automated Workers Builds:** Merges and direct pushes to `main` trigger automated production builds and deployments in Cloudflare using the declared `[build]` directive (`opennextjs-cloudflare build`) in each `wrangler.toml`.
+- **Pre-Merge Validation:** Pull requests targeting `main` must pass all CI reliability gates, including `pnpm verify:cloudflare` (which audits configuration readiness across all 8 surfaces) and `Product Deployment Validation` (which validates production builds of all 8 affected surfaces).
+- **Deployment Coordination CLI:** Operators can inspect and coordinate deployments using `pnpm deploy:cloudflare` (`scripts/deploy-cloudflare.mjs`).
+
