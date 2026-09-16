@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import type { CoachStreamingTokenResponse, SelectivePhonemeEvidence } from "@lurexa/types";
+import type { CoachStreamingTokenResponse } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 import { Button } from "@lurexa/ui/button";
 
@@ -19,7 +19,6 @@ export interface CoachRealtimeAudioProps {
 export function CoachRealtimeAudio({
   sessionId,
   onTranscriptTurn,
-  onPhonemeDiagnostics,
   onError,
 }: CoachRealtimeAudioProps) {
   const [isLiveActive, setIsLiveActive] = useState(false);
@@ -40,13 +39,34 @@ export function CoachRealtimeAudio({
   // Audio queue for speaker output
   const audioQueueRef = useRef<ArrayBuffer[]>([]);
   const isPlayingRef = useRef(false);
+  const playNextAudioChunkRef = useRef<(() => void) | null>(null);
+
+  const stopStreaming = useCallback(() => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+      audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+    setIsLiveActive(false);
+    setIsSpeaking(false);
+    setAudioLevel(0);
+    setStatusMessage("Streaming session stopped.");
+  }, []);
 
   // Stop everything on unmount
   useEffect(() => {
     return () => {
       stopStreaming();
     };
-  }, []);
+  }, [stopStreaming]);
 
   const playNextAudioChunk = useCallback(async () => {
     if (audioQueueRef.current.length === 0 || !audioCtxRef.current) {
@@ -64,7 +84,7 @@ export function CoachRealtimeAudio({
       source.buffer = audioBuffer;
       source.connect(audioCtxRef.current.destination);
       source.onended = () => {
-        playNextAudioChunk();
+        playNextAudioChunkRef.current?.();
       };
       source.start();
     } catch {
@@ -72,6 +92,10 @@ export function CoachRealtimeAudio({
       isPlayingRef.current = false;
     }
   }, []);
+
+  useEffect(() => {
+    playNextAudioChunkRef.current = playNextAudioChunk;
+  }, [playNextAudioChunk]);
 
   const startStreaming = async () => {
     try {
@@ -226,26 +250,6 @@ export function CoachRealtimeAudio({
       setStatusMessage(msg);
       onError?.(msg);
     }
-  };
-
-  const stopStreaming = () => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-    if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach((track) => track.stop());
-      micStreamRef.current = null;
-    }
-    if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
-      audioCtxRef.current.close();
-      audioCtxRef.current = null;
-    }
-    setIsLiveActive(false);
-    setIsSpeaking(false);
-    setAudioLevel(0);
-    setStatusMessage("Streaming session stopped.");
   };
 
   return (

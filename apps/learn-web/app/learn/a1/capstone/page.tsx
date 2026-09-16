@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AuthService } from "@lurexa/backend";
-import type { CapstoneAssessmentResult, IntegratedCapstoneDefinition } from "@lurexa/types";
+import { AuthService, UserService, SubscriptionService } from "@lurexa/backend";
+import type { CapstoneAssessmentResult, IntegratedCapstoneDefinition, SubscriptionTier } from "@lurexa/types";
 import { authenticatedFetch } from "../../../../lib/authenticated-fetch";
+import { TierUpgradeModal } from "../../../../components/TierUpgradeModal";
 
 type Payload = {
   definition: IntegratedCapstoneDefinition;
@@ -32,6 +33,8 @@ export default function A1CapstonePage() {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userTier, setUserTier] = useState<SubscriptionTier>("basic");
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   const [defenseText, setDefenseText] = useState("");
   const [portfolioNotes, setPortfolioNotes] = useState("");
@@ -44,19 +47,12 @@ export default function A1CapstonePage() {
     feedback: string;
   } | null>(null);
 
-  const reloadCapstone = async () => {
-    try {
-      const response = await authenticatedFetch("/api/learning/capstone");
-      const body: unknown = await response.json();
-      if (response.ok) {
-        setPayload(body as Payload);
-      }
-    } catch {
-      // safe
-    }
-  };
 
   const handleDefenseSubmit = async () => {
+    if (!SubscriptionService.canAccessCapstones(userTier)) {
+      setIsUpgradeModalOpen(true);
+      return;
+    }
     if (!defenseText.trim()) return;
     setSubmitting(true);
     setDefenseFeedback(null);
@@ -105,7 +101,13 @@ export default function A1CapstonePage() {
         return;
       }
       try {
-        const response = await authenticatedFetch("/api/learning/capstone");
+        const [profile, response] = await Promise.all([
+          UserService.getUserProfile(user.uid),
+          authenticatedFetch("/api/learning/capstone"),
+        ]);
+        if (profile?.subscriptionTier) {
+          setUserTier(profile.subscriptionTier);
+        }
         const body: unknown = await response.json();
         if (!response.ok) throw new Error(readError(body));
         setPayload(body as Payload);
@@ -162,6 +164,31 @@ export default function A1CapstonePage() {
           </p>
         </div>
 
+        {!SubscriptionService.canAccessCapstones(userTier) && (
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                  🔒 Ultra Tier Required
+                </span>
+                <h4 className="mt-1 text-sm font-bold text-slate-900">
+                  Capstone Oral Defense &amp; Exit Certification
+                </h4>
+                <p className="mt-0.5 text-xs text-slate-600">
+                  You are currently on the {String(userTier).toUpperCase()} plan. B1/B2 Capstone oral defense, portfolio verification, and exit evaluations require an active Ultra or Enterprise subscription.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUpgradeModalOpen(true)}
+                className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-sm hover:opacity-90 transition"
+              >
+                Upgrade to Ultra →
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
@@ -190,14 +217,24 @@ export default function A1CapstonePage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              disabled={submitting || !defenseText.trim()}
-              onClick={handleDefenseSubmit}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 transition"
-            >
-              {submitting ? "Evaluating Oral Defense…" : "Submit Defense to Mind →"}
-            </button>
+            {SubscriptionService.canAccessCapstones(userTier) ? (
+              <button
+                type="button"
+                disabled={submitting || !defenseText.trim()}
+                onClick={handleDefenseSubmit}
+                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 transition"
+              >
+                {submitting ? "Evaluating Oral Defense…" : "Submit Defense to Mind →"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsUpgradeModalOpen(true)}
+                className="rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition"
+              >
+                🔒 Upgrade to Ultra to Submit Defense
+              </button>
+            )}
           </div>
 
           {defenseFeedback && (
@@ -260,6 +297,15 @@ export default function A1CapstonePage() {
       ) : null}
 
       <p className="mt-8 text-sm leading-6 text-[var(--lx-muted)]">{result.rationale}</p>
+
+      <TierUpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        featureName="A1 Capstone Oral Defense"
+        requiredTier="ultra"
+        currentTier={userTier}
+      />
     </main>
   );
 }
+

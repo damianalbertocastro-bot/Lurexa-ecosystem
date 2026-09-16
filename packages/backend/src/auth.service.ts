@@ -43,23 +43,12 @@ export const AuthService = {
     if (user) {
       try {
         const { UserService } = await import("./user.service");
-        const existingProfile = await UserService.getUserProfile(user.uid);
-        if (!existingProfile) {
-          const names = (user.displayName || "").trim().split(" ");
-          const firstName = names[0] || undefined;
-          const lastName = names.slice(1).join(" ") || undefined;
-          await UserService.updateUserProfile(user.uid, {
-            id: user.uid,
-            email: user.email || "",
-            displayName: user.displayName || "Learner",
-            firstName,
-            lastName,
-            avatarUrl: user.photoURL || undefined,
-            role: "student",
-          });
+        const { isFirstTime } = await UserService.ensureGoogleUserDocument(user);
+        if (isFirstTime) {
+          return { user, isNewUser: true };
         }
       } catch (profileError) {
-        console.warn("Non-fatal: failed to seed profile for Google user", profileError);
+        console.warn("Non-fatal: failed to verify/seed profile for Google user", profileError);
       }
     }
 

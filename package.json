@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "pnpm -r --if-present build",
+    "seed:users": "node scripts/seed-test-users.mjs",
     "dev": "pnpm --filter learn-web dev",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present check-types",

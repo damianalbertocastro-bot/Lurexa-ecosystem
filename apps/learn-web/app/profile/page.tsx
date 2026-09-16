@@ -8,6 +8,8 @@ import {
   StandardProfileView,
   type StandardProfileData,
 } from "@lurexa/ui/StandardProfileView";
+import type { SubscriptionTier } from "@lurexa/types";
+import { DiagnosticTierSwitcher } from "../../components/debug/DiagnosticTierSwitcher";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 
 export default function LearnProfilePage() {
@@ -16,6 +18,8 @@ export default function LearnProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isEducator, setIsEducator] = useState(false);
   const [profileData, setProfileData] = useState<StandardProfileData | null>(null);
+  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>("basic");
+  const [organizationId, setOrganizationId] = useState<string>("org_default");
 
   useEffect(() => {
     const unsubscribe = AuthService.onUserChanged(async (user) => {
@@ -26,6 +30,8 @@ export default function LearnProfilePage() {
             UserService.getUserProfile(user.uid),
             OrganizationService.getMembershipsForUser(user.uid),
           ]);
+          setSubscriptionTier(profile?.subscriptionTier ?? "basic");
+          setOrganizationId(profile?.organizationId ?? "org_default");
           const educatorRole =
             memberships.some((m) => ["owner", "admin", "teacher"].includes(m.role)) ||
             profile?.role === "teacher" ||
@@ -149,6 +155,16 @@ export default function LearnProfilePage() {
   return (
     <ProductShell area={isEducator ? "Educator space" : "Learner space"} homeHref={isEducator ? "/teacher/dashboard" : "/dashboard"} product="learn">
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        {currentUser && (
+          <div className="mb-6">
+            <DiagnosticTierSwitcher
+              userId={currentUser.uid}
+              currentTier={subscriptionTier}
+              organizationId={organizationId}
+              onTierChanged={(newTier) => setSubscriptionTier(newTier)}
+            />
+          </div>
+        )}
         <StandardProfileView
           profile={profileData}
           userType={isEducator ? "educator" : "student"}
