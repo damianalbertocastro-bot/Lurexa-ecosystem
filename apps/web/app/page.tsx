@@ -13,6 +13,7 @@ import {
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import { ProductShowcase } from "./components/ProductShowcase";
 import { DemoModal } from "./components/DemoModal";
+import { PricingCards } from "./components/PricingCards";
 import styles from "./page.module.css";
 
 type CapabilityName = "connect" | "cloud" | "secure" | "assess" | "schedule" | "pay" | "mobile" | "pwa" | "offline" | "tutor" | "api" | "design" | "content" | "marketing" | "developer";
@@ -432,60 +433,7 @@ export default function Home() {
         </div>
 
         {pricingTab === "individual" ? (
-          <div className={styles.pricingGrid}>
-            {/* Free Starter */}
-            <article className={styles.pricingCard}>
-              <span className={styles.planBadge}>{t("landing.pricing.starterBadge", "Starter")}</span>
-              <h3>{t("landing.pricing.starterTitle", "Free Forever")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.starterPrice", "$0")}<span>{t("landing.pricing.starterPeriod", "/mo")}</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.starterDesc", "Core foundational lessons and placement for individual learners.")}</p>
-              <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.starterF1", "English A1 Foundation modules")}</li>
-                <li>✓ {t("landing.pricing.starterF2", "Adaptive placement diagnostic")}</li>
-                <li>✓ {t("landing.pricing.starterF3", "Spaced-retrieval review checks")}</li>
-                <li>✓ {t("landing.pricing.starterF4", "Basic Coach speaking studio (5 mins/day)")}</li>
-              </ul>
-              <a className={styles.planButtonSecondary} href={learnUrl}>
-                {t("landing.pricing.starterCta", "Get Started Free")} →
-              </a>
-            </article>
-
-            {/* Fluency Pro */}
-            <article className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-              <span className={styles.planBadgeHighlight}>{t("landing.pricing.proBadge", "Most Popular")}</span>
-              <h3>{t("landing.pricing.proTitle", "Fluency Pro")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.proPrice", "$14.99")}<span>{t("landing.pricing.proPeriod", "/mo")}</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.proDesc", "Full access to interactive lessons, unlimited speaking AI, and Dominican contrastive phonetics.")}</p>
-              <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.proF1", "Complete A1–B2 curriculum pathways")}</li>
-                <li>✓ {t("landing.pricing.proF2", "Unlimited Coach voice turns & waveform feedback")}</li>
-                <li>✓ {t("landing.pricing.proF3", "Contrastive Dominican Spanish acoustic remediation")}</li>
-                <li>✓ {t("landing.pricing.proF4", "Continuous Learner Model progress tracking")}</li>
-                <li>✓ {t("landing.pricing.proF5", "Spoken minimal pair drills & phoneme map")}</li>
-              </ul>
-              <a className={styles.planButtonPrimary} href={learnUrl}>
-                {t("landing.pricing.proCta", "Start 7-Day Free Trial")} →
-              </a>
-            </article>
-
-            {/* Dual Master */}
-            <article className={styles.pricingCard}>
-              <span className={styles.planBadge}>{t("landing.pricing.dualBadge", "All Access")}</span>
-              <h3>{t("landing.pricing.dualTitle", "Dual Master")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.dualPrice", "$24.99")}<span>{t("landing.pricing.dualPeriod", "/mo")}</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.dualDesc", "For ambitious professionals and educators pursuing certified fluency and teaching credentials.")}</p>
-              <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.dualF1", "Everything in Fluency Pro")}</li>
-                <li>✓ {t("landing.pricing.dualF2", "Full Lurexa Teach professional certification")}</li>
-                <li>✓ {t("landing.pricing.dualF3", "CEFR C1–C2 advanced business modules")}</li>
-                <li>✓ {t("landing.pricing.dualF4", "Verifiable micro-credentials & certificates")}</li>
-                <li>✓ {t("landing.pricing.dualF5", "Priority access to Lurexa Studio content")}</li>
-              </ul>
-              <a className={styles.planButtonSecondary} href={teachUrl}>
-                {t("landing.pricing.dualCta", "Upgrade to Dual Master")} →
-              </a>
-            </article>
-          </div>
+          <PricingCards learnUrl={learnUrl} teachUrl={teachUrl} />
         ) : (
           <div className={styles.pricingGrid}>
             {/* Classroom Cohort */}
