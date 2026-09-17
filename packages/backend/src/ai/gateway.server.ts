@@ -2,6 +2,7 @@ import { buildLurexaMindSystemPrompt } from "./prompts";
 import { resolveAiRoutes } from "./router.server";
 import { GeminiProvider } from "./providers/gemini.server";
 import { OpenRouterProvider } from "./providers/openrouter.server";
+import { validateAiResponse } from "./validation.server";
 import type { AiGenerateRequest, AiGenerateResult, AiProvider } from "./types";
 
 const providers: Record<string, AiProvider> = {
@@ -9,10 +10,14 @@ const providers: Record<string, AiProvider> = {
   openrouter: new OpenRouterProvider(),
 };
 
-function assertSafeText(text: string): string {
+function assertSafeText(request: AiGenerateRequest, text: string): string {
   const value = text.trim();
-  if (!value) throw new Error("AI provider returned empty output.");
-  if (value.length > 4_000) throw new Error("AI provider returned output above the Lurexa response limit.");
+  const validation = validateAiResponse({
+    task: request.task,
+    text: value,
+    cefr: request.learnerContext?.cefr,
+  });
+  if (!validation.ok) throw new Error(`AI response validation failed: ${validation.issues.join(", ")}`);
   return value;
 }
 
@@ -31,7 +36,7 @@ export class LurexaAiGateway {
 
       try {
         const result = await provider.generate({ ...request, route, systemPrompt });
-        return { ...result, text: assertSafeText(result.text) };
+        return { ...result, text: assertSafeText(request, result.text) };
       } catch (error) {
         failures.push(`${route.provider}/${route.model}: ${error instanceof Error ? error.message : "unknown error"}`);
       }
