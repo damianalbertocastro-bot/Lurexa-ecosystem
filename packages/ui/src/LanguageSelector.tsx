@@ -24,7 +24,7 @@ export function LanguageSelector({
   inverse = false,
   variant = "standalone",
   compact = false,
-  refresh = true,
+  refresh,
   onLocaleChange,
   className = "",
   ...props
@@ -34,6 +34,9 @@ export function LanguageSelector({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxRef = useRef<HTMLUListElement>(null);
+
+  // For segmented toggle, default to instant client-side transition without page reload (Option A)
+  const shouldRefresh = refresh ?? (variant === "segmented" ? false : true);
 
   // Close when clicking outside or pressing Escape
   useEffect(() => {
@@ -61,7 +64,7 @@ export function LanguageSelector({
   const handleSelect = useCallback(
     (code: SupportedLocale) => {
       setIsOpen(false);
-      setLocale(code, { refresh });
+      setLocale(code, { refresh: shouldRefresh });
       if (onLocaleChange) {
         onLocaleChange(code);
       }
@@ -69,20 +72,88 @@ export function LanguageSelector({
         window.dispatchEvent(new CustomEvent("lurexa-locale-change", { detail: { locale: code } }));
       }
     },
-    [setLocale, onLocaleChange, refresh],
+    [setLocale, onLocaleChange, shouldRefresh],
   );
 
+  // Tactical segmented pill toggle matching the exact design specification
+  if (variant === "segmented") {
+    const isEs = locale === "es";
+    return (
+      <div
+        ref={containerRef}
+        role="radiogroup"
+        aria-label={t("languages.interfaceLanguage") || "Interface Language"}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            handleSelect("es");
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            handleSelect("en");
+          }
+        }}
+        className={`relative inline-flex items-center rounded-2xl p-1 transition-all duration-200 select-none ${
+          inverse
+            ? "bg-white/15 border border-white/20 backdrop-blur-md shadow-xs"
+            : "bg-[#eef2f6] dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 shadow-xs"
+        } ${className}`}
+        {...props}
+      >
+        {/* ES Button */}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={isEs}
+          aria-label="Español"
+          tabIndex={isEs ? 0 : -1}
+          onClick={() => handleSelect("es")}
+          className={`relative z-10 flex items-center justify-center rounded-xl transition-all duration-200 ${
+            compact ? "h-7 min-w-[34px] px-2.5 text-[11px]" : "h-8 min-w-[38px] px-3 text-xs"
+          } ${
+            isEs
+              ? inverse
+                ? "bg-white text-[#0a2540] font-black shadow-[0_2px_6px_rgba(0,0,0,0.14),0_1px_2px_rgba(0,0,0,0.08)] scale-100"
+                : "bg-white text-[#0a2540] font-black shadow-[0_2px_6px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.04)] scale-100"
+              : inverse
+                ? "bg-transparent text-white/60 hover:text-white font-bold"
+                : "bg-transparent text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-bold"
+          } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1`}
+        >
+          ES
+        </button>
+
+        {/* EN Button */}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={!isEs}
+          aria-label="English"
+          tabIndex={!isEs ? 0 : -1}
+          onClick={() => handleSelect("en")}
+          className={`relative z-10 flex items-center justify-center rounded-xl transition-all duration-200 ${
+            compact ? "h-7 min-w-[34px] px-2.5 text-[11px]" : "h-8 min-w-[38px] px-3 text-xs"
+          } ${
+            !isEs
+              ? inverse
+                ? "bg-white text-[#0a2540] font-black shadow-[0_2px_6px_rgba(0,0,0,0.14),0_1px_2px_rgba(0,0,0,0.08)] scale-100"
+                : "bg-white text-[#0a2540] font-black shadow-[0_2px_6px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.04)] scale-100"
+              : inverse
+                ? "bg-transparent text-white/60 hover:text-white font-bold"
+                : "bg-transparent text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-bold"
+          } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1`}
+        >
+          EN
+        </button>
+      </div>
+    );
+  }
+
   // Determine button styling based on variant & theme with fixed, jitter-free dimensions
-  const segDim = compact ? "h-8 w-[76px] min-w-[76px] max-w-[76px]" : "h-9 w-[80px] min-w-[80px] max-w-[80px]";
   const standDim = compact ? "h-9 w-[82px] min-w-[82px] max-w-[82px]" : "h-10 w-[86px] min-w-[86px] max-w-[86px]";
   const pillDim = compact ? "h-9 w-[88px] min-w-[88px] max-w-[88px]" : "h-10 w-[92px] min-w-[92px] max-w-[92px]";
 
   let buttonClasses = "";
-  if (variant === "segmented") {
-    buttonClasses = inverse
-      ? `inline-flex ${segDim} shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-white hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
-      : `inline-flex ${segDim} shrink-0 items-center justify-between rounded-lg px-1.5 text-xs font-bold text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
-  } else if (variant === "pill") {
+  if (variant === "pill") {
     buttonClasses = inverse
       ? `inline-flex ${pillDim} shrink-0 items-center justify-between rounded-full border border-white/20 bg-white/10 px-3 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400`
       : `inline-flex ${pillDim} shrink-0 items-center justify-between rounded-full border border-slate-200/90 bg-white/95 px-3 text-xs font-bold text-slate-800 shadow-xs backdrop-blur-md transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`;
