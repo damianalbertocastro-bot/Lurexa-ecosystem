@@ -13,6 +13,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
+    "test:ai-gateway": "tsx scripts/test-ai-gateway.ts",
     "test:learn-rules": "node scripts/test-learn-progress-rules.mjs",
     "test:institution-isolation": "node scripts/test-institution-isolation-rules.mjs",
     "test:learn-mvp-journey": "tsx scripts/test-learn-mvp-journey.ts",
@@ -30,6 +31,9 @@
     "firebase-admin": "^12.1.0"
   },
   "devDependencies": {
+    "@lurexa/eslint-config": "workspace:*",
+    "@lurexa/typescript-config": "workspace:*",
+    "@types/node": "^24.13.3",
     "@lurexa/eslint-config": "workspace:*",
     "@lurexa/typescript-config": "workspace:*",
     "@types/node": "^24.13.3",
