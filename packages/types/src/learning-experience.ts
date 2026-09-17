@@ -28,7 +28,7 @@ export interface ModelListeningCapability extends LearningCapabilityBase {
   audioUrl?: string;
   locale: string;
   playbackGoal: "meaning" | "noticing" | "pronunciation_model";
-  /** Visible for instruction by default. Hidden mode is reserved for assessment/listening evidence where showing the script would reveal the answer. */
+  /** Visible for instruction by default. Hidden mode is reserved for assessment/listening evidence where showing the answer would be inappropriate. */
   transcriptVisibility?: "visible" | "hidden";
 }
 
@@ -70,6 +70,8 @@ export interface LearnTutorTurn {
   timestamp: string;
 }
 
+export type LearnTutorProvider = "gemini" | "openrouter" | "deterministic_fallback";
+
 export interface LearnTutorSession {
   id: string;
   learnerId: string;
@@ -79,16 +81,12 @@ export interface LearnTutorSession {
   activityId: string;
   status: "active" | "completed";
   transcript: LearnTutorTurn[];
-  provider: "gemini" | "deterministic_fallback" | null;
+  provider: LearnTutorProvider | null;
   createdAt: string;
   updatedAt: string;
 }
 
-/**
- * The learner client submits only stable identifiers, optional trusted session
- * identity, and the new learner-authored message. Prior roleplay turns are
- * owned by the server and cannot be rewritten by the browser.
- */
+/** The learner client submits only stable identifiers, optional trusted session identity, and the new learner-authored message. */
 export interface LearnTutorTurnRequest {
   courseId: string;
   lessonId: string;
@@ -106,7 +104,7 @@ export interface LearnTutorTurnResult {
     activeTargetCount: number;
     recurringPatternCount: number;
   };
-  provider: "gemini" | "deterministic_fallback";
+  provider: LearnTutorProvider;
 }
 
 export interface SpokenEvidenceRecord {
@@ -137,12 +135,6 @@ export interface RetrievalSchedule {
   completedAt?: string;
 }
 
-/**
- * Every learner-facing next step uses the same recommendation contract.
- * `kind` only expresses routing priority/source; the actual educational action
- * remains a LearnerRecommendationAction whether it came from retrieval,
- * a teacher, Lurexa Mind, or ordinary curriculum continuation.
- */
 export type NextLearningAction =
   | {
       kind: "retrieval";
