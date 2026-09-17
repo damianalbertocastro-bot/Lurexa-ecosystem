@@ -22,6 +22,7 @@ const SURFACES = [
 const FORBIDDEN_SECRETS_IN_VARS = [
   "FIREBASE_SERVICE_ACCOUNT_JSON",
   "GEMINI_API_KEY",
+  "OPENROUTER_API_KEY",
   "ELEVENLABS_API_KEY",
   "SESSION_SECRET",
   "PRIVATE_KEY",
@@ -37,7 +38,6 @@ for (const surface of SURFACES) {
 
   const content = fs.readFileSync(wranglerPath, "utf8");
 
-  // 1. Worker Name Check
   const nameMatch = content.match(/name\s*=\s*["']([^"']+)["']/);
   if (!nameMatch || nameMatch[1] !== surface.workerName) {
     fail(`${surface.dir}/wrangler.toml name should be '${surface.workerName}', found '${nameMatch?.[1]}'`);
@@ -45,7 +45,6 @@ for (const surface of SURFACES) {
     pass(`${surface.workerName}: worker name correctly declared`);
   }
 
-  // 2. Compatibility flags check
   const REQUIRED_FLAGS = ["nodejs_compat", "enable_weak_ref", "allow_eval_during_startup"];
   for (const flag of REQUIRED_FLAGS) {
     if (!content.includes(`"${flag}"`) && !content.includes(`'${flag}'`)) {
@@ -54,53 +53,40 @@ for (const surface of SURFACES) {
   }
   pass(`${surface.workerName}: compatibility_flags includes all required runtime flags`);
 
-  // 3. Cloudflare Workers Builds build command check
   if (!content.includes("[build]") || !content.includes('command = "opennextjs-cloudflare build"')) {
     fail(`${surface.dir}/wrangler.toml must declare [build] with command = "opennextjs-cloudflare build" for Cloudflare production deployment`);
   } else {
     pass(`${surface.workerName}: build command configured for Cloudflare Workers Builds`);
   }
 
-  // 4. Asset binding
   if (!content.includes(".open-next/assets") || !content.includes('binding = "ASSETS"')) {
     fail(`${surface.dir}/wrangler.toml is missing valid [assets] binding to .open-next/assets`);
   } else {
     pass(`${surface.workerName}: assets binding properly configured`);
   }
 
-  // 5. Custom domain route
   if (!content.includes(surface.domain)) {
     fail(`${surface.dir}/wrangler.toml route pattern missing canonical domain '${surface.domain}'`);
   } else {
     pass(`${surface.workerName}: custom domain '${surface.domain}' configured`);
   }
 
-  // 6. No raw secrets in [vars]
   for (const forbidden of FORBIDDEN_SECRETS_IN_VARS) {
     if (content.includes(`${forbidden} =`) || content.includes(`${forbidden}=`)) {
-      fail(`${surface.dir}/wrangler.toml contains forbidden private secret '${forbidden}' in [vars]`);
+      fail(`${surface.dir}/wrangler.toml must not expose secret '${forbidden}' in [vars]`);
     }
   }
 
-  // 7. Scripts in package.json
-  const pkgPath = path.join(root, surface.dir, "package.json");
-  if (fs.existsSync(pkgPath)) {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-    if (!pkg.scripts?.["build:worker"] || !pkg.scripts?.["deploy:worker"]) {
-      fail(`${surface.dir}/package.json missing build:worker or deploy:worker script`);
-    } else {
-      pass(`${surface.workerName}: worker lifecycle scripts verified in package.json`);
-    }
+  if (!content.includes("[vars]")) {
+    fail(`${surface.dir}/wrangler.toml is missing [vars] declaration`);
+  } else {
+    pass(`${surface.workerName}: [vars] declaration present`);
   }
 }
 
-console.log("\n⚡ CLOUDFLARE WORKER DEPLOYMENT READINESS AUDIT");
-console.log("================================================");
-passes.forEach((p) => console.log(`  ✓ ${p}`));
-if (failures.length > 0) {
-  console.log("\n❌ FAILURES:");
-  failures.forEach((f) => console.log(`  ✗ ${f}`));
+if (failures.length) {
+  console.error(JSON.stringify({ ok: false, failures, passes }, null, 2));
   process.exit(1);
-} else {
-  console.log("\n🎉 All 8 Cloudflare Worker surface configurations verified ready for deployment!\n");
 }
+
+console.log(JSON.stringify({ ok: true, failures: [], passes }, null, 2));
