@@ -2,7 +2,7 @@
  * Lurexa Mind Live Streaming Audio Gateway (Server-Only)
  * 
  * Provides low-latency full-duplex conversational streaming via WebSocket audio chunking,
- * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for Ultra & Enterprise tiers.
+ * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for entitled Coach experiences.
  */
 
 import { SubscriptionTier, DEFAULT_TIER_QUOTAS, type BusinessContract } from "@lurexa/types";
