@@ -185,6 +185,7 @@ export const CoachPlatformService = {
     const businessUsageApplied = await BusinessUsageService.consumeIfBusiness({
       learnerId: actor.uid,
       aiTurns: 1,
+      product: "COACH",
     });
     if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
@@ -294,6 +295,7 @@ export const CoachPlatformService = {
       learnerId: actor.uid,
       aiTurns: 1,
       voiceMinutes,
+      product: "COACH",
     });
     if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
