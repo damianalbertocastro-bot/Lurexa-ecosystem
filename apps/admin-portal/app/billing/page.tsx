@@ -156,8 +156,7 @@ export default function AdminBillingPage() {
               Institutional Plans &amp; Seat Governance
             </h1>
             <p className="mt-3 text-sm leading-6 text-indigo-100">
-              Manage organization tier subscriptions, provisioned student seats, contract cycles,
-              and invoice histories across the ecosystem.
+              Manage Business organization contracts, learner allowances, usage terms, and billing records across the ecosystem.
             </p>
           </div>
         </div>
