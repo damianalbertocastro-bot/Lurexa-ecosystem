@@ -4,7 +4,7 @@ export type InstitutionalPlanTier =
   | "free_community"
   | "standard_institutional"
   | "campus_pro"
-  | "enterprise";
+  | "business";
 
 export interface InstitutionalInvoice {
   id: string;
