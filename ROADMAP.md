@@ -51,6 +51,86 @@ Core owns trusted records, identity, authorization, persistence, provenance and 
 
 ---
 
+# Commercial & entitlement reconciliation program
+
+This program is layered on top of the existing R1–R8 roadmap and must be completed before production billing, premium capability enforcement, or provider-specific commercial gating is implemented.
+
+## Phase 1 — Commercial Model Freeze
+
+**Maturity: Architecture / documentation baseline**
+
+- [x] Freeze Individual Basic, Plus and Ultra semantics.
+- [x] Make Plus product selection explicit: Learn Plus, Coach Plus, or Teach Plus.
+- [x] Separate Teach Basic/Teach Plus from T1–T5 professional stages.
+- [x] Preserve the verified-educator `coach_full` benefit as a separate entitlement source.
+- [x] Keep institutional tiers separate from consumer subscriptions.
+- [x] Keep Lurexa Campus as an institutional shell rather than a consumer-plan variant or seventh sibling product.
+- [x] Establish Business as a separate workforce commercial context without inventing unsupported SKU names or prices.
+- [x] Define capability-oriented entitlement direction.
+- [x] Record current subscription/billing contradictions for Phase 2 resolution.
+- [x] Establish server/Core enforcement as the authority for capability access.
+
+Canonical artifact:
+`Docs/Commercial/LUREXA_COMMERCIAL_PLANS_ENTITLEMENTS_RECONCILIATION.md`
+
+## Phase 2 — Entitlement Primitives
+
+**Maturity: Contract implemented**
+
+- [x] Add canonical product and capability entitlement contracts.
+- [x] Separate subscription sources, organization grants, and educator benefits.
+- [x] Define quota scope and entitlement provenance contracts.
+- [x] Add deterministic Core-side entitlement resolution.
+- [x] Preserve qualification and teaching authorization as separate trust domains.
+- [x] Record compatibility migration requirements for legacy subscription/quota contracts.
+
+Canonical artifacts:
+- `packages/types/src/entitlements.ts`
+- `packages/backend/src/core/entitlement-resolution.server.ts`
+- `Docs/Commercial/LUREXA_PHASE_2_ENTITLEMENT_PRIMITIVES.md`
+
+No payment settlement or client-side entitlement authority was introduced.
+
+## Phase 3 — Individual & Educator Entitlement Migration
+
+**Maturity: Contract implemented / migration started**
+
+- [x] Require explicit Learn/Coach/Teach selection for Plus checkout.
+- [x] Reject ambiguous Plus checkout requests.
+- [x] Validate selected-product metadata on completed Plus subscriptions.
+- [x] Preserve educator benefits as a separate entitlement source.
+- [x] Document remaining legacy consumers requiring capability/quota migration.
+- [ ] Migrate all production access checks from legacy tiers to capabilities.
+- [ ] Migrate quota enforcement to scoped quota contracts.
+- [ ] Remove legacy mixed plan definitions after verification.
+
+Canonical artifact:
+`Docs/Commercial/LUREXA_PHASE_3_INDIVIDUAL_EDUCATOR_MIGRATION.md`
+
+## Phase 4 — Institutional & Business Entitlement Model
+
+**Maturity: Contract implemented**
+
+- [x] Separate institution and business commercial contexts.
+- [x] Define organization product/capability bundles.
+- [x] Define organization seat grants.
+- [x] Define organization quota pools.
+- [x] Define flexible Campus bundles.
+- [x] Define Business workforce contracts without fabricated public SKU names/prices.
+- [x] Preserve qualification and teaching authorization as separate trust domains.
+
+Canonical artifacts:
+- `packages/types/src/organization-entitlements.ts`
+- `Docs/Commercial/LUREXA_PHASE_4_INSTITUTION_BUSINESS_ENTITLEMENTS.md`
+
+## Phase 5 — Capability Enforcement & Quota Migration
+
+Pending.
+
+Replace legacy subscription-tier checks with server-side capability assertions, migrate AI/speech access to capability-aware gates, and move usage accounting to product/capability-scoped quotas.
+
+---
+
 # Immediate reconciliation program
 
 This program takes precedence over new product expansion until the repository, deployment topology and maturity claims agree.
