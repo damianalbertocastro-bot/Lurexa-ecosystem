@@ -679,12 +679,15 @@ export const LearnTutorService = {
     const voiceMinutes = request.audioDurationMs && request.audioDurationMs > 0
       ? Math.ceil(request.audioDurationMs / 60000)
       : 0;
-    await BusinessUsageService.consumeIfBusiness({
-      learnerId: actor.uid,
-      organizationId,
-      aiTurns: 1,
-      voiceMinutes,
-    });
+    if (audioBase64) {
+      await BusinessUsageService.consumeIfBusiness({
+        learnerId: actor.uid,
+        organizationId,
+        aiTurns: 1,
+        voiceMinutes,
+        product: "LEARN",
+      });
+    }
 
     const geminiOutput = audioBase64
       ? await callGemini({
