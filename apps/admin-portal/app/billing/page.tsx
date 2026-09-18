@@ -226,7 +226,7 @@ export default function AdminBillingPage() {
               className="w-full max-w-sm rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3.5 py-2 text-xs font-medium text-[var(--lx-ink)] outline-none focus:border-[var(--lx-primary)]"
             />
             <div className="flex flex-wrap items-center gap-1.5">
-              {(["all", "free_community", "standard_institutional", "campus_pro", "enterprise"] as const).map(
+              {(["all", "free_community", "standard_institutional", "campus_pro", "business"] as const).map(
                 (tier) => (
                   <Button
                     key={tier}
@@ -349,7 +349,7 @@ export default function AdminBillingPage() {
                 <option value="free_community">Free Community ($0/seat)</option>
                 <option value="standard_institutional">Standard Institutional ($5/seat/mo)</option>
                 <option value="campus_pro">Campus Pro ($8/seat/mo)</option>
-                <option value="enterprise">Enterprise Custom ($12/seat/mo)</option>
+                <option value="business">Business Custom ($12/seat/mo)</option>
               </select>
             </div>
 
@@ -374,7 +374,7 @@ export default function AdminBillingPage() {
                 Annual Subscription: $
                 {(
                   newSeats *
-                  (newPlan === "enterprise"
+                  (newPlan === "business"
                     ? 12
                     : newPlan === "campus_pro"
                     ? 8
