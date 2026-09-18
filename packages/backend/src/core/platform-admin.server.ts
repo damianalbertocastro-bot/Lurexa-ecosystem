@@ -195,7 +195,7 @@ export const PlatformAdminService = {
             {
               id: `inv_${doc.id}_1`,
               invoiceNumber: `LX-INV-2026-${doc.id.slice(0, 4).toUpperCase()}`,
-              amountUsd: allocatedSeats * pricePerSeat * 12,
+              amountUsd: pricePerSeat == null ? 0 : allocatedSeats * pricePerSeat * 12,
               status: "paid" as const,
               issuedAt: createdAt,
               paidAt: createdAt,
