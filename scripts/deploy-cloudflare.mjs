@@ -22,30 +22,40 @@ export const CLOUDFLARE_SURFACES = [
     workerName: "lurexa-web",
     domain: "lurexa.org",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: false,
   },
   {
     id: "learn-web",
     workspace: "learn-web",
     dir: "apps/learn-web",
     workerName: "lurexa-learn",
+    previewWorkerName: "lurexa-learn-preview",
     domain: "learn.lurexa.org",
+    previewRoute: "lurexa-learn-preview.damianalbertocastro.workers.dev",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: true,
   },
   {
     id: "coach-web",
     workspace: "@lurexa/coach-web",
     dir: "apps/coach-web",
     workerName: "lurexa-coach",
+    previewWorkerName: "lurexa-coach-preview",
     domain: "coach.lurexa.org",
+    previewRoute: "lurexa-coach-preview.damianalbertocastro.workers.dev",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: true,
   },
   {
     id: "teach-web",
     workspace: "@lurexa/teach-web",
     dir: "apps/teach-web",
     workerName: "lurexa-teach",
+    previewWorkerName: "lurexa-teach-preview",
     domain: "teach.lurexa.org",
+    previewRoute: "lurexa-teach-preview.damianalbertocastro.workers.dev",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: true,
   },
   {
     id: "admin-web",
@@ -54,6 +64,7 @@ export const CLOUDFLARE_SURFACES = [
     workerName: "lurexa-admin",
     domain: "admin.lurexa.org",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: false,
   },
   {
     id: "docs-web",
@@ -62,6 +73,7 @@ export const CLOUDFLARE_SURFACES = [
     workerName: "lurexa-docs",
     domain: "docs.lurexa.org",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: false,
   },
   {
     id: "insight-web",
@@ -70,6 +82,7 @@ export const CLOUDFLARE_SURFACES = [
     workerName: "lurexa-insight",
     domain: "insight.lurexa.org",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: false,
   },
   {
     id: "studio-web",
@@ -78,6 +91,7 @@ export const CLOUDFLARE_SURFACES = [
     workerName: "lurexa-studio",
     domain: "studio.lurexa.org",
     productionBranch: PRODUCTION_BRANCH,
+    hasPreview: false,
   },
 ];
 
@@ -91,16 +105,18 @@ Usage:
   node scripts/deploy-cloudflare.mjs [options]
 
 Options:
-  --list                     List all 8 Cloudflare Worker deployment targets and configurations.
-  --check                    Run Cloudflare deployment readiness verification.
-  --surface <name>           Target a specific surface (e.g., learn-web, coach-web, web).
-  --dry-run                  Simulate deployment commands without executing them.
-  --deploy                   Execute deployment for targeted surfaces (or all if omitted).
-  -h, --help                 Show this help message.
+  --list                        List all Cloudflare Worker deployment targets and configurations.
+  --check                       Run Cloudflare deployment readiness verification.
+  --surface <name>              Target a specific surface (e.g., learn-web, coach-web, teach-web, web).
+  --target <preview|production> Deployment target environment (default: production).
+  --env <preview|production>    Alias for --target.
+  --dry-run                     Simulate deployment commands without executing them.
+  --deploy                      Execute deployment for targeted surfaces (or all if omitted).
+  -h, --help                    Show this help message.
 
 Environment:
-  CLOUDFLARE_API_TOKEN       Required for CLI-driven deployment when not using Cloudflare Workers Builds.
-  CLOUDFLARE_ACCOUNT_ID      Cloudflare account identifier.
+  CLOUDFLARE_API_TOKEN          Required for CLI-driven deployment when not using Cloudflare Workers Builds.
+  CLOUDFLARE_ACCOUNT_ID         Cloudflare account identifier.
 `);
 }
 
@@ -121,7 +137,13 @@ async function main() {
     deploy: args.includes("--deploy"),
     help: args.includes("--help") || args.includes("-h"),
     surface: null,
+    target: "production",
   };
+
+  const targetIdx = args.indexOf("--target") !== -1 ? args.indexOf("--target") : args.indexOf("--env");
+  if (targetIdx !== -1 && args[targetIdx + 1]) {
+    flags.target = args[targetIdx + 1].toLowerCase();
+  }
 
   const surfaceIdx = args.indexOf("--surface") !== -1 ? args.indexOf("--surface") : args.indexOf("--product");
   if (surfaceIdx !== -1 && args[surfaceIdx + 1]) {
@@ -136,16 +158,17 @@ async function main() {
   const currentBranch = getCurrentBranch();
 
   if (flags.list) {
-    console.log("\n🌐 CLOUDFLARE WORKER PRODUCTION DEPLOYMENT TOPOLOGY");
+    console.log("\n🌐 CLOUDFLARE WORKER DEPLOYMENT TOPOLOGY");
     console.log(`Authoritative Production Branch: ${PRODUCTION_BRANCH}`);
     console.log(`Current Working Branch: ${currentBranch}`);
     console.log("=====================================================");
     console.table(
       CLOUDFLARE_SURFACES.map((s) => ({
         Workspace: s.workspace,
-        Worker: s.workerName,
-        Domain: `https://${s.domain}`,
-        "Prod Branch": s.productionBranch,
+        "Worker (Prod)": s.workerName,
+        "Domain (Prod)": `https://${s.domain}`,
+        "Worker (Preview)": s.previewWorkerName || "(none)",
+        "Route (Preview)": s.previewRoute ? `https://${s.previewRoute}` : "(none)",
       }))
     );
     return;
@@ -157,43 +180,67 @@ async function main() {
     return;
   }
 
-  const targets = flags.surface
+  const isPreview = flags.target === "preview";
+
+  const matchingSurfaces = flags.surface
     ? CLOUDFLARE_SURFACES.filter(
         (s) => s.id === flags.surface || s.workspace === flags.surface || s.dir.endsWith(flags.surface)
       )
     : CLOUDFLARE_SURFACES;
 
-  if (targets.length === 0) {
+  if (matchingSurfaces.length === 0) {
     console.error(`❌ Error: No matching Cloudflare surface found for '${flags.surface}'.`);
     process.exit(1);
   }
 
+  const targets = isPreview
+    ? matchingSurfaces.filter((s) => s.hasPreview)
+    : matchingSurfaces;
+
+  if (targets.length === 0) {
+    if (isPreview) {
+      console.error(`❌ Error: Specified surface '${flags.surface}' does not have a preview environment configured.`);
+      process.exit(1);
+    }
+  }
+
   if (flags.dryRun) {
-    console.log(`\n📋 SIMULATING CLOUDFLARE DEPLOYMENT (Branch: ${currentBranch})`);
+    console.log(`\n📋 SIMULATING CLOUDFLARE ${flags.target.toUpperCase()} DEPLOYMENT (Branch: ${currentBranch})`);
     console.log("=================================================");
     targets.forEach((t) => {
-      console.log(`  → [${t.workerName}] pnpm --filter ${t.workspace} build:worker`);
-      console.log(`  → [${t.workerName}] opennextjs-cloudflare deploy (Target: https://${t.domain})`);
+      const activeWorker = isPreview ? t.previewWorkerName : t.workerName;
+      const targetUrl = isPreview ? `https://${t.previewRoute}` : `https://${t.domain}`;
+      const deployCmd = isPreview ? "opennextjs-cloudflare deploy --env preview" : "opennextjs-cloudflare deploy";
+      console.log(`  → [${activeWorker}] pnpm --filter ${t.workspace} build:worker`);
+      console.log(`  → [${activeWorker}] ${deployCmd} (Target: ${targetUrl})`);
     });
     console.log("\n✓ Dry-run completed successfully.\n");
     return;
   }
 
   if (flags.deploy) {
-    console.log(`\n🚀 INITIATING CLOUDFLARE DEPLOYMENT (Branch: ${currentBranch})`);
-    console.log(`Target Production Branch: ${PRODUCTION_BRANCH}`);
+    console.log(`\n🚀 INITIATING CLOUDFLARE ${flags.target.toUpperCase()} DEPLOYMENT (Branch: ${currentBranch})`);
+    if (!isPreview) {
+      console.log(`Target Production Branch: ${PRODUCTION_BRANCH}`);
+    }
     console.log("=================================================");
 
     for (const t of targets) {
-      console.log(`\n📦 Building worker for ${t.workerName} (${t.workspace})...`);
+      const activeWorker = isPreview ? t.previewWorkerName : t.workerName;
+      const targetUrl = isPreview ? `https://${t.previewRoute}` : `https://${t.domain}`;
+      const deployCmd = isPreview
+        ? `pnpm --filter ${t.workspace} deploy:worker:preview`
+        : `pnpm --filter ${t.workspace} deploy:worker`;
+
+      console.log(`\n📦 Building worker for ${activeWorker} (${t.workspace})...`);
       execSync(`pnpm --filter ${t.workspace} build:worker`, { stdio: "inherit" });
 
-      console.log(`\n⚡ Deploying ${t.workerName} to Cloudflare (https://${t.domain})...`);
+      console.log(`\n⚡ Deploying ${activeWorker} to Cloudflare (${targetUrl})...`);
       try {
-        execSync(`pnpm --filter ${t.workspace} deploy:worker`, { stdio: "inherit" });
-        console.log(`  ✓ ${t.workerName} deployed successfully!`);
+        execSync(deployCmd, { stdio: "inherit" });
+        console.log(`  ✓ ${activeWorker} deployed successfully!`);
       } catch (err) {
-        console.error(`  ❌ Failed to deploy ${t.workerName}:`, err.message);
+        console.error(`  ❌ Failed to deploy ${activeWorker}:`, err.message);
         process.exit(1);
       }
     }

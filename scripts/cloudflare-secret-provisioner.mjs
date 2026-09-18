@@ -75,17 +75,25 @@ Usage:
   node scripts/cloudflare-secret-provisioner.mjs --check
     Validates that environment or local .env has valid secret payloads before deployment.
 
-  node scripts/cloudflare-secret-provisioner.mjs --dry-run [--surface <name>]
+  node scripts/cloudflare-secret-provisioner.mjs --dry-run [--surface <name>] [--env <environment>]
     Simulates wrangler secret put commands across targeted Cloudflare workers.
 
-  node scripts/cloudflare-secret-provisioner.mjs --deploy [--surface <name>]
+  node scripts/cloudflare-secret-provisioner.mjs --deploy [--surface <name>] [--env <environment>]
     Executes 'wrangler secret put' for each worker surface using available environment variables.
 
 Options:
-  --surface <name>   Target a specific worker (e.g., lurexa-learn, lurexa-coach, or learn-web).
-  -h, --help         Show this help message.
+  --surface <name>      Target a specific worker (e.g., lurexa-learn, lurexa-coach, or learn-web).
+  --env <environment>   Target a specific worker environment (e.g., preview).
+  -h, --help            Show this help message.
 `);
   process.exit(0);
+}
+
+// Environment argument parsing
+let targetEnv = null;
+const envFlagIdx = args.indexOf("--env");
+if (envFlagIdx !== -1 && args[envFlagIdx + 1]) {
+  targetEnv = args[envFlagIdx + 1].trim();
 }
 
 // Surface argument parsing
@@ -129,15 +137,16 @@ if (command === "--check" || command === "--dry-run") {
   );
 
   if (command === "--dry-run") {
-    console.log(`Planned Wrangler Secret Injections (${activeWorkers.length} target surfaces):`);
+    const envSuffix = targetEnv ? ` --env ${targetEnv}` : "";
+    console.log(`Planned Wrangler Secret Injections (${activeWorkers.length} target surfaces${targetEnv ? `, env: ${targetEnv}` : ""}):`);
     activeWorkers.forEach((w) => {
       if (saValid) {
-        console.log(`  → wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON --name ${w} (from environment)`);
+        console.log(`  → wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON --name ${w}${envSuffix} (from environment)`);
       } else {
         console.log(`  ⚠ [${w}] Skip FIREBASE_SERVICE_ACCOUNT_JSON (no valid payload)`);
       }
       if (geminiValid) {
-        console.log(`  → wrangler secret put GEMINI_API_KEY --name ${w} (from environment)`);
+        console.log(`  → wrangler secret put GEMINI_API_KEY --name ${w}${envSuffix} (from environment)`);
       } else {
         console.log(`  ⚠ [${w}] Skip GEMINI_API_KEY (no valid payload)`);
       }
@@ -152,7 +161,8 @@ if (command === "--check" || command === "--dry-run") {
     process.exit(1);
   }
 
-  console.log(`🚀 Provisioning Secrets to Cloudflare Workers (${activeWorkers.length} workers)...\n`);
+  const envSuffix = targetEnv ? ` --env ${targetEnv}` : "";
+  console.log(`🚀 Provisioning Secrets to Cloudflare Workers (${activeWorkers.length} workers${targetEnv ? `, env: ${targetEnv}` : ""})...\n`);
 
   const isWindows = process.platform === "win32";
   const localBin = path.resolve(
@@ -167,8 +177,8 @@ if (command === "--check" || command === "--dry-run") {
     
     if (saValid) {
       try {
-        console.log(`  → Putting FIREBASE_SERVICE_ACCOUNT_JSON to ${worker}...`);
-        execSync(`${wranglerCmd} secret put FIREBASE_SERVICE_ACCOUNT_JSON --name ${worker}`, {
+        console.log(`  → Putting FIREBASE_SERVICE_ACCOUNT_JSON to ${worker}${envSuffix}...`);
+        execSync(`${wranglerCmd} secret put FIREBASE_SERVICE_ACCOUNT_JSON --name ${worker}${envSuffix}`, {
           input: serviceAccountJson,
           stdio: ["pipe", "pipe", "pipe"],
           encoding: "utf8",
@@ -181,8 +191,8 @@ if (command === "--check" || command === "--dry-run") {
 
     if (geminiValid) {
       try {
-        console.log(`  → Putting GEMINI_API_KEY to ${worker}...`);
-        execSync(`${wranglerCmd} secret put GEMINI_API_KEY --name ${worker}`, {
+        console.log(`  → Putting GEMINI_API_KEY to ${worker}${envSuffix}...`);
+        execSync(`${wranglerCmd} secret put GEMINI_API_KEY --name ${worker}${envSuffix}`, {
           input: geminiApiKey,
           stdio: ["pipe", "pipe", "pipe"],
           encoding: "utf8",

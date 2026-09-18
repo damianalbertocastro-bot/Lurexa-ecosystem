@@ -11,7 +11,8 @@
     "check-types": "next typegen && tsc --noEmit",
     "build:worker": "opennextjs-cloudflare build",
     "preview:worker": "opennextjs-cloudflare preview",
-    "deploy:worker": "opennextjs-cloudflare deploy"
+    "deploy:worker": "opennextjs-cloudflare deploy",
+    "deploy:worker:preview": "opennextjs-cloudflare deploy --env preview"
   },
   "dependencies": {
     "@lurexa/backend": "workspace:*",

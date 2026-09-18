@@ -162,3 +162,124 @@ jobs:
     uses: ./.github/workflows/product-check.yml
     with:
       workspace: '@lurexa/studio-web'
+
+  preview-deployment:
+    name: Cloudflare Preview Deployments
+    needs: [changes]
+    if: github.event_name == 'pull_request' && (needs.changes.outputs.learn_web == 'true' || needs.changes.outputs.coach == 'true' || needs.changes.outputs.teach == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Cloudflare readiness
+        run: pnpm verify:cloudflare
+
+      - name: Deploy Lurexa Learn Preview
+        if: needs.changes.outputs.learn_web == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying learn-web to Cloudflare Preview..."
+            node scripts/deploy-cloudflare.mjs --surface learn-web --target preview --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating preview deployment..."
+            node scripts/deploy-cloudflare.mjs --surface learn-web --target preview --dry-run
+          fi
+
+      - name: Deploy Lurexa Coach Preview
+        if: needs.changes.outputs.coach == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying coach-web to Cloudflare Preview..."
+            node scripts/deploy-cloudflare.mjs --surface coach-web --target preview --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating preview deployment..."
+            node scripts/deploy-cloudflare.mjs --surface coach-web --target preview --dry-run
+          fi
+
+      - name: Deploy Lurexa Teach Preview
+        if: needs.changes.outputs.teach == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying teach-web to Cloudflare Preview..."
+            node scripts/deploy-cloudflare.mjs --surface teach-web --target preview --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating preview deployment..."
+            node scripts/deploy-cloudflare.mjs --surface teach-web --target preview --dry-run
+          fi
+
+      - name: Comment Preview URLs on Pull Request
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            try {
+              const learn = '${{ needs.changes.outputs.learn_web }}' === 'true';
+              const coach = '${{ needs.changes.outputs.coach }}' === 'true';
+              const teach = '${{ needs.changes.outputs.teach }}' === 'true';
+
+              let message = '### 🌐 Lurexa Cloudflare Preview Deployments\n\n';
+              message += '| Surface | Worker Name | Preview URL |\n';
+              message += '| :--- | :--- | :--- |\n';
+              if (learn) {
+                message += '| **Lurexa Learn** | `lurexa-learn-preview` | https://lurexa-learn-preview.damianalbertocastro.workers.dev |\n';
+              }
+              if (coach) {
+                message += '| **Lurexa Coach** | `lurexa-coach-preview` | https://lurexa-coach-preview.damianalbertocastro.workers.dev |\n';
+              }
+              if (teach) {
+                message += '| **Lurexa Teach** | `lurexa-teach-preview` | https://lurexa-teach-preview.damianalbertocastro.workers.dev |\n';
+              }
+              message += '\n*Preview deployments allow isolated end-to-end testing before merging to production.*';
+
+              const header = '### 🌐 Lurexa Cloudflare Preview Deployments';
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              const existing = comments.find((c) => c.body && c.body.includes(header));
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body: message,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: message,
+                });
+              }
+            } catch (err) {
+              console.log('Notice: Could not post PR comment (e.g. fork PR permissions):', err.message);
+            }

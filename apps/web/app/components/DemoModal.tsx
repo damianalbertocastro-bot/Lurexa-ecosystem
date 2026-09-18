@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslation } from "@lurexa/i18n";
 
 interface DemoModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface DemoModalProps {
 }
 
 export function DemoModal({ isOpen, onClose }: DemoModalProps) {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [institutionName, setInstitutionName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -44,12 +46,10 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
               ✓
             </div>
             <h3 className="text-2xl font-black text-slate-900 dark:text-white">
-              Consultation Requested
+              {t("landing.demoModal.successTitle")}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">
-              Thank you for connecting. Our institutional partnerships team will review{" "}
-              <strong>{institutionName || "your institution"}</strong>&apos;s requirements and reach out at{" "}
-              <strong>{contactEmail}</strong> within one business day.
+              {t("landing.demoModal.successDesc")}
             </p>
             <div className="pt-4">
               <button
@@ -60,7 +60,7 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 }}
                 className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 text-sm font-bold shadow-xs hover:bg-slate-800 transition"
               >
-                Done
+                {t("landing.demoModal.done")}
               </button>
             </div>
           </div>
@@ -68,19 +68,19 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <span className="text-[10px] font-black tracking-widest text-indigo-600 uppercase">
-                INSTITUTIONAL DEMO
+                {t("landing.demoModal.kicker")}
               </span>
               <h3 id="demo-modal-title" className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                Bring Lurexa to your school
+                {t("landing.demoModal.title")}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Experience multi-tenant Admin governance, phonemic telemetry in Insight, and Teach certification.
+                {t("landing.demoModal.desc")}
               </p>
             </div>
 
             <div>
               <label htmlFor="inst-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                School or District Name
+                {t("landing.demoModal.schoolLabel")}
               </label>
               <input
                 id="inst-name"
@@ -88,14 +88,14 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 required
                 value={institutionName}
                 onChange={(e) => setInstitutionName(e.target.value)}
-                placeholder="e.g., Santo Domingo Metropolitan District / UASD"
+                placeholder={t("landing.demoModal.schoolPlaceholder")}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
 
             <div>
               <label htmlFor="inst-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                Official Institutional Email
+                {t("landing.demoModal.emailLabel")}
               </label>
               <input
                 id="inst-email"
@@ -103,14 +103,14 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 required
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
-                placeholder="dean@university.edu or director@school.edu.do"
+                placeholder={t("landing.demoModal.emailPlaceholder")}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
 
             <div>
               <label htmlFor="inst-role" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                Institution Type
+                {t("landing.demoModal.typeLabel")}
               </label>
               <select
                 id="inst-role"
@@ -118,24 +118,24 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 onChange={(e) => setRole(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               >
-                <option value="University / Higher Ed">University / Higher Education</option>
-                <option value="K-12 School / District">K-12 Bilingual School / District</option>
-                <option value="Language Institute">Language Institute / Academy</option>
-                <option value="Government / Ministry">Ministry of Education / Public Agency</option>
-                <option value="Enterprise / Corporate">Corporate Fluency Program</option>
+                <option value="University / Higher Ed">{t("landing.demoModal.typeHigherEd")}</option>
+                <option value="K-12 School / District">{t("landing.demoModal.typeK12")}</option>
+                <option value="Language Institute">{t("landing.demoModal.typeInstitute")}</option>
+                <option value="Government / Ministry">{t("landing.demoModal.typeGov")}</option>
+                <option value="Enterprise / Corporate">{t("landing.demoModal.typeCorporate")}</option>
               </select>
             </div>
 
             <div>
               <label htmlFor="inst-notes" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                Specific Goals or Cohort Size (Optional)
+                {t("landing.demoModal.goalsLabel")}
               </label>
               <textarea
                 id="inst-notes"
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Number of students, LMS requirements, or target timeline..."
+                placeholder={t("landing.demoModal.goalsPlaceholder")}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -146,13 +146,13 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 onClick={onClose}
                 className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
-                Cancel
+                {t("landing.demoModal.cancel")}
               </button>
               <button
                 type="submit"
                 className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 text-xs font-bold shadow-md hover:bg-slate-800 transition"
               >
-                Submit Demo Request →
+                {t("landing.demoModal.submit")} →
               </button>
             </div>
           </form>

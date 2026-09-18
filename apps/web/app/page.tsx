@@ -242,10 +242,10 @@ export default function Home() {
                       {t("landing.nav.architecture", "Architecture")}
                     </a>
                     <a href="#about" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
-                      About Lurexa Technologies
+                      {t("landing.footer.about")}
                     </a>
                     <a href="#contact" className={styles.accordionLink} onClick={() => setSidebarOpen(false)}>
-                      Contact &amp; Institutional Inquiries
+                      {t("landing.footer.contact")}
                     </a>
                   </div>
                 )}
@@ -438,53 +438,55 @@ export default function Home() {
           <div className={styles.pricingGrid}>
             {/* Classroom Cohort */}
             <article className={styles.pricingCard}>
-              <span className={styles.planBadge}>{t("landing.pricing.instBadge", "Classroom")}</span>
-              <h3>{t("landing.pricing.instTitle", "Educator Cohort")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.instPrice", "$49")}<span>/mo</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.instDesc", "For individual teachers and language tutors managing up to 35 students.")}</p>
+              <span className={styles.planBadge}>{t("landing.pricing.instBadge")}</span>
+              <h3>{t("landing.pricing.instTitle")}</h3>
+              <p className={styles.planPrice}>{t("landing.pricing.instPrice")}<span>/mo</span></p>
+              <p className={styles.planDescription}>{t("landing.pricing.instDesc")}</p>
               <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.instF1", "Up to 35 student licenses in Learn")}</li>
-                <li>✓ {t("landing.pricing.instF2", "Teacher dashboard & assignment dispatch")}</li>
-                <li>✓ {t("landing.pricing.instF3", "Class-wide phonetics & quiz diagnostics")}</li>
-                <li>✓ {t("landing.pricing.instF4", "Automated homework grading & attendance")}</li>
+                <li>✓ {t("landing.pricing.instF1")}</li>
+                <li>✓ {t("landing.pricing.instF2")}</li>
+                <li>✓ {t("landing.pricing.instF3")}</li>
+                <li>✓ {t("landing.pricing.instF4")}</li>
+                <li>✓ {t("landing.pricing.instF5")}</li>
               </ul>
               <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Educator%20Cohort">
-                {t("landing.pricing.instCta", "Request Classroom Pilot")} →
+                {t("landing.pricing.instCta")} →
               </a>
             </article>
 
             {/* Campus Pilot */}
             <article className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-              <span className={styles.planBadgeHighlight}>{t("landing.pricing.enterpriseBadge", "Institutional Pilot")}</span>
-              <h3>Campus &amp; University</h3>
-              <p className={styles.planPrice}>Custom<span>/campus</span></p>
-              <p className={styles.planDescription}>For universities, bilingual schools, and ministry educational initiatives.</p>
+              <span className={styles.planBadgeHighlight}>{t("landing.pricing.campusBadge")}</span>
+              <h3>{t("landing.pricing.campusTitle")}</h3>
+              <p className={styles.planPrice}>{t("landing.pricing.campusPrice")}<span>{t("landing.pricing.campusPeriod")}</span></p>
+              <p className={styles.planDescription}>{t("landing.pricing.campusDesc")}</p>
               <ul className={styles.planFeatures}>
-                <li>✓ Unlimited students, faculty, and departments</li>
-                <li>✓ Lurexa Admin institutional governance &amp; analytics</li>
-                <li>✓ LMS integration (Canvas, Google Classroom, Moodle)</li>
-                <li>✓ Custom Dominican &amp; regional dialect modules</li>
-                <li>✓ Dedicated pedagogical onboarding &amp; SLA</li>
+                <li>✓ {t("landing.pricing.campusF1")}</li>
+                <li>✓ {t("landing.pricing.campusF2")}</li>
+                <li>✓ {t("landing.pricing.campusF3")}</li>
+                <li>✓ {t("landing.pricing.campusF4")}</li>
+                <li>✓ {t("landing.pricing.campusF5")}</li>
               </ul>
               <a className={styles.planButtonPrimary} href="mailto:contact@lurexa.org?subject=Institutional%20Campus%20Inquiry">
-                Book Campus Consultation →
+                {t("landing.pricing.campusCta")} →
               </a>
             </article>
 
             {/* Enterprise Business */}
             <article className={styles.pricingCard}>
-              <span className={styles.planBadge}>Enterprise</span>
-              <h3>{t("landing.pricing.enterpriseTitle", "Corporate Fluency")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.enterprisePrice", "Custom")}<span>/seat</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.enterpriseDesc", "For BPOs, tech companies, and multinational teams scaling English communication.")}</p>
+              <span className={styles.planBadge}>{t("landing.pricing.enterpriseBadge")}</span>
+              <h3>{t("landing.pricing.enterpriseTitle")}</h3>
+              <p className={styles.planPrice}>{t("landing.pricing.enterprisePrice")}<span>/seat</span></p>
+              <p className={styles.planDescription}>{t("landing.pricing.enterpriseDesc")}</p>
               <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.enterpriseF1", "Tailored BPO & software engineering voice packs")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF2", "Corporate benchmark CEFR testing & certification")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF3", "Single Sign-On (SSO / SAML / Okta)")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF4", "Real-time employee progress dashboard in Admin")}</li>
+                <li>✓ {t("landing.pricing.enterpriseF1")}</li>
+                <li>✓ {t("landing.pricing.enterpriseF2")}</li>
+                <li>✓ {t("landing.pricing.enterpriseF3")}</li>
+                <li>✓ {t("landing.pricing.enterpriseF4")}</li>
+                <li>✓ {t("landing.pricing.enterpriseF5")}</li>
               </ul>
               <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Enterprise%20Fluency%20Inquiry">
-                {t("landing.pricing.enterpriseCta", "Contact Enterprise Sales")} →
+                {t("landing.pricing.enterpriseCta")} →
               </a>
             </article>
           </div>
@@ -494,16 +496,16 @@ export default function Home() {
       {/* Capabilities */}
       <section className={styles.capabilities} aria-labelledby="capabilities-heading">
         <div className={styles.capabilitiesHeading}>
-          <p className={styles.kicker}>THE WIDER ECOSYSTEM</p>
-          <h2 id="capabilities-heading">Every capability speaks <em>the same visual language.</em></h2>
-          <p>These shared capabilities are part of Lurexa’s unified design system and backend architecture.</p>
+          <p className={styles.kicker}>{t("landing.capabilities.kicker")}</p>
+          <h2 id="capabilities-heading">{t("landing.capabilities.heading")} <em>{t("landing.capabilities.headingEm")}</em></h2>
+          <p>{t("landing.capabilities.lead")}</p>
         </div>
         <div className={styles.capabilityGrid}>
           {capabilities.map((capability) => (
             <div className={styles.capability} key={capability.name}>
               <CapabilityIcon name={capability.icon}/>
               <span>{capability.name}</span>
-              <i>Active</i>
+              <i>{t("landing.capabilities.active")}</i>
             </div>
           ))}
         </div>
@@ -512,25 +514,25 @@ export default function Home() {
       {/* About Section */}
       <section id="about" className={styles.aboutSection} aria-labelledby="about-heading">
         <div className={styles.sectionHeading}>
-          <p className={styles.kicker}>ABOUT LUREXA</p>
-          <h2 id="about-heading">Empowering learners and educators with <em>cohesive AI.</em></h2>
-          <p>Lurexa Learning Technologies builds pedagogical systems designed for real human fluency, professional educator growth, and verifiable credentials—grounded in cognitive science and contrastive linguistics.</p>
+          <p className={styles.kicker}>{t("landing.about.kicker")}</p>
+          <h2 id="about-heading">{t("landing.about.heading")} <em>{t("landing.about.headingEm")}</em></h2>
+          <p>{t("landing.about.lead")}</p>
         </div>
         <div className={styles.aboutGrid}>
           <article className={styles.aboutCard}>
-            <span className={styles.aboutNumber}>01</span>
-            <h3>One Learner Model</h3>
-            <p>Every lesson, spoken turn, quiz, and teacher observation updates a single persistent learner model in Core, ensuring learning never starts from zero.</p>
+            <span className={styles.aboutNumber}>{t("landing.about.card1Num")}</span>
+            <h3>{t("landing.about.card1Title")}</h3>
+            <p>{t("landing.about.card1Desc")}</p>
           </article>
           <article className={styles.aboutCard}>
-            <span className={styles.aboutNumber}>02</span>
-            <h3>Pedagogy First</h3>
-            <p>We prioritize communicative intelligibility, targeted phonetics remediation, and active retrieval practice over superficial gamification.</p>
+            <span className={styles.aboutNumber}>{t("landing.about.card2Num")}</span>
+            <h3>{t("landing.about.card2Title")}</h3>
+            <p>{t("landing.about.card2Desc")}</p>
           </article>
           <article className={styles.aboutCard}>
-            <span className={styles.aboutNumber}>03</span>
-            <h3>Educator Empowerment</h3>
-            <p>Through Lurexa Teach, educators receive dedicated CEFR progression, micro-credentials, and classroom insights to amplify their teaching impact.</p>
+            <span className={styles.aboutNumber}>{t("landing.about.card3Num")}</span>
+            <h3>{t("landing.about.card3Title")}</h3>
+            <p>{t("landing.about.card3Desc")}</p>
           </article>
         </div>
       </section>
@@ -539,13 +541,13 @@ export default function Home() {
       <section id="contact" className={styles.contactSection} aria-labelledby="contact-heading">
         <div className={styles.contactContainer}>
           <div>
-            <p className={styles.kickerLight}>CONNECT WITH US</p>
-            <h2 id="contact-heading">Partner with Lurexa for your <em>institution or classroom.</em></h2>
-            <p className={styles.contactIntro}>Whether you are an educator, institutional leader, or enterprise partner, we would love to connect and discuss how Lurexa can support your language learning goals.</p>
+            <p className={styles.kickerLight}>{t("landing.contact.kicker")}</p>
+            <h2 id="contact-heading">{t("landing.contact.heading")} <em>{t("landing.contact.headingEm")}</em></h2>
+            <p className={styles.contactIntro}>{t("landing.contact.lead")}</p>
           </div>
           <div className={styles.contactActions}>
-            <a className={styles.contactPrimaryCta} href="mailto:contact@lurexa.org">Email Our Team <span>✉</span></a>
-            <a className={styles.contactSecondaryCta} href={getEcosystemUrl("docs")}>Explore Documentation <span>↗</span></a>
+            <a className={styles.contactPrimaryCta} href="mailto:contact@lurexa.org">{t("landing.contact.emailCta")} <span>✉</span></a>
+            <a className={styles.contactSecondaryCta} href={getEcosystemUrl("docs")}>{t("landing.contact.docsCta")} <span>↗</span></a>
           </div>
         </div>
       </section>
@@ -560,7 +562,7 @@ export default function Home() {
         </div>
         <p>© {new Date().getFullYear()} Lurexa Learning Technologies. {t("common.allRightsReserved", "All rights reserved")}.</p>
         <div>
-          <a href="#why-lurexa">{t("landing.nav.whyLurexa", "Why Lurexa")}</a> · <a href="#pricing">{t("landing.nav.pricing", "Pricing")}</a> · <a href="#about">About</a> · <a href="#contact">Contact</a> · <a href={getEcosystemUrl("docs")}>Docs</a>
+          <a href="#why-lurexa">{t("landing.nav.whyLurexa")}</a> · <a href="#pricing">{t("landing.nav.pricing")}</a> · <a href="#about">{t("landing.footer.about")}</a> · <a href="#contact">{t("landing.footer.contact")}</a> · <a href={getEcosystemUrl("docs")}>{t("landing.footer.docs")}</a>
         </div>
       </footer>
       <DemoModal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} />

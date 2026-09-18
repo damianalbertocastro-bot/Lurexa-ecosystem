@@ -10,9 +10,9 @@ const fail = (msg) => failures.push(msg);
 
 const SURFACES = [
   { dir: "apps/web", workerName: "lurexa-web", domain: "lurexa.org" },
-  { dir: "apps/learn-web", workerName: "lurexa-learn", domain: "learn.lurexa.org" },
-  { dir: "apps/coach-web", workerName: "lurexa-coach", domain: "coach.lurexa.org" },
-  { dir: "apps/teach-web", workerName: "lurexa-teach", domain: "teach.lurexa.org" },
+  { dir: "apps/learn-web", workerName: "lurexa-learn", domain: "learn.lurexa.org", previewWorkerName: "lurexa-learn-preview" },
+  { dir: "apps/coach-web", workerName: "lurexa-coach", domain: "coach.lurexa.org", previewWorkerName: "lurexa-coach-preview" },
+  { dir: "apps/teach-web", workerName: "lurexa-teach", domain: "teach.lurexa.org", previewWorkerName: "lurexa-teach-preview" },
   { dir: "apps/admin-portal", workerName: "lurexa-admin", domain: "admin.lurexa.org" },
   { dir: "apps/docs", workerName: "lurexa-docs", domain: "docs.lurexa.org" },
   { dir: "apps/insight-web", workerName: "lurexa-insight", domain: "insight.lurexa.org" },
@@ -90,6 +90,50 @@ for (const surface of SURFACES) {
       fail(`${surface.dir}/package.json missing build:worker or deploy:worker script`);
     } else {
       pass(`${surface.workerName}: worker lifecycle scripts verified in package.json`);
+    }
+  }
+
+  // 8. Preview environment check (for preview-enabled surfaces)
+  if (surface.previewWorkerName) {
+    if (!content.includes("[env.preview]")) {
+      fail(`${surface.dir}/wrangler.toml missing [env.preview] configuration`);
+    } else {
+      pass(`${surface.previewWorkerName}: [env.preview] configuration declared`);
+    }
+
+    const previewSection = content.split("[env.preview]")[1] || "";
+    const previewNameMatch = previewSection.match(/name\s*=\s*["']([^"']+)["']/);
+    if (!previewNameMatch || previewNameMatch[1] !== surface.previewWorkerName) {
+      fail(`${surface.dir}/wrangler.toml [env.preview] name should be '${surface.previewWorkerName}', found '${previewNameMatch?.[1]}'`);
+    } else {
+      pass(`${surface.previewWorkerName}: preview worker name correctly declared`);
+    }
+
+    if (!previewSection.includes("workers_dev = true") && !previewSection.includes("workers_dev=true")) {
+      fail(`${surface.dir}/wrangler.toml [env.preview] missing workers_dev = true`);
+    } else {
+      pass(`${surface.previewWorkerName}: workers_dev routing enabled for preview`);
+    }
+
+    if (!previewSection.includes("[env.preview.assets]") || !previewSection.includes(".open-next/assets")) {
+      fail(`${surface.dir}/wrangler.toml [env.preview.assets] missing valid binding to .open-next/assets`);
+    } else {
+      pass(`${surface.previewWorkerName}: preview assets binding properly configured`);
+    }
+
+    if (!previewSection.includes('ENVIRONMENT = "preview"') || !previewSection.includes('NEXT_PUBLIC_APP_ENV = "preview"')) {
+      fail(`${surface.dir}/wrangler.toml [env.preview.vars] missing ENVIRONMENT = "preview" or NEXT_PUBLIC_APP_ENV = "preview"`);
+    } else {
+      pass(`${surface.previewWorkerName}: preview runtime vars correctly configured`);
+    }
+
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      if (!pkg.scripts?.["deploy:worker:preview"]) {
+        fail(`${surface.dir}/package.json missing deploy:worker:preview script`);
+      } else {
+        pass(`${surface.previewWorkerName}: deploy:worker:preview script verified in package.json`);
+      }
     }
   }
 }
