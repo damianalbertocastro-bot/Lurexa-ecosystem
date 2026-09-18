@@ -214,13 +214,15 @@ apps/mobile/
 3. **R8 — Standalone Product Foundations:** build `apps/insight-web` and `apps/studio-web` as governed Core services.
 4. **Field Pilot Expansion:** deploy Dominican Spanish pilot with offline audio caching; measure real-world speaking-gain metrics.
 
-**New scope (this directive, sequence after the above — do not interleave):**
+**Pre-Phase-5 commercial gate (current next work):**
 
-- **Phase A — Domain Contracts (`packages/types`):** `subscription.ts` (`SubscriptionTier`, `ProductEntryPoint`, `PlanQuotas`, `PlanRecommendation`), `placement.ts` (`MultiModalPlacementPayload`, `PlacementResult`, `DiagnosticTransferHighlight`), `coach.ts` (session payloads, turn metrics, diagnostic schemas). Export all in `index.ts`.
-- **Phase B — Backend Guardrails & Mind Services (`packages/backend`):** `AIGuardrailsService` (token/voice-minute caps, rate limits, trial allocations), `MindRecommendationService` (Plus vs. Ultra synergy payloads, Capstone unlock hooks), update `CoachService` for the cascaded pipeline (§4), update `LearnerModelService` for Coach→Learn error sync (Ultra only).
-- **Phase C — Placement Flow & Upsell UI (`apps/learn-web`):** 4-step diagnostic page, trial expiration + synergy lock modals, Mind recommendation card. Also refactor the Learner Dashboard: fix the grid regression, add a time-of-day greeting, a 7-day streak calendar row, real achievement badges, and a unified Coach entry point.
-- **Phase D — Verification Gate:** full `pnpm verify:local` pass before any further phase.
-- **Phase E — Mobile (`apps/mobile`):** only after confirming scope per §6, and only after Phase D is green.
+- **A — Commercial specification:** canonicalize Plus, Ultra and Business rules in `Docs/Product/LUREXA_COMMERCIAL_SPECIFICATION.md`.
+- **B — Entitlement contracts:** keep commercial plans separate from authorization and add product-scoped premium voice plus organization-scoped Business capabilities in `packages/types`.
+- **C — Customer-facing reconciliation:** align billing/benefits surfaces with the approved rules and remove superseded fixed Enterprise pricing.
+- **D — Runtime dependency inventory:** identify and migrate remaining code paths that treat legacy `enterprise` as the canonical organization tier.
+- **E — Verification:** add commercial-contract checks and run `pnpm verify:local` before Phase 5.
+
+**Phase 5 enforcement begins only after this gate is green.**
 
 ---
 
