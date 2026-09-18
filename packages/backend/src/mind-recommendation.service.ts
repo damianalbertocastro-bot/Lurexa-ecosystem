@@ -62,7 +62,7 @@ export class MindRecommendationService {
     if (context.activeTier !== "ULTRA" && context.enrolledProductCount >= 2) {
       return {
         recommendedTier: "ULTRA",
-        reason: "Experience seamless cross-product adaptation across Learn, Coach, and Teach with unlimited voice minutes, AI tutoring, and offline mode.",
+        reason: "Experience seamless cross-product adaptation across Learn and Coach with deeper cross-product adaptation, premium AI/speech, and offline mode.",
         entryPoint: "LEARN",
         synergyBenefits: [
           "Universal Learner Model: real-time Coach ↔ Learn error sync",
