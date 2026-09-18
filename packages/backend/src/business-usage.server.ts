@@ -25,6 +25,41 @@ export class BusinessUsageService {
     return (data[CONTRACT_FIELD] as BusinessContract | undefined) ?? null;
   }
 
+  /**
+   * Resolves the learner's organization contract without making individual
+   * product runtimes depend on a commercial plan name.
+   */
+  static async getLearnerOrganizationId(learnerId: string): Promise<string | null> {
+    const snapshot = await getServerFirestore().collection("users").doc(learnerId).get();
+    const organizationId = snapshot.data()?.organizationId;
+    return typeof organizationId === "string" && organizationId.trim() ? organizationId : null;
+  }
+
+  /**
+   * Enforces pooled Business usage when the learner is attached to a Business
+   * organization. Returns true when Business accounting was applied so callers
+   * can skip the individual-tier ledger.
+   */
+  static async consumeIfBusiness(input: {
+    learnerId: string;
+    organizationId?: string;
+    aiTurns?: number;
+    voiceMinutes?: number;
+  }): Promise<boolean> {
+    const organizationId = input.organizationId ?? await this.getLearnerOrganizationId(input.learnerId);
+    if (!organizationId) return false;
+    const contract = await this.getContract(organizationId);
+    if (!contract) return false;
+
+    await this.consumeCurrentUsage({
+      organizationId,
+      learnerId: input.learnerId,
+      aiTurns: input.aiTurns,
+      voiceMinutes: input.voiceMinutes,
+    });
+    return true;
+  }
+
   static async getCurrentUsage(organizationId: string, now = new Date()): Promise<BusinessUsageSnapshot> {
     const { periodStart, periodEnd, key } = monthWindow(now);
     const id = `${organizationId}_${key}`;
