@@ -388,6 +388,9 @@ export const CoachPlatformService = {
     const organizationId = await BusinessUsageService.getLearnerOrganizationId(actor.uid);
     const businessContract = organizationId ? await BusinessUsageService.getContract(organizationId) : null;
     if (businessContract) {
+      if (!businessContract.productAccess.includes("COACH")) {
+        throw new Error("Business contract does not grant access to COACH.");
+      }
       const remaining = await BusinessUsageService.getRemainingAllowance(organizationId!);
       if (remaining.voiceMinutes <= 0) {
         throw new Error("Business monthly voice allowance exceeded.");
