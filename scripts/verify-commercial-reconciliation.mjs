@@ -27,6 +27,8 @@ const checks = [
   ["Admin Business pricing is contract-based", !read("apps/admin-portal/app/billing/page.tsx").includes("Business Custom ($12/seat/mo)")],
   ["Campus seat defaults do not depend on legacy Enterprise", !read("packages/backend/src/campus-platform.server.ts").includes('orgData.plan === "enterprise"')],
   ["legacy Enterprise is not a tier hierarchy rank", !read("packages/backend/src/subscription.service.ts").includes("enterprise: 4")],
+  ["legacy Enterprise is absent from Coach streaming boundary", !read("packages/backend/src/coach-live-streaming.server.ts").includes("Ultra & Enterprise")],
+  ["legacy Enterprise is absent from capstone customer messaging", !read("apps/learn-web/app/learn/a1/capstone/page.tsx").includes("Ultra or Enterprise")],
 ];
 
 const failures = checks.filter(([, ok]) => !ok);
