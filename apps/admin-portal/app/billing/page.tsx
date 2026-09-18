@@ -150,7 +150,7 @@ export default function AdminBillingPage() {
 
           <div className="mt-10 max-w-2xl pb-6">
             <p className="text-[10px] font-extrabold tracking-[.2em] text-[var(--lx-accent)]">
-              ENTERPRISE LICENSING &amp; BILLING
+              BUSINESS LICENSING &amp; BILLING
             </p>
             <h1 className="mt-2 text-4xl font-extrabold tracking-[-.05em] sm:text-5xl">
               Institutional Plans &amp; Seat Governance
