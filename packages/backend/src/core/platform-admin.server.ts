@@ -174,7 +174,7 @@ export const PlatformAdminService = {
             ? "standard_institutional"
             : "free_community";
 
-        const pricePerSeat = 0;
+        const pricePerSeat = planTier === "business" ? null : 0;
         const createdAt = typeof data.createdAt === "string" ? data.createdAt : new Date().toISOString();
 
         return {
