@@ -5,7 +5,6 @@ const TIER_HIERARCHY: Record<string, number> = {
   basic: 1,
   plus: 2,
   ultra: 3,
-  enterprise: 4,
 };
 
 const DEFAULT_TRIAL_MODULES = ["A1.M1", "A1.M2", "A1.M3"];
