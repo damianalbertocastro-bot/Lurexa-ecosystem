@@ -46,30 +46,56 @@ You are the Lead Autonomous DevOps and Full-Stack System Architect for Lurexa Le
 
 ---
 
-## 2. Commercial Subscription Tiers & Product Matrix *(greenfield — not yet started per current-state report)*
+## 2. Commercial Model & Entitlement Boundary
 
-| Tier | Pricing & Scope | AI Quota & Capabilities | Storage & Offline | Learner Model Synergy |
-|---|---|---|---|---|
-| **Basic** *(Free)* | $0/mo — placement diagnostic + 3 level-matched trial modules | 40 AI tutor turns & 15 voice min trial quota; standard rate limits | Online-only, no offline caching | Ephemeral session; basic grade calc |
-| **Plus** *(Single product)* | $9.99/mo for 1 of: Learn Plus, Coach Plus, Teach Plus | Full single-tool access (e.g. Coach: 120 voice min/mo; Learn: unlimited quizzes) | 1 active module cached offline | Siloed — deep tracking in chosen tool, cross-product transfer locked |
-| **Ultra** *(Full ecosystem)* | **$19.99/mo** *(fixed — still an assumption, see §0.8)* | 300+ voice min/mo, low-latency streaming, deep diagnostics | Full offline-first: unlimited downloads, local audio queue, background sync | **Universal Learner Model** — real-time cross-product sync (Coach errors → Learn review cards) |
-| **Enterprise** *(Institutional)* | Custom multi-seat licensing | Shared quota pools, dedicated API limits, custom milestone tracks | Multi-seat offline caching, batch export, cohort diagnostics | Institutional cohort analytics, class-wide phonemic heatmaps, intervention routing |
+**Canonical commercial decisions approved 2026-09-18.** Detailed rules live in `Docs/Product/LUREXA_COMMERCIAL_SPECIFICATION.md`.
 
----
+### Individual
 
-## 3. Dynamic Placement-to-Trial & Upsell Funnel *(greenfield)*
+| Tier | Current approved scope |
+|---|---|
+| **Basic** | Free entry/trial experience. |
+| **Plus** | Product-specific subscription. Learn Plus and Coach Plus each include premium ElevenLabs for the subscribed product. |
+| **Ultra** | Full Learn + Coach + deeper cross-product adaptation + premium AI/speech. Future products are not automatically included. |
 
-`apps/learn-web/app/placement/` + `packages/backend/src/placement.service.ts`
+**ElevenLabs rule:** Plus premium ElevenLabs is product-scoped. Learn Plus receives it in Learn; Coach Plus receives it in Coach. Plus does not grant ecosystem-wide ElevenLabs entitlement.
 
-1. **Multi-Modal Diagnostic:** adaptive 4-step assessment — written syntax + 60s spoken prompt evaluating Dominican transfer patterns and speech onset latency.
-2. **Calibrated 3-Module Unlock:** auto-unlock 3 full-speed modules at assessed CEFR baseline, bounded by a hard token-quota object (`AIGuardrailsService`).
-3. **Recommendation Engine:** on trial/quota exhaustion:
-   - **Coach entry (e.g. placed B1):** recommend Coach Plus; anchor Ultra — cross-product error sync + B1 Capstone "My Voice in English."
-   - **Learn entry (e.g. placed A2):** recommend Learn Plus; anchor Ultra — live oral practice in Coach + offline sync.
-   - **Teach entry:** recommend Teach Plus (T1–T5); anchor Ultra/School Seats.
-4. **Synergy Lock Modals:** Plus subscriber hitting a cross-tool feature sees a modal illustrating the Universal Learner Model bridge available in Ultra.
+**Ultra rule:** Ultra is deliberately extensible. Teach, Studio, Insight and future products may be added later through explicit commercial decisions without changing the capability-based entitlement architecture.
 
----
+### Business
+
+Business is an organizational commercial model, not another individual tier.
+
+- **Target:** small + medium organizations.
+- **Commercial unit:** organization contract + learner/seat allowance + negotiated usage.
+- **Product access:** one Business subscription containing the Lurexa ecosystem, configured through capabilities rather than artificial Basic/Pro/Enterprise packages.
+- **Usage:** pooled organizational allowance with optional individual limits.
+- **Standard organizational capabilities:** groups/cohorts, assignments, analytics, reporting, role management, audit, SSO, data export, and teacher/admin management.
+- **Support:** negotiated/tiered by contract.
+- **Customization:** custom curricula, Studio authoring, branding, and integrations may be contracted.
+- **Pricing:** contract/quote based; no public fixed Business price.
+
+### Capability principle
+
+Commercial plans/contracts resolve into capability entitlements. Authorization must not depend directly on plan names.
+
+Examples include product access, product-scoped premium voice, cross-product Learner Model synchronization, organizational administration, SSO, export, customization and integrations.
+
+The legacy `enterprise` subscription identifier remains only as migration compatibility until Phase 5 removes or migrates its runtime dependencies. It is **not** the approved new Business commercial model and must not expose fixed Enterprise pricing.
+
+## 3. Customer-Facing Commercial Rules
+
+Customer-facing plan/benefit surfaces must:
+
+1. explain what each individual tier provides;
+2. identify product scope for Plus;
+3. identify the current Learn + Coach boundary of Ultra;
+4. avoid implying that future products automatically belong to Ultra;
+5. present Business as a contract/quote-based organizational model;
+6. explain Business administration, usage, support and customization value;
+7. never present legacy Enterprise pricing as canonical.
+
+These rules are prerequisites for Phase 5 entitlement enforcement.
 
 ## 4. Cascaded AI & Speech Pipeline *(Mind is verified-baseline; this exact pipeline is not confirmed built)*
 
