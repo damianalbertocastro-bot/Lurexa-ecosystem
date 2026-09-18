@@ -1,5 +1,5 @@
 /** Individual commercial tiers. Business is an organization-contract model, not an individual tier. */
-export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "business";
+export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra";
 export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA";
 export type SubscriptionTier = CanonicalSubscriptionTier | LegacySubscriptionTier;
 export type TierIdentifier = "basic" | "plus" | "ultra" | "business";
@@ -339,28 +339,6 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
       "Universal Learner Model: real-time Coach ↔ Learn error sync",
       "Unlimited offline module downloads & background sync",
       "B1/B2 Capstone Project evaluation",
-    ],
-  },
-  enterprise: {
-    tier: "enterprise",
-    monthlyPriceUsd: 0,
-    annualPriceUsd: 0,
-    tagline: "Legacy compatibility only; Business is contract/quote based.",
-    features: [
-      "Legacy identifier retained for migration compatibility",
-      "Do not expose fixed public pricing",
-      "Use BusinessContract for new organizational agreements",
-    ],
-  },
-  ENTERPRISE: {
-    tier: "ENTERPRISE",
-    monthlyPriceUsd: 0,
-    annualPriceUsd: 0,
-    tagline: "Legacy compatibility only; Business is contract/quote based.",
-    features: [
-      "Legacy identifier retained for migration compatibility",
-      "Do not expose fixed public pricing",
-      "Use BusinessContract for new organizational agreements",
     ],
   },
 };
