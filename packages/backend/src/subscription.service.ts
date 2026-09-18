@@ -81,7 +81,7 @@ export const SubscriptionService = {
 
     const tier = String(input.tier ?? "basic").toLowerCase() as SubscriptionTier;
     const quotas = this.getPlanQuotas(tier);
-    const capabilities = tier === "basic"
+    const capabilities: EntitlementCapability[] = tier === "basic"
       ? (input.product === "LEARN" || input.product === "COACH" ? ["curriculum_access"] : [])
       : [...(PRODUCT_CAPABILITIES[input.product] ?? [])];
     if (this.hasTierAccess(tier, "ultra")) {
