@@ -61,6 +61,7 @@ export const SubscriptionService = {
   resolveEntitlements(input: {
     tier?: SubscriptionTier | string | null;
     product: ProductEntryPoint;
+    subscribedProduct?: ProductEntryPoint | null;
     businessContract?: BusinessContract | null;
   }): ResolvedEntitlements {
     if (input.businessContract) {
@@ -80,12 +81,17 @@ export const SubscriptionService = {
 
     const tier = String(input.tier ?? "basic").toLowerCase() as SubscriptionTier;
     const quotas = this.getPlanQuotas(tier);
-    const capabilities = [...(PRODUCT_CAPABILITIES[input.product] ?? [])];
+    const capabilities = tier === "basic"
+      ? (input.product === "LEARN" || input.product === "COACH" ? ["curriculum_access"] : [])
+      : [...(PRODUCT_CAPABILITIES[input.product] ?? [])];
     if (this.hasTierAccess(tier, "ultra")) {
       if (input.product === "LEARN") capabilities.push("premium_voice", "cross_product_sync", "capstone_evaluation");
       if (input.product === "COACH") capabilities.push("premium_voice", "cross_product_sync");
     }
-    if (quotas.premiumVoiceProducts?.includes(input.product)) capabilities.push("premium_voice");
+    if (input.subscribedProduct === input.product && quotas.premiumVoiceProducts?.includes(input.product)) capabilities.push("premium_voice");
+    if (this.hasTierAccess(tier, "plus") && input.product === "LEARN") capabilities.push("curriculum_access");
+    if (this.hasTierAccess(tier, "plus") && input.product === "COACH") capabilities.push("coach_access");
+    if (this.hasTierAccess(tier, "plus")) capabilities.push("offline_learning");
     return {
       product: input.product,
       capabilities: Array.from(new Set(capabilities)),
