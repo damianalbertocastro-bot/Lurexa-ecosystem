@@ -23,4 +23,4 @@ export * from "./studio";
 export * from "./subscription";
 export * from "./placement";
 export * from "./storage";
-
+export * from "./capability-registry";
