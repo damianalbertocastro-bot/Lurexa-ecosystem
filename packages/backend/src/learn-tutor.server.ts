@@ -14,6 +14,7 @@ import { resolveRoleplayCapability } from "./learning-capability.server";
 import { BusinessUsageService } from "./business-usage.server";
 
 const DEFAULT_MODEL = "gemini-3.7-flash";
+const LEARN_TUTOR_PROMPT_VERSION = "learn-tutor-roleplay-v1";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
@@ -454,6 +455,7 @@ async function loadOrCreateSession(input: {
     status: "active",
     transcript: [],
     provider: null,
+    promptVersion: LEARN_TUTOR_PROMPT_VERSION,
     createdAt: now,
     updatedAt: now,
   };
@@ -475,6 +477,7 @@ async function saveSessionTurn(input: {
     status: input.complete ? "completed" : "active",
     transcript: [...input.session.transcript, input.learnerTurn, input.tutorTurn].slice(-24),
     provider: input.provider,
+    promptVersion: LEARN_TUTOR_PROMPT_VERSION,
     updatedAt: input.tutorTurn.timestamp,
   };
   await database.runTransaction(async (transaction) => {
@@ -532,7 +535,7 @@ async function recordRoleplayEvidence(input: {
     provenance: {
       method: "ai_observed",
       actorId: input.actor.uid,
-      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
+      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL, promptVersion: LEARN_TUTOR_PROMPT_VERSION } : {}),
     },
   });
 
