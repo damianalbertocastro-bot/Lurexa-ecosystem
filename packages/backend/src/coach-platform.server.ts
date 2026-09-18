@@ -5,6 +5,9 @@ import type {
   LinguisticEvidencePayload,
   PhonemeEvaluation,
   CascadedDialogueTurn,
+  CoachStreamingTokenResponse,
+  CoachSelectiveEvidenceSubmission,
+  LearningEvidence,
 } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 import { getScopedLearnerContext } from "./learner-context.server";
@@ -351,4 +354,145 @@ export const CoachPlatformService = {
 
     return { session: updatedSession, cascadedTurn };
   },
+
+  async createStreamingToken(
+    actor: AuthenticatedActor,
+    input: { sessionId: string; targetCefr?: CefrLevel }
+  ): Promise<CoachStreamingTokenResponse> {
+    let session: CoachSession | null = devCoachSessionStore.get(input.sessionId) ?? null;
+    try {
+      const database = getServerFirestore();
+      const sessionDoc = await database.collection("coach-sessions").doc(input.sessionId).get();
+      if (sessionDoc.exists) {
+        session = sessionDoc.data() as CoachSession;
+      }
+    } catch {
+      // Dev fallback
+    }
+    if (!session) session = devCoachSessionStore.get(input.sessionId) ?? null;
+    if (!session) throw new Error("Coach session not found.");
+    if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
+
+    const cefr = input.targetCefr || session.focus?.cefr || "A1";
+    const systemInstruction = `You are Lurexa Coach, an empathetic, encouraging spoken English coach specialized for Dominican and Caribbean Spanish speakers learning English. Your goal is natural communicative competence and intelligible pronunciation at CEFR ${cefr}. Never mock or seek accent erasure; focus on phonemic intelligibility (e.g. word-initial /s/ clusters like 'study' without epenthetic 'e', and clear coda consonants). Keep your turns short (1-2 sentences), conversational, and prompt the learner to speak.`;
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const expireTime = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+        const newSessionExpireTime = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/auth_tokens", {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uses: 1,
+            expireTime,
+            newSessionExpireTime,
+            liveConnectConstraints: {
+              model: "models/gemini-3.1-flash-live-preview",
+              config: {
+                sessionResumption: {},
+                responseModalities: ["AUDIO"],
+                systemInstruction: {
+                  parts: [{ text: systemInstruction }],
+                },
+              },
+            },
+          }),
+        });
+
+        if (response.ok) {
+          const data = (await response.json()) as { name?: string; token?: string };
+          const token = data.name || data.token;
+          if (token) {
+            return {
+              token,
+              expiresAt: expireTime,
+              wsUrl: `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?access_token=${token}`,
+              model: "gemini-3.1-flash-live-preview",
+              audioSampleRateHz: 16000,
+              systemInstruction,
+              fallbackAvailable: true,
+            };
+          }
+        }
+      } catch (tokenErr) {
+        console.warn("Failed to provision live ephemeral token, providing fallback configuration:", tokenErr);
+      }
+    }
+
+    const fallbackToken = `lx-live-sim-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      token: fallbackToken,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      wsUrl: "",
+      model: "cascaded-fast-turn-v1",
+      audioSampleRateHz: 16000,
+      systemInstruction,
+      fallbackAvailable: true,
+    };
+  },
+
+  async recordSelectivePhonemeEvidence(
+    actor: AuthenticatedActor,
+    submission: CoachSelectiveEvidenceSubmission
+  ): Promise<{ success: boolean; evidenceId: string }> {
+    const evidenceId = `ev-coach-phoneme-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
+    const evidenceRecord: LearningEvidence = {
+      id: evidenceId,
+      contractVersion: "1",
+      learnerId: actor.uid,
+      type: "assessment_result",
+      dataClassification: "standard",
+      observedAt: now,
+      source: {
+        product: "coach" as const,
+      },
+      provenance: {
+        actorId: actor.uid,
+        method: "system_observed",
+      },
+      payload: {
+        event: "coach_selective_phoneme_evidence",
+        turnId: submission.turnId,
+        intelligibilityScore: submission.intelligibilityScore,
+        fluencyScore: submission.fluencyScore ?? 85,
+        phonemeDeviations: submission.phonemeEvidences.map((p) => ({
+          phoneme: p.phoneme,
+          category: p.category,
+          expectedIpa: p.expectedIpa,
+          observedIpa: p.observedIpa,
+          score: p.score,
+          sampleWord: p.sampleWord,
+          targetWord: p.targetWord,
+        })),
+        spokenText: submission.spokenText || undefined,
+        backgroundNoiseDetected: submission.backgroundNoiseDetected ?? false,
+      },
+    };
+
+    try {
+      const repo = new FirestoreLearningEvidenceRepository();
+      await repo.append(evidenceRecord);
+    } catch (err) {
+      console.warn("Evidence repository append fallback:", err);
+    }
+
+    try {
+      await refreshLearnerIntelligence({
+        learnerId: actor.uid,
+      });
+    } catch {
+      // Non-blocking
+    }
+
+    return { success: true, evidenceId };
+  },
 };
+

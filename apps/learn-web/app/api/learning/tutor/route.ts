@@ -8,12 +8,46 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request): Promise<Response> {
   try {
     const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
-    const body: unknown = await request.json();
-    if (typeof body !== "object" || body === null || Array.isArray(body)) {
-      throw new Error("Invalid tutor request.");
+    const contentType = request.headers.get("content-type") || "";
+    let payload: Partial<LearnTutorTurnRequest> & { action?: string };
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const courseId = formData.get("courseId");
+      const lessonId = formData.get("lessonId");
+      const activityId = formData.get("activityId");
+      const sessionId = formData.get("sessionId");
+      const action = formData.get("action");
+      const learnerMessage = formData.get("learnerMessage") || formData.get("transcript");
+      const audioFile = formData.get("audio");
+
+      let audioBase64: string | undefined;
+      let audioMimeType: string | undefined;
+
+      if (audioFile instanceof File && audioFile.size > 0) {
+        audioMimeType = audioFile.type || "audio/webm";
+        const buffer = Buffer.from(await audioFile.arrayBuffer());
+        audioBase64 = buffer.toString("base64");
+      }
+
+      payload = {
+        courseId: typeof courseId === "string" ? courseId : undefined,
+        lessonId: typeof lessonId === "string" ? lessonId : undefined,
+        activityId: typeof activityId === "string" ? activityId : undefined,
+        sessionId: typeof sessionId === "string" ? sessionId : undefined,
+        action: typeof action === "string" ? action : undefined,
+        learnerMessage: typeof learnerMessage === "string" ? learnerMessage : undefined,
+        audioBase64,
+        audioMimeType,
+      };
+    } else {
+      const body: unknown = await request.json();
+      if (typeof body !== "object" || body === null || Array.isArray(body)) {
+        throw new Error("Invalid tutor request.");
+      }
+      payload = body as Partial<LearnTutorTurnRequest> & { action?: string };
     }
 
-    const payload = body as Partial<LearnTutorTurnRequest> & { action?: string };
     if (
       typeof payload.courseId !== "string"
       || typeof payload.lessonId !== "string"
@@ -32,8 +66,8 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    if (typeof payload.learnerMessage !== "string" || (payload.sessionId !== undefined && typeof payload.sessionId !== "string")) {
-      throw new Error("Tutor request is incomplete.");
+    if (!payload.learnerMessage && !payload.audioBase64) {
+      throw new Error("Write or speak a response to continue the roleplay.");
     }
 
     return Response.json(await LearnTutorService.respond(actor, payload as LearnTutorTurnRequest));

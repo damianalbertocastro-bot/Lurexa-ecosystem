@@ -68,6 +68,13 @@ export interface LearnTutorTurn {
   sender: "learner" | "tutor";
   text: string;
   timestamp: string;
+  isAudio?: boolean;
+  transcription?: string;
+  audioFeedback?: {
+    intelligibilityScore?: number;
+    feedback?: string;
+    detectedPatterns?: string[];
+  };
 }
 
 export interface LearnTutorSession {
@@ -94,13 +101,21 @@ export interface LearnTutorTurnRequest {
   lessonId: string;
   activityId: string;
   sessionId?: string;
-  learnerMessage: string;
+  learnerMessage?: string;
+  audioBase64?: string;
+  audioMimeType?: string;
 }
 
 export interface LearnTutorTurnResult {
   sessionId: string;
   reply: LearnTutorTurn;
   transcript: LearnTutorTurn[];
+  transcribedText?: string;
+  pronunciationEvaluation?: {
+    score?: number;
+    feedback?: string;
+    detectedPatterns?: string[];
+  };
   learnerContextUsed: {
     cefr: string | null;
     activeTargetCount: number;

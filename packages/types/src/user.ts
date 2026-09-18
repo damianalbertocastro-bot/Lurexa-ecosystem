@@ -1,3 +1,5 @@
+import type { SubscriptionTier } from "./subscription";
+
 export type UserRole = "student" | "teacher" | "admin" | "super_admin" | "author";
 
 export interface User {
@@ -71,6 +73,15 @@ export interface UserProfileDetails {
   preferredLocale?: SupportedLocale;
   dailyTargetMinutes?: number;
   role?: UserRole;
+  subscriptionTier?: SubscriptionTier;
+  organizationId?: string;
+  status?: string;
+  unlockedModules?: string[];
+  trialUsageLimits?: {
+    maxAiTurns: number;
+    maxVoiceMinutes: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
+

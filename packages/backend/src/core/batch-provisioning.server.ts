@@ -71,6 +71,11 @@ export class BatchProvisioningServerService {
     const baseQuotas = DEFAULT_TIER_QUOTAS[tier];
     return {
       tier,
+      maxVoiceMinutes: baseQuotas.maxVoiceMinutes * seatCount,
+      maxAiTurns: baseQuotas.maxAiTurns * seatCount,
+      allowCrossProductSync: true,
+      allowCapstones: true,
+      allowOfflineCaching: true,
       monthlyVoiceMinutes: baseQuotas.monthlyVoiceMinutes * seatCount,
       monthlyAiTurns: baseQuotas.monthlyAiTurns * seatCount,
       universalLearnerModelSync: true,

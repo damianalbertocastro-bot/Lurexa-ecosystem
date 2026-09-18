@@ -32,6 +32,11 @@ export const UserService = {
           nativeLanguage: data.nativeLanguage || undefined,
           dailyTargetMinutes: typeof data.dailyTargetMinutes === "number" ? data.dailyTargetMinutes : undefined,
           role: data.role || undefined,
+          subscriptionTier: data.subscriptionTier || undefined,
+          organizationId: data.organizationId || undefined,
+          status: data.status || undefined,
+          unlockedModules: Array.isArray(data.unlockedModules) ? data.unlockedModules : undefined,
+          trialUsageLimits: data.trialUsageLimits || undefined,
           createdAt: data.createdAt || new Date().toISOString(),
           updatedAt: data.updatedAt || new Date().toISOString(),
         };
@@ -119,6 +124,11 @@ export const UserService = {
       nativeLanguage: updates.nativeLanguage !== undefined ? updates.nativeLanguage : existing?.nativeLanguage,
       dailyTargetMinutes: updates.dailyTargetMinutes !== undefined ? updates.dailyTargetMinutes : existing?.dailyTargetMinutes,
       role: updates.role !== undefined ? updates.role : existing?.role,
+      subscriptionTier: updates.subscriptionTier !== undefined ? updates.subscriptionTier : existing?.subscriptionTier,
+      organizationId: updates.organizationId !== undefined ? updates.organizationId : existing?.organizationId,
+      status: updates.status !== undefined ? updates.status : existing?.status,
+      unlockedModules: updates.unlockedModules !== undefined ? updates.unlockedModules : existing?.unlockedModules,
+      trialUsageLimits: updates.trialUsageLimits !== undefined ? updates.trialUsageLimits : existing?.trialUsageLimits,
       createdAt: existing?.createdAt || now,
       updatedAt: now,
     };
@@ -150,4 +160,67 @@ export const UserService = {
 
     return merged;
   },
+
+  /**
+   * Deterministically provisions a new Google user profile document in Firestore Core /users/{uid}
+   * if one does not already exist. Preserves all existing progress and subscription tiers for returning users.
+   */
+  async ensureGoogleUserDocument(user: { uid: string; email?: string | null; displayName?: string | null; photoURL?: string | null }): Promise<{ isFirstTime: boolean; profile: UserProfileDetails }> {
+    if (!user.uid) throw new Error("User UID is required to verify profile document.");
+
+    const userRef = doc(db, "users", user.uid);
+    try {
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const existing = await this.getUserProfile(user.uid);
+        return { isFirstTime: false, profile: existing! };
+      }
+    } catch {
+      // Offline fallback: check local profile
+      const localProfile = await this.getUserProfile(user.uid);
+      if (localProfile && localProfile.subscriptionTier) {
+        return { isFirstTime: false, profile: localProfile };
+      }
+    }
+
+    // Provision new user with calibrated defaults per Lurexa Directive
+    const names = (user.displayName || "").trim().split(" ");
+    const firstName = names[0] || undefined;
+    const lastName = names.slice(1).join(" ") || undefined;
+    const now = new Date().toISOString();
+
+    const newProfile: UserProfileDetails = {
+      id: user.uid,
+      email: user.email || "",
+      displayName: user.displayName || [firstName, lastName].filter(Boolean).join(" ") || "Learner",
+      firstName,
+      lastName,
+      avatarUrl: user.photoURL || undefined,
+      role: "student",
+      subscriptionTier: "basic",
+      unlockedModules: ["A1.M1", "A1.M2", "A1.M3"],
+      trialUsageLimits: { maxAiTurns: 40, maxVoiceMinutes: 15 },
+      organizationId: "org_default",
+      status: "active",
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    try {
+      await setDoc(userRef, newProfile);
+    } catch (saveError) {
+      console.warn("Non-fatal: offline unable to write Firestore document on first Google login", saveError);
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(getStorageKey(user.uid), JSON.stringify(newProfile));
+      } catch {
+        // storage quota fallback
+      }
+    }
+
+    return { isFirstTime: true, profile: newProfile };
+  },
 };
+

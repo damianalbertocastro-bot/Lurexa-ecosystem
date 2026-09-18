@@ -1,3 +1,4 @@
+import type { CefrLevel, CoachSelectiveEvidenceSubmission } from "@lurexa/types";
 import { TelemetryService } from "@lurexa/backend";
 import { CoachPlatformService } from "@lurexa/backend/coach-platform.server";
 import { endCoachSession } from "@lurexa/backend/coach-session-completion.server";
@@ -9,11 +10,20 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CoachActionBody = {
-  action?: "sendTurn" | "sendCascadedTurn" | "endSession" | "resumeSession" | "startSession";
+  action?:
+    | "sendTurn"
+    | "sendCascadedTurn"
+    | "endSession"
+    | "resumeSession"
+    | "startSession"
+    | "getStreamingToken"
+    | "recordSelectiveEvidence";
   mode?: "learner" | "educator_professional";
   sessionId?: string;
   message?: string;
   audioDurationMs?: number;
+  targetCefr?: CefrLevel;
+  evidenceSubmission?: CoachSelectiveEvidenceSubmission;
 };
 
 export async function POST(request: Request): Promise<Response> {
@@ -99,6 +109,37 @@ export async function POST(request: Request): Promise<Response> {
     if (body.action === "resumeSession") {
       if (!body.sessionId) throw new Error("sessionId is required for resuming a Coach session.");
       const result = await resumeCoachSession(actor, { sessionId: body.sessionId });
+      operation.complete(telemetryContext);
+      return Response.json(result, {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0",
+          "X-Request-Id": operation.requestId,
+        },
+      });
+    }
+
+    if (body.action === "getStreamingToken") {
+      if (!body.sessionId) {
+        throw new Error("sessionId is required for generating a streaming token.");
+      }
+      const result = await CoachPlatformService.createStreamingToken(actor, {
+        sessionId: body.sessionId,
+        targetCefr: body.targetCefr,
+      });
+      operation.complete(telemetryContext);
+      return Response.json(result, {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0",
+          "X-Request-Id": operation.requestId,
+        },
+      });
+    }
+
+    if (body.action === "recordSelectiveEvidence") {
+      if (!body.evidenceSubmission) {
+        throw new Error("evidenceSubmission is required for recording selective phoneme evidence.");
+      }
+      const result = await CoachPlatformService.recordSelectivePhonemeEvidence(actor, body.evidenceSubmission);
       operation.complete(telemetryContext);
       return Response.json(result, {
         headers: {

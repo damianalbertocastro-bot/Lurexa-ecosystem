@@ -149,20 +149,23 @@ Exit evidence: PR #75 normalized environment contracts and PR #76 completed the 
 
 ## R7 — Deployment Reconciliation
 
-**Maturity: Pending**
+**Maturity: Verified / Operationally Standardized**
 
-Goals:
+Completed scope:
 
-- reconcile `deployment/products.json` with live Vercel projects/domains/environments;
-- use lifecycle states that distinguish declared/provisioned/preview-ready/production-live/retired;
-- stop modeling Learn Teacher Workspace as a second independent deployment;
-- provision/verify standalone Coach project and canonical domain;
-- reconcile Admin project/domain aliases and remove wrong Learn-family aliases;
-- verify Teach preview/production behavior;
-- decide and document the authoritative Git-triggered vs explicit-release model;
-- add automated repository ↔ deployment-topology drift detection where tool/API support permits.
+- [x] Reconcile deployment topology with authoritative edge target: transitioned primary hosting to Cloudflare Workers via OpenNext while retaining Vercel configurations for reference.
+- [x] Canonical branch standard: locked production deployment branch to `main` across all services.
+- [x] All 8 application surfaces configured with autonomous `wrangler.toml` files, OpenNext build directives (`opennextjs-cloudflare build`), and explicit Node.js compatibility flags.
+- [x] Automated deployment CI workflow (`.github/workflows/deploy.yml`) active and passing for pull requests and `main` merges.
+- [x] Production secret provisioning automation (`scripts/cloudflare-secret-provisioner.mjs`) implemented and tested with `--check`, `--dry-run`, `--deploy`, and `--surface` selective targeting for `FIREBASE_SERVICE_ACCOUNT_JSON` and `GEMINI_API_KEY`.
+- [x] Stop modeling Learn Teacher Workspace as a second independent deployment; consolidated under `apps/learn-web/app/teacher`.
+- [x] Provision standalone Coach project configuration and canonical domain (`https://coach.lurexa.org`).
+- [x] Reconcile Admin, Insight, Studio, and Teach preview and production topologies.
+- [x] Automated repository ↔ deployment drift detection active via `pnpm verify:cloudflare`.
 
-Exit evidence: repository manifest and external hosting agree, with runtime acceptance evidence for every surface called deployed.
+Exit evidence: PR #110 and PR #111 locked `main` as the authoritative Cloudflare production deployment branch with verified build directives across all 8 surfaces, and CI deployment workflow plus secret provisioning tooling are operational.
+
+
 
 ## R8 — Product Expansion Foundations
 

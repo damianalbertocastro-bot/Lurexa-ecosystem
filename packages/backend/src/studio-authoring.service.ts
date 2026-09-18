@@ -4,9 +4,10 @@ import type {
   StudioKnowledgeObjectDraftV1,
   EnglishSkill,
   User,
+  KnowledgeObjectValidationError,
 } from "@lurexa/types";
 
-export type { CefrLinguisticValidationReportV1, StudioKnowledgeObjectDraftV1, EnglishSkill };
+export type { CefrLinguisticValidationReportV1, StudioKnowledgeObjectDraftV1, EnglishSkill, KnowledgeObjectValidationError };
 
 // Standard CEFR Vocabulary Frequency Sets for Real-Time Authoring Linting
 const A1_WORDS = new Set([
@@ -75,12 +76,45 @@ export class StudioAuthoringService {
     StudioAuthoringService.knowledgeObjects.set(seedA1.id, seedA1);
   }
 
+  public static validateKnowledgeObjectSchema(
+    input: Partial<StudioKnowledgeObjectDraftV1>
+  ): { valid: boolean; errors: KnowledgeObjectValidationError[] } {
+    const errors: KnowledgeObjectValidationError[] = [];
+
+    if (!input.name || input.name.trim().length < 3) {
+      errors.push({ field: "name", message: "Name must be at least 3 characters." });
+    }
+    if (!input.cefrLevel) {
+      errors.push({ field: "cefrLevel", message: "CEFR level is required." });
+    }
+    if (!input.skills || input.skills.length === 0) {
+      errors.push({ field: "skills", message: "At least one English skill must be declared." });
+    }
+    if (!input.pedagogicalObjective || input.pedagogicalObjective.trim().length < 10) {
+      errors.push({ field: "pedagogicalObjective", message: "Pedagogical objective must be at least 10 characters." });
+    }
+    if (!input.activityConfig?.promptText || input.activityConfig.promptText.trim().length < 5) {
+      errors.push({ field: "activityConfig.promptText", message: "Activity prompt text must be at least 5 characters." });
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+
   public static async createKnowledgeObjectDraft(
     authorActor: User | { id?: string; uid?: string; email?: string },
     input: Omit<StudioKnowledgeObjectDraftV1, "contractVersion" | "id" | "version" | "status" | "createdAt" | "updatedAt" | "authorId">
   ): Promise<StudioKnowledgeObjectDraftV1> {
     const authorId = authorActor.id || (authorActor as { uid?: string }).uid;
     if (!authorId) throw new Error("Authentication is required to author knowledge objects.");
+
+    const validation = StudioAuthoringService.validateKnowledgeObjectSchema(input);
+    if (!validation.valid) {
+      const msgs = validation.errors.map((e) => `${e.field}: ${e.message}`).join(", ");
+      throw new Error(`Knowledge Object schema validation failed: ${msgs}`);
+    }
 
     const id = `ko-${input.cefrLevel.toLowerCase()}-${Date.now().toString(36)}`;
     const now = new Date().toISOString();
@@ -122,8 +156,14 @@ export class StudioAuthoringService {
     authorActor: User | { id?: string; uid?: string },
     id: string
   ): Promise<StudioKnowledgeObjectDraftV1> {
-    const ko = StudioAuthoringService.knowledgeObjects.get(id);
+    const ko = await StudioAuthoringService.getKnowledgeObject(id);
     if (!ko) throw new Error("Knowledge Object not found.");
+
+    const validation = StudioAuthoringService.validateKnowledgeObjectSchema(ko);
+    if (!validation.valid) {
+      const msgs = validation.errors.map((e) => `${e.field}: ${e.message}`).join(", ");
+      throw new Error(`Knowledge Object cannot be submitted for review: ${msgs}`);
+    }
 
     const updated: StudioKnowledgeObjectDraftV1 = {
       ...ko,
@@ -135,6 +175,30 @@ export class StudioAuthoringService {
     return updated;
   }
 
+  public static async approveKnowledgeObject(
+    reviewerActor: User | { id?: string; uid?: string },
+    id: string,
+    reviewNotes?: string
+  ): Promise<StudioKnowledgeObjectDraftV1> {
+    const reviewerId = reviewerActor.id || (reviewerActor as { uid?: string }).uid;
+    if (!reviewerId) throw new Error("Reviewer authentication is required.");
+
+    const ko = await StudioAuthoringService.getKnowledgeObject(id);
+    if (!ko) throw new Error("Knowledge Object not found.");
+
+    const now = new Date().toISOString();
+    const approved: StudioKnowledgeObjectDraftV1 = {
+      ...ko,
+      status: "approved",
+      reviewerId,
+      reviewNotes: reviewNotes || "Curriculum criteria and CEFR linguistic rubric validated.",
+      updatedAt: now,
+    };
+
+    StudioAuthoringService.knowledgeObjects.set(id, approved);
+    return approved;
+  }
+
   public static async publishKnowledgeObject(
     reviewerActor: User | { id?: string; uid?: string },
     id: string,
@@ -143,7 +207,7 @@ export class StudioAuthoringService {
     const reviewerId = reviewerActor.id || (reviewerActor as { uid?: string }).uid;
     if (!reviewerId) throw new Error("Reviewer authentication is required.");
 
-    const ko = StudioAuthoringService.knowledgeObjects.get(id);
+    const ko = await StudioAuthoringService.getKnowledgeObject(id);
     if (!ko) throw new Error("Knowledge Object not found.");
 
     const now = new Date().toISOString();

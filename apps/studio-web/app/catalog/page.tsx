@@ -46,6 +46,37 @@ export default function StudioCatalogPage() {
     return cancel;
   }, []);
 
+  const handleSubmitForReview = async (id: string) => {
+    setStatusMessage(null);
+    try {
+      await StudioAuthoringService.submitForPeerReview(
+        { id: "author-studio-user" } as never,
+        id
+      );
+      setStatusMessage("Knowledge Object submitted for peer curriculum review.");
+      const updated = await StudioAuthoringService.listKnowledgeObjects();
+      setObjects(updated);
+    } catch (err) {
+      setStatusMessage(err instanceof Error ? err.message : "Submission failed.");
+    }
+  };
+
+  const handleApprove = async (id: string) => {
+    setStatusMessage(null);
+    try {
+      await StudioAuthoringService.approveKnowledgeObject(
+        { id: "lead-curriculum-reviewer" } as never,
+        id,
+        "A1-C2 competency schema and linguistic rubric approved."
+      );
+      setStatusMessage("Knowledge Object verified and moved to Approved state.");
+      const updated = await StudioAuthoringService.listKnowledgeObjects();
+      setObjects(updated);
+    } catch (err) {
+      setStatusMessage(err instanceof Error ? err.message : "Approval failed.");
+    }
+  };
+
   const handlePublish = async (id: string) => {
     setStatusMessage(null);
     try {
@@ -53,7 +84,7 @@ export default function StudioCatalogPage() {
         { id: "lead-curriculum-reviewer", email: "reviewer@lurexa.org" } as never,
         id
       );
-      setStatusMessage("Knowledge Object approved and published to immutable production catalog.");
+      setStatusMessage("Knowledge Object published to immutable production catalog.");
       const updated = await StudioAuthoringService.listKnowledgeObjects();
       setObjects(updated);
     } catch (err) {
@@ -178,6 +209,7 @@ export default function StudioCatalogPage() {
                 <option value="ALL">All Statuses</option>
                 <option value="draft">Draft</option>
                 <option value="in_review">In Review</option>
+                <option value="approved">Approved</option>
                 <option value="published">Published</option>
               </select>
             </div>
@@ -209,8 +241,10 @@ export default function StudioCatalogPage() {
                       variant={
                         ko.status === "published"
                           ? "success"
-                          : ko.status === "in_review"
+                          : ko.status === "approved"
                           ? "info"
+                          : ko.status === "in_review"
+                          ? "warning"
                           : "default"
                       }
                       className="text-[10px] uppercase font-bold"
@@ -244,14 +278,35 @@ export default function StudioCatalogPage() {
 
                 <div className="flex items-center justify-between pt-3 border-t border-[var(--lx-border)]">
                   <span className="font-mono text-[10px] text-[var(--lx-muted)]">v{ko.version}</span>
-                  {ko.status !== "published" && (
+                  {ko.status === "draft" && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleSubmitForReview(ko.id)}
+                      className="rounded-lg bg-amber-600 text-white text-[11px] font-bold"
+                    >
+                      Submit for Review →
+                    </Button>
+                  )}
+                  {ko.status === "in_review" && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleApprove(ko.id)}
+                      className="rounded-lg bg-indigo-600 text-white text-[11px] font-bold"
+                    >
+                      Approve Rubric →
+                    </Button>
+                  )}
+                  {ko.status === "approved" && (
                     <Button
                       size="sm"
                       onClick={() => handlePublish(ko.id)}
-                      className="rounded-lg bg-[var(--lx-primary)] text-white text-[11px] font-bold"
+                      className="rounded-lg bg-emerald-600 text-white text-[11px] font-bold"
                     >
-                      Approve &amp; Publish →
+                      Publish to Core →
                     </Button>
+                  )}
+                  {ko.status === "published" && (
+                    <span className="text-[10px] font-bold text-emerald-700">✓ Sealed in Core</span>
                   )}
                 </div>
               </Card>

@@ -1,6 +1,11 @@
 import type { CefrLevel } from "./learner";
 
-export type KnowledgeObjectStatus = "draft" | "in_review" | "published" | "archived";
+export type KnowledgeObjectStatus = "draft" | "in_review" | "approved" | "published" | "archived";
+
+export interface KnowledgeObjectValidationError {
+  field: string;
+  message: string;
+}
 
 export type EnglishSkill =
   | "listening"

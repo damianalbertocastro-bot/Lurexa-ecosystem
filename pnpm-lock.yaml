@@ -547,6 +547,9 @@ importers:
       '@lurexa/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@lurexa/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@lurexa/ui':
         specifier: workspace:*
         version: link:../../packages/ui

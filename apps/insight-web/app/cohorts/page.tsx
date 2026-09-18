@@ -31,11 +31,17 @@ const HEATMAP_DATA: Record<string, PhonemeCell[]> = {
     { phoneme: "-s (3rd person)", category: "Inflection", errorRate: 16, sampleWord: "she live", targetWord: "she lives" },
     { phoneme: "/θ/ vs /t/", category: "Interdental Stopping", errorRate: 14, sampleWord: "trough", targetWord: "through" },
   ],
+  "Barahona Pilot Cohort (3 Learners)": [
+    { phoneme: "/s/ (final)", category: "Coda Weakening (Aggregated)", errorRate: 45, sampleWord: "[Masked]", targetWord: "coda sibilants" },
+    { phoneme: "/st-/ (cluster)", category: "Epenthesis (Aggregated)", errorRate: 38, sampleWord: "[Masked]", targetWord: "s-clusters" },
+    { phoneme: "/l/ vs /r/", category: "Liquid Neutralization (Aggregated)", errorRate: 33, sampleWord: "[Masked]", targetWord: "liquid targets" },
+  ],
 };
 
 export default function CohortHeatmapPage() {
   const [selectedCohort, setSelectedCohort] = useState("Santo Domingo Cohort Alpha");
   const data = HEATMAP_DATA[selectedCohort] || HEATMAP_DATA["Santo Domingo Cohort Alpha"];
+  const isMaskedByKAnonymity = selectedCohort.includes("3 Learners");
 
   return (
     <InsightShell active="Phonemic Heatmaps">
@@ -66,9 +72,24 @@ export default function CohortHeatmapPage() {
             >
               <option value="Santo Domingo Cohort Alpha">Santo Domingo Cohort Alpha (140 Learners)</option>
               <option value="Santiago Regional ESL-2">Santiago Regional ESL-2 (210 Learners)</option>
+              <option value="Barahona Pilot Cohort (3 Learners)">Barahona Pilot Cohort (3 Learners - k &lt; 5)</option>
             </select>
           </div>
         </section>
+
+        {isMaskedByKAnonymity && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900 flex items-start gap-3">
+            <span className="text-xl">🛡️</span>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                k-Anonymity Privacy Threshold Active (Cohort Size &lt; 5)
+              </h4>
+              <p className="text-xs text-amber-700 mt-1">
+                This cohort contains fewer than 5 active learners. Individual student speech logs and granular phonetic identifiers are aggregated into broad bands to strictly prevent de-anonymization.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Heatmap Matrix Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

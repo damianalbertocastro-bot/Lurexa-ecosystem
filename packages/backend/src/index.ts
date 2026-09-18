@@ -41,6 +41,7 @@ export * from "./curriculum/multi-l1-profiles";
 export * from "./mind-recommendation.service";
 export * from "./coach-cascaded-runtime.service";
 export * from "./user.service";
+export * from "./subscription.service";
 
 // Server-only capabilities intentionally do not belong in this browser-safe
 // barrel. Import them through their explicit server subpaths from API routes or

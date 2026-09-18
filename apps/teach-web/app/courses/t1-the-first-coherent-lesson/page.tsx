@@ -52,10 +52,10 @@ export default function T1CoherentLessonPage() {
               Submit your 5-stage lesson plan artifact and 3-point reflective rationale.
             </p>
             <a
-              href="/growth"
+              href="/courses/t1-the-first-coherent-lesson/capstone"
               className="mt-7 block text-center min-h-12 w-full rounded-xl bg-white px-4 py-3 text-sm font-extrabold text-[var(--color-brand-navy)] hover:bg-indigo-50 transition"
             >
-              Review Rubric & Submit →
+              Start Capstone Defense &amp; Classroom Simulation →
             </a>
           </aside>
         </section>

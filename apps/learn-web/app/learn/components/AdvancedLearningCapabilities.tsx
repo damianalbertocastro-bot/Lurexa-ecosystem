@@ -673,7 +673,18 @@ export function AIRoleplayActivity({
   const [error, setError] = useState<string | null>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
 
+  // Voice recording states for roleplay turns
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [voiceElapsedSeconds, setVoiceElapsedSeconds] = useState(0);
+  const [voiceTranscriptPreview, setVoiceTranscriptPreview] = useState("");
+  const voiceMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const voiceStreamRef = useRef<MediaStream | null>(null);
+  const voiceChunksRef = useRef<Blob[]>([]);
+  const voiceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const voiceRecognitionRef = useRef<unknown>(null);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { playClick, playAchievement } = useSoundEffects();
 
   // Initialize dynamic live Gemini opener on mount
   useEffect(() => {
@@ -735,6 +746,8 @@ export function AIRoleplayActivity({
     void initOpener();
     return () => {
       mounted = false;
+      if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+      if (voiceStreamRef.current) voiceStreamRef.current.getTracks().forEach((t) => t.stop());
     };
   }, [courseId, lessonId, capability.id, capability.scenario.openingLine]);
 
@@ -782,6 +795,7 @@ export function AIRoleplayActivity({
 
       const updatedLearnerTurns = updatedTranscript.filter((t) => t.sender === "learner").length;
       if (updatedLearnerTurns >= capability.scenario.minimumTurns) {
+        playAchievement();
         onCompleted?.(capability.id);
       }
     } catch (sendError) {
@@ -793,6 +807,162 @@ export function AIRoleplayActivity({
     } finally {
       setSending(false);
     }
+  }
+
+  async function startVoiceRecording() {
+    if (sending || isRecordingVoice) return;
+    setError(null);
+    playClick();
+
+    if (typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+      try {
+        const SpeechRec = (window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown }).SpeechRecognition
+          || (window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition;
+        if (typeof SpeechRec === "function") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const recognizer = new (SpeechRec as any)();
+          recognizer.continuous = true;
+          recognizer.interimResults = true;
+          recognizer.lang = "en-US";
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          recognizer.onresult = (event: any) => {
+            let interim = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              interim += event.results[i][0].transcript;
+            }
+            setVoiceTranscriptPreview(interim);
+          };
+          recognizer.start();
+          voiceRecognitionRef.current = recognizer;
+        }
+      } catch {
+        // SpeechRecognition optional preview
+      }
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      voiceStreamRef.current = stream;
+      voiceChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      voiceMediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) voiceChunksRef.current.push(event.data);
+      };
+
+      recorder.start();
+      setIsRecordingVoice(true);
+      setVoiceElapsedSeconds(0);
+      setVoiceTranscriptPreview("");
+
+      voiceTimerRef.current = setInterval(() => {
+        setVoiceElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Microphone access was denied.");
+    }
+  }
+
+  function cancelVoiceRecording() {
+    if (!isRecordingVoice) return;
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+    if (voiceMediaRecorderRef.current && voiceMediaRecorderRef.current.state !== "inactive") {
+      voiceMediaRecorderRef.current.stop();
+    }
+    if (voiceStreamRef.current) {
+      voiceStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (voiceRecognitionRef.current as any)?.stop?.();
+    } catch {
+      // safe
+    }
+    setIsRecordingVoice(false);
+    setVoiceElapsedSeconds(0);
+    setVoiceTranscriptPreview("");
+  }
+
+  async function stopVoiceRecordingAndSend() {
+    if (!isRecordingVoice || !voiceMediaRecorderRef.current) return;
+    playClick();
+
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (voiceRecognitionRef.current as any)?.stop?.();
+    } catch {
+      // safe
+    }
+
+    const recorder = voiceMediaRecorderRef.current;
+    const stream = voiceStreamRef.current;
+
+    recorder.onstop = async () => {
+      const mimeType = recorder.mimeType || "audio/webm";
+      const audioBlob = new Blob(voiceChunksRef.current, { type: mimeType });
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      setIsRecordingVoice(false);
+
+      if (audioBlob.size <= 0) {
+        setError("No audio captured. Please try speaking again.");
+        return;
+      }
+
+      // Optimistic spoken turn with live transcript preview if available
+      const optimisticTurn: LearnTutorTurn = {
+        sender: "learner",
+        text: voiceTranscriptPreview ? `🎙️ “${voiceTranscriptPreview}”` : "🎙️ [Spoken voice turn]",
+        timestamp: new Date().toISOString(),
+        isAudio: true,
+      };
+      const previousTranscript = transcript;
+      setTranscript((prev) => [...prev, optimisticTurn]);
+      setSending(true);
+      setError(null);
+
+      try {
+        const formData = new FormData();
+        formData.append("courseId", courseId);
+        formData.append("lessonId", lessonId);
+        formData.append("activityId", capability.id);
+        if (sessionId) formData.append("sessionId", sessionId);
+        formData.append("audio", audioBlob, "roleplay-spoken-turn.webm");
+        if (voiceTranscriptPreview) formData.append("transcript", voiceTranscriptPreview);
+
+        const response = await authenticatedFetch("/api/learning/tutor", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = (await response.json()) as LearnTutorTurnResult & { error?: string };
+        if (!response.ok) throw new Error(result.error ?? "Unable to evaluate spoken roleplay turn.");
+
+        setSessionId(result.sessionId);
+        const updatedTranscript = result.transcript;
+        setTranscript(updatedTranscript);
+        setProvider(result.provider);
+        setFallbackMode(result.provider === "deterministic_fallback");
+
+        const updatedLearnerTurns = updatedTranscript.filter((t) => t.sender === "learner").length;
+        if (updatedLearnerTurns >= capability.scenario.minimumTurns) {
+          playAchievement();
+          onCompleted?.(capability.id);
+        }
+      } catch (voiceError) {
+        setTranscript(previousTranscript);
+        setError(voiceError instanceof Error ? voiceError.message : "Unable to send spoken roleplay turn.");
+      } finally {
+        setSending(false);
+        setVoiceElapsedSeconds(0);
+        setVoiceTranscriptPreview("");
+      }
+    };
+
+    recorder.stop();
   }
 
   const learnerTurns = transcript.filter((turn) => turn.sender === "learner").length;
@@ -861,16 +1031,29 @@ export function AIRoleplayActivity({
                   : "bg-white/10 text-slate-100 ring-1 ring-white/10"
               }`}
             >
-              <p className="text-[10px] uppercase font-bold tracking-wider opacity-60 mb-1">
-                {turn.sender === "learner" ? "You" : capability.scenario.role}
-              </p>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+                  {turn.sender === "learner" ? "You" : capability.scenario.role}
+                </p>
+                {turn.isAudio ? (
+                  <span className="text-[10px] bg-white/20 text-white/90 px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
+                    🎙️ Spoken
+                  </span>
+                ) : null}
+              </div>
               <p>{turn.text}</p>
+              {turn.audioFeedback?.feedback ? (
+                <div className="mt-2 text-[11px] rounded-lg bg-black/30 p-2 text-teal-200 border border-teal-400/20">
+                  <span className="font-semibold text-teal-300">Speaking note: </span>
+                  {turn.audioFeedback.feedback}
+                </div>
+              ) : null}
             </div>
           ))
         )}
         {sending ? (
           <div className="bg-white/10 text-slate-300 rounded-2xl px-4 py-3 max-w-[50%] text-xs italic animate-pulse">
-            Partner is replying…
+            Partner is thinking & replying…
           </div>
         ) : null}
       </div>
@@ -884,7 +1067,7 @@ export function AIRoleplayActivity({
               key={phrase}
               type="button"
               onClick={() => void sendTurn(phrase)}
-              disabled={sending || initialLoading}
+              disabled={sending || initialLoading || isRecordingVoice}
               className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15 transition disabled:opacity-40"
             >
               + {phrase}
@@ -893,27 +1076,71 @@ export function AIRoleplayActivity({
         </div>
       </div>
 
-      {/* Chat Input Bar */}
-      <div className="mt-4 flex gap-2">
-        <Input
-          value={learnerMessage}
-          onChange={(event) => setLearnerMessage(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") void sendTurn();
-          }}
-          disabled={initialLoading}
-          placeholder="Type your response in English…"
-          className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400 disabled:opacity-50"
-        />
-        <Button
-          type="button"
-          disabled={!learnerMessage.trim() || sending || initialLoading || learnerTurns >= capability.scenario.maximumTurns}
-          onClick={() => void sendTurn()}
-          className="rounded-2xl bg-teal-400 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-teal-300 disabled:opacity-40 transition"
-        >
-          {sending ? "…" : "Send"}
-        </Button>
-      </div>
+      {/* Fluid Text & Voice Input Section */}
+      {isRecordingVoice ? (
+        <div className="mt-4 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <AudioWaveform active={true} variant="recording" barCount={16} />
+            <div>
+              <span className="text-xs font-black text-rose-300 animate-pulse block">
+                ● Recording your spoken turn ({voiceElapsedSeconds}s)
+              </span>
+              {voiceTranscriptPreview ? (
+                <span className="text-xs text-slate-300 italic block mt-0.5 max-w-sm truncate">
+                  “{voiceTranscriptPreview}”
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              onClick={cancelVoiceRecording}
+              className="rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 transition"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void stopVoiceRecordingAndSend()}
+              className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:bg-emerald-300 transition"
+            >
+              ✓ Send Spoken Turn
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 flex items-center gap-2">
+          <Input
+            value={learnerMessage}
+            onChange={(event) => setLearnerMessage(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") void sendTurn();
+            }}
+            disabled={initialLoading || sending}
+            placeholder="Type your response in English, or click mic to speak…"
+            className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400 disabled:opacity-50"
+          />
+          <Button
+            type="button"
+            title="Speak your answer with microphone"
+            disabled={sending || initialLoading || learnerTurns >= capability.scenario.maximumTurns}
+            onClick={() => void startVoiceRecording()}
+            className="rounded-2xl border border-teal-400/40 bg-teal-400/10 px-4 py-3 text-sm font-bold text-teal-300 hover:bg-teal-400/20 transition disabled:opacity-40 flex items-center gap-1.5"
+          >
+            <span>🎙️</span>
+            <span className="hidden sm:inline">Speak</span>
+          </Button>
+          <Button
+            type="button"
+            disabled={!learnerMessage.trim() || sending || initialLoading || learnerTurns >= capability.scenario.maximumTurns}
+            onClick={() => void sendTurn()}
+            className="rounded-2xl bg-teal-400 px-6 py-3 text-sm font-bold text-slate-950 shadow-sm hover:bg-teal-300 disabled:opacity-40 transition"
+          >
+            {sending ? "…" : "Send"}
+          </Button>
+        </div>
+      )}
 
       {/* Turn Progress & Guidance */}
       <div className="mt-3 flex items-center justify-between text-xs text-[var(--lx-muted)]">

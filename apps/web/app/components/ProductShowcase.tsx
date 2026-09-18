@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { getEcosystemUrl } from "@lurexa/config/domains";
 import type { LurexaProductId } from "@lurexa/config/product-registry";
+import { useTranslation } from "@lurexa/i18n";
 import styles from "../page.module.css";
 
 interface AudienceSection {
@@ -46,6 +47,7 @@ interface ProductShowcaseProps {
 export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
   const [activeTab, setActiveTab] = useState<"learners" | "educators" | "institutions">("learners");
   const navRef = useRef<HTMLElement>(null);
+  const { t } = useTranslation();
 
   const learnUrl = getEcosystemUrl("learn");
   const teachUrl = getEcosystemUrl("teach");
@@ -57,61 +59,61 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
   const audienceSections: AudienceSection[] = [
     {
       id: "learners",
-      tabLabel: "For Learners",
-      eyebrow: "FOR LEARNERS",
-      heading: "Master English with adaptive fluency & speaking confidence.",
+      tabLabel: t("landing.products.tabLearners"),
+      eyebrow: t("landing.products.learnersEyebrow"),
+      heading: t("landing.products.learnersHeading"),
       flagship: {
         productId: "learn",
-        name: "Lurexa Learn",
-        description: "Structured English courses with persistent learner telemetry and mastery tracking.",
-        cta: "Browse courses →",
+        name: t("landing.products.learnName"),
+        description: t("landing.products.learnDesc"),
+        cta: `${t("landing.products.learnCta")} →`,
         href: learnUrl,
       },
       companion: {
         productId: "coach",
-        name: "Lurexa Coach",
-        description: "Speak, test phonemes, and receive low-latency feedback on pronunciation.",
-        cta: "Practice speaking →",
+        name: t("landing.products.coachName"),
+        description: t("landing.products.coachDesc"),
+        cta: `${t("landing.products.coachCta")} →`,
         href: coachUrl,
       },
     },
     {
       id: "educators",
-      tabLabel: "For Educators",
-      eyebrow: "FOR EDUCATORS",
-      heading: "Elevate classroom pedagogy and build verified credentials.",
+      tabLabel: t("landing.products.tabEducators"),
+      eyebrow: t("landing.products.educatorsEyebrow"),
+      heading: t("landing.products.educatorsHeading"),
       flagship: {
         productId: "teach",
-        name: "Lurexa Teach",
-        description: "Growth pathways, classroom diagnostics, and credential tracking for educators.",
-        cta: "View teaching pathways →",
+        name: t("landing.products.teachName"),
+        description: t("landing.products.teachDesc"),
+        cta: `${t("landing.products.teachCta")} →`,
         href: teachUrl,
       },
       companion: {
         productId: "studio",
-        name: "Lurexa Studio",
-        description: "Authoring workbench to build CEFR-aligned curricula that feed directly into Learn.",
-        cta: "Launch workbench →",
+        name: t("landing.products.studioName"),
+        description: t("landing.products.studioDesc"),
+        cta: `${t("landing.products.studioCta")} →`,
         href: studioUrl,
       },
     },
     {
       id: "institutions",
-      tabLabel: "For Institutions",
-      eyebrow: "FOR INSTITUTIONS",
-      heading: "Govern multi-campus language programs with verified data.",
+      tabLabel: t("landing.products.tabInstitutions"),
+      eyebrow: t("landing.products.institutionsEyebrow"),
+      heading: t("landing.products.institutionsHeading"),
       flagship: {
         productId: "admin",
-        name: "Lurexa Admin",
-        description: "Multi-tenant governance, role delegation, license management, and institutional billing.",
-        cta: "Request school pilot →",
+        name: t("landing.products.adminName"),
+        description: t("landing.products.adminDesc"),
+        cta: `${t("landing.products.adminCta")} →`,
         href: "#institutional-cta",
       },
       companion: {
         productId: "insight",
-        name: "Lurexa Insight",
-        description: "Cross-cohort reporting, phonemic heatmaps, and automated intervention telemetry.",
-        cta: "View telemetry demo →",
+        name: t("landing.products.insightName"),
+        description: t("landing.products.insightDesc"),
+        cta: `${t("landing.products.insightCta")} →`,
         href: insightUrl,
       },
     },
@@ -164,13 +166,13 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
     <section id="products" className={styles.pricingSection} style={{ padding: "96px 40px" }} aria-labelledby="products-heading">
       {/* Section Heading matching .sectionHeading */}
       <div className={styles.sectionHeading} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "48px" }}>
-        <p className={styles.kicker}>THE PRODUCT ECOSYSTEM</p>
+        <p className={styles.kicker}>{t("landing.products.kicker")}</p>
         <h2 id="products-heading" style={{ fontSize: "clamp(36px, 4.8vw, 60px)", fontWeight: 900, letterSpacing: "-0.05em", margin: "16px 0 0", color: "var(--color-brand-navy)", lineHeight: 1.08 }}>
-          Purpose-built platforms. <br className="hidden sm:inline" />
-          <em style={{ fontStyle: "normal" }}>One intelligent ecosystem.</em>
+          {t("landing.products.heading")} <br className="hidden sm:inline" />
+          <em style={{ fontStyle: "normal" }}>{t("landing.products.headingEm")}</em>
         </h2>
         <p style={{ maxWidth: "620px", margin: "18px auto 0", color: "var(--color-text-secondary)", fontSize: "1.0625rem", lineHeight: 1.6 }}>
-          Every Lurexa product has a distinct role—adapting seamlessly for learners, educators, and enterprise institutions.
+          {t("landing.products.lead")}
         </p>
       </div>
 
@@ -289,7 +291,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                       </div>
                       <div>
                         <span className={styles.planBadgeHighlight} style={{ marginBottom: "4px", fontSize: "0.625rem", padding: "3px 10px" }}>
-                          Primary Platform
+                          {t("landing.products.primaryPlatform")}
                         </span>
                         <h4 style={{ fontSize: "1.625rem", fontWeight: 800, margin: 0, color: "var(--color-brand-navy)", letterSpacing: "-0.03em" }}>
                           {section.flagship.name}
@@ -350,7 +352,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                       </div>
                       <div>
                         <span className={styles.planBadge} style={{ marginBottom: "4px", fontSize: "0.625rem", padding: "3px 10px" }}>
-                          Specialized Engine
+                          {t("landing.products.specializedEngine")}
                         </span>
                         <h4 style={{ fontSize: "1.625rem", fontWeight: 800, margin: 0, color: "var(--color-brand-navy)", letterSpacing: "-0.03em" }}>
                           {section.companion.name}
@@ -403,16 +405,16 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
       >
         <div style={{ maxWidth: "700px", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <p className={styles.kicker} style={{ color: "#50e3c2", marginBottom: "8px" }}>
-            INSTITUTIONAL DEPLOYMENT
+            {t("landing.products.instCtaKicker")}
           </p>
           <h3
             id="institutional-closing-heading"
             style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 900, letterSpacing: "-0.04em", margin: "0 0 14px", color: "#ffffff", lineHeight: 1.12 }}
           >
-            Bring Lurexa to your school.
+            {t("landing.products.instCtaHeading")}
           </h3>
           <p style={{ margin: "0 auto 32px", color: "#c0cef5", fontSize: "1.0625rem", lineHeight: 1.65, maxWidth: "600px" }}>
-            Deploy Admin governance, Insight analytics, and Teach modules across your district or university.
+            {t("landing.products.instCtaDesc")}
           </p>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "16px" }}>
@@ -434,7 +436,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                 cursor: "pointer",
               }}
             >
-              Book a demo
+              {t("landing.products.instCtaBook")}
             </a>
             <a
               href={docsUrl}
@@ -451,7 +453,7 @@ export function ProductShowcase({ onOpenDemoModal }: ProductShowcaseProps) {
                 cursor: "pointer",
               }}
             >
-              Review system specs ↗
+              {t("landing.products.instCtaSpecs")} ↗
             </a>
           </div>
         </div>
