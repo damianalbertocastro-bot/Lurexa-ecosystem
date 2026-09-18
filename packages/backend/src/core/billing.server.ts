@@ -88,6 +88,7 @@ export class BillingServerService {
     eventType: string;
     targetUserId?: string;
     newTier?: SubscriptionTier;
+    selectedProduct?: (typeof PLUS_PRODUCT_OPTIONS)[number];
   } {
     const eventType = event.type;
     const obj = event.data.object;
