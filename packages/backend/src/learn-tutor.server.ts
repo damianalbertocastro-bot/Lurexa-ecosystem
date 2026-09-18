@@ -11,6 +11,7 @@ import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
+import { BusinessUsageService } from "./business-usage.server";
 
 const DEFAULT_MODEL = "gemini-3.7-flash";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -597,6 +598,12 @@ export const LearnTutorService = {
       },
     });
 
+    await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      organizationId,
+      aiTurns: 1,
+    });
+
     const geminiOpener = await callGeminiOpener({
       capability,
       contextSummary: summarizeContext(scoped.context),
@@ -663,6 +670,16 @@ export const LearnTutorService = {
     ]);
 
     const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
+
+    const voiceMinutes = request.audioDurationMs && request.audioDurationMs > 0
+      ? Math.ceil(request.audioDurationMs / 60000)
+      : 0;
+    await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      organizationId,
+      aiTurns: 1,
+      voiceMinutes,
+    });
 
     const geminiOutput = await callGemini({
       capability,
