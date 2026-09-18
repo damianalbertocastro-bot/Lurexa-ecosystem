@@ -1,6 +1,6 @@
 /** Individual commercial tiers. Business is an organization-contract model, not an individual tier. */
 export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "business";
-export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA" | "ENTERPRISE";
+export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA";
 export type SubscriptionTier = CanonicalSubscriptionTier | LegacySubscriptionTier;
 export type TierIdentifier = "basic" | "plus" | "ultra" | "business";
 
@@ -172,26 +172,6 @@ const ULTRA_QUOTAS: PlanQuotas = {
   premiumVoiceProducts: ["LEARN", "COACH"],
 };
 
-/**
- * Legacy Enterprise quota identifiers remain temporarily for compatibility.
- * New organizational contracts must use BusinessContract rather than this tier.
- */
-const LEGACY_ENTERPRISE_QUOTAS: PlanQuotas = {
-  tier: "enterprise",
-  maxAiTurns: 5000,
-  maxVoiceMinutes: 1500,
-  allowCrossProductSync: true,
-  allowCapstones: true,
-  allowOfflineCaching: true,
-  monthlyAiTurns: 5000,
-  monthlyVoiceMinutes: 1500,
-  offlineModulesAllowed: 999,
-  streamingAudioEnabled: true,
-  universalLearnerModelSync: true,
-  cohortAnalyticsEnabled: true,
-  premiumVoiceProducts: ["LEARN", "COACH"],
-};
-
 export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
   basic: BASIC_QUOTAS,
   BASIC: { ...BASIC_QUOTAS, tier: "BASIC" },
@@ -199,8 +179,6 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
   PLUS: { ...PLUS_QUOTAS, tier: "PLUS" },
   ultra: ULTRA_QUOTAS,
   ULTRA: { ...ULTRA_QUOTAS, tier: "ULTRA" },
-  enterprise: LEGACY_ENTERPRISE_QUOTAS,
-  ENTERPRISE: { ...LEGACY_ENTERPRISE_QUOTAS, tier: "ENTERPRISE" },
 };
 
 export interface TierPricingPlan {
