@@ -1,4 +1,6 @@
-import { CapabilityId, InstitutionalPlanTier, ProductId } from "@lurexa/types";
+import { CapabilityId } from "./entitlements";
+import { InstitutionalPlanTier } from "./billing";
+import { ProductId } from "./entitlements";
 
 export type OrganizationCommercialContext = "institution" | "business";
 
