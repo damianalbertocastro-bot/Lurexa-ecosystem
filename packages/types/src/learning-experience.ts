@@ -87,6 +87,7 @@ export interface LearnTutorSession {
   status: "active" | "completed";
   transcript: LearnTutorTurn[];
   provider: "gemini" | "deterministic_fallback" | null;
+  promptVersion?: string;
   createdAt: string;
   updatedAt: string;
 }
