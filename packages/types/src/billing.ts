@@ -24,7 +24,7 @@ export interface InstitutionalBillingAccount {
   planTier: InstitutionalPlanTier;
   allocatedSeats: number;
   usedSeats: number;
-  pricePerSeatMonthlyUsd: number;
+  pricePerSeatMonthlyUsd: number | null;
   billingInterval: "monthly" | "annual";
   currentPeriodStart: string;
   nextRenewalDate: string;
