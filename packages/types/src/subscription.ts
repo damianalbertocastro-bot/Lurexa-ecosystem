@@ -1,9 +1,58 @@
+/** Individual commercial tiers. `enterprise` is retained temporarily for legacy compatibility; Business is organization-contract based. */
 export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "enterprise";
 export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA" | "ENTERPRISE";
 export type SubscriptionTier = CanonicalSubscriptionTier | LegacySubscriptionTier;
 export type TierIdentifier = "basic" | "plus" | "ultra" | "enterprise";
 
-export type ProductEntryPoint = "LEARN" | "COACH" | "TEACH" | "STUDIO" | "INSIGHT";
+export type ProductEntryPoint = "LEARN" | "COACH" | "TEACH" | "ADMIN" | "STUDIO" | "INSIGHT";
+
+export type BusinessCapability =
+  | "groups"
+  | "assignments"
+  | "analytics"
+  | "reporting"
+  | "role_management"
+  | "audit"
+  | "sso"
+  | "data_export"
+  | "teacher_admin_management"
+  | "custom_curriculum"
+  | "studio_authoring"
+  | "branding"
+  | "integrations";
+
+export type BusinessProduct =
+  | "LEARN"
+  | "COACH"
+  | "TEACH"
+  | "ADMIN"
+  | "INSIGHT"
+  | "STUDIO";
+
+export interface BusinessContract {
+  model: "organization_contract";
+  targetMarket: "small_medium";
+  productAccess: BusinessProduct[];
+  learnerOrSeatAllowance?: number;
+  usageModel: "pooled_with_optional_individual_limits";
+  capabilities: BusinessCapability[];
+  support: "negotiated";
+  customization: Array<
+    "custom_curriculum" | "studio_authoring" | "branding" | "integrations"
+  >;
+  pricing: "contract_quote";
+}
+
+export interface ProductScopedVoiceEntitlement {
+  product: ProductEntryPoint;
+  provider: "elevenlabs";
+  included: boolean;
+}
+
+export const PLUS_ELEVENLABS_ENTITLEMENTS: ProductScopedVoiceEntitlement[] = [
+  { product: "LEARN", provider: "elevenlabs", included: true },
+  { product: "COACH", provider: "elevenlabs", included: true },
+];
 
 export interface PlanQuotas {
   maxAiTurns: number;
@@ -18,6 +67,7 @@ export interface PlanQuotas {
   streamingAudioEnabled: boolean;
   universalLearnerModelSync: boolean;
   cohortAnalyticsEnabled: boolean;
+  premiumVoiceProducts?: ProductEntryPoint[];
 }
 
 export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
@@ -34,6 +84,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: false,
     universalLearnerModelSync: false,
     cohortAnalyticsEnabled: false,
+    premiumVoiceProducts: [],
   },
   BASIC: {
     tier: "BASIC",
@@ -48,7 +99,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: false,
     universalLearnerModelSync: false,
     cohortAnalyticsEnabled: false,
-  },
+    premiumVoiceProducts: [],\n  },
   plus: {
     tier: "plus",
     maxAiTurns: 200,
@@ -62,7 +113,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: false,
     universalLearnerModelSync: false,
     cohortAnalyticsEnabled: false,
-  },
+    premiumVoiceProducts: [],\n  },
   PLUS: {
     tier: "PLUS",
     maxAiTurns: 200,
@@ -76,7 +127,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: false,
     universalLearnerModelSync: false,
     cohortAnalyticsEnabled: false,
-  },
+    premiumVoiceProducts: [],\n  },
   ultra: {
     tier: "ultra",
     maxAiTurns: 1000,
@@ -90,6 +141,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: true,
     universalLearnerModelSync: true,
     cohortAnalyticsEnabled: false,
+    premiumVoiceProducts: ["LEARN", "COACH"],
   },
   ULTRA: {
     tier: "ULTRA",
@@ -104,6 +156,7 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: true,
     universalLearnerModelSync: true,
     cohortAnalyticsEnabled: false,
+    premiumVoiceProducts: ["LEARN", "COACH"],
   },
   enterprise: {
     tier: "enterprise",
@@ -132,6 +185,22 @@ export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
     streamingAudioEnabled: true,
     universalLearnerModelSync: true,
     cohortAnalyticsEnabled: true,
+    premiumVoiceProducts: ["LEARN", "COACH"],
+  },
+  ENTERPRISE: {
+    tier: "ENTERPRISE",
+    maxAiTurns: 5000,
+    maxVoiceMinutes: 1500,
+    allowCrossProductSync: true,
+    allowCapstones: true,
+    allowOfflineCaching: true,
+    monthlyAiTurns: 5000,
+    monthlyVoiceMinutes: 1500,
+    offlineModulesAllowed: 999,
+    streamingAudioEnabled: true,
+    universalLearnerModelSync: true,
+    cohortAnalyticsEnabled: true,
+    premiumVoiceProducts: ["LEARN", "COACH"],
   },
 };
 
@@ -246,6 +315,7 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
     features: [
       "Full single-product access (Learn Plus or Coach Plus)",
       "120 voice practice minutes/mo",
+      "Premium ElevenLabs voice for the subscribed product",
       "1 module offline caching",
       "Targeted error remediation drills",
     ],
@@ -268,7 +338,7 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
     annualPriceUsd: 199.0,
     tagline: "Full ecosystem access powered by the Universal Learner Model",
     features: [
-      "Unrestricted access to Learn, Coach, Studio & Teach",
+      "Full Learn + Coach access",
       "300+ voice minutes/mo with low-latency streaming",
       "Universal Learner Model: real-time Coach ↔ Learn error sync",
       "Unlimited offline module downloads & background sync",
@@ -290,26 +360,24 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
   },
   enterprise: {
     tier: "enterprise",
-    monthlyPriceUsd: 49.0,
-    annualPriceUsd: 490.0,
-    tagline: "Institutional cohort analytics, phonemic heatmaps & seat licensing",
+    monthlyPriceUsd: 0,
+    annualPriceUsd: 0,
+    tagline: "Legacy compatibility only; Business is contract/quote based.",
     features: [
-      "Multi-seat pooling & centralized licensing",
-      "Cohort-wide phonemic error heatmaps",
-      "Automated teacher intervention routing",
-      "Custom LMS/SIS milestone data export",
+      "Legacy identifier retained for migration compatibility",
+      "Do not expose fixed public pricing",
+      "Use BusinessContract for new organizational agreements",
     ],
   },
   ENTERPRISE: {
     tier: "ENTERPRISE",
-    monthlyPriceUsd: 49.0,
-    annualPriceUsd: 490.0,
-    tagline: "Institutional cohort analytics, phonemic heatmaps & seat licensing",
+    monthlyPriceUsd: 0,
+    annualPriceUsd: 0,
+    tagline: "Legacy compatibility only; Business is contract/quote based.",
     features: [
-      "Multi-seat pooling & centralized licensing",
-      "Cohort-wide phonemic error heatmaps",
-      "Automated teacher intervention routing",
-      "Custom LMS/SIS milestone data export",
+      "Legacy identifier retained for migration compatibility",
+      "Do not expose fixed public pricing",
+      "Use BusinessContract for new organizational agreements",
     ],
   },
 };
