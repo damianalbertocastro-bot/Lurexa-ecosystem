@@ -166,8 +166,8 @@ export const PlatformAdminService = {
         const usedSeats = membersSnapshot.size;
         const allocatedSeats = typeof data.allocatedSeats === "number" ? data.allocatedSeats : Math.max(usedSeats, 25);
         const planTier: import("@lurexa/types").InstitutionalPlanTier =
-          data.plan === "enterprise"
-            ? "enterprise"
+          data.plan === "business"
+            ? "business"
             : data.plan === "campus"
             ? "campus_pro"
             : data.plan === "standard"
