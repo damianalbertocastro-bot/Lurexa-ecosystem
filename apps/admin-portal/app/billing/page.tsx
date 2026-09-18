@@ -117,7 +117,7 @@ export default function AdminBillingPage() {
   const totalAllocatedSeats = accounts.reduce((sum, a) => sum + a.allocatedSeats, 0);
   const totalUsedSeats = accounts.reduce((sum, a) => sum + a.usedSeats, 0);
   const totalAnnualRevenue = accounts.reduce(
-    (sum, a) => sum + a.allocatedSeats * a.pricePerSeatMonthlyUsd * 12,
+    (sum, a) => sum + (a.pricePerSeatMonthlyUsd == null ? 0 : a.allocatedSeats * a.pricePerSeatMonthlyUsd * 12),
     0,
   );
 
@@ -206,7 +206,7 @@ export default function AdminBillingPage() {
               ${totalAnnualRevenue.toLocaleString()}
             </b>
             <p className="mt-1 text-xs text-[var(--lx-muted)]">
-              Estimated annual recurring subscription value
+              Public-rate accounts only; Business contracts are quote-based
             </p>
           </div>
         </div>
@@ -349,7 +349,7 @@ export default function AdminBillingPage() {
                 <option value="free_community">Free Community ($0/seat)</option>
                 <option value="standard_institutional">Standard Institutional ($5/seat/mo)</option>
                 <option value="campus_pro">Campus Pro ($8/seat/mo)</option>
-                <option value="business">Business Custom ($12/seat/mo)</option>
+                <option value="business">Business Custom (contract quote)</option>
               </select>
             </div>
 
