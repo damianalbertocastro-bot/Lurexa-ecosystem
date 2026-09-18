@@ -371,19 +371,13 @@ export default function AdminBillingPage() {
                 Billing Impact Projection
               </p>
               <p className="mt-1 text-sm font-extrabold text-[var(--lx-ink)]">
-                Annual Subscription: $
-                {(
-                  newSeats *
-                  (newPlan === "business"
-                    ? 12
-                    : newPlan === "campus_pro"
-                    ? 8
-                    : newPlan === "standard_institutional"
-                    ? 5
-                    : 0) *
-                  12
-                ).toLocaleString()}{" "}
-                USD / year
+                {newPlan === "business"
+                  ? "Business: contract quote — no public per-seat price"
+                  : <>Annual Subscription: ${(
+                      newSeats *
+                      (newPlan === "campus_pro" ? 8 : newPlan === "standard_institutional" ? 5 : 0) *
+                      12
+                    ).toLocaleString()} USD / year</>}
               </p>
             </div>
 
