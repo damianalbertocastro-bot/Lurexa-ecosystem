@@ -602,6 +602,7 @@ export const LearnTutorService = {
       learnerId: actor.uid,
       organizationId,
       aiTurns: 1,
+      product: "LEARN",
     });
 
     const geminiOpener = await callGeminiOpener({
