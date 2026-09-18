@@ -75,11 +75,29 @@ Canonical artifact:
 
 ## Phase 2 — Entitlement Primitives
 
+**Maturity: Contract implemented**
+
+- [x] Add canonical product and capability entitlement contracts.
+- [x] Separate subscription sources, organization grants, and educator benefits.
+- [x] Define quota scope and entitlement provenance contracts.
+- [x] Add deterministic Core-side entitlement resolution.
+- [x] Preserve qualification and teaching authorization as separate trust domains.
+- [x] Record compatibility migration requirements for legacy subscription/quota contracts.
+
+Canonical artifacts:
+- `packages/types/src/entitlements.ts`
+- `packages/backend/src/core/entitlement-resolution.server.ts`
+- `Docs/Commercial/LUREXA_PHASE_2_ENTITLEMENT_PRIMITIVES.md`
+
+No payment settlement or client-side entitlement authority was introduced.
+
+## Phase 3 — Individual & Educator Entitlement Migration
+
 Pending.
 
-Define and implement canonical Core-owned contracts for product entitlements, capability grants, subscription sources, organization grants, educator benefits, qualification/authorization references, quota scopes, provenance, and lifecycle.
+Migrate production access decisions toward the new capability contracts, make Plus product selection explicit, separate educator benefits from consumer subscriptions, and begin scoped quota migration.
 
-Do not begin payment settlement or broad premium gating before Phase 2 provides these primitives.
+The legacy mixed plan definitions remain compatibility-only until all consumers are migrated and verification proves their removal is safe.
 
 ---
 
