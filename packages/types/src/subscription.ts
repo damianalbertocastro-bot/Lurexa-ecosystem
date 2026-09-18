@@ -1,8 +1,8 @@
 /** Individual commercial tiers. Business is an organization-contract model, not an individual tier. */
-export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "enterprise";
+export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "business";
 export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA" | "ENTERPRISE";
 export type SubscriptionTier = CanonicalSubscriptionTier | LegacySubscriptionTier;
-export type TierIdentifier = "basic" | "plus" | "ultra" | "enterprise";
+export type TierIdentifier = "basic" | "plus" | "ultra" | "business";
 
 export type ProductEntryPoint =
   | "LEARN"
