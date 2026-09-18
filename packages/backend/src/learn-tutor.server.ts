@@ -11,8 +11,10 @@ import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
+import { BusinessUsageService } from "./business-usage.server";
 
 const DEFAULT_MODEL = "gemini-3.7-flash";
+const LEARN_TUTOR_PROMPT_VERSION = "learn-tutor-roleplay-v1";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
@@ -453,6 +455,7 @@ async function loadOrCreateSession(input: {
     status: "active",
     transcript: [],
     provider: null,
+    promptVersion: LEARN_TUTOR_PROMPT_VERSION,
     createdAt: now,
     updatedAt: now,
   };
@@ -474,6 +477,7 @@ async function saveSessionTurn(input: {
     status: input.complete ? "completed" : "active",
     transcript: [...input.session.transcript, input.learnerTurn, input.tutorTurn].slice(-24),
     provider: input.provider,
+    promptVersion: LEARN_TUTOR_PROMPT_VERSION,
     updatedAt: input.tutorTurn.timestamp,
   };
   await database.runTransaction(async (transaction) => {
@@ -531,7 +535,7 @@ async function recordRoleplayEvidence(input: {
     provenance: {
       method: "ai_observed",
       actorId: input.actor.uid,
-      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
+      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL, promptVersion: LEARN_TUTOR_PROMPT_VERSION } : {}),
     },
   });
 
@@ -595,6 +599,13 @@ export const LearnTutorService = {
         purpose: "learn_adaptive_practice",
         domains: ["proficiency", "curriculum", "goal", "recommendation"],
       },
+    });
+
+    await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      organizationId,
+      aiTurns: 1,
+      product: "LEARN",
     });
 
     const geminiOpener = await callGeminiOpener({
@@ -663,6 +674,16 @@ export const LearnTutorService = {
     ]);
 
     const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
+
+    const voiceMinutes = request.audioDurationMs && request.audioDurationMs > 0
+      ? Math.ceil(request.audioDurationMs / 60000)
+      : 0;
+    await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      organizationId,
+      aiTurns: 1,
+      voiceMinutes,
+    });
 
     const geminiOutput = await callGemini({
       capability,

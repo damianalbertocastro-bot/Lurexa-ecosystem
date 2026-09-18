@@ -4,7 +4,7 @@ export type InstitutionalPlanTier =
   | "free_community"
   | "standard_institutional"
   | "campus_pro"
-  | "enterprise";
+  | "business";
 
 export interface InstitutionalInvoice {
   id: string;
@@ -24,7 +24,7 @@ export interface InstitutionalBillingAccount {
   planTier: InstitutionalPlanTier;
   allocatedSeats: number;
   usedSeats: number;
-  pricePerSeatMonthlyUsd: number;
+  pricePerSeatMonthlyUsd: number | null;
   billingInterval: "monthly" | "annual";
   currentPeriodStart: string;
   nextRenewalDate: string;
