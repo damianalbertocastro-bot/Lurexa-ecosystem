@@ -380,6 +380,26 @@ export const CoachPlatformService = {
     if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
 
     const cefr = input.targetCefr || session.focus?.cefr || "A1";
+
+    // Streaming is an entitlement boundary. Business contracts use the pooled
+    // voice allowance; individual tiers use the existing streaming capability.
+    const organizationId = await BusinessUsageService.getLearnerOrganizationId(actor.uid);
+    const businessContract = organizationId ? await BusinessUsageService.getContract(organizationId) : null;
+    if (businessContract) {
+      const remaining = await BusinessUsageService.getRemainingAllowance(organizationId!);
+      if (remaining.voiceMinutes <= 0) {
+        throw new Error("Business monthly voice allowance exceeded.");
+      }
+    } else {
+      const streamingCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
+        actorId: actor.uid,
+        usageType: "streaming_audio",
+        unitsToConsume: 1,
+      });
+      if (!streamingCheck.allowed) {
+        throw new Error(streamingCheck.message || "Streaming audio is not available.");
+      }
+    }
     const systemInstruction = `You are Lurexa Coach, an empathetic, encouraging spoken English coach specialized for Dominican and Caribbean Spanish speakers learning English. Your goal is natural communicative competence and intelligible pronunciation at CEFR ${cefr}. Never mock or seek accent erasure; focus on phonemic intelligibility (e.g. word-initial /s/ clusters like 'study' without epenthetic 'e', and clear coda consonants). Keep your turns short (1-2 sentences), conversational, and prompt the learner to speak.`;
 
     const apiKey = process.env.GEMINI_API_KEY;
