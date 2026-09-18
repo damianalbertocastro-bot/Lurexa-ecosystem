@@ -398,3 +398,93 @@ These requirements apply continuously and do not become permanently “done”:
 > **Products deliver experiences and generate evidence.**  
 > **Campus connects the institutional experience.**  
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+## Commercial Architecture Program — Phases 6–15
+
+**Supersession note:** The earlier implementation-only Phase 6 (Controlled AI Tutor) and Phase 7 (PWA/Offline) remain valid implementation records, but their numbering is superseded for the next commercial-architecture sequence below. Do not use numeric phase labels without this program context.
+
+### Phase 6 — Formalize Campus
+**Status: Contract implemented**
+
+- [x] Authoritative institutional capability matrix.
+- [x] Products attach independently to organizations.
+- [x] Legacy institutional identifiers treated as migration inputs, not authorization authority.
+- [ ] Runtime migration of all institutional authorization checks to capability projections.
+
+### Phase 7 — Formalize Business
+**Status: Contract implemented**
+
+- [x] Customer definition: small and medium organizations.
+- [x] Organization user/role model.
+- [x] Product access and organizational capabilities.
+- [x] Workforce learning model.
+- [x] Analytics/privacy boundary.
+- [x] AI governance contract.
+- [x] Contract/quote commercial model with no invented public prices.
+- [ ] Final commercial approval of any future public Business service profiles.
+
+### Phase 8 — Build Capability Registry
+**Status: Contract implemented**
+
+- [x] Registry schema covers owner, product, entitlement source, quota, AI provider, speech provider, authorization and organization scope.
+- [x] Initial executable registry created.
+- [ ] Expand registry to every production capability and make CI completeness mandatory.
+
+### Phase 9 — Integrate AI Gateway
+**Status: Implementation baseline**
+
+- [x] Provider-neutral AI Gateway contract created.
+- [x] OpenRouter adapter boundary created.
+- [x] Usage provenance hook created.
+- [ ] Migrate Learn Tutor's direct Gemini calls behind the gateway.
+- [ ] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds.
+
+### Phase 10 — Implement OpenRouter Roleplay
+**Status: Contract implemented**
+
+- [x] conversational roleplay established as a first-class Mind capability in the registry.
+- [x] Learn identified as the first major consumer.
+- [ ] Move runtime roleplay generation to OpenRouter through the AI Gateway.
+- [ ] Define Teach professional-simulation consumer contract without duplicating the Mind capability.
+
+### Phase 11 — Implement Speech Gateway
+**Status: Implementation baseline**
+
+- [x] Entitlement-driven standard vs ElevenLabs provider selection implemented.
+- [x] ElevenLabs is explicit entitlement, never fallback.
+- [x] Product/provider usage attribution implemented.
+- [ ] Migrate all Learn/Coach speech paths behind the gateway.
+- [ ] Add provider health, timeout and cost controls.
+
+### Phase 12 — Reconcile Pricing UX
+**Status: Contract implemented**
+
+- [x] Canonical pricing UX rules documented.
+- [x] Business quote semantics documented.
+- [x] Teach/institutional pricing explicitly protected from invented legacy assumptions.
+- [ ] Migrate every pricing surface to shared commercial definitions.
+
+### Phase 13 — Enforcement
+**Status: Partial**
+
+- [x] Server-side capability enforcement architecture documented.
+- [x] Gateway boundaries require capability resolution.
+- [ ] Audit and migrate remaining direct plan-string authorization checks.
+
+### Phase 14 — Usage Accounting
+**Status: Implementation baseline**
+
+- [x] Product/capability/provider/organization/user/entitlement/billing-period ledger contract implemented.
+- [x] Business pooled quota remains enforced separately.
+- [ ] Add idempotency keys and durable reporting aggregates.
+- [ ] Connect all premium AI/speech paths to the ledger.
+
+### Phase 15 — Testing Matrix
+**Status: Contract implemented**
+
+- [x] Individual, Teach, Campus and Business test matrix documented.
+- [x] Capability-independent testing requirements defined.
+- [ ] Implement executable matrix fixtures and CI coverage gates.
+
+**Next execution order:** finish Phase 9 migration, then Phase 10 roleplay, Phase 11 speech migration, Phase 12 pricing surfaces, Phase 13 enforcement audit, Phase 14 complete attribution, and Phase 15 executable matrix. Do not expand unrelated product features until these capability foundations are coherent.
+
