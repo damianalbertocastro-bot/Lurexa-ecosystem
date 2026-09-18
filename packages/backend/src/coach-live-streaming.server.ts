@@ -5,12 +5,13 @@
  * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for Ultra & Enterprise tiers.
  */
 
-import { SubscriptionTier, DEFAULT_TIER_QUOTAS } from "@lurexa/types";
+import { SubscriptionTier, DEFAULT_TIER_QUOTAS, type BusinessContract } from "@lurexa/types";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
   learnerId: string;
   tier: SubscriptionTier;
+  businessContract?: BusinessContract | null;
   targetVoice: string;
   vadSensitivity: "high" | "normal" | "low";
   maxTurnDurationSeconds: number;
@@ -49,12 +50,13 @@ export class CoachLiveStreamingServerService {
     error?: string;
   } {
     const quota = DEFAULT_TIER_QUOTAS[config.tier];
-    if (!quota.streamingAudioEnabled) {
+    const businessAllowed = Boolean(config.businessContract?.productAccess.includes("COACH"));
+    if (!businessAllowed && !quota.streamingAudioEnabled) {
       return {
         authorized: false,
         streamEndpoint: "",
         codec: "audio/webm",
-        error: `Streaming audio is only available on Ultra and Enterprise plans. Active plan: ${config.tier}.`,
+        error: `Streaming audio is not included in the current Coach entitlement. Active plan: ${config.tier}.`,
       };
     }
 
