@@ -10,9 +10,12 @@ const ALLOWED_TYPES = new Set<LearningEvidenceType>([
   "activity_result",
   "curriculum_progress",
   "goal_update",
-  "self_report",
-  "preference",
-  "recommendation",
+  "language_error",
+  "pronunciation_observation",
+  "fluency_observation",
+  "goal_update",
+  "preference_update",
+  "correction_outcome",
 ]);
 
 export async function POST(request: Request): Promise<Response> {
