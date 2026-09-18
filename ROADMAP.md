@@ -167,6 +167,32 @@ Exit evidence: PR #110 and PR #111 locked `main` as the authoritative Cloudflare
 
 
 
+## R7.1 — Commercial Reconciliation & Pre-Phase-5 Entitlement Gate
+
+**Maturity: Contract implemented / pre-enforcement**
+
+This gate records the approved commercial decisions before technical entitlement enforcement.
+
+- [x] Resolve Plus ElevenLabs contradiction: premium ElevenLabs is product-scoped for Learn Plus and Coach Plus.
+- [x] Freeze Ultra's current commercial boundary at full Learn + Coach plus deeper cross-product adaptation and premium AI/speech.
+- [x] Keep Ultra future-product entitlements extensible; Teach, Studio and future products are not automatically included.
+- [x] Define Business for small and medium organizations.
+- [x] Define Business as an organization contract + learner/seat allowance + negotiated usage.
+- [x] Define Business as ecosystem access configured through capabilities rather than Basic/Pro/Enterprise SKU packages.
+- [x] Define pooled organizational usage with optional individual limits.
+- [x] Define standard Business capabilities: groups/cohorts, assignments, analytics, reporting, role management, audit, SSO, data export and teacher/admin management.
+- [x] Define negotiated support and contract-based customization for custom curricula, Studio authoring, branding and integrations.
+- [x] Set Business pricing as contract/quote based with no public fixed price.
+- [x] Create canonical commercial specification at `Docs/Product/LUREXA_COMMERCIAL_SPECIFICATION.md`.
+- [x] Reconcile subscription types with product-scoped premium voice and Business contract capabilities.
+- [x] Remove superseded Enterprise pricing from the customer-facing Learn billing surface.
+- [ ] Migrate remaining runtime dependencies on the legacy `enterprise` tier.
+- [ ] Add capability-level entitlement resolution and organization-level quota accounting.
+- [ ] Add automated commercial-contract verification before Phase 5.
+- [ ] Run `pnpm verify:local` and resolve all regressions before Phase 5 enforcement.
+
+**Exit condition:** no customer-facing surface presents superseded Enterprise pricing; canonical commercial rules and capability contracts agree; legacy runtime dependencies are identified; verification is green.
+
 ## R8 — Product Expansion Foundations
 
 **Maturity: Pending**
