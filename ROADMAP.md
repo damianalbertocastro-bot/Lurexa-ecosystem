@@ -169,7 +169,7 @@ Exit evidence: PR #110 and PR #111 locked `main` as the authoritative Cloudflare
 
 ## R7.1 — Commercial Reconciliation & Pre-Phase-5 Entitlement Gate
 
-**Maturity: Contract implemented / pre-enforcement**
+**Maturity: Runtime enforcement implemented / verification pending**
 
 This gate records the approved commercial decisions before technical entitlement enforcement.
 
@@ -189,7 +189,8 @@ This gate records the approved commercial decisions before technical entitlement
 - [x] Migrate individual entitlement logic away from the legacy `enterprise` tier; remaining `enterprise` references are institutional/branding legacy and require separate migration decisions.
 - [x] Add capability-level entitlement resolution and pooled Business usage accounting contract/checks.
 - [x] Persist organization-level Business quota usage with transactional enforcement.
-- [ ] Connect persisted Business consumption to every AI/voice runtime entry point and prove end-to-end enforcement.
+- [x] Connect persisted Business consumption to the implemented Learn/Coach AI and voice runtime entry points, including Coach live-stream entitlement gating.
+- [ ] Prove end-to-end Business enforcement with the full repository verification gate.
 - [x] Add automated commercial-contract verification before Phase 5.
 - [ ] Run `pnpm verify:local` and resolve all regressions before Phase 5 enforcement.
 
