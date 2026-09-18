@@ -1,4 +1,4 @@
-import type { BusinessContract, BusinessUsageRecord } from "@lurexa/types";
+import type { BusinessContract, BusinessUsageRecord, ProductEntryPoint } from "@lurexa/types";
 import { getServerFirestore } from "./firebase-admin.server";
 
 const USAGE_COLLECTION = "business-usage";
@@ -45,11 +45,15 @@ export class BusinessUsageService {
     organizationId?: string;
     aiTurns?: number;
     voiceMinutes?: number;
+    product?: ProductEntryPoint;
   }): Promise<boolean> {
     const organizationId = input.organizationId ?? await this.getLearnerOrganizationId(input.learnerId);
     if (!organizationId) return false;
     const contract = await this.getContract(organizationId);
     if (!contract) return false;
+    if (input.product && !contract.productAccess.includes(input.product as BusinessContract["productAccess"][number])) {
+      throw new Error(`Business contract does not grant access to ${input.product}.`);
+    }
 
     await this.consumeCurrentUsage({
       organizationId,
@@ -90,10 +94,8 @@ export class BusinessUsageService {
     const orgRef = getServerFirestore().collection("organizations").doc(input.organizationId);
 
     const result = await getServerFirestore().runTransaction(async (transaction) => {
-      const [orgSnapshot, usageSnapshot] = await Promise.all([
-        transaction.get(orgRef),
-        transaction.get(usageRef),
-      ]);
+      const orgSnapshot = await transaction.get(orgRef);
+      const usageSnapshot = await transaction.get(usageRef);
       if (!orgSnapshot.exists) throw new Error("Organization not found.");
 
       const contract = (orgSnapshot.data()?.[CONTRACT_FIELD] as BusinessContract | undefined) ?? null;
