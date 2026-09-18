@@ -93,11 +93,25 @@ No payment settlement or client-side entitlement authority was introduced.
 
 ## Phase 3 — Individual & Educator Entitlement Migration
 
+**Maturity: Contract implemented / migration started**
+
+- [x] Require explicit Learn/Coach/Teach selection for Plus checkout.
+- [x] Reject ambiguous Plus checkout requests.
+- [x] Validate selected-product metadata on completed Plus subscriptions.
+- [x] Preserve educator benefits as a separate entitlement source.
+- [x] Document remaining legacy consumers requiring capability/quota migration.
+- [ ] Migrate all production access checks from legacy tiers to capabilities.
+- [ ] Migrate quota enforcement to scoped quota contracts.
+- [ ] Remove legacy mixed plan definitions after verification.
+
+Canonical artifact:
+`Docs/Commercial/LUREXA_PHASE_3_INDIVIDUAL_EDUCATOR_MIGRATION.md`
+
+## Phase 4 — Institutional & Business Entitlement Model
+
 Pending.
 
-Migrate production access decisions toward the new capability contracts, make Plus product selection explicit, separate educator benefits from consumer subscriptions, and begin scoped quota migration.
-
-The legacy mixed plan definitions remain compatibility-only until all consumers are migrated and verification proves their removal is safe.
+Implement organization-scoped product/capability grants, seat and quota pools, flexible Campus bundles, and separate Business workforce capability contracts without inventing unsupported commercial SKUs.
 
 ---
 
