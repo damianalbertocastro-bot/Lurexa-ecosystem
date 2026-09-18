@@ -20,6 +20,7 @@
     "test:learn-rules": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-rules\"",
     "test:learn-mvp-journey": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:learn-mvp-journey\"",
     "test:working-mvp-journey": "firebase emulators:exec --only auth,firestore --project lurexa-app \"pnpm --filter @lurexa/backend test:working-mvp-journey\"",
+    "verify:phase5-7": "node scripts/verify-phase5-7.mjs",
     "verify:commercial-reconciliation": "node scripts/verify-commercial-reconciliation.mjs",
     "verify:repository-hygiene": "node scripts/verify-repository-hygiene.mjs",
     "verify:brand-system": "node scripts/run-brand-system-verifier.mjs",
