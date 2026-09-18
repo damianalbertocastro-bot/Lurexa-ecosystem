@@ -14,6 +14,7 @@ function BillingContent() {
   const recommendedTier = searchParams.get("recommendedTier") as SubscriptionTier | null;
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier>(recommendedTier || "PLUS");
+  const [selectedPlusProduct, setSelectedPlusProduct] = useState<"learn" | "coach" | "teach">("learn");
   const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
 
   const plans: Array<{
@@ -94,7 +95,8 @@ function BillingContent() {
 
   const handleSelectPlan = (tier: SubscriptionTier) => {
     setSelectedTier(tier);
-    setUpgradeSuccess(`Plan preference updated to ${tier} (${billingCycle}). Your subscription quota is active.`);
+    const productLabel = tier === "PLUS" ? " — " + (selectedPlusProduct === "learn" ? "Learn Plus" : selectedPlusProduct === "coach" ? "Coach Plus" : "Teach Plus") : "";
+    setUpgradeSuccess(`Plan preference updated to ${tier}${productLabel} (${billingCycle}).`);
   };
 
   return (
@@ -172,6 +174,34 @@ function BillingContent() {
             All plans include continuous CEFR adaptation and universal Learner Model persistence.
           </p>
         </div>
+
+        {/* Plus product choice */}
+        <section className="rounded-3xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-6 sm:p-8 shadow-sm space-y-5">
+          <div>
+            <h2 className="text-xl font-extrabold text-[var(--color-brand-navy)]">Choose what you want to develop</h2>
+            <p className="text-xs text-[var(--lx-muted)] mt-1">Plus is $9.99/month for one product. Select the product that matches your primary goal before continuing to checkout.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              { id: "learn" as const, title: "Learn Plus", goal: "Build your English systematically.", benefits: "Full Learn experience, expanded practice, assessment, and Plus-level offline learning." },
+              { id: "coach" as const, title: "Coach Plus", goal: "Improve speaking and pronunciation.", benefits: "Full Coach experience, expanded voice practice, and pronunciation-focused development." },
+              { id: "teach" as const, title: "Teach Plus", goal: "Grow as an educator.", benefits: "Full Teach experience, professional development, and Teach-specific AI support." },
+            ].map((offer) => {
+              const selected = selectedPlusProduct === offer.id;
+              return (
+                <button key={offer.id} type="button" onClick={() => setSelectedPlusProduct(offer.id)} className={selected ? "text-left rounded-2xl border p-5 border-[var(--lx-primary)] ring-2 ring-[var(--lx-primary)]/20" : "text-left rounded-2xl border p-5 border-[var(--lx-border)] hover:border-[var(--lx-primary)]/50"}>
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-black text-[var(--color-brand-navy)]">{offer.title}</h3>
+                    <span className={selected ? "text-[10px] font-black uppercase text-[var(--lx-primary)]" : "text-[10px] font-black uppercase text-[var(--lx-muted)]"}>{selected ? "Selected" : "Choose"}</span>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold">{offer.goal}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--lx-muted)]">{offer.benefits}</p>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-[var(--lx-muted)]">Your Lurexa identity stays the same. You can add other product entitlements later without creating another account. A Plus purchase does not automatically include the other two products.</p>
+        </section>
 
         {/* Pricing Cards Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
