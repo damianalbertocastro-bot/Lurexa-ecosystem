@@ -35,6 +35,52 @@ export type BusinessProduct =
   | "INSIGHT"
   | "STUDIO";
 
+export type EntitlementCapability =
+  | "curriculum_access"
+  | "coach_access"
+  | "premium_voice"
+  | "cross_product_sync"
+  | "offline_learning"
+  | "capstone_evaluation"
+  | "groups"
+  | "assignments"
+  | "analytics"
+  | "reporting"
+  | "role_management"
+  | "audit"
+  | "sso"
+  | "data_export"
+  | "teacher_admin_management"
+  | "custom_curriculum"
+  | "studio_authoring"
+  | "branding"
+  | "integrations";
+
+export interface ResolvedEntitlements {
+  product: ProductEntryPoint;
+  capabilities: EntitlementCapability[];
+  monthlyAiTurns: number;
+  monthlyVoiceMinutes: number;
+  offlineModulesAllowed: number;
+  streamingAudioEnabled: boolean;
+  source: "individual_tier" | "business_contract";
+}
+
+export interface BusinessUsageAllowance {
+  monthlyAiTurns: number;
+  monthlyVoiceMinutes: number;
+  learnerOrSeatAllowance?: number;
+}
+
+export interface BusinessUsageRecord {
+  organizationId: string;
+  learnerId?: string;
+  periodStart: string;
+  periodEnd: string;
+  aiTurnsUsed: number;
+  voiceMinutesUsed: number;
+}
+
 export interface BusinessContract {
   model: "organization_contract";
   targetMarket: "small_medium";
@@ -47,6 +93,7 @@ export interface BusinessContract {
     "custom_curriculum" | "studio_authoring" | "branding" | "integrations"
   >;
   pricing: "contract_quote";
+  usageAllowance?: BusinessUsageAllowance;
 }
 
 export interface ProductScopedVoiceEntitlement {
