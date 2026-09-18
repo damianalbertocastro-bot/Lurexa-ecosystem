@@ -11,6 +11,11 @@ const checks = [
   ["Ultra is Learn + Coach", read("apps/learn-web/app/billing/page.tsx").includes("Full Learn + Coach access")],
   ["Business contract capability model exists", read("packages/types/src/subscription.ts").includes("interface BusinessContract")],
   ["Business is quote based", read("packages/types/src/subscription.ts").includes('pricing: "contract_quote"')],
+  ["Capability-level entitlement resolver exists", read("packages/backend/src/subscription.service.ts").includes("resolveEntitlements")],
+  ["Business pooled usage accounting contract exists", read("packages/types/src/subscription.ts").includes("BusinessUsageRecord")],
+  ["Business usage enforcement check exists", read("packages/backend/src/subscription.service.ts").includes("canConsumeBusinessUsage")],
+  ["Admin Business pricing is contract-based", !read("apps/admin-portal/app/billing/page.tsx").includes("Business Custom ($12/seat/mo)")],
+  ["Campus seat defaults do not depend on legacy Enterprise", !read("packages/backend/src/campus-platform.server.ts").includes('orgData.plan === "enterprise"')],
   ["legacy Enterprise is not a tier hierarchy rank", !read("packages/backend/src/subscription.service.ts").includes("enterprise: 4")],
 ];
 
