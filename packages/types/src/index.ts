@@ -26,3 +26,5 @@ export * from "./storage";
 
 
 export * from "./entitlements";
+
+export * from "./organization-entitlements";
