@@ -18,6 +18,7 @@ const checks = [
   ["Persistent usage uses a Firestore transaction", read("packages/backend/src/business-usage.server.ts").includes("runTransaction")],
   ["Business contract is organization-scoped", read("packages/backend/src/business-usage.server.ts").includes('collection("organizations").doc(input.organizationId)')],
   ["Business runtime usage helper exists", read("packages/backend/src/business-usage.server.ts").includes("consumeIfBusiness")],
+  ["Business runtime enforces contracted product access", read("packages/backend/src/business-usage.server.ts").includes("does not grant access to")],
   ["Coach standard turns use Business pooled usage", read("packages/backend/src/coach-platform.server.ts").includes("BusinessUsageService.consumeIfBusiness")],
   ["Coach cascaded turns use Business pooled usage", read("packages/backend/src/coach-platform.server.ts").includes("const voiceMinutes = input.audioDurationMs")],
   ["Coach streaming is entitlement-gated", read("packages/backend/src/coach-platform.server.ts").includes("Business monthly voice allowance exceeded.") && read("packages/backend/src/coach-platform.server.ts").includes('usageType: "streaming_audio"')],
