@@ -188,7 +188,8 @@ This gate records the approved commercial decisions before technical entitlement
 - [x] Remove superseded Enterprise pricing from the customer-facing Learn billing surface.
 - [x] Migrate individual entitlement logic away from the legacy `enterprise` tier; remaining `enterprise` references are institutional/branding legacy and require separate migration decisions.
 - [x] Add capability-level entitlement resolution and pooled Business usage accounting contract/checks.
-- [ ] Persist organization-level quota usage and connect it to runtime consumption enforcement.
+- [x] Persist organization-level Business quota usage with transactional enforcement.
+- [ ] Connect persisted Business consumption to every AI/voice runtime entry point and prove end-to-end enforcement.
 - [x] Add automated commercial-contract verification before Phase 5.
 - [ ] Run `pnpm verify:local` and resolve all regressions before Phase 5 enforcement.
 
