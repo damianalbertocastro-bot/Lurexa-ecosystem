@@ -51,6 +51,38 @@ Core owns trusted records, identity, authorization, persistence, provenance and 
 
 ---
 
+# Commercial & entitlement reconciliation program
+
+This program is layered on top of the existing R1–R8 roadmap and must be completed before production billing, premium capability enforcement, or provider-specific commercial gating is implemented.
+
+## Phase 1 — Commercial Model Freeze
+
+**Maturity: Architecture / documentation baseline**
+
+- [x] Freeze Individual Basic, Plus and Ultra semantics.
+- [x] Make Plus product selection explicit: Learn Plus, Coach Plus, or Teach Plus.
+- [x] Separate Teach Basic/Teach Plus from T1–T5 professional stages.
+- [x] Preserve the verified-educator `coach_full` benefit as a separate entitlement source.
+- [x] Keep institutional tiers separate from consumer subscriptions.
+- [x] Keep Lurexa Campus as an institutional shell rather than a consumer-plan variant or seventh sibling product.
+- [x] Establish Business as a separate workforce commercial context without inventing unsupported SKU names or prices.
+- [x] Define capability-oriented entitlement direction.
+- [x] Record current subscription/billing contradictions for Phase 2 resolution.
+- [x] Establish server/Core enforcement as the authority for capability access.
+
+Canonical artifact:
+`Docs/Commercial/LUREXA_COMMERCIAL_PLANS_ENTITLEMENTS_RECONCILIATION.md`
+
+## Phase 2 — Entitlement Primitives
+
+Pending.
+
+Define and implement canonical Core-owned contracts for product entitlements, capability grants, subscription sources, organization grants, educator benefits, qualification/authorization references, quota scopes, provenance, and lifecycle.
+
+Do not begin payment settlement or broad premium gating before Phase 2 provides these primitives.
+
+---
+
 # Immediate reconciliation program
 
 This program takes precedence over new product expansion until the repository, deployment topology and maturity claims agree.
