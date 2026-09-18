@@ -196,6 +196,44 @@ This gate records the approved commercial decisions before technical entitlement
 
 **Exit condition:** no customer-facing surface presents superseded Enterprise pricing; canonical commercial rules and capability contracts agree; legacy runtime dependencies are identified; verification is green.
 
+## Execution Phases 5–7 — Quality, Controlled AI & Offline PWA
+
+These phases are the implementation sequence carried forward from the earlier platform roadmap. They are evaluated separately from product maturity so an implemented subsystem is not mistaken for a production-ready product.
+
+### Phase 5 — Testing, Security & Observability
+**Status: Verified baseline**
+
+- [x] Critical learner/teacher journeys have Playwright coverage.
+- [x] Accessibility baseline exists for critical Learn journeys.
+- [x] Commercial entitlement and Business quota enforcement have executable regression checks.
+- [x] Structured operational telemetry with request correlation and redaction is enforced on critical AI paths.
+- [x] Protected CI and Product Deployment Validation are green on the current branch head.
+
+### Phase 6 — Controlled AI Tutor
+**Status: Verified implementation baseline**
+
+- [x] Provider/model fallback boundary exists behind the Learn Tutor service.
+- [x] Trusted curriculum capability is resolved server-side.
+- [x] Authorized learner context is grounded into the tutor request.
+- [x] Prompt contract is versioned (learn-tutor-roleplay-v1).
+- [x] Audio turns request structured JSON and are parsed into bounded tutor/evaluation fields.
+- [x] Deterministic fallback exists when the provider is unavailable.
+- [x] AI turns are connected to Business pooled usage enforcement.
+- [x] Tutor evidence records provider/model and prompt-version provenance.
+- [ ] Complete empirical AI evaluation dataset and latency/cost acceptance thresholds before production promotion.
+
+### Phase 7 — PWA / Offline
+**Status: Verified implementation baseline**
+
+- [x] Installable Learn PWA manifest and service worker exist.
+- [x] Static assets and audio use explicit cache strategies.
+- [x] Successful navigations are cached for offline fallback.
+- [x] IndexedDB stores lessons, progress, evidence, learner-model deltas and audio.
+- [x] Offline progress queues and retries are implemented.
+- [x] Offline evidence is synchronized to Core before local deletion.
+- [x] Spoken offline evidence uploads through the canonical evidence endpoint before local deletion.
+- [x] Idempotent Core evidence persistence prevents duplicate evidence from duplicate retries.
+- [ ] Complete representative-device/low-bandwidth field validation before claiming production-ready offline support.
 ## R8 — Product Expansion Foundations
 
 **Maturity: Pending**
