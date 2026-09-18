@@ -1,6 +1,6 @@
 # Lurexa Roadmap
 
-Updated: 2026-08-27
+Updated: 2026-09-18
 
 Lurexa is the commercial multi-product EdTech ecosystem built by **Lurexa Learning Technologies**. The earlier thesis prototype is a validation/reference artifact and does not define production architecture.
 
@@ -125,9 +125,20 @@ Canonical artifacts:
 
 ## Phase 5 — Capability Enforcement & Quota Migration
 
-Pending.
+**Maturity: In progress**
 
-Replace legacy subscription-tier checks with server-side capability assertions, migrate AI/speech access to capability-aware gates, and move usage accounting to product/capability-scoped quotas.
+- [x] Define customer-facing benefit guidance so a purchase communicates purpose, included value, exclusions, and account continuity.
+- [x] Correct legacy plan display metadata so Plus is explicitly a single-product choice and Enterprise is treated as an organizational contract for display purposes.
+- [x] Add an explicit Plus product selector to the Learn billing experience.
+- [ ] Replace legacy subscription-tier checks with server-side capability assertions.
+- [ ] Migrate AI/speech access to capability-aware gates.
+- [ ] Move usage accounting to product/capability-scoped quotas.
+- [ ] Remove legacy mixed plan definitions after verification.
+
+Canonical artifact:
+`Docs/Commercial/LUREXA_PLAN_BENEFITS_AND_PURCHASE_GUIDANCE.md`
+
+The customer-facing benefit layer explains commercial value; Core entitlement resolution remains the authority for access.
 
 ---
 
