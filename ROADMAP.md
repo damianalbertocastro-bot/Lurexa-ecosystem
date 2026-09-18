@@ -186,9 +186,9 @@ This gate records the approved commercial decisions before technical entitlement
 - [x] Create canonical commercial specification at `Docs/Product/LUREXA_COMMERCIAL_SPECIFICATION.md`.
 - [x] Reconcile subscription types with product-scoped premium voice and Business contract capabilities.
 - [x] Remove superseded Enterprise pricing from the customer-facing Learn billing surface.
-- [ ] Migrate remaining runtime dependencies on the legacy `enterprise` tier.
+- [x] Migrate individual entitlement logic away from the legacy `enterprise` tier; remaining `enterprise` references are institutional/branding legacy and require separate migration decisions.
 - [ ] Add capability-level entitlement resolution and organization-level quota accounting.
-- [ ] Add automated commercial-contract verification before Phase 5.
+- [x] Add automated commercial-contract verification before Phase 5.
 - [ ] Run `pnpm verify:local` and resolve all regressions before Phase 5 enforcement.
 
 **Exit condition:** no customer-facing surface presents superseded Enterprise pricing; canonical commercial rules and capability contracts agree; legacy runtime dependencies are identified; verification is green.
