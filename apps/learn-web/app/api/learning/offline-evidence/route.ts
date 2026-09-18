@@ -60,7 +60,7 @@ export async function POST(request: Request): Promise<Response> {
       dataClassification: "sensitive" as const,
       payload: typeof body.payload === "object" && body.payload !== null ? body.payload : {},
       provenance: {
-        method: "learner_submitted" as const,
+        method: "learner_reported" as const,
         actorId: actor.uid,
       },
     };
