@@ -109,9 +109,25 @@ Canonical artifact:
 
 ## Phase 4 — Institutional & Business Entitlement Model
 
+**Maturity: Contract implemented**
+
+- [x] Separate institution and business commercial contexts.
+- [x] Define organization product/capability bundles.
+- [x] Define organization seat grants.
+- [x] Define organization quota pools.
+- [x] Define flexible Campus bundles.
+- [x] Define Business workforce contracts without fabricated public SKU names/prices.
+- [x] Preserve qualification and teaching authorization as separate trust domains.
+
+Canonical artifacts:
+- `packages/types/src/organization-entitlements.ts`
+- `Docs/Commercial/LUREXA_PHASE_4_INSTITUTION_BUSINESS_ENTITLEMENTS.md`
+
+## Phase 5 — Capability Enforcement & Quota Migration
+
 Pending.
 
-Implement organization-scoped product/capability grants, seat and quota pools, flexible Campus bundles, and separate Business workforce capability contracts without inventing unsupported commercial SKUs.
+Replace legacy subscription-tier checks with server-side capability assertions, migrate AI/speech access to capability-aware gates, and move usage accounting to product/capability-scoped quotas.
 
 ---
 
