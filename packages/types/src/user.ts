@@ -12,7 +12,7 @@ export interface User {
   updatedAt: string;
 }
 
-export type PricingPlan = "free" | "basic" | "pro" | "enterprise";
+export type PricingPlan = "free" | "basic" | "pro" | "business";
 
 export interface Organization {
   id: string;
