@@ -194,7 +194,7 @@ export default function AdminBillingPage() {
               {accounts.filter((a) => a.status === "active").length}
             </b>
             <p className="mt-1 text-xs text-[var(--lx-muted)]">
-              {accounts.length} total registered enterprise accounts
+              {accounts.length} total registered Business accounts
             </p>
           </div>
 
