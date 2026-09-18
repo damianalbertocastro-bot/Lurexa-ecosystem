@@ -150,8 +150,8 @@ export class MindRecommendationService {
     phoneticTarget?: string;
     explanation: string;
   }[] {
-    // Only available for Ultra & Enterprise subscribers with Universal Learner Model sync
-    if (context.activeTier !== "ULTRA" && context.activeTier !== "ENTERPRISE") {
+    // Only available for Ultra subscribers with Universal Learner Model sync.
+    if (context.activeTier !== "ULTRA") {
       return [];
     }
 
