@@ -1,10 +1,16 @@
-/** Individual commercial tiers. `enterprise` is retained temporarily for legacy compatibility; Business is organization-contract based. */
+/** Individual commercial tiers. Business is an organization-contract model, not an individual tier. */
 export type CanonicalSubscriptionTier = "basic" | "plus" | "ultra" | "enterprise";
 export type LegacySubscriptionTier = "BASIC" | "PLUS" | "ULTRA" | "ENTERPRISE";
 export type SubscriptionTier = CanonicalSubscriptionTier | LegacySubscriptionTier;
 export type TierIdentifier = "basic" | "plus" | "ultra" | "enterprise";
 
-export type ProductEntryPoint = "LEARN" | "COACH" | "TEACH" | "ADMIN" | "STUDIO" | "INSIGHT";
+export type ProductEntryPoint =
+  | "LEARN"
+  | "COACH"
+  | "TEACH"
+  | "ADMIN"
+  | "STUDIO"
+  | "INSIGHT";
 
 export type BusinessCapability =
   | "groups"
@@ -49,6 +55,7 @@ export interface ProductScopedVoiceEntitlement {
   included: boolean;
 }
 
+/** Plus includes premium ElevenLabs only for the subscribed eligible product. */
 export const PLUS_ELEVENLABS_ENTITLEMENTS: ProductScopedVoiceEntitlement[] = [
   { product: "LEARN", provider: "elevenlabs", included: true },
   { product: "COACH", provider: "elevenlabs", included: true },
@@ -70,138 +77,83 @@ export interface PlanQuotas {
   premiumVoiceProducts?: ProductEntryPoint[];
 }
 
+const BASIC_QUOTAS: PlanQuotas = {
+  tier: "basic",
+  maxAiTurns: 40,
+  maxVoiceMinutes: 15,
+  allowCrossProductSync: false,
+  allowCapstones: false,
+  allowOfflineCaching: false,
+  monthlyAiTurns: 40,
+  monthlyVoiceMinutes: 15,
+  offlineModulesAllowed: 0,
+  streamingAudioEnabled: false,
+  universalLearnerModelSync: false,
+  cohortAnalyticsEnabled: false,
+  premiumVoiceProducts: [],
+};
+
+const PLUS_QUOTAS: PlanQuotas = {
+  tier: "plus",
+  maxAiTurns: 200,
+  maxVoiceMinutes: 120,
+  allowCrossProductSync: false,
+  allowCapstones: false,
+  allowOfflineCaching: true,
+  monthlyAiTurns: 200,
+  monthlyVoiceMinutes: 120,
+  offlineModulesAllowed: 1,
+  streamingAudioEnabled: false,
+  universalLearnerModelSync: false,
+  cohortAnalyticsEnabled: false,
+  premiumVoiceProducts: ["LEARN", "COACH"],
+};
+
+const ULTRA_QUOTAS: PlanQuotas = {
+  tier: "ultra",
+  maxAiTurns: 1000,
+  maxVoiceMinutes: 300,
+  allowCrossProductSync: true,
+  allowCapstones: true,
+  allowOfflineCaching: true,
+  monthlyAiTurns: 1000,
+  monthlyVoiceMinutes: 300,
+  offlineModulesAllowed: 999,
+  streamingAudioEnabled: true,
+  universalLearnerModelSync: true,
+  cohortAnalyticsEnabled: false,
+  premiumVoiceProducts: ["LEARN", "COACH"],
+};
+
+/**
+ * Legacy Enterprise quota identifiers remain temporarily for compatibility.
+ * New organizational contracts must use BusinessContract rather than this tier.
+ */
+const LEGACY_ENTERPRISE_QUOTAS: PlanQuotas = {
+  tier: "enterprise",
+  maxAiTurns: 5000,
+  maxVoiceMinutes: 1500,
+  allowCrossProductSync: true,
+  allowCapstones: true,
+  allowOfflineCaching: true,
+  monthlyAiTurns: 5000,
+  monthlyVoiceMinutes: 1500,
+  offlineModulesAllowed: 999,
+  streamingAudioEnabled: true,
+  universalLearnerModelSync: true,
+  cohortAnalyticsEnabled: true,
+  premiumVoiceProducts: ["LEARN", "COACH"],
+};
+
 export const DEFAULT_TIER_QUOTAS: Record<SubscriptionTier, PlanQuotas> = {
-  basic: {
-    tier: "basic",
-    maxAiTurns: 40,
-    maxVoiceMinutes: 15,
-    allowCrossProductSync: false,
-    allowCapstones: false,
-    allowOfflineCaching: false,
-    monthlyAiTurns: 40,
-    monthlyVoiceMinutes: 15,
-    offlineModulesAllowed: 0,
-    streamingAudioEnabled: false,
-    universalLearnerModelSync: false,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: [],
-  },
-  BASIC: {
-    tier: "BASIC",
-    maxAiTurns: 40,
-    maxVoiceMinutes: 15,
-    allowCrossProductSync: false,
-    allowCapstones: false,
-    allowOfflineCaching: false,
-    monthlyAiTurns: 40,
-    monthlyVoiceMinutes: 15,
-    offlineModulesAllowed: 0,
-    streamingAudioEnabled: false,
-    universalLearnerModelSync: false,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: [],\n  },
-  plus: {
-    tier: "plus",
-    maxAiTurns: 200,
-    maxVoiceMinutes: 120,
-    allowCrossProductSync: false,
-    allowCapstones: false,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 200,
-    monthlyVoiceMinutes: 120,
-    offlineModulesAllowed: 1,
-    streamingAudioEnabled: false,
-    universalLearnerModelSync: false,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: [],\n  },
-  PLUS: {
-    tier: "PLUS",
-    maxAiTurns: 200,
-    maxVoiceMinutes: 120,
-    allowCrossProductSync: false,
-    allowCapstones: false,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 200,
-    monthlyVoiceMinutes: 120,
-    offlineModulesAllowed: 1,
-    streamingAudioEnabled: false,
-    universalLearnerModelSync: false,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: [],\n  },
-  ultra: {
-    tier: "ultra",
-    maxAiTurns: 1000,
-    maxVoiceMinutes: 300,
-    allowCrossProductSync: true,
-    allowCapstones: true,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 1000,
-    monthlyVoiceMinutes: 300,
-    offlineModulesAllowed: 999,
-    streamingAudioEnabled: true,
-    universalLearnerModelSync: true,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: ["LEARN", "COACH"],
-  },
-  ULTRA: {
-    tier: "ULTRA",
-    maxAiTurns: 1000,
-    maxVoiceMinutes: 300,
-    allowCrossProductSync: true,
-    allowCapstones: true,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 1000,
-    monthlyVoiceMinutes: 300,
-    offlineModulesAllowed: 999,
-    streamingAudioEnabled: true,
-    universalLearnerModelSync: true,
-    cohortAnalyticsEnabled: false,
-    premiumVoiceProducts: ["LEARN", "COACH"],
-  },
-  enterprise: {
-    tier: "enterprise",
-    maxAiTurns: 5000,
-    maxVoiceMinutes: 1500,
-    allowCrossProductSync: true,
-    allowCapstones: true,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 5000,
-    monthlyVoiceMinutes: 1500,
-    offlineModulesAllowed: 999,
-    streamingAudioEnabled: true,
-    universalLearnerModelSync: true,
-    cohortAnalyticsEnabled: true,
-  },
-  ENTERPRISE: {
-    tier: "ENTERPRISE",
-    maxAiTurns: 5000,
-    maxVoiceMinutes: 1500,
-    allowCrossProductSync: true,
-    allowCapstones: true,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 5000,
-    monthlyVoiceMinutes: 1500,
-    offlineModulesAllowed: 999,
-    streamingAudioEnabled: true,
-    universalLearnerModelSync: true,
-    cohortAnalyticsEnabled: true,
-    premiumVoiceProducts: ["LEARN", "COACH"],
-  },
-  ENTERPRISE: {
-    tier: "ENTERPRISE",
-    maxAiTurns: 5000,
-    maxVoiceMinutes: 1500,
-    allowCrossProductSync: true,
-    allowCapstones: true,
-    allowOfflineCaching: true,
-    monthlyAiTurns: 5000,
-    monthlyVoiceMinutes: 1500,
-    offlineModulesAllowed: 999,
-    streamingAudioEnabled: true,
-    universalLearnerModelSync: true,
-    cohortAnalyticsEnabled: true,
-    premiumVoiceProducts: ["LEARN", "COACH"],
-  },
+  basic: BASIC_QUOTAS,
+  BASIC: { ...BASIC_QUOTAS, tier: "BASIC" },
+  plus: PLUS_QUOTAS,
+  PLUS: { ...PLUS_QUOTAS, tier: "PLUS" },
+  ultra: ULTRA_QUOTAS,
+  ULTRA: { ...ULTRA_QUOTAS, tier: "ULTRA" },
+  enterprise: LEGACY_ENTERPRISE_QUOTAS,
+  ENTERPRISE: { ...LEGACY_ENTERPRISE_QUOTAS, tier: "ENTERPRISE" },
 };
 
 export interface TierPricingPlan {
@@ -217,7 +169,10 @@ export interface TierPricingPlan {
   ctaHref: string;
 }
 
-export const LUREXA_PRICING_PLANS: Record<"basic" | "plus" | "ultra", TierPricingPlan> = {
+export const LUREXA_PRICING_PLANS: Record<
+  "basic" | "plus" | "ultra",
+  TierPricingPlan
+> = {
   basic: {
     id: "basic",
     name: "Lurexa Basic",
@@ -229,11 +184,11 @@ export const LUREXA_PRICING_PLANS: Record<"basic" | "plus" | "ultra", TierPricin
       "English A1 Foundation modules",
       "Adaptive placement diagnostic",
       "Spaced-retrieval review checks",
-      "Basic Coach speaking studio (5 mins/day)"
+      "Basic Coach speaking studio (5 mins/day)",
     ],
     highlighted: false,
     ctaText: "Get Started Free →",
-    ctaHref: "/register?plan=basic"
+    ctaHref: "/register?plan=basic",
   },
   plus: {
     id: "plus",
@@ -241,17 +196,18 @@ export const LUREXA_PRICING_PLANS: Record<"basic" | "plus" | "ultra", TierPricin
     badge: "MOST POPULAR",
     priceMonthly: 9.99,
     billingPeriod: "/mo",
-    description: "Full access to interactive lessons, unlimited speaking AI, and Dominican contrastive phonetics.",
+    description:
+      "Dedicated single-product mastery with premium voice for the subscribed product.",
     features: [
-      "Complete A1–B2 curriculum pathways",
-      "Unlimited Coach voice turns & waveform feedback",
-      "Contrastive Dominican Spanish acoustic remediation",
-      "Continuous Learner Model progress tracking",
-      "Spoken minimal pair drills & phoneme map"
+      "Full single-product access (Learn Plus or Coach Plus)",
+      "120 voice practice minutes/mo",
+      "Premium ElevenLabs voice for the subscribed product",
+      "1 module offline caching",
+      "Targeted error remediation drills",
     ],
     highlighted: true,
     ctaText: "Start 7-Day Free Trial →",
-    ctaHref: "/register?plan=plus"
+    ctaHref: "/register?plan=plus",
   },
   ultra: {
     id: "ultra",
@@ -259,18 +215,19 @@ export const LUREXA_PRICING_PLANS: Record<"basic" | "plus" | "ultra", TierPricin
     badge: "ALL ACCESS",
     priceMonthly: 19.99,
     billingPeriod: "/mo",
-    description: "For ambitious professionals and educators pursuing certified fluency and teaching credentials.",
+    description:
+      "Full Learn + Coach experience with deeper cross-product adaptation and premium AI/speech.",
     features: [
-      "Everything in Lurexa Plus",
-      "Full Lurexa Teach professional certification",
-      "CEFR C1–C2 advanced business modules",
-      "Verifiable micro-credentials & certificates",
-      "Priority access to Lurexa Studio content"
+      "Full Learn + Coach access",
+      "300+ voice minutes/mo with low-latency streaming",
+      "Universal Learner Model: real-time Coach ↔ Learn error sync",
+      "Unlimited offline module downloads & background sync",
+      "B1/B2 Capstone Project evaluation",
     ],
     highlighted: false,
     ctaText: "Upgrade to Ultra →",
-    ctaHref: "/register?plan=ultra"
-  }
+    ctaHref: "/register?plan=ultra",
+  },
 };
 
 export interface PlanPricing {
@@ -310,7 +267,7 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
   plus: {
     tier: "plus",
     monthlyPriceUsd: 9.99,
-    annualPriceUsd: 99.0,
+    annualPriceUsd: 99,
     tagline: "Dedicated single-product mastery with high-volume voice practice",
     features: [
       "Full single-product access (Learn Plus or Coach Plus)",
@@ -323,11 +280,12 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
   PLUS: {
     tier: "PLUS",
     monthlyPriceUsd: 9.99,
-    annualPriceUsd: 99.0,
+    annualPriceUsd: 99,
     tagline: "Dedicated single-product mastery with high-volume voice practice",
     features: [
       "Full single-product access (Learn Plus or Coach Plus)",
       "120 voice practice minutes/mo",
+      "Premium ElevenLabs voice for the subscribed product",
       "1 module offline caching",
       "Targeted error remediation drills",
     ],
@@ -335,8 +293,8 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
   ultra: {
     tier: "ultra",
     monthlyPriceUsd: 19.99,
-    annualPriceUsd: 199.0,
-    tagline: "Full ecosystem access powered by the Universal Learner Model",
+    annualPriceUsd: 199,
+    tagline: "Full Learn + Coach access powered by the Universal Learner Model",
     features: [
       "Full Learn + Coach access",
       "300+ voice minutes/mo with low-latency streaming",
@@ -348,10 +306,10 @@ export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> =
   ULTRA: {
     tier: "ULTRA",
     monthlyPriceUsd: 19.99,
-    annualPriceUsd: 199.0,
-    tagline: "Full ecosystem access powered by the Universal Learner Model",
+    annualPriceUsd: 199,
+    tagline: "Full Learn + Coach access powered by the Universal Learner Model",
     features: [
-      "Unrestricted access to Learn, Coach, Studio & Teach",
+      "Full Learn + Coach access",
       "300+ voice minutes/mo with low-latency streaming",
       "Universal Learner Model: real-time Coach ↔ Learn error sync",
       "Unlimited offline module downloads & background sync",
