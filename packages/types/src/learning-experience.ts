@@ -104,6 +104,7 @@ export interface LearnTutorTurnRequest {
   learnerMessage?: string;
   audioBase64?: string;
   audioMimeType?: string;
+  audioDurationMs?: number;
 }
 
 export interface LearnTutorTurnResult {
