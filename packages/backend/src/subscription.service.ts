@@ -63,7 +63,7 @@ export const SubscriptionService = {
       return true;
     }
 
-    // 3. Ultra and Enterprise tiers unlock all standard curriculum modules
+    // 3. Ultra unlocks all standard individual curriculum modules.
     if (this.hasTierAccess(userTier, "ultra")) {
       return true;
     }
