@@ -18,6 +18,7 @@ import { LinguisticIntelligenceService } from "./linguistic-intelligence.service
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
 import { CoachCascadedRuntimeService } from "./coach-cascaded-runtime.service";
 import { QuotaEnforcementServerService } from "./core/quota-enforcement.server";
+import { BusinessUsageService } from "./business-usage.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -181,8 +182,11 @@ export const CoachPlatformService = {
       // Dev fallback
     }
 
-    // Enforce AI turns quota
-    try {
+    const businessUsageApplied = await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      aiTurns: 1,
+    });
+    if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
         actorId: actor.uid,
         usageType: "ai_turns",
@@ -191,9 +195,6 @@ export const CoachPlatformService = {
       if (!quotaCheck.allowed) {
         throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
       }
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("quota exceeded")) throw err;
-      // non-blocking in dev if quota service needs firestore
     }
 
     // Educator-professional Coach is intentionally excluded from the ordinary
@@ -286,8 +287,15 @@ export const CoachPlatformService = {
     if (!session) throw new Error("Coach session not found.");
     if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
 
-    // Enforce AI turns and voice minutes quota
-    try {
+    const voiceMinutes = input.audioDurationMs && input.audioDurationMs > 0
+      ? Math.ceil(input.audioDurationMs / 60000)
+      : 0;
+    const businessUsageApplied = await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      aiTurns: 1,
+      voiceMinutes,
+    });
+    if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
         actorId: actor.uid,
         usageType: "ai_turns",
@@ -296,18 +304,16 @@ export const CoachPlatformService = {
       if (!quotaCheck.allowed) {
         throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
       }
-
-      if (input.audioDurationMs && input.audioDurationMs > 0) {
-        const minutes = Math.ceil(input.audioDurationMs / 60000);
-        await QuotaEnforcementServerService.assertAndConsumeQuota({
+      if (voiceMinutes > 0) {
+        const voiceCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
           actorId: actor.uid,
           usageType: "voice_minutes",
-          unitsToConsume: minutes,
+          unitsToConsume: voiceMinutes,
         });
+        if (!voiceCheck.allowed) {
+          throw new Error(voiceCheck.message || "Monthly voice quota exceeded.");
+        }
       }
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("quota exceeded")) throw err;
-      // Dev fallback
     }
 
     // 1. Stage 1: Fast Turn loop (<800ms)
