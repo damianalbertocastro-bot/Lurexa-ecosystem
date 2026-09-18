@@ -48,8 +48,8 @@ function getTrackAccessStatus(
     };
   }
 
-  // 2. Highest Paying Plans: ULTRA & ENTERPRISE have all courses fully available
-  if (activeTier === "ULTRA" || activeTier === "ENTERPRISE") {
+  // 2. Ultra has full standard individual curriculum access.
+  if (activeTier === "ULTRA") {
     return {
       isUnlocked: true,
       status: "unlocked",
