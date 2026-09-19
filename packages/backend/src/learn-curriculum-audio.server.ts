@@ -1,73 +1,12 @@
-import { TextToSpeechClient } from "@google-cloud/text-to-speech";
-
 import type { AuthenticatedActor } from "./course-platform.server";
-import { getRawServiceAccountJson } from "./firebase-admin.server";
+import { getServerFirestore } from "./firebase-admin.server";
+import { SpeechGateway } from "./speech-gateway.server";
 import { resolveLearningCapability } from "./learning-capability.server";
 import { buildA1ProductionCurriculum } from "./a1-production-curriculum.server";
 import { TelemetryService } from "./telemetry.service";
 
 const DEFAULT_LANGUAGE_CODE = "en-US";
 const DEFAULT_VOICE = "en-US-Neural2-F";
-
-type GoogleServiceAccount = { project_id?: unknown; client_email?: unknown; private_key?: unknown };
-
-export type CurriculumAudioErrorCode =
-  | "AUDIO_PROVIDER_UNCONFIGURED"
-  | "AUDIO_PROVIDER_FAILED"
-  | "AUDIO_PROVIDER_EMPTY_RESPONSE";
-
-export class CurriculumAudioProviderError extends Error {
-  readonly code: CurriculumAudioErrorCode;
-
-  constructor(code: CurriculumAudioErrorCode, message: string, options?: { cause?: unknown }) {
-    super(message, options);
-    this.name = "CurriculumAudioProviderError";
-    this.code = code;
-  }
-}
-
-export interface AudioManifestItem {
-  lessonId: string;
-  moduleId: string;
-  capabilityId: string;
-  modelText: string;
-  characterCount: number;
-  estimatedDurationSeconds: number;
-  voice: string;
-  locale: string;
-}
-
-function createTextToSpeechClient(): TextToSpeechClient | null {
-  const serialized = getRawServiceAccountJson();
-  if (!serialized) return null;
-  let serviceAccount: GoogleServiceAccount;
-  try {
-    serviceAccount = JSON.parse(serialized) as GoogleServiceAccount;
-  } catch {
-    return null;
-  }
-  if (
-    typeof serviceAccount.project_id !== "string" ||
-    typeof serviceAccount.client_email !== "string" ||
-    typeof serviceAccount.private_key !== "string"
-  ) {
-    return null;
-  }
-  return new TextToSpeechClient({
-    projectId: serviceAccount.project_id,
-    credentials: {
-      client_email: serviceAccount.client_email,
-      private_key: serviceAccount.private_key.replace(/\\n/g, "\n"),
-    },
-  });
-}
-
-function toArrayBuffer(audioContent: Uint8Array | string): ArrayBuffer {
-  const bytes = typeof audioContent === "string" ? Buffer.from(audioContent, "base64") : Buffer.from(audioContent);
-  const result = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) result[i] = bytes[i];
-  return result.buffer;
-}
 
 /**
  * Creates a minimal valid synthetic audio buffer for local development and
@@ -137,50 +76,30 @@ export const LearnCurriculumAudioService = {
       },
     });
 
-    const ttsClient = createTextToSpeechClient();
-    if (!ttsClient) {
-      const error = new CurriculumAudioProviderError(
+    const courseSnapshot = await getServerFirestore().collection("courses").doc(input.courseId).get();
+    const organizationId = courseSnapshot.data()?.orgId;
+    if (typeof organizationId !== "string" || !organizationId) {
+      throw new CurriculumAudioProviderError(
         "AUDIO_PROVIDER_UNCONFIGURED",
-        "Curriculum audio provider is not configured for this runtime.",
+        "Curriculum audio organization is unavailable.",
       );
-
-      if (!canUseSyntheticAudio()) {
-        operation.fail(error, { errorCode: error.code });
-        throw error;
-      }
-
-      const estimatedSeconds = Math.max(2, Math.ceil(audioInput.length / 15));
-      operation.complete({
-        level: "warning",
-        result: "skipped",
-        message: "Synthetic curriculum audio used in a non-production runtime.",
-        metadata: { syntheticFallback: true },
-      });
-      return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
     }
 
     try {
-      const [response] = await ttsClient.synthesizeSpeech({
-        input: { text: audioInput },
-        voice: {
-          languageCode: DEFAULT_LANGUAGE_CODE,
-          name: process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE,
-        },
-        audioConfig: { audioEncoding: "MP3", speakingRate: 0.92, pitch: 0.0 },
+      const result = await SpeechGateway.synthesize({
+        product: "LEARN",
+        capabilityId: "learn.curriculum_audio",
+        text: audioInput,
+        learnerId: input.actor.uid,
+        organizationId,
+        premiumVoiceEntitled: false,
       });
-
-      if (!response.audioContent) {
-        throw new CurriculumAudioProviderError(
-          "AUDIO_PROVIDER_EMPTY_RESPONSE",
-          "Curriculum audio provider returned an empty response.",
-        );
-      }
 
       operation.complete({
         result: "success",
-        metadata: { voice: process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE },
+        metadata: { provider: result.provider },
       });
-      return { bytes: toArrayBuffer(response.audioContent), contentType: "audio/mpeg" };
+      return { bytes: result.bytes, contentType: result.contentType };
     } catch (error) {
       const providerError =
         error instanceof CurriculumAudioProviderError
@@ -205,6 +124,7 @@ export const LearnCurriculumAudioService = {
         metadata: { syntheticFallback: true },
       });
       return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
+    }
     }
   },
 
