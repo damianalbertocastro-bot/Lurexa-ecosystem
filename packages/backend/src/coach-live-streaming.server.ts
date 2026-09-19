@@ -5,7 +5,8 @@
  * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for entitled Coach experiences.
  */
 
-import { SubscriptionTier, DEFAULT_TIER_QUOTAS, type BusinessContract } from "@lurexa/types";
+import { SubscriptionService } from "./subscription.service";
+import type { SubscriptionTier, BusinessContract } from "@lurexa/types";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
@@ -49,14 +50,17 @@ export class CoachLiveStreamingServerService {
     codec: string;
     error?: string;
   } {
-    const quota = DEFAULT_TIER_QUOTAS[config.tier];
-    const businessAllowed = Boolean(config.businessContract?.productAccess.includes("COACH"));
-    if (!businessAllowed && !quota.streamingAudioEnabled) {
+    const entitlements = SubscriptionService.resolveEntitlements({
+      tier: config.tier,
+      product: "COACH",
+      businessContract: config.businessContract,
+    });
+    if (!entitlements.streamingAudioEnabled) {
       return {
         authorized: false,
         streamEndpoint: "",
         codec: "audio/webm",
-        error: `Streaming audio is not included in the current Coach entitlement. Active plan: ${config.tier}.`,
+        error: "Streaming audio is not included in the current Coach entitlement.",
       };
     }
 
