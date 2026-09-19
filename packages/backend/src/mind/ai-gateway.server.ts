@@ -3,6 +3,7 @@ import { CAPABILITY_REGISTRY } from "@lurexa/types";
 import { BusinessUsageService } from "../business-usage.server";
 import { UsageLedgerService } from "../usage-ledger.server";
 import { QuotaEnforcementServerService } from "../core/quota-enforcement.server";
+import { resolveAuthorizedCapability } from "../capability-enforcement.server";
 
 export interface MindAITask {
   capabilityId: string;
@@ -41,6 +42,12 @@ export const AIGateway = {
   async execute(task: MindAITask): Promise<AIGatewayResult> {
     const capability = findCapability(task.capabilityId);
     if (capability.product !== task.product) throw new Error("Capability/product mismatch.");
+    const entitlements = await resolveAuthorizedCapability({
+      learnerId: task.learnerId,
+      organizationId: task.organizationId,
+      product: task.product,
+      capability,
+    });
 
     const businessApplied = await BusinessUsageService.consumeIfBusiness({
       learnerId: task.learnerId,
@@ -72,7 +79,7 @@ export const AIGateway = {
         provider: "deterministic_fallback",
         organizationId: task.organizationId,
         userId: task.learnerId,
-        entitlementSource: businessApplied ? "business_contract" : "individual_or_explicit",
+        entitlementSource: entitlements.source === "business_contract" ? "business_contract" : "individual_or_explicit",
         usage: { aiTurns: 1 },
       });
       return { text: fallback, provider: "deterministic_fallback", model: "deterministic", capabilityId: task.capabilityId };
