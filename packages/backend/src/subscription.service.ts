@@ -67,7 +67,13 @@ export const SubscriptionService = {
     if (input.businessContract) {
       const contract = input.businessContract;
       const productAllowed = contract.productAccess.includes(input.product as BusinessContract["productAccess"][number]);
-      const capabilities = productAllowed ? (contract.capabilities as EntitlementCapability[]) : [];
+      const capabilities = productAllowed
+        ? Array.from(new Set([
+            ...(contract.capabilities as EntitlementCapability[]),
+            ...(input.product === "LEARN" ? ["curriculum_access" as const] : []),
+            ...(input.product === "COACH" ? ["coach_access" as const] : []),
+          ]))
+        : [];
       return {
         product: input.product,
         capabilities,
