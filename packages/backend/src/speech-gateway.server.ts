@@ -33,7 +33,18 @@ function standardClient(): TextToSpeechClient | null {
 export const SpeechGateway = {
   async synthesize(input: SpeechRequest): Promise<{ bytes: ArrayBuffer; contentType: string; provider: SpeechProvider }> {
     if (!input.text.trim()) throw new Error("Speech text is required.");
-    const provider: SpeechProvider = input.premiumVoiceEntitled ? "elevenlabs" : "standard";
+    const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === input.capabilityId);
+    if (!capability || !capability.enabled || capability.product !== input.product) {
+      throw new Error("Speech capability is not registered for this product.");
+    }
+    const entitlements = await resolveAuthorizedCapability({
+      learnerId: input.learnerId,
+      organizationId: input.organizationId,
+      product: input.product,
+      capability,
+    });
+    const premiumVoiceAllowed = entitlements.capabilities.includes("premium_voice") && input.capabilityId === "coach.premium_voice";
+    const provider: SpeechProvider = premiumVoiceAllowed ? "elevenlabs" : "standard";
 
     if (input.provider && input.provider !== provider) {
       throw new Error("Requested speech provider is not permitted by the resolved entitlement.");
