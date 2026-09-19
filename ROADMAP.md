@@ -493,3 +493,43 @@ These requirements apply continuously and do not become permanently “done”:
 
 **Next execution order:** finish Phase 9 migration, then Phase 10 roleplay, Phase 11 speech migration, Phase 12 pricing surfaces, Phase 13 enforcement audit, Phase 14 complete attribution, and Phase 15 executable matrix. Do not expand unrelated product features until these capability foundations are coherent.
 
+### Post-Phase-15 Execution Sequence — Production Hardening & Expansion Readiness
+
+This sequence starts only after Phases 9–15 pass protected CI and Product Deployment Validation. It is the next implementation track; it does not declare product readiness by itself.
+
+#### Phase 16 — AI Gateway Production Resilience
+**Status: Planned**
+- [ ] Add bounded provider timeouts.
+- [ ] Add retry policy limited to safe transient failures.
+- [ ] Add circuit-breaker/health state without changing entitlement decisions.
+- [ ] Record latency, provider outcome and bounded cost metadata.
+- [ ] Define empirical latency/cost/error acceptance thresholds.
+
+#### Phase 17 — Runtime Authorization Audit
+**Status: Planned**
+- [ ] Inventory remaining direct tier/plan/quota checks across backend runtime paths.
+- [ ] Replace non-authoritative checks with capability resolution where appropriate.
+- [ ] Complete Coach live-stream authorization under the same server-owned capability contract.
+- [ ] Verify cross-tenant and cross-product authorization boundaries.
+
+#### Phase 18 — Usage & Reporting Completion
+**Status: Planned**
+- [ ] Add durable monthly usage aggregates derived from the ledger.
+- [ ] Preserve product/capability/provider/organization/user attribution.
+- [ ] Add reconciliation checks between pooled Business usage and ledger totals.
+- [ ] Define reporting retention and correction/replay rules.
+
+#### Phase 19 — Commercial UX Source-of-Truth
+**Status: Planned**
+- [ ] Make public pricing surfaces consume canonical individual commercial definitions.
+- [ ] Keep Business quote-based and capability-driven.
+- [ ] Validate Learn/Coach/Teach/institutional messaging against approved commercial contracts.
+- [ ] Add CI checks preventing pricing-copy drift.
+
+#### Phase 20 — Product Expansion Readiness Gate
+**Status: Planned**
+- [ ] Define production contracts for Insight, Studio and Campus before adding substantial standalone functionality.
+- [ ] Confirm Core/Mind/Product ownership boundaries.
+- [ ] Establish deployment, observability, accessibility and authorization gates per product.
+- [ ] Only then open implementation phases for the next standalone product surfaces.
+
