@@ -28,11 +28,12 @@ for (const file of required) {
 }
 
 const registry = fs.readFileSync(path.join(root, "packages/types/src/capability-registry.ts"), "utf8");
-for (const field of ["owner", "product", "planEntitlementSource", "quota", "aiProvider", "speechProvider", "authorizationRequirement", "organizationScope"]) {
+for (const field of ["owner", "product", "planEntitlementSource", "entitlementCapability", "quota", "aiProvider", "speechProvider", "fallbackPolicy", "authorizationRequirement", "organizationScope"]) {
   if (!registry.includes(field)) fail("Capability registry is missing required field: " + field);
 }
 if (!registry.includes("elevenlabs")) fail("Registry must encode explicit ElevenLabs capability policy.");
 if (!registry.includes("mind.conversational_roleplay")) fail("Registry must include first-class conversational roleplay.");
+if (!registry.includes("mind.speech_analysis")) fail("Registry must include first-class speech analysis.");
 
 const gateway = fs.readFileSync(path.join(root, "packages/backend/src/mind/ai-gateway.server.ts"), "utf8");
 if (!gateway.includes("openrouter.ai/api/v1/chat/completions")) fail("AI Gateway is not connected to the OpenRouter endpoint.");
