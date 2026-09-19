@@ -13,6 +13,10 @@ export type ProductEntryPoint =
   | "INSIGHT";
 
 export type BusinessCapability =
+  | "premium_voice"
+  | "cross_product_sync"
+  | "offline_learning"
+  | "capstone_evaluation"
   | "groups"
   | "assignments"
   | "analytics"
