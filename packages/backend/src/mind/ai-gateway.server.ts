@@ -2,6 +2,7 @@ import type { CapabilityRegistryEntry } from "@lurexa/types";
 import { CAPABILITY_REGISTRY } from "@lurexa/types";
 import { BusinessUsageService } from "../business-usage.server";
 import { UsageLedgerService } from "../usage-ledger.server";
+import { QuotaEnforcementServerService } from "../core/quota-enforcement.server";
 
 export interface MindAITask {
   capabilityId: string;
@@ -47,6 +48,14 @@ export const AIGateway = {
       aiTurns: 1,
       product: task.product,
     });
+    if (!businessApplied) {
+      const quota = await QuotaEnforcementServerService.assertAndConsumeQuota({
+        actorId: task.learnerId,
+        usageType: "ai_turns",
+        unitsToConsume: 1,
+      });
+      if (!quota.allowed) throw new Error(quota.message || "AI usage quota exceeded.");
+    }
 
     const provider = capability.aiProvider;
     const key = provider === "openrouter" ? openRouterKey() : process.env.GEMINI_API_KEY?.trim() || null;
