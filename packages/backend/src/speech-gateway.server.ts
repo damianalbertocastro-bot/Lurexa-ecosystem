@@ -46,6 +46,14 @@ export const SpeechGateway = {
       voiceMinutes: durationMinutes,
       product: input.product,
     });
+    if (!businessApplied) {
+      const quota = await QuotaEnforcementServerService.assertAndConsumeQuota({
+        actorId: input.learnerId,
+        usageType: "voice_minutes",
+        unitsToConsume: durationMinutes,
+      });
+      if (!quota.allowed) throw new Error(quota.message || "Voice usage quota exceeded.");
+    }
 
     if (provider === "elevenlabs") {
       const key = process.env.ELEVENLABS_API_KEY?.trim();
