@@ -1,4 +1,4 @@
-import type { ProductEntryPoint } from "./subscription";
+import type { EntitlementCapability, ProductEntryPoint } from "./subscription";
 
 export type CapabilityScope = "individual" | "organization" | "both";
 export type CapabilityPlanSource =
@@ -23,6 +23,7 @@ export interface CapabilityRegistryEntry {
   owner: "core" | "mind" | ProductEntryPoint | "campus";
   product: ProductEntryPoint | "CAMPUS";
   planEntitlementSource: CapabilityPlanSource[];
+  entitlementCapability?: EntitlementCapability;
   quota: CapabilityQuota;
   aiProvider: AIProvider;
   speechProvider: SpeechProvider;
@@ -38,7 +39,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "LEARN",
     product: "LEARN",
     planEntitlementSource: ["basic", "plus", "ultra", "business_contract", "explicit_entitlement"],
-    quota: { metric: "none" },
+    quota: { entitlementCapability: "curriculum_access",
+    metric: "none" },
     aiProvider: "none",
     speechProvider: "none",
     authorizationRequirement: "Authenticated learner with Learn entitlement for the course organization.",
@@ -51,7 +53,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "mind",
     product: "LEARN",
     planEntitlementSource: ["basic", "plus", "ultra", "business_contract", "explicit_entitlement"],
-    quota: { metric: "ai_turns", amount: 40, period: "month", pooled: true },
+    quota: { entitlementCapability: "curriculum_access",
+    metric: "ai_turns", amount: 40, period: "month", pooled: true },
     aiProvider: "openrouter",
     speechProvider: "standard",
     authorizationRequirement: "Authenticated learner, authorized lesson capability, product entitlement and applicable quota.",
@@ -64,7 +67,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "mind",
     product: "LEARN",
     planEntitlementSource: ["basic", "plus", "ultra", "business_contract", "explicit_entitlement"],
-    quota: { metric: "ai_turns", amount: 1, period: "session", pooled: false },
+    quota: { entitlementCapability: "curriculum_access",
+    metric: "ai_turns", amount: 1, period: "session", pooled: false },
     aiProvider: "gemini",
     speechProvider: "none",
     authorizationRequirement: "Authenticated learner + authorized spoken-evidence capability + product entitlement + applicable quota.",
@@ -77,7 +81,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "LEARN",
     product: "LEARN",
     planEntitlementSource: ["basic", "plus", "ultra", "business_contract", "explicit_entitlement"],
-    quota: { metric: "voice_minutes", amount: 120, period: "month", pooled: true },
+    quota: { entitlementCapability: "curriculum_access",
+    metric: "voice_minutes", amount: 120, period: "month", pooled: true },
     aiProvider: "none",
     speechProvider: "standard",
     authorizationRequirement: "Authenticated learner + authorized Learn curriculum capability + product entitlement + applicable quota.",
@@ -90,7 +95,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "COACH",
     product: "COACH",
     planEntitlementSource: ["plus", "ultra", "business_contract", "explicit_entitlement"],
-    quota: { metric: "voice_minutes", amount: 120, period: "month", pooled: true },
+    quota: { entitlementCapability: "premium_voice",
+    metric: "voice_minutes", amount: 120, period: "month", pooled: true },
     aiProvider: "none",
     speechProvider: "elevenlabs",
     authorizationRequirement: "Authenticated learner, Coach entitlement, product-scoped premium voice entitlement and quota.",
@@ -103,7 +109,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "INSIGHT",
     product: "INSIGHT",
     planEntitlementSource: ["business_contract"],
-    quota: { metric: "none" },
+    quota: { entitlementCapability: "analytics",
+    metric: "none" },
     aiProvider: "none",
     speechProvider: "none",
     authorizationRequirement: "Authorized organization role with contracted analytics capability and purpose-scoped access.",
@@ -116,7 +123,8 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     owner: "core",
     product: "CAMPUS",
     planEntitlementSource: ["business_contract"],
-    quota: { metric: "none" },
+    quota: { entitlementCapability: "sso",
+    metric: "none" },
     aiProvider: "none",
     speechProvider: "none",
     authorizationRequirement: "Authorized organization administrator with contracted SSO capability.",
