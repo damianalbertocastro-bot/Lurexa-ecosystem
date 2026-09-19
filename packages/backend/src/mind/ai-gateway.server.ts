@@ -9,6 +9,8 @@ export interface MindAITask {
   task: string;
   systemInstruction: string;
   input: string;
+  audioBase64?: string;
+  audioMimeType?: string;
   model?: string;
   maxOutputTokens?: number;
   learnerId: string;
@@ -46,8 +48,12 @@ export const AIGateway = {
       product: task.product,
     });
 
-    const key = openRouterKey();
-    const model = task.model || process.env.LUREXA_AI_GATEWAY_MODEL?.trim() || "openai/gpt-4o-mini";
+    const provider = capability.aiProvider;
+    const key = provider === "openrouter" ? openRouterKey() : process.env.GEMINI_API_KEY?.trim() || null;
+    const model = task.model
+      || (provider === "openrouter"
+        ? process.env.LUREXA_AI_GATEWAY_MODEL?.trim() || "openai/gpt-4o-mini"
+        : process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || "gemini-2.5-flash");
 
     if (!key) {
       const fallback = "The AI provider is not configured. Please continue with the available guided activity.";
@@ -63,22 +69,50 @@ export const AIGateway = {
       return { text: fallback, provider: "deterministic_fallback", model: "deterministic", capabilityId: task.capabilityId };
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const endpoint = provider === "openrouter"
+      ? "https://openrouter.ai/api/v1/chat/completions"
+      : `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+
+    const requestBody = provider === "openrouter"
+      ? {
+          model,
+          messages: [
+            { role: "system", content: task.systemInstruction },
+            {
+              role: "user",
+              content: task.audioBase64
+                ? [
+                    { type: "text", text: task.input },
+                    { type: "input_audio", input_audio: { data: task.audioBase64, format: (task.audioMimeType || "audio/webm").split("/")[1] || "webm" } },
+                  ]
+                : task.input,
+            },
+          ],
+          max_tokens: task.maxOutputTokens ?? 400,
+        }
+      : {
+          system_instruction: { parts: [{ text: task.systemInstruction }] },
+          contents: [{
+            role: "user",
+            parts: [
+              { text: task.input },
+              ...(task.audioBase64 ? [{ inline_data: { mime_type: task.audioMimeType || "audio/webm", data: task.audioBase64 } }] : []),
+            ],
+          }],
+          generationConfig: { maxOutputTokens: task.maxOutputTokens ?? 400 },
+        };
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-        "HTTP-Referer": process.env.LUREXA_PUBLIC_SITE_URL || "https://lurexa.org",
-        "X-Title": "Lurexa AI Gateway",
+        ...(provider === "openrouter" ? {
+          Authorization: `Bearer ${key}`,
+          "HTTP-Referer": process.env.LUREXA_PUBLIC_SITE_URL || "https://lurexa.org",
+          "X-Title": "Lurexa AI Gateway",
+        } : {}),
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: task.systemInstruction },
-          { role: "user", content: task.input },
-        ],
-        max_tokens: task.maxOutputTokens ?? 400,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -86,14 +120,19 @@ export const AIGateway = {
       throw new Error(`AI Gateway provider request failed (${response.status}): ${detail}`);
     }
 
-    const payload = await response.json() as { choices?: Array<{ message?: { content?: unknown } }> };
-    const text = payload.choices?.[0]?.message?.content;
+    const payload = await response.json() as {
+      choices?: Array<{ message?: { content?: unknown } }>;
+      candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }>;
+    };
+    const text = provider === "openrouter"
+      ? payload.choices?.[0]?.message?.content
+      : payload.candidates?.[0]?.content?.parts?.map((part) => part.text).filter((value): value is string => typeof value === "string").join("\n");
     if (typeof text !== "string" || !text.trim()) throw new Error("AI Gateway received an empty provider response.");
 
     await UsageLedgerService.record({
       product: task.product,
       capabilityId: task.capabilityId,
-      provider: "openrouter",
+      provider: provider === "openrouter" ? "openrouter" : "gemini",
       organizationId: task.organizationId,
       userId: task.learnerId,
       entitlementSource: businessApplied ? "business_contract" : "individual_or_explicit",
@@ -101,6 +140,6 @@ export const AIGateway = {
       providerModel: model,
     });
 
-    return { text: text.trim(), provider: "openrouter", model, capabilityId: task.capabilityId };
+    return { text: text.trim(), provider: provider === "openrouter" ? "openrouter" : "gemini", model, capabilityId: task.capabilityId };
   },
 };
