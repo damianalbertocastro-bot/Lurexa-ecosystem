@@ -5,6 +5,7 @@ import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server"
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRecordedSpeakingCapability } from "./learning-capability.server";
 import { isR2Configured, createR2PresignedUploadUrl, verifyR2ObjectExists } from "./r2-storage.server";
+import { AIGateway } from "./mind/ai-gateway.server";
 
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const ALLOWED_AUDIO_TYPES = new Set([
@@ -120,6 +121,8 @@ export async function evaluateSpokenAttemptWithGemini(input: {
   mimeType?: string;
   transcript?: string;
   durationMs: number;
+  learnerId?: string;
+  organizationId?: string;
 }): Promise<SpokenEvaluationResult> {
   const fallbackResult = evaluateSpokenAttempt({
     prompt: input.prompt,
@@ -127,89 +130,56 @@ export async function evaluateSpokenAttemptWithGemini(input: {
     durationMs: input.durationMs,
   });
 
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
-  if (!apiKey || !input.audioBuffer) {
+  if (!input.audioBuffer || !input.learnerId || !input.organizationId) return fallbackResult;
+
+  const result = await AIGateway.execute({
+    capabilityId: "mind.speech_analysis",
+    product: "LEARN",
+    task: "spoken_evidence_analysis",
+    systemInstruction: [
+      "You are Lurexa Mind's bounded acoustic and phonetic speech evaluator.",
+      "Evaluate the learner's spoken audio against the trusted target prompt.",
+      "Focus on communicative intelligibility, pronunciation accuracy, word stress, and Dominican Spanish transfer patterns.",
+      "Return ONLY valid JSON with score, intelligibilityScore, passed, feedback, and detectedPatterns.",
+      "Scores must be integers from 40 to 98; passed is true when score >= 60.",
+    ].join("\n"),
+    input: [
+      'Target prompt: "' + input.prompt + '"',
+      input.targetText ? 'Target text: "' + input.targetText + '"' : "",
+      "Return JSON only.",
+    ].filter(Boolean).join("\n"),
+    audioBase64: input.audioBuffer.toString("base64"),
+    audioMimeType: input.mimeType || "audio/webm",
+    learnerId: input.learnerId,
+    organizationId: input.organizationId,
+    maxOutputTokens: 500,
+  }).catch(() => null);
+
+  if (!result) return fallbackResult;
+  try {
+    const parsed = JSON.parse(result.text) as {
+      score?: number;
+      intelligibilityScore?: number;
+      passed?: boolean;
+      feedback?: string;
+      detectedPatterns?: unknown;
+    };
+    if (typeof parsed.score !== "number") return fallbackResult;
+    const score = Math.max(40, Math.min(98, Math.round(parsed.score)));
+    return {
+      score,
+      maxScore: 100,
+      passed: parsed.passed ?? score >= 60,
+      intelligibilityScore: Math.max(40, Math.min(98, Math.round(parsed.intelligibilityScore ?? score))),
+      feedback: typeof parsed.feedback === "string" && parsed.feedback.trim() ? parsed.feedback.trim() : fallbackResult.feedback,
+      detectedPatterns: Array.isArray(parsed.detectedPatterns)
+        ? parsed.detectedPatterns.filter((value): value is string => typeof value === "string")
+        : fallbackResult.detectedPatterns,
+      analyzedAt: new Date().toISOString(),
+    };
+  } catch {
     return fallbackResult;
   }
-
-  const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || "gemini-2.5-flash";
-  const candidateModels = Array.from(new Set([configuredModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]));
-
-  const system = [
-    "You are Lurexa Mind's expert acoustic and phonetic speech evaluator.",
-    "Evaluate the learner's spoken audio attempt against the target prompt.",
-    `Target prompt: "${input.prompt}".`,
-    input.targetText ? `Specific target phrase or phonetic focus: "${input.targetText}".` : "",
-    "Analyze communicative intelligibility, pronunciation accuracy, word stress, and common Dominican Spanish transfer patterns (e.g. DO-ENG-PRO-002: initial /s/ cluster epenthesis like 'eschool', DO-ENG-PRO-006: uninflected past endings, final consonant deletion).",
-    "Return ONLY valid JSON matching this schema:",
-    "{",
-    '  "score": number (integer 40 to 98),',
-    '  "intelligibilityScore": number (integer 40 to 98),',
-    '  "passed": boolean (true if score >= 60),',
-    '  "feedback": string (concise, encouraging, focused on phonetic clarity, 1-2 sentences),',
-    '  "detectedPatterns": string[] (e.g. ["DO-ENG-PRO-002: Initial /s/ cluster epenthesis"] or empty array)',
-    "}",
-  ].filter(Boolean).join("\n");
-
-  for (const model of candidateModels) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: system }] },
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: input.mimeType || "audio/webm",
-                    data: input.audioBuffer.toString("base64"),
-                  },
-                },
-                {
-                  text: `Evaluate this spoken audio attempt for target: "${input.prompt}". Output valid JSON.`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            maxOutputTokens: 500,
-            responseMimeType: "application/json",
-          },
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            if (typeof parsed.score === "number") {
-              const score = Math.max(40, Math.min(98, Math.round(parsed.score)));
-              return {
-                score,
-                maxScore: 100,
-                passed: parsed.passed ?? (score >= 60),
-                intelligibilityScore: Math.max(40, Math.min(98, Math.round(parsed.intelligibilityScore ?? score))),
-                feedback: parsed.feedback || fallbackResult.feedback,
-                detectedPatterns: Array.isArray(parsed.detectedPatterns) ? parsed.detectedPatterns : fallbackResult.detectedPatterns,
-                analyzedAt: new Date().toISOString(),
-              };
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.warn(`Gemini multimodal spoken evaluation failed for model ${model}:`, err);
-    }
-  }
-
-  return fallbackResult;
 }
 
 function safeSegment(value: string): string {
