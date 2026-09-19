@@ -27,6 +27,7 @@ export interface CapabilityRegistryEntry {
   quota: CapabilityQuota;
   aiProvider: AIProvider;
   speechProvider: SpeechProvider;
+  fallbackPolicy: "deterministic" | "none";
   authorizationRequirement: string;
   organizationScope: CapabilityScope;
   description: string;
@@ -43,6 +44,7 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     quota: { metric: "none" },
     aiProvider: "none",
     speechProvider: "none",
+    fallbackPolicy: "none",
     authorizationRequirement: "Authenticated learner with Learn entitlement for the course organization.",
     organizationScope: "both",
     description: "Access to authorized Learn curriculum content and activities.",
@@ -57,6 +59,7 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     quota: { metric: "ai_turns", amount: 40, period: "month", pooled: true },
     aiProvider: "openrouter",
     speechProvider: "standard",
+    fallbackPolicy: "deterministic",
     authorizationRequirement: "Authenticated learner, authorized lesson capability, product entitlement and applicable quota.",
     organizationScope: "both",
     description: "First-class Mind conversational roleplay consumed by Learn through the AI Gateway.",
@@ -71,6 +74,7 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     quota: { metric: "ai_turns", amount: 1, period: "session", pooled: false },
     aiProvider: "gemini",
     speechProvider: "none",
+    fallbackPolicy: "deterministic",
     authorizationRequirement: "Authenticated learner + authorized spoken-evidence capability + product entitlement + applicable quota.",
     organizationScope: "both",
     description: "Mind speech transcription and bounded pronunciation/fluency analysis for Learn spoken evidence.",
