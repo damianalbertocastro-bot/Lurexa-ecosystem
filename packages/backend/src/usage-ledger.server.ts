@@ -26,9 +26,12 @@ export const UsageLedgerService = {
       recordedAt: now.toISOString(),
     };
     if (key) {
-      const ref = getServerFirestore().collection("usage-ledger").doc(key);
-      const existing = await ref.get();
-      if (!existing.exists) await ref.create(payload);
+      const database = getServerFirestore();
+      const ref = database.collection("usage-ledger").doc(key);
+      await database.runTransaction(async (transaction) => {
+        const existing = await transaction.get(ref);
+        if (!existing.exists) transaction.create(ref, payload);
+      });
       return;
     }
     await getServerFirestore().collection("usage-ledger").add(payload);
