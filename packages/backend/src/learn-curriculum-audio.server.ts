@@ -125,7 +125,6 @@ export const LearnCurriculumAudioService = {
       });
       return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
     }
-    }
   },
 
   generateA1AudioManifest(): AudioManifestItem[] {
