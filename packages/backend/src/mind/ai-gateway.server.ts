@@ -72,6 +72,9 @@ export const AIGateway = {
         : process.env.LUREXA_LEARN_TUTOR_MODEL?.trim() || "gemini-2.5-flash");
 
     if (!key) {
+      if (capability.fallbackPolicy !== "deterministic") {
+        throw new Error("The authorized AI provider is not configured for this capability.");
+      }
       const fallback = "The AI provider is not configured. Please continue with the available guided activity.";
       await UsageLedgerService.record({
         product: task.product,
