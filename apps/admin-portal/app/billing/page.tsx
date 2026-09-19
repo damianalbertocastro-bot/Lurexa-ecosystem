@@ -117,7 +117,7 @@ export default function AdminBillingPage() {
   const totalAllocatedSeats = accounts.reduce((sum, a) => sum + a.allocatedSeats, 0);
   const totalUsedSeats = accounts.reduce((sum, a) => sum + a.usedSeats, 0);
   const totalAnnualRevenue = accounts.reduce(
-    (sum, a) => sum + a.allocatedSeats * a.pricePerSeatMonthlyUsd * 12,
+    (sum, a) => sum + (a.pricePerSeatMonthlyUsd == null ? 0 : a.allocatedSeats * a.pricePerSeatMonthlyUsd * 12),
     0,
   );
 
@@ -150,14 +150,13 @@ export default function AdminBillingPage() {
 
           <div className="mt-10 max-w-2xl pb-6">
             <p className="text-[10px] font-extrabold tracking-[.2em] text-[var(--lx-accent)]">
-              ENTERPRISE LICENSING &amp; BILLING
+              BUSINESS LICENSING &amp; BILLING
             </p>
             <h1 className="mt-2 text-4xl font-extrabold tracking-[-.05em] sm:text-5xl">
               Institutional Plans &amp; Seat Governance
             </h1>
             <p className="mt-3 text-sm leading-6 text-indigo-100">
-              Manage organization tier subscriptions, provisioned student seats, contract cycles,
-              and invoice histories across the ecosystem.
+              Manage Business organization contracts, learner allowances, usage terms, and billing records across the ecosystem.
             </p>
           </div>
         </div>
@@ -195,7 +194,7 @@ export default function AdminBillingPage() {
               {accounts.filter((a) => a.status === "active").length}
             </b>
             <p className="mt-1 text-xs text-[var(--lx-muted)]">
-              {accounts.length} total registered enterprise accounts
+              {accounts.length} total registered Business accounts
             </p>
           </div>
 
@@ -207,7 +206,7 @@ export default function AdminBillingPage() {
               ${totalAnnualRevenue.toLocaleString()}
             </b>
             <p className="mt-1 text-xs text-[var(--lx-muted)]">
-              Estimated annual recurring subscription value
+              Public-rate accounts only; Business contracts are quote-based
             </p>
           </div>
         </div>
@@ -227,7 +226,7 @@ export default function AdminBillingPage() {
               className="w-full max-w-sm rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] px-3.5 py-2 text-xs font-medium text-[var(--lx-ink)] outline-none focus:border-[var(--lx-primary)]"
             />
             <div className="flex flex-wrap items-center gap-1.5">
-              {(["all", "free_community", "standard_institutional", "campus_pro", "enterprise"] as const).map(
+              {(["all", "free_community", "standard_institutional", "campus_pro", "business"] as const).map(
                 (tier) => (
                   <Button
                     key={tier}
@@ -350,7 +349,7 @@ export default function AdminBillingPage() {
                 <option value="free_community">Free Community ($0/seat)</option>
                 <option value="standard_institutional">Standard Institutional ($5/seat/mo)</option>
                 <option value="campus_pro">Campus Pro ($8/seat/mo)</option>
-                <option value="enterprise">Enterprise Custom ($12/seat/mo)</option>
+                <option value="business">Business Custom (contract quote)</option>
               </select>
             </div>
 
@@ -372,19 +371,13 @@ export default function AdminBillingPage() {
                 Billing Impact Projection
               </p>
               <p className="mt-1 text-sm font-extrabold text-[var(--lx-ink)]">
-                Annual Subscription: $
-                {(
-                  newSeats *
-                  (newPlan === "enterprise"
-                    ? 12
-                    : newPlan === "campus_pro"
-                    ? 8
-                    : newPlan === "standard_institutional"
-                    ? 5
-                    : 0) *
-                  12
-                ).toLocaleString()}{" "}
-                USD / year
+                {newPlan === "business"
+                  ? "Business: contract quote — no public per-seat price"
+                  : <>Annual Subscription: ${(
+                      newSeats *
+                      (newPlan === "campus_pro" ? 8 : newPlan === "standard_institutional" ? 5 : 0) *
+                      12
+                    ).toLocaleString()} USD / year</>}
               </p>
             </div>
 

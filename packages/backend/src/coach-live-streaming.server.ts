@@ -2,15 +2,17 @@
  * Lurexa Mind Live Streaming Audio Gateway (Server-Only)
  * 
  * Provides low-latency full-duplex conversational streaming via WebSocket audio chunking,
- * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for Ultra & Enterprise tiers.
+ * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for entitled Coach experiences.
  */
 
-import { SubscriptionTier, DEFAULT_TIER_QUOTAS } from "@lurexa/types";
+import { SubscriptionService } from "./subscription.service";
+import type { SubscriptionTier, BusinessContract } from "@lurexa/types";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
   learnerId: string;
   tier: SubscriptionTier;
+  businessContract?: BusinessContract | null;
   targetVoice: string;
   vadSensitivity: "high" | "normal" | "low";
   maxTurnDurationSeconds: number;
@@ -48,13 +50,17 @@ export class CoachLiveStreamingServerService {
     codec: string;
     error?: string;
   } {
-    const quota = DEFAULT_TIER_QUOTAS[config.tier];
-    if (!quota.streamingAudioEnabled) {
+    const entitlements = SubscriptionService.resolveEntitlements({
+      tier: config.tier,
+      product: "COACH",
+      businessContract: config.businessContract,
+    });
+    if (!entitlements.streamingAudioEnabled) {
       return {
         authorized: false,
         streamEndpoint: "",
         codec: "audio/webm",
-        error: `Streaming audio is only available on Ultra and Enterprise plans. Active plan: ${config.tier}.`,
+        error: "Streaming audio is not included in the current Coach entitlement.",
       };
     }
 

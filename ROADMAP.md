@@ -167,6 +167,73 @@ Exit evidence: PR #110 and PR #111 locked `main` as the authoritative Cloudflare
 
 
 
+## R7.1 — Commercial Reconciliation & Pre-Phase-5 Entitlement Gate
+
+**Maturity: Verified / pre-Phase-5 gate closed**
+
+This gate records the approved commercial decisions before technical entitlement enforcement.
+
+- [x] Resolve Plus ElevenLabs contradiction: premium ElevenLabs is product-scoped for Learn Plus and Coach Plus.
+- [x] Freeze Ultra's current commercial boundary at full Learn + Coach plus deeper cross-product adaptation and premium AI/speech.
+- [x] Keep Ultra future-product entitlements extensible; Teach, Studio and future products are not automatically included.
+- [x] Define Business for small and medium organizations.
+- [x] Define Business as an organization contract + learner/seat allowance + negotiated usage.
+- [x] Define Business as ecosystem access configured through capabilities rather than Basic/Pro/Enterprise SKU packages.
+- [x] Define pooled organizational usage with optional individual limits.
+- [x] Define standard Business capabilities: groups/cohorts, assignments, analytics, reporting, role management, audit, SSO, data export and teacher/admin management.
+- [x] Define negotiated support and contract-based customization for custom curricula, Studio authoring, branding and integrations.
+- [x] Set Business pricing as contract/quote based with no public fixed price.
+- [x] Create canonical commercial specification at `Docs/Product/LUREXA_COMMERCIAL_SPECIFICATION.md`.
+- [x] Reconcile subscription types with product-scoped premium voice and Business contract capabilities.
+- [x] Remove superseded Enterprise pricing from the customer-facing Learn billing surface.
+- [x] Migrate individual entitlement logic away from the legacy `enterprise` tier; remaining `enterprise` references are institutional/branding legacy and require separate migration decisions.
+- [x] Add capability-level entitlement resolution and pooled Business usage accounting contract/checks.
+- [x] Persist organization-level Business quota usage with transactional enforcement.
+- [x] Connect persisted Business consumption to the implemented Learn/Coach AI and voice runtime entry points, including Coach live-stream entitlement gating.
+- [x] Prove end-to-end Business enforcement through the repository verification gate and successful Product Deployment Validation.
+- [x] Add automated commercial-contract verification before Phase 5.
+- [x] Run the equivalent protected CI verification suite for the PR head and resolve all regressions before Phase 5 enforcement.
+
+**Exit condition:** no customer-facing surface presents superseded Enterprise pricing; canonical commercial rules and capability contracts agree; legacy runtime dependencies are identified; verification is green.
+
+## Execution Phases 5–7 — Quality, Controlled AI & Offline PWA
+
+These phases are the implementation sequence carried forward from the earlier platform roadmap. They are evaluated separately from product maturity so an implemented subsystem is not mistaken for a production-ready product.
+
+### Phase 5 — Testing, Security & Observability
+**Status: Verified baseline**
+
+- [x] Critical learner/teacher journeys have Playwright coverage.
+- [x] Accessibility baseline exists for critical Learn journeys.
+- [x] Commercial entitlement and Business quota enforcement have executable regression checks.
+- [x] Structured operational telemetry with request correlation and redaction is enforced on critical AI paths.
+- [x] Protected CI and Product Deployment Validation are green on the current branch head.
+
+### Phase 6 — Controlled AI Tutor
+**Status: Verified implementation baseline**
+
+- [x] Provider/model fallback boundary exists behind the Learn Tutor service.
+- [x] Trusted curriculum capability is resolved server-side.
+- [x] Authorized learner context is grounded into the tutor request.
+- [x] Prompt contract is versioned (learn-tutor-roleplay-v1).
+- [x] Audio turns request structured JSON and are parsed into bounded tutor/evaluation fields.
+- [x] Deterministic fallback exists when the provider is unavailable.
+- [x] AI turns are connected to Business pooled usage enforcement.
+- [x] Tutor evidence records provider/model and prompt-version provenance.
+- [ ] Complete empirical AI evaluation dataset and latency/cost acceptance thresholds before production promotion.
+
+### Phase 7 — PWA / Offline
+**Status: Verified implementation baseline**
+
+- [x] Installable Learn PWA manifest and service worker exist.
+- [x] Static assets and audio use explicit cache strategies.
+- [x] Successful navigations are cached for offline fallback.
+- [x] IndexedDB stores lessons, progress, evidence, learner-model deltas and audio.
+- [x] Offline progress queues and retries are implemented.
+- [x] Offline evidence is synchronized to Core before local deletion.
+- [x] Spoken offline evidence uploads through the canonical evidence endpoint before local deletion.
+- [x] Idempotent Core evidence persistence prevents duplicate evidence from duplicate retries.
+- [ ] Complete representative-device/low-bandwidth field validation before claiming production-ready offline support.
 ## R8 — Product Expansion Foundations
 
 **Maturity: Pending**
@@ -331,3 +398,138 @@ These requirements apply continuously and do not become permanently “done”:
 > **Products deliver experiences and generate evidence.**  
 > **Campus connects the institutional experience.**  
 > **One learner. One evolving model. Every Lurexa experience adapts around it.**
+
+## Commercial Architecture Program — Phases 6–15
+
+**Supersession note:** The earlier implementation-only Phase 6 (Controlled AI Tutor) and Phase 7 (PWA/Offline) remain valid implementation records, but their numbering is superseded for the next commercial-architecture sequence below. Do not use numeric phase labels without this program context.
+
+### Phase 6 — Formalize Campus
+**Status: Contract implemented**
+
+- [x] Authoritative institutional capability matrix.
+- [x] Products attach independently to organizations.
+- [x] Legacy institutional identifiers treated as migration inputs, not authorization authority.
+- [ ] Runtime migration of all institutional authorization checks to capability projections.
+
+### Phase 7 — Formalize Business
+**Status: Contract implemented**
+
+- [x] Customer definition: small and medium organizations.
+- [x] Organization user/role model.
+- [x] Product access and organizational capabilities.
+- [x] Workforce learning model.
+- [x] Analytics/privacy boundary.
+- [x] AI governance contract.
+- [x] Contract/quote commercial model with no invented public prices.
+- [ ] Final commercial approval of any future public Business service profiles.
+
+### Phase 8 — Build Capability Registry
+**Status: Contract implemented**
+
+- [x] Registry schema covers owner, product, entitlement source, quota, AI provider, speech provider, authorization and organization scope.
+- [x] Initial executable registry created.
+- [ ] Expand registry to every production capability and make CI completeness mandatory.
+
+### Phase 9 — Integrate AI Gateway
+**Status: Implementation complete — pending CI/runtime validation**
+
+- [x] Provider-neutral AI Gateway contract created.
+- [x] OpenRouter adapter boundary created.
+- [x] Usage provenance hook created.
+- [x] Migrate Learn Tutor text, opener and speech-analysis provider calls behind the gateway.
+- [x] Resolve entitlement and capability server-side before provider execution.
+- [ ] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds.
+
+### Phase 10 — Implement OpenRouter Roleplay
+**Status: Implementation complete — pending CI/runtime validation**
+
+- [x] conversational roleplay established as a first-class Mind capability in the registry.
+- [x] Learn identified as the first major consumer.
+- [x] Move runtime text roleplay and opener generation to OpenRouter through the AI Gateway.
+- [ ] Define Teach professional-simulation consumer contract without duplicating the Mind capability.
+
+### Phase 11 — Implement Speech Gateway
+**Status: Implementation complete — pending CI/runtime validation**
+
+- [x] Entitlement-driven standard vs ElevenLabs provider selection implemented.
+- [x] ElevenLabs is explicit entitlement, never fallback.
+- [x] Product/provider usage attribution implemented.
+- [x] Migrate Learn curriculum speech behind the Speech Gateway.
+- [x] Premium provider choice is entitlement-driven and server-enforced.
+- [ ] Migrate remaining Coach live/provider-specific paths and add provider health, timeout and cost controls.
+
+### Phase 12 — Reconcile Pricing UX
+**Status: Contract implemented**
+
+- [x] Canonical pricing UX rules documented.
+- [x] Business quote semantics documented.
+- [x] Teach/institutional pricing explicitly protected from invented legacy assumptions.
+- [ ] Migrate every pricing surface to shared commercial definitions.
+
+### Phase 13 — Enforcement
+**Status: Implementation substantially complete — pending audit/CI**
+
+- [x] Server-side capability enforcement architecture documented.
+- [x] Gateway boundaries require capability resolution.
+- [x] AI and Speech gateways resolve entitlement + capability server-side before execution.
+- [x] Coach streaming now resolves streaming entitlement rather than directly reading tier quotas.
+- [ ] Audit remaining legacy quota/role paths and remove non-authoritative plan-string checks.
+
+### Phase 14 — Usage Accounting
+**Status: Implementation substantially complete — pending integration coverage**
+
+- [x] Product/capability/provider/organization/user/entitlement/billing-period ledger contract implemented.
+- [x] Business pooled quota remains enforced separately.
+- [x] Add idempotency-key support to the usage ledger.
+- [x] AI and Speech gateways record product/capability/provider/user/organization/billing-period provenance.
+- [ ] Add durable reporting aggregates and connect remaining premium runtime paths.
+
+### Phase 15 — Testing Matrix
+**Status: Contract implemented**
+
+- [x] Individual, Teach, Campus and Business test matrix documented.
+- [x] Capability-independent testing requirements defined.
+- [ ] Implement executable matrix fixtures and CI coverage gates.
+
+**Next execution order:** finish Phase 9 migration, then Phase 10 roleplay, Phase 11 speech migration, Phase 12 pricing surfaces, Phase 13 enforcement audit, Phase 14 complete attribution, and Phase 15 executable matrix. Do not expand unrelated product features until these capability foundations are coherent.
+
+### Post-Phase-15 Execution Sequence — Production Hardening & Expansion Readiness
+
+This sequence starts only after Phases 9–15 pass protected CI and Product Deployment Validation. It is the next implementation track; it does not declare product readiness by itself.
+
+#### Phase 16 — AI Gateway Production Resilience
+**Status: Planned**
+- [ ] Add bounded provider timeouts.
+- [ ] Add retry policy limited to safe transient failures.
+- [ ] Add circuit-breaker/health state without changing entitlement decisions.
+- [ ] Record latency, provider outcome and bounded cost metadata.
+- [ ] Define empirical latency/cost/error acceptance thresholds.
+
+#### Phase 17 — Runtime Authorization Audit
+**Status: Planned**
+- [ ] Inventory remaining direct tier/plan/quota checks across backend runtime paths.
+- [ ] Replace non-authoritative checks with capability resolution where appropriate.
+- [ ] Complete Coach live-stream authorization under the same server-owned capability contract.
+- [ ] Verify cross-tenant and cross-product authorization boundaries.
+
+#### Phase 18 — Usage & Reporting Completion
+**Status: Planned**
+- [ ] Add durable monthly usage aggregates derived from the ledger.
+- [ ] Preserve product/capability/provider/organization/user attribution.
+- [ ] Add reconciliation checks between pooled Business usage and ledger totals.
+- [ ] Define reporting retention and correction/replay rules.
+
+#### Phase 19 — Commercial UX Source-of-Truth
+**Status: Planned**
+- [ ] Make public pricing surfaces consume canonical individual commercial definitions.
+- [ ] Keep Business quote-based and capability-driven.
+- [ ] Validate Learn/Coach/Teach/institutional messaging against approved commercial contracts.
+- [ ] Add CI checks preventing pricing-copy drift.
+
+#### Phase 20 — Product Expansion Readiness Gate
+**Status: Planned**
+- [ ] Define production contracts for Insight, Studio and Campus before adding substantial standalone functionality.
+- [ ] Confirm Core/Mind/Product ownership boundaries.
+- [ ] Establish deployment, observability, accessibility and authorization gates per product.
+- [ ] Only then open implementation phases for the next standalone product surfaces.
+
