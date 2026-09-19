@@ -49,4 +49,22 @@ if (!business.includes("No Business price")) fail("Business specification must e
 const campus = fs.readFileSync(path.join(root, "Docs/Product/LUREXA_CAMPUS_CAPABILITY_MATRIX.md"), "utf8");
 if (!campus.includes("enterprise") || !campus.includes("migration")) fail("Campus matrix must preserve enterprise as migration-only legacy input.");
 
-console.log("[commercial-capability] Phase 6-15 architecture artifacts verified.");
+const forbiddenDirectProviderPatterns = [
+  ["Learn tutor", "packages/backend/src/learn-tutor.server.ts", /generativelanguage\.googleapis\.com|openrouter\.ai/],
+  ["Learn curriculum audio", "packages/backend/src/learn-curriculum-audio.server.ts", /TextToSpeechClient|generativelanguage\.googleapis\.com|elevenlabs\.io/],
+];
+for (const [label, file, pattern] of forbiddenDirectProviderPatterns) {
+  const content = fs.readFileSync(path.join(root, file), "utf8");
+  if (pattern.test(content)) fail(label + " contains a direct provider integration outside its gateway.");
+}
+
+const pricingPage = fs.readFileSync(path.join(root, "apps/web/app/page.tsx"), "utf8");
+if (/Enterprise Business|Enterprise%20Fluency|enterpriseTitle|enterpriseCta/i.test(pricingPage)) {
+  fail("Public ecosystem pricing still contains legacy Enterprise terminology.");
+}
+
+const requiredProfiles = ["Basic learner", "Plus Learn", "Plus Coach", "Ultra", "Teach Basic", "Teach Plus", "Verified educator", "Campus Community", "Campus Standard", "Campus Pro", "Campus Enterprise legacy migration", "Business contract with baseline capabilities", "Business contract with expanded capabilities", "Business contract with custom capabilities"];
+const matrix = fs.readFileSync(path.join(root, "Docs/Product/LUREXA_TESTING_MATRIX.md"), "utf8");
+for (const profile of requiredProfiles) if (!matrix.includes(profile)) fail("Testing matrix missing: " + profile);
+
+console.log("[commercial-capability] Phase 6-15 architecture verification passed.");
