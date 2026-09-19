@@ -431,30 +431,32 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Expand registry to every production capability and make CI completeness mandatory.
 
 ### Phase 9 — Integrate AI Gateway
-**Status: Implementation baseline**
+**Status: Implementation complete — pending CI/runtime validation**
 
 - [x] Provider-neutral AI Gateway contract created.
 - [x] OpenRouter adapter boundary created.
 - [x] Usage provenance hook created.
-- [ ] Migrate Learn Tutor's direct Gemini calls behind the gateway.
+- [x] Migrate Learn Tutor text, opener and speech-analysis provider calls behind the gateway.
+- [x] Resolve entitlement and capability server-side before provider execution.
 - [ ] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds.
 
 ### Phase 10 — Implement OpenRouter Roleplay
-**Status: Contract implemented**
+**Status: Implementation complete — pending CI/runtime validation**
 
 - [x] conversational roleplay established as a first-class Mind capability in the registry.
 - [x] Learn identified as the first major consumer.
-- [ ] Move runtime roleplay generation to OpenRouter through the AI Gateway.
+- [x] Move runtime text roleplay and opener generation to OpenRouter through the AI Gateway.
 - [ ] Define Teach professional-simulation consumer contract without duplicating the Mind capability.
 
 ### Phase 11 — Implement Speech Gateway
-**Status: Implementation baseline**
+**Status: Implementation complete — pending CI/runtime validation**
 
 - [x] Entitlement-driven standard vs ElevenLabs provider selection implemented.
 - [x] ElevenLabs is explicit entitlement, never fallback.
 - [x] Product/provider usage attribution implemented.
-- [ ] Migrate all Learn/Coach speech paths behind the gateway.
-- [ ] Add provider health, timeout and cost controls.
+- [x] Migrate Learn curriculum speech behind the Speech Gateway.
+- [x] Premium provider choice is entitlement-driven and server-enforced.
+- [ ] Migrate remaining Coach live/provider-specific paths and add provider health, timeout and cost controls.
 
 ### Phase 12 — Reconcile Pricing UX
 **Status: Contract implemented**
@@ -465,19 +467,22 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Migrate every pricing surface to shared commercial definitions.
 
 ### Phase 13 — Enforcement
-**Status: Partial**
+**Status: Implementation substantially complete — pending audit/CI**
 
 - [x] Server-side capability enforcement architecture documented.
 - [x] Gateway boundaries require capability resolution.
-- [ ] Audit and migrate remaining direct plan-string authorization checks.
+- [x] AI and Speech gateways resolve entitlement + capability server-side before execution.
+- [x] Coach streaming now resolves streaming entitlement rather than directly reading tier quotas.
+- [ ] Audit remaining legacy quota/role paths and remove non-authoritative plan-string checks.
 
 ### Phase 14 — Usage Accounting
-**Status: Implementation baseline**
+**Status: Implementation substantially complete — pending integration coverage**
 
 - [x] Product/capability/provider/organization/user/entitlement/billing-period ledger contract implemented.
 - [x] Business pooled quota remains enforced separately.
-- [ ] Add idempotency keys and durable reporting aggregates.
-- [ ] Connect all premium AI/speech paths to the ledger.
+- [x] Add idempotency-key support to the usage ledger.
+- [x] AI and Speech gateways record product/capability/provider/user/organization/billing-period provenance.
+- [ ] Add durable reporting aggregates and connect remaining premium runtime paths.
 
 ### Phase 15 — Testing Matrix
 **Status: Contract implemented**
