@@ -13,15 +13,24 @@ export interface UsageLedgerEvent {
   };
   providerModel?: string;
   subscriptionOrEntitlementId?: string;
+  idempotencyKey?: string;
 }
 
 export const UsageLedgerService = {
   async record(event: UsageLedgerEvent): Promise<void> {
     const now = new Date();
-    await getServerFirestore().collection("usage-ledger").add({
+    const key = event.idempotencyKey?.trim();
+    const payload = {
       ...event,
       billingPeriod: now.toISOString().slice(0, 7),
       recordedAt: now.toISOString(),
-    });
+    };
+    if (key) {
+      const ref = getServerFirestore().collection("usage-ledger").doc(key);
+      const existing = await ref.get();
+      if (!existing.exists) await ref.create(payload);
+      return;
+    }
+    await getServerFirestore().collection("usage-ledger").add(payload);
   },
 };
