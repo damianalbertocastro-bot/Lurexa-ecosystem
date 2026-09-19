@@ -11,7 +11,6 @@ import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
-import { BusinessUsageService } from "./business-usage.server";
 import { AIGateway } from "./mind/ai-gateway.server";
 
 const DEFAULT_MODEL = "gemini-3.7-flash";
@@ -499,20 +498,28 @@ export const LearnTutorService = {
       },
     });
 
-    await BusinessUsageService.consumeIfBusiness({
+    const gatewayOpener = await AIGateway.execute({
+      capabilityId: "mind.conversational_roleplay",
+      product: "LEARN",
+      task: "conversational_roleplay",
+      systemInstruction: [
+        "You are Lurexa Learn's curriculum-constrained English conversational tutor.",
+        "Create only the opening line for the trusted scenario.",
+        "CEFR: " + capability.cefr,
+        "Scenario role: " + capability.scenario.role,
+        "Situation: " + capability.scenario.situation,
+        "Learner goal: " + capability.scenario.learnerGoal,
+        "Learner context: " + summarizeContext(scoped.context),
+        "Keep the opening natural, concise, level-appropriate, and in character.",
+      ].join("\n"),
+      input: "Return only the opening tutor line.",
       learnerId: actor.uid,
       organizationId,
-      aiTurns: 1,
-      product: "LEARN",
-    });
+      maxOutputTokens: 120,
+    }).catch(() => null);
 
-    const geminiOpener = await callGeminiOpener({
-      capability,
-      contextSummary: summarizeContext(scoped.context),
-    });
-
-    const provider: LearnTutorTurnResult["provider"] = geminiOpener ? "gemini" : "deterministic_fallback";
-    const openingLine = geminiOpener ?? capability.scenario.openingLine;
+    const provider: LearnTutorTurnResult["provider"] = gatewayOpener?.provider ?? "deterministic_fallback";
+    const openingLine = gatewayOpener?.text ?? capability.scenario.openingLine;
     const openingTurn: LearnTutorTurn = {
       sender: "tutor",
       text: openingLine,
@@ -573,18 +580,6 @@ export const LearnTutorService = {
 
     const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
 
-    const voiceMinutes = request.audioDurationMs && request.audioDurationMs > 0
-      ? Math.ceil(request.audioDurationMs / 60000)
-      : 0;
-    if (audioBase64) {
-      await BusinessUsageService.consumeIfBusiness({
-        learnerId: actor.uid,
-        organizationId,
-        aiTurns: 1,
-        voiceMinutes,
-        product: "LEARN",
-      });
-    }
 
     const geminiOutput = audioBase64
       ? await AIGateway.execute({
