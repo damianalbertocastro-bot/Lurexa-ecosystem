@@ -40,7 +40,8 @@ if (!gateway.includes("openrouter.ai/api/v1/chat/completions")) fail("AI Gateway
 if (!gateway.includes("Capability/product mismatch")) fail("AI Gateway must reject capability/product mismatches.");
 
 const speech = fs.readFileSync(path.join(root, "packages/backend/src/speech-gateway.server.ts"), "utf8");
-if (!speech.includes('input.premiumVoiceEntitled ? "elevenlabs" : "standard"')) fail("Speech Gateway provider selection must be entitlement-driven.");
+if (!speech.includes('entitlements.capabilities.includes("premium_voice")')) fail("Speech Gateway provider selection must be entitlement-driven.");
+if (!speech.includes('input.capabilityId === "coach.premium_voice"')) fail("Speech Gateway must scope ElevenLabs to Coach premium voice capability.");
 if (!speech.includes("Requested speech provider is not permitted")) fail("Speech Gateway must reject client/provider mismatches.");
 
 const business = fs.readFileSync(path.join(root, "Docs/Product/LUREXA_BUSINESS_SPECIFICATION.md"), "utf8");
