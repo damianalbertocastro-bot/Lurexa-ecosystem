@@ -192,6 +192,7 @@ export interface TierPricingPlan {
   badge: string;
   priceMonthly: number;
   billingPeriod: string;
+  annualPriceMonthly?: number;
   description: string;
   features: string[];
   highlighted: boolean;
@@ -208,6 +209,7 @@ export const LUREXA_PRICING_PLANS: Record<
     name: "Lurexa Basic",
     badge: "STARTER",
     priceMonthly: 0,
+    annualPriceMonthly: 0,
     billingPeriod: "/mo",
     description: "Core foundational lessons and placement for individual learners.",
     features: [
@@ -225,6 +227,7 @@ export const LUREXA_PRICING_PLANS: Record<
     name: "Lurexa Plus",
     badge: "MOST POPULAR",
     priceMonthly: 9.99,
+    annualPriceMonthly: 8.25,
     billingPeriod: "/mo",
     description:
       "Dedicated single-product mastery with premium voice for the subscribed product.",
@@ -244,6 +247,7 @@ export const LUREXA_PRICING_PLANS: Record<
     name: "Lurexa Ultra",
     badge: "ALL ACCESS",
     priceMonthly: 19.99,
+    annualPriceMonthly: 16.58,
     billingPeriod: "/mo",
     description:
       "Full Learn + Coach experience with deeper cross-product adaptation and premium AI/speech.",
