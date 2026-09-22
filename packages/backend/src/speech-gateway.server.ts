@@ -1,7 +1,7 @@
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
-import { getRawServiceAccountJson } from "../firebase-admin.server";
-import { BusinessUsageService } from "../business-usage.server";
-import { UsageLedgerService } from "../usage-ledger.server";
+import { getRawServiceAccountJson } from "./firebase-admin.server";
+import { BusinessUsageService } from "./business-usage.server";
+import { UsageLedgerService } from "./usage-ledger.server";
 import { CAPABILITY_REGISTRY } from "@lurexa/types";
 import { QuotaEnforcementServerService } from "./core/quota-enforcement.server";
 import { resolveAuthorizedCapability } from "./capability-enforcement.server";
