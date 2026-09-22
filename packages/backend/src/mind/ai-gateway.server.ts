@@ -26,6 +26,80 @@ export interface AIGatewayResult {
   capabilityId: string;
 }
 
+interface CircuitState {
+  failures: number;
+  openedUntil: number;
+}
+
+const PROVIDER_TIMEOUT_MS = 15_000;
+const MAX_TRANSIENT_RETRIES = 1;
+const CIRCUIT_FAILURE_THRESHOLD = 3;
+const CIRCUIT_OPEN_MS = 30_000;
+const providerCircuits = new Map<string, CircuitState>();
+
+function circuitKey(provider: string, capabilityId: string): string {
+  return `${provider}:${capabilityId}`;
+}
+
+function isCircuitOpen(key: string): boolean {
+  const state = providerCircuits.get(key);
+  if (!state) return false;
+  if (state.openedUntil <= Date.now()) {
+    providerCircuits.delete(key);
+    return false;
+  }
+  return true;
+}
+
+function recordProviderSuccess(key: string): void {
+  providerCircuits.delete(key);
+}
+
+function recordProviderFailure(key: string): void {
+  const state = providerCircuits.get(key) ?? { failures: 0, openedUntil: 0 };
+  state.failures += 1;
+  if (state.failures >= CIRCUIT_FAILURE_THRESHOLD) state.openedUntil = Date.now() + CIRCUIT_OPEN_MS;
+  providerCircuits.set(key, state);
+}
+
+function isTransientStatus(status: number): boolean {
+  return status === 408 || status === 425 || status === 429 || status >= 500;
+}
+
+async function fetchProvider(
+  endpoint: string,
+  init: RequestInit,
+): Promise<{ response: Response; latencyMs: number }> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_TRANSIENT_RETRIES; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS);
+    const started = Date.now();
+    try {
+      const response = await fetch(endpoint, { ...init, signal: controller.signal });
+      const latencyMs = Date.now() - started;
+      if (response.ok || !isTransientStatus(response.status) || attempt === MAX_TRANSIENT_RETRIES) {
+        return { response, latencyMs };
+      }
+      lastError = new Error(`Transient AI provider response: ${response.status}`);
+    } catch (error) {
+      lastError = error;
+      if (attempt === MAX_TRANSIENT_RETRIES) {
+        throw new Error(
+          error instanceof Error && error.name === "AbortError"
+            ? "AI provider request timed out."
+            : "AI provider request failed.",
+          { cause: error },
+        );
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+  }
+  throw lastError instanceof Error ? lastError : new Error("AI provider request failed.");
+}
+
 function findCapability(id: string): CapabilityRegistryEntry {
   const entry = CAPABILITY_REGISTRY.find((candidate) => candidate.id === id);
   if (!entry || !entry.enabled) throw new Error("AI capability is not registered or enabled.");
@@ -121,23 +195,65 @@ export const AIGateway = {
           generationConfig: { maxOutputTokens: task.maxOutputTokens ?? 400 },
         };
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(provider === "openrouter" ? {
-          Authorization: `Bearer ${key}`,
-          "HTTP-Referer": process.env.LUREXA_PUBLIC_SITE_URL || "https://lurexa.org",
-          "X-Title": "Lurexa AI Gateway",
-        } : {}),
-      },
-      body: JSON.stringify(requestBody),
-    });
+    const circuit = circuitKey(provider, task.capabilityId);
+    if (isCircuitOpen(circuit)) {
+      if (capability.fallbackPolicy === "deterministic") {
+        await UsageLedgerService.record({
+          product: task.product,
+          capabilityId: task.capabilityId,
+          provider: "deterministic_fallback",
+          organizationId: task.organizationId,
+          userId: task.learnerId,
+          entitlementSource: businessApplied ? "business_contract" : "individual_or_explicit",
+          usage: { aiTurns: 1 },
+          outcome: "circuit_open",
+        });
+        return { text: "The AI provider is temporarily unavailable. Please continue with the available guided activity.", provider: "deterministic_fallback", model: "deterministic", capabilityId: task.capabilityId };
+      }
+      throw new Error("AI provider circuit is temporarily open.");
+    }
 
+    const started = Date.now();
+    let providerResponse: { response: Response; latencyMs: number };
+    try {
+      providerResponse = await fetchProvider(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(provider === "openrouter" ? {
+            Authorization: `Bearer ${key}`,
+            "HTTP-Referer": process.env.LUREXA_PUBLIC_SITE_URL || "https://lurexa.org",
+            "X-Title": "Lurexa AI Gateway",
+          } : {}),
+        },
+        body: JSON.stringify(requestBody),
+      });
+    } catch (error) {
+      recordProviderFailure(circuit);
+      if (capability.fallbackPolicy === "deterministic") {
+        await UsageLedgerService.record({
+          product: task.product,
+          capabilityId: task.capabilityId,
+          provider: "deterministic_fallback",
+          organizationId: task.organizationId,
+          userId: task.learnerId,
+          entitlementSource: businessApplied ? "business_contract" : "individual_or_explicit",
+          usage: { aiTurns: 1 },
+          latencyMs: Date.now() - started,
+          outcome: "provider_failure",
+        });
+        return { text: "The AI provider is temporarily unavailable. Please continue with the available guided activity.", provider: "deterministic_fallback", model: "deterministic", capabilityId: task.capabilityId };
+      }
+      throw error;
+    }
+
+    const response = providerResponse.response;
     if (!response.ok) {
+      recordProviderFailure(circuit);
       const detail = (await response.text().catch(() => "")).slice(0, 300);
       throw new Error(`AI Gateway provider request failed (${response.status}): ${detail}`);
     }
+    recordProviderSuccess(circuit);
 
     const payload = await response.json() as {
       choices?: Array<{ message?: { content?: unknown } }>;
@@ -157,6 +273,8 @@ export const AIGateway = {
       entitlementSource: businessApplied ? "business_contract" : "individual_or_explicit",
       usage: { aiTurns: 1 },
       providerModel: model,
+      latencyMs: providerResponse.latencyMs,
+      outcome: "success",
     });
 
     return { text: text.trim(), provider: provider === "openrouter" ? "openrouter" : "gemini", model, capabilityId: task.capabilityId };
