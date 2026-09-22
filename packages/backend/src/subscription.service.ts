@@ -71,7 +71,7 @@ export const SubscriptionService = {
         ? Array.from(new Set([
             ...(contract.capabilities as EntitlementCapability[]),
             ...(input.product === "LEARN" ? ["curriculum_access" as const] : []),
-            ...(input.product === "COACH" ? ["coach_access" as const] : []),
+            ...(input.product === "COACH" ? ["coach_access" as const, "live_streaming" as const] : []),
           ]))
         : [];
       return {
@@ -96,7 +96,7 @@ export const SubscriptionService = {
     }
     if (input.subscribedProduct === input.product && quotas.premiumVoiceProducts?.includes(input.product)) capabilities.push("premium_voice");
     if (this.hasTierAccess(tier, "plus") && input.product === "LEARN") capabilities.push("curriculum_access");
-    if (this.hasTierAccess(tier, "plus") && input.product === "COACH") capabilities.push("coach_access");
+    if (this.hasTierAccess(tier, "plus") && input.product === "COACH") capabilities.push("coach_access", "live_streaming");
     if (this.hasTierAccess(tier, "plus")) capabilities.push("offline_learning");
     return {
       product: input.product,
