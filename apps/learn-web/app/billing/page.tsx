@@ -7,7 +7,7 @@ import { Button } from "@lurexa/ui/button";
 import { Card } from "@lurexa/ui/Card";
 import { Badge } from "@lurexa/ui/Badge";
 import { ProductMark } from "@lurexa/ui/ProductMark";
-import { DEFAULT_TIER_QUOTAS, type SubscriptionTier } from "@lurexa/types";
+import { DEFAULT_TIER_QUOTAS, LUREXA_PRICING_PLANS, type SubscriptionTier } from "@lurexa/types";
 
 function BillingContent() {
   const searchParams = useSearchParams();
@@ -20,8 +20,8 @@ function BillingContent() {
     {
       tier: "BASIC" as const,
       name: "Lurexa Basic",
-      monthlyPrice: 0,
-      annualMonthlyPrice: 0,
+      monthlyPrice: LUREXA_PRICING_PLANS.basic.priceMonthly,
+      annualMonthlyPrice: LUREXA_PRICING_PLANS.basic.annualPriceMonthly ?? LUREXA_PRICING_PLANS.basic.priceMonthly,
       description: "Free placement and core foundational trial lessons.",
       highlights: [
         "Oral CEFR diagnostic placement",
@@ -35,8 +35,8 @@ function BillingContent() {
     {
       tier: "PLUS" as const,
       name: "Lurexa Plus",
-      monthlyPrice: 9.99,
-      annualMonthlyPrice: 8.25,
+      monthlyPrice: LUREXA_PRICING_PLANS.plus.priceMonthly,
+      annualMonthlyPrice: LUREXA_PRICING_PLANS.plus.annualPriceMonthly ?? LUREXA_PRICING_PLANS.plus.priceMonthly,
       popular: true,
       description: "Dedicated single-product mastery with premium voice for the subscribed product.",
       highlights: [
@@ -51,8 +51,8 @@ function BillingContent() {
     {
       tier: "ULTRA" as const,
       name: "Lurexa Ultra",
-      monthlyPrice: 19.99,
-      annualMonthlyPrice: 16.58,
+      monthlyPrice: LUREXA_PRICING_PLANS.ultra.priceMonthly,
+      annualMonthlyPrice: LUREXA_PRICING_PLANS.ultra.annualPriceMonthly ?? LUREXA_PRICING_PLANS.ultra.priceMonthly,
       description: "Full Learn + Coach with deeper cross-product adaptation and premium AI/speech.",
       highlights: [
         "Full Learn + Coach access",
