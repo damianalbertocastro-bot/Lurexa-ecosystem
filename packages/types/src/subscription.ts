@@ -13,6 +13,7 @@ export type ProductEntryPoint =
   | "INSIGHT";
 
 export type BusinessCapability =
+  | "live_streaming"
   | "premium_voice"
   | "cross_product_sync"
   | "offline_learning"
