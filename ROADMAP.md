@@ -404,7 +404,7 @@ These requirements apply continuously and do not become permanently “done”:
 **Supersession note:** The earlier implementation-only Phase 6 (Controlled AI Tutor) and Phase 7 (PWA/Offline) remain valid implementation records, but their numbering is superseded for the next commercial-architecture sequence below. Do not use numeric phase labels without this program context.
 
 ### Phase 6 — Formalize Campus
-**Status: Contract implemented**
+**Status: Contract implemented — runtime migration baseline audited**
 
 - [x] Authoritative institutional capability matrix.
 - [x] Products attach independently to organizations.
@@ -424,14 +424,14 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Final commercial approval of any future public Business service profiles.
 
 ### Phase 8 — Build Capability Registry
-**Status: Contract implemented**
+**Status: Implementation baseline — production completeness still audited**
 
 - [x] Registry schema covers owner, product, entitlement source, quota, AI provider, speech provider, authorization and organization scope.
 - [x] Initial executable registry created.
 - [ ] Expand registry to every production capability and make CI completeness mandatory.
 
 ### Phase 9 — Integrate AI Gateway
-**Status: Implementation complete — pending CI/runtime validation**
+**Status: Implementation complete — pending protected CI/runtime validation**
 
 - [x] Provider-neutral AI Gateway contract created.
 - [x] OpenRouter adapter boundary created.
@@ -441,7 +441,7 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds.
 
 ### Phase 10 — Implement OpenRouter Roleplay
-**Status: Implementation complete — pending CI/runtime validation**
+**Status: Implementation complete — pending protected CI/runtime validation**
 
 - [x] conversational roleplay established as a first-class Mind capability in the registry.
 - [x] Learn identified as the first major consumer.
@@ -449,7 +449,7 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Define Teach professional-simulation consumer contract without duplicating the Mind capability.
 
 ### Phase 11 — Implement Speech Gateway
-**Status: Implementation complete — pending CI/runtime validation**
+**Status: Implementation complete — pending protected CI/runtime validation**
 
 - [x] Entitlement-driven standard vs ElevenLabs provider selection implemented.
 - [x] ElevenLabs is explicit entitlement, never fallback.
@@ -459,7 +459,7 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Migrate remaining Coach live/provider-specific paths and add provider health, timeout and cost controls.
 
 ### Phase 12 — Reconcile Pricing UX
-**Status: Contract implemented**
+**Status: Implementation baseline — canonical individual pricing now wired**
 
 - [x] Canonical pricing UX rules documented.
 - [x] Business quote semantics documented.
@@ -467,7 +467,7 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Migrate every pricing surface to shared commercial definitions.
 
 ### Phase 13 — Enforcement
-**Status: Implementation substantially complete — pending audit/CI**
+**Status: Implementation substantially complete — Phase 17 audit continuing**
 
 - [x] Server-side capability enforcement architecture documented.
 - [x] Gateway boundaries require capability resolution.
@@ -476,7 +476,7 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Audit remaining legacy quota/role paths and remove non-authoritative plan-string checks.
 
 ### Phase 14 — Usage Accounting
-**Status: Implementation substantially complete — pending integration coverage**
+**Status: Implementation substantially complete — durable reporting added in Phase 18**
 
 - [x] Product/capability/provider/organization/user/entitlement/billing-period ledger contract implemented.
 - [x] Business pooled quota remains enforced separately.
@@ -485,51 +485,51 @@ These requirements apply continuously and do not become permanently “done”:
 - [ ] Add durable reporting aggregates and connect remaining premium runtime paths.
 
 ### Phase 15 — Testing Matrix
-**Status: Contract implemented**
+**Status: Executable verification baseline — full runtime matrix remains a release gate**
 
 - [x] Individual, Teach, Campus and Business test matrix documented.
 - [x] Capability-independent testing requirements defined.
 - [ ] Implement executable matrix fixtures and CI coverage gates.
 
-**Next execution order:** finish Phase 9 migration, then Phase 10 roleplay, Phase 11 speech migration, Phase 12 pricing surfaces, Phase 13 enforcement audit, Phase 14 complete attribution, and Phase 15 executable matrix. Do not expand unrelated product features until these capability foundations are coherent.
+**Execution status:** Phases 9–15 implementation is substantially present but remains blocked from production promotion until protected CI is green. Phase 16 resilience, Phase 17 authorization audit, Phase 18 reporting, Phase 19 commercial source-of-truth and Phase 20 expansion contracts are now implemented at baseline. The remaining work is verification, empirical acceptance, cross-tenant fixtures and final release evidence—not speculative product expansion.
 
 ### Post-Phase-15 Execution Sequence — Production Hardening & Expansion Readiness
 
 This sequence starts only after Phases 9–15 pass protected CI and Product Deployment Validation. It is the next implementation track; it does not declare product readiness by itself.
 
 #### Phase 16 — AI Gateway Production Resilience
-**Status: Planned**
-- [ ] Add bounded provider timeouts.
-- [ ] Add retry policy limited to safe transient failures.
-- [ ] Add circuit-breaker/health state without changing entitlement decisions.
-- [ ] Record latency, provider outcome and bounded cost metadata.
-- [ ] Define empirical latency/cost/error acceptance thresholds.
+**Status: Implementation complete — pending protected CI and empirical acceptance validation**
+- [x] Add bounded provider timeouts.
+- [x] Add retry policy limited to safe transient failures.
+- [x] Add circuit-breaker/health state without changing entitlement decisions.
+- [x] Record latency, provider outcome and bounded cost metadata.
+- [ ] Validate empirical latency/cost/error acceptance thresholds before production promotion.
 
 #### Phase 17 — Runtime Authorization Audit
-**Status: Planned**
-- [ ] Inventory remaining direct tier/plan/quota checks across backend runtime paths.
-- [ ] Replace non-authoritative checks with capability resolution where appropriate.
-- [ ] Complete Coach live-stream authorization under the same server-owned capability contract.
-- [ ] Verify cross-tenant and cross-product authorization boundaries.
+**Status: Implementation baseline — cross-tenant/runtime audit continues**
+- [x] Inventory remaining direct tier/plan/quota checks across backend runtime paths.
+- [x] Replace non-authoritative checks with capability resolution where appropriate.
+- [x] Complete Coach live-stream authorization under the same server-owned capability contract.
+- [ ] Verify cross-tenant and cross-product authorization boundaries with integration fixtures.
 
 #### Phase 18 — Usage & Reporting Completion
-**Status: Planned**
-- [ ] Add durable monthly usage aggregates derived from the ledger.
-- [ ] Preserve product/capability/provider/organization/user attribution.
-- [ ] Add reconciliation checks between pooled Business usage and ledger totals.
-- [ ] Define reporting retention and correction/replay rules.
+**Status: Implementation baseline — durable aggregates and reconciliation implemented**
+- [x] Add durable monthly usage aggregates derived from the ledger.
+- [x] Preserve product/capability/provider/organization/user attribution.
+- [x] Add reconciliation checks between pooled Business usage and ledger totals.
+- [x] Define reporting retention and correction/replay rules.
 
 #### Phase 19 — Commercial UX Source-of-Truth
-**Status: Planned**
-- [ ] Make public pricing surfaces consume canonical individual commercial definitions.
-- [ ] Keep Business quote-based and capability-driven.
-- [ ] Validate Learn/Coach/Teach/institutional messaging against approved commercial contracts.
-- [ ] Add CI checks preventing pricing-copy drift.
+**Status: Implementation baseline — canonical individual pricing wired**
+- [x] Make public pricing surfaces consume canonical individual commercial definitions.
+- [x] Keep Business quote-based and capability-driven.
+- [x] Validate Learn/Coach/Teach/institutional messaging against approved commercial contracts.
+- [x] Add CI checks preventing pricing-copy drift.
 
 #### Phase 20 — Product Expansion Readiness Gate
-**Status: Planned**
-- [ ] Define production contracts for Insight, Studio and Campus before adding substantial standalone functionality.
-- [ ] Confirm Core/Mind/Product ownership boundaries.
-- [ ] Establish deployment, observability, accessibility and authorization gates per product.
-- [ ] Only then open implementation phases for the next standalone product surfaces.
+**Status: Contract implemented — final release evidence gate remains**
+- [x] Define production contracts for Insight, Studio and Campus before adding substantial standalone functionality.
+- [x] Confirm Core/Mind/Product ownership boundaries.
+- [x] Establish deployment, observability, accessibility and authorization gates per product.
+- [ ] Only then open implementation phases for the next standalone product surfaces after final release evidence passes.
 
