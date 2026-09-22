@@ -13,6 +13,11 @@ export async function resolveAuthorizedCapability(input: {
   const user = userSnapshot.exists ? userSnapshot.data() : undefined;
   const organizationSnapshot = await database.collection("organizations").doc(input.organizationId).get();
   const organization = organizationSnapshot.exists ? organizationSnapshot.data() : undefined;
+  if (!userSnapshot.exists) throw new Error("Learner identity not found.");
+  const userOrganizationId = user?.organizationId;
+  if (typeof userOrganizationId === "string" && userOrganizationId && userOrganizationId !== input.organizationId) {
+    throw new Error("Learner is not authorized for the requested organization.");
+  }
   const businessContract = organization?.businessContract as Parameters<typeof SubscriptionService.resolveEntitlements>[0]["businessContract"] | undefined;
 
   const entitlements = SubscriptionService.resolveEntitlements({
