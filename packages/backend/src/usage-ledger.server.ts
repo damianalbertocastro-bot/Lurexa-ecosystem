@@ -14,6 +14,9 @@ export interface UsageLedgerEvent {
   providerModel?: string;
   subscriptionOrEntitlementId?: string;
   idempotencyKey?: string;
+  latencyMs?: number;
+  outcome?: "success" | "provider_failure" | "circuit_open" | "fallback" | "rejected";
+  estimatedCostUsd?: number;
 }
 
 export const UsageLedgerService = {
