@@ -13,9 +13,7 @@ import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.serv
 import { resolveRoleplayCapability } from "./learning-capability.server";
 import { AIGateway } from "./mind/ai-gateway.server";
 
-const DEFAULT_MODEL = "gemini-3.7-flash";
 const LEARN_TUTOR_PROMPT_VERSION = "learn-tutor-roleplay-v1";
-const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
 type ScenarioPhase = "establish" | "develop" | "transfer" | "close";
@@ -28,10 +26,6 @@ function stripUndefined<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function resolveGeminiApiKey(): string | null {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
-  return apiKey || null;
-}
 
 function summarizeContext(context: Awaited<ReturnType<typeof getScopedLearnerContext>>["context"]): string {
   const lines: string[] = [];
@@ -164,26 +158,6 @@ function deterministicFallback(capability: AIRoleplayCapability, learnerMessage:
 
   if (phase === "transfer") return "Good. Now use that information to complete the goal of this situation or ask me a relevant question.";
   return "Thanks. Build on that answer with one relevant detail so we can continue the situation.";
-}
-
-function readGeminiOutputText(payload: unknown): string | null {
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return null;
-  const candidates = (payload as { candidates?: unknown }).candidates;
-  if (!Array.isArray(candidates)) return null;
-  const candidate = candidates[0];
-  if (typeof candidate !== "object" || candidate === null || Array.isArray(candidate)) return null;
-  const content = (candidate as { content?: unknown }).content;
-  if (typeof content !== "object" || content === null || Array.isArray(content)) return null;
-  const parts = (content as { parts?: unknown }).parts;
-  if (!Array.isArray(parts)) return null;
-  const text = parts
-    .flatMap((part) => typeof part === "object" && part !== null && !Array.isArray(part)
-      ? [((part as { text?: unknown }).text)]
-      : [])
-    .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
-    .join("\n")
-    .trim();
-  return text ? clampText(text, 1_200) : null;
 }
 
 export interface GeminiRoleplayTurnOutput {
@@ -680,98 +654,8 @@ export const LearnTutorService = {
       provider,
     };
   },
-  async testGeminiLiveConnection(): Promise<{
-    configured: boolean;
-    keyPreview: string | null;
-    liveTest: {
-      success: boolean;
-      model: string;
-      status: number | null;
-      error?: string;
-      reply?: string | null;
-      probes?: Record<string, { status: number; text: string }>;
-      availableModels?: string[];
-    };
-  }> {
-    const key = resolveGeminiApiKey();
-    if (!key) {
-      return {
-        configured: false,
-        keyPreview: null,
-        liveTest: { success: false, model: "none", status: null, error: "No API key found in environment." },
-      };
-    }
-
-    let availableModels: string[] = [];
-    try {
-      const listRes = await fetch(`${GEMINI_API_ENDPOINT}?key=${encodeURIComponent(key)}`, {
-        headers: { "x-goog-api-key": key },
-      });
-      if (listRes.ok) {
-        const listData = (await listRes.json()) as { models?: Array<{ name?: string }> };
-        availableModels = (listData.models || []).map((m) => m.name?.replace(/^models\//, "") || "").filter(Boolean);
-      }
-    } catch {
-      availableModels = [];
-    }
-
-    const configuredModel = process.env.LUREXA_LEARN_TUTOR_MODEL?.trim();
-    const modelsToProbe = Array.from(new Set([
-      ...(configuredModel ? [configuredModel] : []),
-      "gemini-3.7-flash",
-      "gemini-3.6-flash",
-      "gemini-3.5-flash-lite",
-      "gemini-3.5-flash",
-      "gemini-3.1-flash-lite",
-      ...availableModels,
-    ])).slice(0, 10);
-
-    const probes: Record<string, { status: number; text: string }> = {};
-
-    for (const model of modelsToProbe) {
-      try {
-        const url = `${GEMINI_API_ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: "Say hello in one word." }] }],
-            generationConfig: { maxOutputTokens: 20 },
-          }),
-        });
-
-        const text = await response.text();
-        probes[model] = { status: response.status, text: text.slice(0, 300) };
-
-        if (response.ok) {
-          const data = JSON.parse(text);
-          const reply = readGeminiOutputText(data);
-          return {
-            configured: true,
-            keyPreview: `${key.slice(0, 6)}...${key.slice(-4)}`,
-            liveTest: { success: true, model, status: response.status, reply, availableModels, probes },
-          };
-        }
-      } catch (err) {
-        probes[model] = { status: 0, text: err instanceof Error ? err.message : "Network error" };
-      }
-    }
-
-    return {
-      configured: true,
-      keyPreview: `${key.slice(0, 6)}...${key.slice(-4)}`,
-      liveTest: {
-        success: false,
-        model: modelsToProbe.join(", "),
-        status: Object.values(probes)[0]?.status ?? null,
-        error: Object.values(probes)[0]?.text ?? "All models failed",
-        availableModels,
-        probes,
-      },
-    };
-  },
   getDiagnosticStatus(): { configured: boolean; keyPreview: string | null } {
-    const key = resolveGeminiApiKey();
+    const key = process.env.GEMINI_API_KEY?.trim() || null;
     return {
       configured: Boolean(key),
       keyPreview: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
