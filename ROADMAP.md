@@ -1,6 +1,6 @@
 # Lurexa Roadmap
 
-Updated: 2026-08-27
+Updated: 2026-09-22
 
 Lurexa is the commercial multi-product EdTech ecosystem built by **Lurexa Learning Technologies**. The earlier thesis prototype is a validation/reference artifact and does not define production architecture.
 
