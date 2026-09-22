@@ -42,6 +42,7 @@ export type BusinessProduct =
 export type EntitlementCapability =
   | "curriculum_access"
   | "coach_access"
+  | "live_streaming"
   | "premium_voice"
   | "cross_product_sync"
   | "offline_learning"
