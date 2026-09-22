@@ -91,7 +91,8 @@
     "deploy:learn:preview": "node scripts/deploy-vercel-product.mjs --product learn-web --target preview",
     "deploy:learn:production": "node scripts/deploy-vercel-product.mjs --product learn-web --target production",
     "env:learn:preview": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target preview",
-    "env:learn:production": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target production"
+    "env:learn:production": "node scripts/sync-vercel-runtime-env.mjs --product learn-web --target production",
+    "verify:phase15-20": "node scripts/verify-phase15-20.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
