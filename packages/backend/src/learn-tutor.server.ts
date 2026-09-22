@@ -161,7 +161,7 @@ function deterministicFallback(capability: AIRoleplayCapability, learnerMessage:
 }
 
 export interface GeminiRoleplayTurnOutput {
-  provider?: "openrouter" | "gemini" | "deterministic_fallback";
+  provider?: "gemini" | "deterministic_fallback";
   transcription?: string;
   partnerReply: string;
   audioFeedback?: {
@@ -216,7 +216,7 @@ async function callRoleplayViaGateway(input: {
       organizationId: input.organizationId,
       maxOutputTokens: 300,
     });
-    return { provider: result.provider, partnerReply: result.text };
+    return { provider: result.provider === "openrouter" ? "gemini" : result.provider, partnerReply: result.text };
   } catch (error) {
     console.error("Learn tutor AI Gateway request failed.", {
       error: error instanceof Error ? error.message : "unknown error",
