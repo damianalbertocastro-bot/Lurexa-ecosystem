@@ -5,6 +5,8 @@ export interface UsageLedgerAggregate {
   billingPeriod: string;
   aiTurns: number;
   voiceMinutes: number;
+  businessAiTurns: number;
+  businessVoiceMinutes: number;
   byProduct: Record<string, { aiTurns: number; voiceMinutes: number }>;
   byCapability: Record<string, { aiTurns: number; voiceMinutes: number }>;
   byProvider: Record<string, { aiTurns: number; voiceMinutes: number }>;
@@ -61,6 +63,8 @@ export const UsageLedgerService = {
         billingPeriod: payload.billingPeriod,
         aiTurns: increment(existingAggregate?.aiTurns, aiTurns),
         voiceMinutes: increment(existingAggregate?.voiceMinutes, voiceMinutes),
+        businessAiTurns: increment(existingAggregate?.businessAiTurns, event.entitlementSource === "business_contract" ? aiTurns : 0),
+        businessVoiceMinutes: increment(existingAggregate?.businessVoiceMinutes, event.entitlementSource === "business_contract" ? voiceMinutes : 0),
         byProduct: {
           ...(existingAggregate?.byProduct ?? {}),
           [event.product]: { aiTurns: increment(productCurrent.aiTurns, aiTurns), voiceMinutes: increment(productCurrent.voiceMinutes, voiceMinutes) },
