@@ -8,6 +8,31 @@ import { TelemetryService } from "./telemetry.service";
 const DEFAULT_LANGUAGE_CODE = "en-US";
 const DEFAULT_VOICE = "en-US-Neural2-F";
 
+export type CurriculumAudioErrorCode =
+  | "AUDIO_PROVIDER_UNCONFIGURED"
+  | "AUDIO_PROVIDER_FAILED"
+  | "AUDIO_PROVIDER_EMPTY_RESPONSE";
+
+export class CurriculumAudioProviderError extends Error {
+  readonly code: CurriculumAudioErrorCode;
+  constructor(code: CurriculumAudioErrorCode, message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = "CurriculumAudioProviderError";
+    this.code = code;
+  }
+}
+
+export interface AudioManifestItem {
+  lessonId: string;
+  moduleId: string;
+  capabilityId: string;
+  modelText: string;
+  characterCount: number;
+  estimatedDurationSeconds: number;
+  voice: string;
+  locale: string;
+}
+
 /**
  * Creates a minimal valid synthetic audio buffer for local development and
  * automated tests only. Production-like runtimes must surface provider
@@ -92,7 +117,6 @@ export const LearnCurriculumAudioService = {
         text: audioInput,
         learnerId: input.actor.uid,
         organizationId,
-        premiumVoiceEntitled: false,
       });
 
       operation.complete({
