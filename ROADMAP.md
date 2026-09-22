@@ -438,7 +438,8 @@ These requirements apply continuously and do not become permanently “done”:
 - [x] Usage provenance hook created.
 - [x] Migrate Learn Tutor text, opener and speech-analysis provider calls behind the gateway.
 - [x] Resolve entitlement and capability server-side before provider execution.
-- [ ] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds.
+- [x] Add production timeout/retry/circuit-breaker policy and empirical acceptance thresholds mechanism.
+- [ ] Validate empirical latency/cost/error thresholds before production promotion.
 
 ### Phase 10 — Implement OpenRouter Roleplay
 **Status: Implementation complete — pending protected CI/runtime validation**
@@ -456,7 +457,8 @@ These requirements apply continuously and do not become permanently “done”:
 - [x] Product/provider usage attribution implemented.
 - [x] Migrate Learn curriculum speech behind the Speech Gateway.
 - [x] Premium provider choice is entitlement-driven and server-enforced.
-- [ ] Migrate remaining Coach live/provider-specific paths and add provider health, timeout and cost controls.
+- [x] Migrate remaining Coach live authorization path behind the capability contract.
+- [ ] Add dedicated speech provider health, timeout and cost controls.
 
 ### Phase 12 — Reconcile Pricing UX
 **Status: Implementation baseline — canonical individual pricing now wired**
@@ -464,7 +466,8 @@ These requirements apply continuously and do not become permanently “done”:
 - [x] Canonical pricing UX rules documented.
 - [x] Business quote semantics documented.
 - [x] Teach/institutional pricing explicitly protected from invented legacy assumptions.
-- [ ] Migrate every pricing surface to shared commercial definitions.
+- [x] Wire the public ecosystem and Learn individual price surfaces to canonical individual definitions.
+- [ ] Finish any remaining product-specific pricing surface migration.
 
 ### Phase 13 — Enforcement
 **Status: Implementation substantially complete — Phase 17 audit continuing**
@@ -473,7 +476,8 @@ These requirements apply continuously and do not become permanently “done”:
 - [x] Gateway boundaries require capability resolution.
 - [x] AI and Speech gateways resolve entitlement + capability server-side before execution.
 - [x] Coach streaming now resolves streaming entitlement rather than directly reading tier quotas.
-- [ ] Audit remaining legacy quota/role paths and remove non-authoritative plan-string checks.
+- [x] Audit remaining legacy quota/role paths and remove the identified non-authoritative runtime checks from protected provider/streaming paths.
+- [ ] Complete cross-tenant authorization fixtures for all protected runtime surfaces.
 
 ### Phase 14 — Usage Accounting
 **Status: Implementation substantially complete — durable reporting added in Phase 18**
@@ -482,14 +486,16 @@ These requirements apply continuously and do not become permanently “done”:
 - [x] Business pooled quota remains enforced separately.
 - [x] Add idempotency-key support to the usage ledger.
 - [x] AI and Speech gateways record product/capability/provider/user/organization/billing-period provenance.
-- [ ] Add durable reporting aggregates and connect remaining premium runtime paths.
+- [x] Add durable monthly reporting aggregates and Business reconciliation.
+- [ ] Connect and reconcile any remaining premium runtime paths.
 
 ### Phase 15 — Testing Matrix
 **Status: Executable verification baseline — full runtime matrix remains a release gate**
 
 - [x] Individual, Teach, Campus and Business test matrix documented.
 - [x] Capability-independent testing requirements defined.
-- [ ] Implement executable matrix fixtures and CI coverage gates.
+- [x] Add executable Phase 15–20 contract verification and CI-ready checks.
+- [ ] Expand the matrix into provider-backed integration fixtures before production promotion.
 
 **Execution status:** Phases 9–15 implementation is substantially present but remains blocked from production promotion until protected CI is green. Phase 16 resilience, Phase 17 authorization audit, Phase 18 reporting, Phase 19 commercial source-of-truth and Phase 20 expansion contracts are now implemented at baseline. The remaining work is verification, empirical acceptance, cross-tenant fixtures and final release evidence—not speculative product expansion.
 
