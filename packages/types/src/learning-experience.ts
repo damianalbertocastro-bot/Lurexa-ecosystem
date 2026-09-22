@@ -123,7 +123,7 @@ export interface LearnTutorTurnResult {
     activeTargetCount: number;
     recurringPatternCount: number;
   };
-  provider: "gemini" | "deterministic_fallback";
+  provider: "openrouter" | "gemini" | "deterministic_fallback";
 }
 
 export interface SpokenEvidenceRecord {
