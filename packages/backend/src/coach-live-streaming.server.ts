@@ -5,13 +5,14 @@
  * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for entitled Coach experiences.
  */
 
-import { SubscriptionService } from "./subscription.service";
-import type { SubscriptionTier, BusinessContract } from "@lurexa/types";
+import type { BusinessContract } from "@lurexa/types";
+import { CAPABILITY_REGISTRY } from "@lurexa/types";
+import { resolveAuthorizedCapability } from "./capability-enforcement.server";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
   learnerId: string;
-  tier: SubscriptionTier;
+  organizationId: string;
   businessContract?: BusinessContract | null;
   targetVoice: string;
   vadSensitivity: "high" | "normal" | "low";
@@ -44,16 +45,19 @@ export class CoachLiveStreamingServerService {
   /**
    * Initializes a live streaming audio socket session, enforcing tier eligibility.
    */
-  public static initializeStreamingSession(config: LiveStreamSessionConfig): {
+  public static async initializeStreamingSession(config: LiveStreamSessionConfig): Promise<{
     authorized: boolean;
     streamEndpoint: string;
     codec: string;
     error?: string;
   } {
-    const entitlements = SubscriptionService.resolveEntitlements({
-      tier: config.tier,
+    const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === "coach.live_streaming");
+    if (!capability) throw new Error("Coach live streaming capability is not registered.");
+    const entitlements = await resolveAuthorizedCapability({
+      learnerId: config.learnerId,
+      organizationId: config.organizationId,
       product: "COACH",
-      businessContract: config.businessContract,
+      capability,
     });
     if (!entitlements.streamingAudioEnabled) {
       return {
