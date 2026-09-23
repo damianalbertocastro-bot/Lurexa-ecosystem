@@ -2,15 +2,18 @@
  * Lurexa Mind Live Streaming Audio Gateway (Server-Only)
  * 
  * Provides low-latency full-duplex conversational streaming via WebSocket audio chunking,
- * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for Ultra & Enterprise tiers.
+ * Gemini Live API integration, and server-side Voice Activity Detection (VAD) for entitled Coach experiences.
  */
 
-import { SubscriptionTier, DEFAULT_TIER_QUOTAS } from "@lurexa/types";
+import type { BusinessContract } from "@lurexa/types";
+import { CAPABILITY_REGISTRY } from "@lurexa/types";
+import { resolveAuthorizedCapability } from "./capability-enforcement.server";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
   learnerId: string;
-  tier: SubscriptionTier;
+  organizationId: string;
+  businessContract?: BusinessContract | null;
   targetVoice: string;
   vadSensitivity: "high" | "normal" | "low";
   maxTurnDurationSeconds: number;
@@ -40,21 +43,28 @@ export class CoachLiveStreamingServerService {
   private static activeSessions = new Map<string, LiveStreamSessionConfig>();
 
   /**
-   * Initializes a live streaming audio socket session, enforcing tier eligibility.
+   * Initializes a live streaming audio socket session, enforcing the server-owned capability entitlement.
    */
-  public static initializeStreamingSession(config: LiveStreamSessionConfig): {
+  public static async initializeStreamingSession(config: LiveStreamSessionConfig): Promise<{
     authorized: boolean;
     streamEndpoint: string;
     codec: string;
     error?: string;
-  } {
-    const quota = DEFAULT_TIER_QUOTAS[config.tier];
-    if (!quota.streamingAudioEnabled) {
+  }> {
+    const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === "coach.live_streaming");
+    if (!capability) throw new Error("Coach live streaming capability is not registered.");
+    const entitlements = await resolveAuthorizedCapability({
+      learnerId: config.learnerId,
+      organizationId: config.organizationId,
+      product: "COACH",
+      capability,
+    });
+    if (!entitlements.streamingAudioEnabled) {
       return {
         authorized: false,
         streamEndpoint: "",
         codec: "audio/webm",
-        error: `Streaming audio is only available on Ultra and Enterprise plans. Active plan: ${config.tier}.`,
+        error: "Streaming audio is not included in the current Coach entitlement.",
       };
     }
 

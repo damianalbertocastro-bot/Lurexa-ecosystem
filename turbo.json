@@ -36,6 +36,15 @@
     "GCLOUD_PROJECT",
     "GOOGLE_CLOUD_PROJECT",
     "GEMINI_API_KEY",
+    "OPENROUTER_API_KEY",
+    "LUREXA_AI_GATEWAY_MODEL",
+    "LUREXA_PUBLIC_SITE_URL",
+    "ELEVENLABS_API_KEY",
+    "LUREXA_ELEVENLABS_VOICE_ID",
+    "LUREXA_ELEVENLABS_MODEL_ID",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
     "LUREXA_LEARN_TUTOR_MODEL",
     "LUREXA_LEARN_TTS_VOICE",
     "R2_ACCOUNT_ID",
@@ -49,19 +58,32 @@
     "CLOUDFLARE_R2_BUCKET_NAME",
     "CLOUDFLARE_R2_PUBLIC_DOMAIN"
   ],
-
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", ".open-next/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**",
+        ".open-next/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": [
+        "^check-types"
+      ]
     },
     "dev": {
       "cache": false,

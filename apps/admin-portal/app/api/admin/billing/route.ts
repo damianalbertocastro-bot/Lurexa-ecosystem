@@ -29,23 +29,29 @@ export async function GET(request: Request): Promise<Response> {
 export async function PATCH(request: Request): Promise<Response> {
   try {
     const authHeader = request.headers.get("authorization");
-    const body = (await request.json()) as {
-      organizationId?: string;
-      allocatedSeats?: number;
-      planTier?: import("@lurexa/types").InstitutionalPlanTier;
-    };
+    const body = (await request.json()) as { organizationId?: string; allocatedSeats?: number };
 
-    if (!body.organizationId || typeof body.allocatedSeats !== "number" || !body.planTier) {
-      throw new Error("organizationId, allocatedSeats, and planTier are required.");
+    if (!body.organizationId || typeof body.allocatedSeats !== "number") {
+      throw new Error("organizationId and allocatedSeats are required.");
     }
 
     const updated = await PlatformAdminService.updateInstitutionalBillingSeats(authHeader, {
       organizationId: body.organizationId,
       allocatedSeats: body.allocatedSeats,
-      planTier: body.planTier,
     });
 
     return Response.json({ account: updated });
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+
+export async function POST(request: Request): Promise<Response> {
+  try {
+    const authHeader = request.headers.get("authorization");
+    const result = await PlatformAdminService.migrateLegacyBillingAccounts(authHeader);
+    return Response.json(result);
   } catch (error) {
     return failure(error);
   }

@@ -20,7 +20,7 @@ export function TierUpgradeModal({
   requiredTier = "ultra",
   currentTier = "basic",
 }: TierUpgradeModalProps) {
-  const isUltra = String(requiredTier).toLowerCase() === "ultra" || String(requiredTier).toLowerCase() === "enterprise";
+  const isUltra = String(requiredTier).toLowerCase() === "ultra";
   const tierName = isUltra ? "Lurexa Ultra" : "Lurexa Plus";
   const tierPrice = isUltra ? "$19.99/mo" : "$9.99/mo";
 

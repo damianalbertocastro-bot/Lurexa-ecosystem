@@ -48,8 +48,8 @@ function getTrackAccessStatus(
     };
   }
 
-  // 2. Highest Paying Plans: ULTRA & ENTERPRISE have all courses fully available
-  if (activeTier === "ULTRA" || activeTier === "ENTERPRISE") {
+  // 2. Ultra has full standard individual curriculum access.
+  if (activeTier === "ULTRA") {
     return {
       isUnlocked: true,
       status: "unlocked",
@@ -151,7 +151,7 @@ export default function SpecializedTracksPage() {
               <Badge variant="info">Active Plan: {activeTier}</Badge>
               <Badge variant="default">CEFR Standing: {userCefrLevel}</Badge>
               <span className="text-xs text-[var(--lx-muted)] ml-1">
-                {activeTier === "ULTRA" || activeTier === "ENTERPRISE"
+                {activeTier === "ULTRA"
                   ? "✓ All courses available (highest tier)"
                   : activeTier === "PLUS"
                   ? "✓ 1 course available in Plus tier; remaining available in Ultra"

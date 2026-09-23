@@ -59,10 +59,10 @@ export class MindRecommendationService {
     }
 
     // If Learner is active across multiple products and on PLUS or BASIC
-    if (context.activeTier !== "ULTRA" && context.activeTier !== "ENTERPRISE" && context.enrolledProductCount >= 2) {
+    if (context.activeTier !== "ULTRA" && context.enrolledProductCount >= 2) {
       return {
         recommendedTier: "ULTRA",
-        reason: "Experience seamless cross-product adaptation across Learn, Coach, and Teach with unlimited voice minutes, AI tutoring, and offline mode.",
+        reason: "Experience seamless cross-product adaptation across Learn and Coach with deeper cross-product adaptation, premium AI/speech, and offline mode.",
         entryPoint: "LEARN",
         synergyBenefits: [
           "Universal Learner Model: real-time Coach ↔ Learn error sync",
@@ -150,8 +150,8 @@ export class MindRecommendationService {
     phoneticTarget?: string;
     explanation: string;
   }[] {
-    // Only available for Ultra & Enterprise subscribers with Universal Learner Model sync
-    if (context.activeTier !== "ULTRA" && context.activeTier !== "ENTERPRISE") {
+    // Only available for Ultra subscribers with Universal Learner Model sync.
+    if (context.activeTier !== "ULTRA") {
       return [];
     }
 

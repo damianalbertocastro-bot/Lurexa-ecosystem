@@ -55,6 +55,14 @@ jobs:
         run: pnpm verify:superadmin-bootstrap
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
+      - name: Verify Legacy Billing Migration
+        run: pnpm verify:legacy-billing-migration
+      - name: Verify Stripe Provider
+        run: pnpm verify:stripe-provider
+      - name: Verify Commercial Billing Hardening
+        run: pnpm verify:commercial-billing-hardening
+      - name: Verify Commercial Architecture Phases 15-20
+        run: pnpm verify:phase15-20
 
   architecture:
     name: Architecture & Intelligence
@@ -148,6 +156,8 @@ jobs:
         run: pnpm test:learn-rules
       - name: Verify Institutional Tenant Isolation
         run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only auth,firestore --project lurexa-app "pnpm --filter @lurexa/backend test:institution-isolation"
+      - name: Verify Usage Ledger Idempotency and Reconciliation
+        run: FIREBASE_PROJECT_ID=lurexa-app pnpm exec firebase emulators:exec --only firestore --project lurexa-app "pnpm --filter @lurexa/backend test:usage-reporting"
       - name: Verify Learn MVP Journey
         run: pnpm test:learn-mvp-journey
 
