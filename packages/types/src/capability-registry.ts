@@ -135,7 +135,6 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     aiProvider: "none",
     speechProvider: "none",
     fallbackPolicy: "none",
-    fallbackPolicy: "none",
     authorizationRequirement: "Authorized organization role with contracted analytics capability and purpose-scoped access.",
     organizationScope: "organization",
     description: "Institutional and workforce analytics from governed aggregate evidence.",
