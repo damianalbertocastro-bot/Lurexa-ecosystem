@@ -8,6 +8,8 @@ import type {
   StudentProgress,
 } from "@lurexa/types";
 import { getServerFirebaseAuth, getServerFirestore } from "../firebase-admin.server";
+import { buildCanonicalOrganizationBillingRecord } from "../billing/legacy-billing-migration";
+import type { AdminBillingAccount, CanonicalOrganizationBillingRecord, LegacyBillingMigrationResult } from "@lurexa/types";
 
 function asOrganization(
   id: string,
@@ -148,86 +150,121 @@ export const PlatformAdminService = {
 
   async getInstitutionalBillingAccounts(
     authorization: string | null,
-  ): Promise<import("@lurexa/types").InstitutionalBillingAccount[]> {
+  ): Promise<AdminBillingAccount[]> {
     await requireSuperAdmin(authorization);
     const database = getServerFirestore();
     const organizationsSnapshot = await database.collection("organizations").get();
 
-    const accounts = await Promise.all(
-      organizationsSnapshot.docs.map(async (doc) => {
-        const data = doc.data();
-        const membersSnapshot = await database
-          .collection("organizations")
-          .doc(doc.id)
-          .collection("members")
-          .where("role", "==", "student")
-          .get();
+    const accounts = await Promise.all(organizationsSnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      const canonical = data.billing as CanonicalOrganizationBillingRecord | undefined;
+      const projection = canonical ?? buildCanonicalOrganizationBillingRecord(doc.id, data);
+      const membersSnapshot = await database
+        .collection("organizations").doc(doc.id).collection("members")
+        .where("role", "==", "student").get();
+      const usedSeats = membersSnapshot.size;
 
-        const usedSeats = membersSnapshot.size;
-        const allocatedSeats = typeof data.allocatedSeats === "number" ? data.allocatedSeats : Math.max(usedSeats, 25);
-        const planTier: import("@lurexa/types").InstitutionalPlanTier =
-          data.plan === "business"
-            ? "business"
-            : data.plan === "campus"
-            ? "campus_pro"
-            : data.plan === "standard"
-            ? "standard_institutional"
-            : "free_community";
+      if (!projection) return null;
+      const invoicesSnapshot = await database.collection("billing_invoices")
+        .where("customerId", "==", projection.customerId).get();
+      const paymentsSnapshot = await database.collection("billing_payments")
+        .where("customerId", "==", projection.customerId).get();
 
-        const pricePerSeat = planTier === "business" ? null : 0;
-        const createdAt = typeof data.createdAt === "string" ? data.createdAt : new Date().toISOString();
+      return {
+        customerId: projection.customerId,
+        organizationId: doc.id,
+        organizationName: data.name || "Unnamed Institution",
+        contactEmail: data.contactEmail || "",
+        commercialModel: projection.commercialModel,
+        institutionalProfile: projection.institutionalProfile,
+        status: projection.status,
+        billingInterval: projection.billingInterval,
+        currentPeriodStart: projection.currentPeriodStart,
+        currentPeriodEnd: projection.currentPeriodEnd,
+        seatAllowance: projection.seatAllowance,
+        usedSeats,
+        productAccess: projection.productAccess,
+        capabilities: projection.capabilities,
+        businessContract: projection.businessContract,
+        invoices: invoicesSnapshot.docs.map((invoice) => invoice.data()),
+        payments: paymentsSnapshot.docs.map((payment) => payment.data()),
+        providerCustomerId: projection.providerCustomerId,
+        providerSubscriptionId: projection.providerSubscriptionId,
+        migratedFromLegacy: Boolean(projection.migratedFrom),
+      } satisfies AdminBillingAccount;
+    }));
 
-        return {
+    return accounts.filter((account): account is AdminBillingAccount => Boolean(account));
+  },
+
+  async migrateLegacyBillingAccounts(
+    authorization: string | null,
+  ): Promise<LegacyBillingMigrationResult> {
+    await requireSuperAdmin(authorization);
+    const database = getServerFirestore();
+    const organizationsSnapshot = await database.collection("organizations").get();
+    const result: LegacyBillingMigrationResult = { migrated: 0, alreadyCanonical: 0, skipped: 0, failures: [] };
+
+    for (const doc of organizationsSnapshot.docs) {
+      const data = doc.data();
+      if (data.billing?.schemaVersion === 1) {
+        result.alreadyCanonical += 1;
+        continue;
+      }
+      const record = buildCanonicalOrganizationBillingRecord(doc.id, data);
+      if (!record) {
+        result.skipped += 1;
+        continue;
+      }
+      try {
+        await doc.ref.set({
+          billing: record,
+          billingMigration: {
+            status: "migrated",
+            migratedAt: record.migratedFrom?.migratedAt,
+            source: "legacy_organization_fields",
+          },
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+        result.migrated += 1;
+      } catch (error) {
+        result.failures.push({
           organizationId: doc.id,
-          organizationName: data.name || "Unnamed Institution",
-          planTier,
-          allocatedSeats,
-          usedSeats,
-          pricePerSeatMonthlyUsd: pricePerSeat,
-          billingInterval: "annual" as const,
-          currentPeriodStart: createdAt,
-          nextRenewalDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-          status: (data.status === "suspended" ? "past_due" : "active") as "active" | "past_due" | "canceled" | "trial",
-          contactEmail: data.contactEmail || `billing@${doc.id.toLowerCase().replace(/[^a-z0-9]/g, "")}.edu`,
-          paymentMethodLast4: "4242",
-          paymentMethodBrand: "Visa",
-          invoices: [
-            {
-              id: `inv_${doc.id}_1`,
-              invoiceNumber: `LX-INV-2026-${doc.id.slice(0, 4).toUpperCase()}`,
-              amountUsd: pricePerSeat == null ? 0 : allocatedSeats * pricePerSeat * 12,
-              status: "paid" as const,
-              issuedAt: createdAt,
-              paidAt: createdAt,
-              dueDate: createdAt,
-              seatsCount: allocatedSeats,
-            },
-          ],
-        };
-      }),
-    );
-
-    return accounts;
+          reason: error instanceof Error ? error.message : "Unknown migration failure",
+        });
+      }
+    }
+    return result;
   },
 
   async updateInstitutionalBillingSeats(
     authorization: string | null,
-    input: { organizationId: string; allocatedSeats: number; planTier: import("@lurexa/types").InstitutionalPlanTier },
-  ): Promise<import("@lurexa/types").InstitutionalBillingAccount> {
+    input: { organizationId: string; allocatedSeats: number },
+  ): Promise<AdminBillingAccount> {
     await requireSuperAdmin(authorization);
+    if (!Number.isInteger(input.allocatedSeats) || input.allocatedSeats < 0) {
+      throw new Error("Seat allowance must be a non-negative integer.");
+    }
     const database = getServerFirestore();
     const docRef = database.collection("organizations").doc(input.organizationId);
     const snapshot = await docRef.get();
     if (!snapshot.exists) throw new Error("Organization not found.");
 
-    await docRef.update({
-      allocatedSeats: input.allocatedSeats,
-      planTier: input.planTier,
-      updatedAt: new Date().toISOString(),
-    });
+    const data = snapshot.data()!;
+    const current = (data.billing as CanonicalOrganizationBillingRecord | undefined)
+      ?? buildCanonicalOrganizationBillingRecord(input.organizationId, data);
+    if (!current) throw new Error("Organization has no migratable canonical billing record.");
 
-    const updatedList = await this.getInstitutionalBillingAccounts(authorization);
-    const account = updatedList.find((a) => a.organizationId === input.organizationId);
+    const next: CanonicalOrganizationBillingRecord = {
+      ...current,
+      seatAllowance: input.allocatedSeats,
+      businessContract: current.businessContract
+        ? { ...current.businessContract, learnerOrSeatAllowance: input.allocatedSeats }
+        : undefined,
+    };
+    await docRef.set({ billing: next, updatedAt: new Date().toISOString() }, { merge: true });
+    const updated = await this.getInstitutionalBillingAccounts(authorization);
+    const account = updated.find((entry) => entry.organizationId === input.organizationId);
     if (!account) throw new Error("Unable to retrieve updated billing account.");
     return account;
   },
