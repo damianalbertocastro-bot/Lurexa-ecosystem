@@ -130,3 +130,42 @@ Not yet implemented:
 - financial reconciliation against provider settlement.
 
 The payment integration must begin only after the commercial and entitlement contracts remain green under CI.
+
+
+## Legacy billing migration — implemented
+
+Legacy organization fields (`plan`, `planTier`, `allocatedSeats`, and legacy entitlement flags) are now treated as migration inputs only.
+
+The migration mapper writes a versioned Core-owned `organizations/{organizationId}.billing` record with:
+
+- canonical commercial model (Campus or Business);
+- institutional profile when applicable;
+- explicit product attachments;
+- explicit capabilities;
+- seat allowance;
+- billing state;
+- legacy source provenance.
+
+The migration is non-destructive: organizations that already contain a canonical billing record are not rewritten. The Admin billing endpoint exposes a superadmin-only migration operation for controlled execution.
+
+No legacy fixed per-seat price is migrated as a commercial truth. No payment method, invoice, or provider event is fabricated.
+
+## Canonical Admin billing — implemented
+
+Admin billing now consumes `AdminBillingAccount` derived from the Core-owned organization billing record. Seat changes update the canonical seat allowance rather than the legacy `planTier` or `pricePerSeatMonthlyUsd` fields.
+
+Invoices and payments are read only from synchronized Core collections. Empty collections mean that provider billing has not yet synchronized financial records.
+
+## Stripe provider webhook — implemented baseline
+
+Stripe is now an actual provider adapter rather than a placeholder checkout/webhook service.
+
+The provider boundary:
+
+`apps/learn-web/app/api/billing/webhook/route.ts` → verified Stripe adapter → Core webhook service → canonical billing records.
+
+Webhook signatures are verified with the Stripe signing secret, timestamp tolerance is enforced, duplicate provider events are ignored after successful processing, and subscription/invoice/payment records are persisted under Core-owned billing collections.
+
+Subscription events also produce an entitlement projection when the event contains the required user and product metadata. The existing user subscription fields are updated only as a compatibility projection; provider status is never used directly for runtime authorization.
+
+Real checkout, customer portal, tax, dunning, refunds/credits, and provider settlement reconciliation remain separate production tasks.
