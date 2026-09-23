@@ -50,7 +50,7 @@ export class CoachLiveStreamingServerService {
     streamEndpoint: string;
     codec: string;
     error?: string;
-  } {
+  }> {
     const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === "coach.live_streaming");
     if (!capability) throw new Error("Coach live streaming capability is not registered.");
     const entitlements = await resolveAuthorizedCapability({
