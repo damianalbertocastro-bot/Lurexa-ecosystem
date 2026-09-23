@@ -116,6 +116,7 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
       id: stringValue(subscription.id) ?? providerSubscriptionId,
       customerId: stringValue(subscription.customer) ?? "",
       userId: stringValue(metadata.userId),
+      organizationId: stringValue(metadata.organizationId),
       tier,
       product: normalizedProduct,
       billingInterval: interval,
