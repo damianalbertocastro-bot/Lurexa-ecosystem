@@ -6,7 +6,13 @@ import type {
   CommercialSubscription,
 } from "@lurexa/types";
 import { SubscriptionService } from "../subscription.service";
-import { getServerFirestore } from "../firebase-admin.server";
+import { getServerFirebaseAuth, getServerFirestore } from "../firebase-admin.server";
+
+async function requireSuperAdmin(authorization: string | null): Promise<void> {
+  if (!authorization?.startsWith("Bearer ")) throw new Error("Authentication is required.");
+  const token = await getServerFirebaseAuth().verifyIdToken(authorization.slice(7));
+  if (token.role !== "super_admin") throw new Error("Superadmin access is required.");
+}
 import { stripeBillingProvider } from "./stripe.adapter";
 
 function sameNumber(a: number, b: number): boolean {
@@ -22,7 +28,7 @@ function issue(
   return { entity, entityId, code, details, detectedAt: new Date().toISOString() };
 }
 
-export async function reconcileStripeBilling(input?: {
+export async function reconcileStripeBilling(authorization: string | null, input?: {
   customerId?: string;
   limit?: number;
 }): Promise<{
@@ -30,6 +36,7 @@ export async function reconcileStripeBilling(input?: {
   issues: BillingReconciliationIssue[];
   reconciledAt: string;
 }> {
+  await requireSuperAdmin(authorization);
   const database = getServerFirestore();
   const limit = Math.min(Math.max(input?.limit ?? 100, 1), 500);
   const [subscriptionsSnapshot, invoicesSnapshot, paymentsSnapshot, entitlementsSnapshot] = await Promise.all([
