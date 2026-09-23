@@ -206,11 +206,12 @@ export async function processStripeWebhook(payload: string, signature: string): 
     const current = await transaction.get(eventRef);
     if (current.exists && current.data()?.status === "processed") return;
 
+    const organizationRef = organizationId ? database.collection("organizations").doc(organizationId) : null;
+    const organizationSnapshot = organizationRef ? await transaction.get(organizationRef) : null;
+
     transaction.set(eventRef, normalized, { merge: true });
 
-    if (organizationId) {
-      const organizationRef = database.collection("organizations").doc(organizationId);
-      const organizationSnapshot = await transaction.get(organizationRef);
+    if (organizationRef && organizationSnapshot) {
       const billing = organizationSnapshot.data()?.billing as import("@lurexa/types").CanonicalOrganizationBillingRecord | undefined;
       if (billing?.schemaVersion === 1) {
         const providerStatus = String(event.data.object.status ?? "");
