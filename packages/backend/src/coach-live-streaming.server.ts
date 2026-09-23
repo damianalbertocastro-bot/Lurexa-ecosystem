@@ -43,7 +43,7 @@ export class CoachLiveStreamingServerService {
   private static activeSessions = new Map<string, LiveStreamSessionConfig>();
 
   /**
-   * Initializes a live streaming audio socket session, enforcing tier eligibility.
+   * Initializes a live streaming audio socket session, enforcing the server-owned capability entitlement.
    */
   public static async initializeStreamingSession(config: LiveStreamSessionConfig): Promise<{
     authorized: boolean;
