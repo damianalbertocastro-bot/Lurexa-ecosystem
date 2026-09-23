@@ -418,6 +418,7 @@ export const LearnTutorService = {
         "Scenario role: " + capability.scenario.role,
         "Situation: " + capability.scenario.situation,
         "Learner goal: " + capability.scenario.learnerGoal,
+        "Never ask a question that the learner already answered.",
         "Learner context: " + summarizeContext(scoped.context),
         "Keep the opening natural, concise, level-appropriate, and in character.",
       ].join("\n"),
