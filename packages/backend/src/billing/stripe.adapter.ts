@@ -26,26 +26,20 @@ function timestampToIso(value: unknown): string {
 }
 
 function verifyStripeSignature(payload: string, signature: string, secret: string): void {
-  const parts = new Map(
-    signature.split(",").map((part) => {
-      const [key, value] = part.split("=", 2);
-      return [key, value] as const;
-    }),
-  );
-  const timestamp = parts.get("t");
-  const expected = parts.get("v1");
-  if (!timestamp || !expected) throw new Error("Invalid Stripe webhook signature.");
+  const timestamp = signature.split(",").find((part) => part.startsWith("t="))?.slice(2);
+  const expectedSignatures = signature.split(",").filter((part) => part.startsWith("v1=")).map((part) => part.slice(3));
+  if (!timestamp || expectedSignatures.length === 0) throw new Error("Invalid Stripe webhook signature.");
 
   const ageSeconds = Math.abs(Date.now() / 1000 - Number(timestamp));
   if (!Number.isFinite(ageSeconds) || ageSeconds > 300) throw new Error("Stripe webhook timestamp is outside the allowed tolerance.");
 
   const signedPayload = `${timestamp}.${payload}`;
-  const digest = createHmac("sha256", secret).update(signedPayload).digest("hex");
-  const expectedBuffer = Buffer.from(expected, "hex");
-  const digestBuffer = Buffer.from(digest, "hex");
-  if (expectedBuffer.length !== digestBuffer.length || !timingSafeEqual(expectedBuffer, digestBuffer)) {
-    throw new Error("Invalid Stripe webhook signature.");
-  }
+  const digestBuffer = Buffer.from(createHmac("sha256", secret).update(signedPayload).digest("hex"), "hex");
+  const valid = expectedSignatures.some((candidate) => {
+    const expectedBuffer = Buffer.from(candidate, "hex");
+    return expectedBuffer.length === digestBuffer.length && timingSafeEqual(expectedBuffer, digestBuffer);
+  });
+  if (!valid) throw new Error("Invalid Stripe webhook signature.");
 }
 
 async function stripeRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -119,7 +113,7 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
       userId: stringValue(metadata.userId),
       tier,
       product: normalizedProduct,
-      billingInterval: "monthly",
+      billingInterval: interval,
       status: String(subscription.status) as CommercialSubscription["status"],
       provider: "stripe",
       providerSubscriptionId,
