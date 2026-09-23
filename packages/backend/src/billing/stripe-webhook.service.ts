@@ -76,7 +76,9 @@ function invoiceFromEvent(event: StripeEvent): CommercialInvoice | null {
     subtotalUsd: Number(object.subtotal ?? 0) / 100,
     taxUsd: Number(object.tax ?? 0) / 100,
     totalUsd: Number(object.total ?? 0) / 100,
-    status: String(object.status ?? "draft") as CommercialInvoice["status"],
+    status: ["draft", "open", "paid", "void", "uncollectible"].includes(String(object.status))
+      ? String(object.status) as CommercialInvoice["status"]
+      : "draft",
     providerInvoiceId: id,
     issuedAt: typeof object.created === "number" ? new Date(object.created * 1000).toISOString() : undefined,
     dueAt: typeof object.due_date === "number" ? new Date(object.due_date * 1000).toISOString() : undefined,
@@ -166,6 +168,13 @@ export async function processStripeWebhook(payload: string, signature: string): 
   }
 
   const invoice = event.type.startsWith("invoice.") ? invoiceFromEvent(event) : null;
+  if (invoice) {
+    const providerSubscriptionId = stringValue(event.data.object.subscription);
+    if (providerSubscriptionId) {
+      const providerSubscription = await stripeBillingProvider.getSubscription(providerSubscriptionId);
+      if (providerSubscription) subscription = providerSubscription;
+    }
+  }
   const payment =
     event.type === "invoice.paid" ? paymentFromInvoiceEvent(event, "succeeded")
     : event.type === "invoice.payment_failed" ? paymentFromInvoiceEvent(event, "failed")
