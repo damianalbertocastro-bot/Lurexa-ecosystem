@@ -134,7 +134,7 @@ export interface AdminBillingAccount {
   status: CanonicalOrganizationBillingStatus;
   billingInterval: BillingInterval;
   currentPeriodStart: string;
-  currentPeriodEnd: string;
+  currentPeriodEnd?: string;
   seatAllowance: number;
   usedSeats: number;
   productAccess: ProductEntryPoint[];
