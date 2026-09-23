@@ -26,6 +26,7 @@ export interface BillingCustomer {
 export interface CommercialSubscription {
   id: string;
   customerId: string;
+  userId?: string;
   tier: CanonicalSubscriptionTier;
   product?: ProductEntryPoint;
   billingInterval: BillingInterval;
