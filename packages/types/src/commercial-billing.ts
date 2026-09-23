@@ -39,13 +39,49 @@ export interface CommercialSubscription {
 }
 
 export interface CommercialEntitlementSnapshot {
+  id?: string;
   subscriptionId?: string;
   customerId: string;
+  userId?: string;
+  organizationId?: string;
   product: ProductEntryPoint;
   capabilities: EntitlementCapability[];
+  monthlyAiTurns: number;
+  monthlyVoiceMinutes: number;
+  offlineModulesAllowed: number;
+  streamingAudioEnabled: boolean;
   effectiveAt: string;
   expiresAt?: string;
   source: "individual_subscription" | "business_contract" | "explicit_entitlement";
+  status: "active" | "scheduled" | "expired" | "revoked";
+  updatedAt: string;
+}
+
+export type BillingLifecycleEventType =
+  | "checkout.session.completed"
+  | "customer.subscription.created"
+  | "customer.subscription.updated"
+  | "customer.subscription.deleted"
+  | "invoice.created"
+  | "invoice.finalized"
+  | "invoice.paid"
+  | "invoice.payment_failed"
+  | "invoice.voided"
+  | "invoice.marked_uncollectible";
+
+export interface BillingReconciliationIssue {
+  entity: "subscription" | "invoice" | "payment" | "entitlement";
+  entityId: string;
+  code:
+    | "missing_canonical"
+    | "provider_reference_mismatch"
+    | "amount_mismatch"
+    | "status_mismatch"
+    | "period_mismatch"
+    | "expired_entitlement"
+    | "missing_entitlement";
+  details: string;
+  detectedAt: string;
 }
 
 export interface CommercialInvoice {
