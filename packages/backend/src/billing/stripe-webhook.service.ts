@@ -250,6 +250,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
             entitlement,
             { merge: true },
           );
+          entitlementSynchronized = true;
         }
       }
     }
