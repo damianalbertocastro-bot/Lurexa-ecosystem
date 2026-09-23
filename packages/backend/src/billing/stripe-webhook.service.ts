@@ -131,6 +131,8 @@ export async function processStripeWebhook(payload: string, signature: string): 
 }> {
   const verified = await stripeBillingProvider.verifyWebhook(payload, signature);
   const event = verified.rawEvent as StripeEvent;
+  const eventMetadata = metadataOf(event.data.object);
+  const organizationId = stringValue(eventMetadata.organizationId);
   const normalized: BillingWebhookEvent = stripeBillingProvider.normalizeWebhookEvent({
     eventId: verified.eventId,
     eventType: verified.eventType,
@@ -205,6 +207,51 @@ export async function processStripeWebhook(payload: string, signature: string): 
     if (current.exists && current.data()?.status === "processed") return;
 
     transaction.set(eventRef, normalized, { merge: true });
+
+    if (organizationId) {
+      const organizationRef = database.collection("organizations").doc(organizationId);
+      const organizationSnapshot = await transaction.get(organizationRef);
+      const billing = organizationSnapshot.data()?.billing as import("@lurexa/types").CanonicalOrganizationBillingRecord | undefined;
+      if (billing?.schemaVersion === 1) {
+        const providerStatus = String(event.data.object.status ?? "");
+        const mappedStatus =
+          providerStatus === "active" || providerStatus === "trialing" ? "active"
+          : providerStatus === "past_due" ? "past_due"
+          : providerStatus === "canceled" ? "canceled"
+          : billing.status;
+        const nextBilling = {
+          ...billing,
+          status: mappedStatus,
+          providerCustomerId: stringValue(event.data.object.customer) ?? billing.providerCustomerId,
+          providerSubscriptionId: stringValue(event.data.object.id) ?? billing.providerSubscriptionId,
+        };
+        transaction.set(organizationRef, { billing: nextBilling, updatedAt: new Date().toISOString() }, { merge: true });
+
+        for (const product of billing.productAccess) {
+          const entitlement: CommercialEntitlementSnapshot = {
+            id: `org_${organizationId}_${product}`,
+            customerId: billing.customerId,
+            organizationId,
+            product,
+            capabilities: billing.capabilities,
+            monthlyAiTurns: billing.businessContract?.usageAllowance?.monthlyAiTurns ?? 0,
+            monthlyVoiceMinutes: billing.businessContract?.usageAllowance?.monthlyVoiceMinutes ?? 0,
+            offlineModulesAllowed: Number.MAX_SAFE_INTEGER,
+            streamingAudioEnabled: billing.capabilities.includes("live_streaming"),
+            effectiveAt: billing.currentPeriodStart,
+            expiresAt: mappedStatus === "canceled" ? billing.currentPeriodEnd : undefined,
+            source: "business_contract",
+            status: mappedStatus === "canceled" ? "revoked" : "active",
+            updatedAt: new Date().toISOString(),
+          };
+          transaction.set(
+            database.collection("billing_entitlements").doc(entitlement.id!),
+            entitlement,
+            { merge: true },
+          );
+        }
+      }
+    }
 
     if (subscription) {
       const subscriptionRef = database.collection("billing_subscriptions").doc(subscription.id);
