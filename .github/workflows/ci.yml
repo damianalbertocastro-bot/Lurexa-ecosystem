@@ -59,6 +59,8 @@ jobs:
         run: pnpm verify:legacy-billing-migration
       - name: Verify Stripe Provider
         run: pnpm verify:stripe-provider
+      - name: Verify Commercial Billing Hardening
+        run: pnpm verify:commercial-billing-hardening
       - name: Verify Commercial Architecture Phases 15-20
         run: pnpm verify:phase15-20
 
