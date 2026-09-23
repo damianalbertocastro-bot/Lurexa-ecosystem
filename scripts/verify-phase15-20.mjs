@@ -23,6 +23,8 @@ for (const token of ["PROVIDER_TIMEOUT_MS = 15_000", "MAX_TRANSIENT_RETRIES = 1"
 
 const registry = read("packages/types/src/capability-registry.ts");
 if (!registry.includes('id: "coach.live_streaming"')) fail("Coach live streaming is not registered as a capability.");
+if ((registry.match(/id: "business.analytics"/g) || []).length !== 1) fail("Business analytics capability is duplicated.");
+if ((registry.match(/id: "business.sso"/g) || []).length !== 1) fail("Business SSO capability is duplicated.");
 if (!registry.includes('entitlementCapability: "live_streaming"')) fail("Coach live streaming lacks an entitlement capability.");
 
 const coachLive = read("packages/backend/src/coach-live-streaming.server.ts");
