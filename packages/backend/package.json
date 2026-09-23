@@ -8,7 +8,8 @@
     ".": "./src/index.ts",
     "./*.server": "./src/*.server.ts",
     "./core/*.server": "./src/core/*.server.ts",
-    "./mind/*.server": "./src/mind/*.server.ts"
+    "./mind/*.server": "./src/mind/*.server.ts",
+    "./billing/*": "./src/billing/*.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
