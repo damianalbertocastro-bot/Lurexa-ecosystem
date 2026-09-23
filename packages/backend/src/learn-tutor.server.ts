@@ -14,6 +14,7 @@ import { resolveRoleplayCapability } from "./learning-capability.server";
 import { AIGateway } from "./mind/ai-gateway.server";
 
 const LEARN_TUTOR_PROMPT_VERSION = "learn-tutor-roleplay-v1";
+const DEFAULT_TUTOR_MODEL = process.env.LUREXA_LEARN_TUTOR_MODEL || "gemini-2.5-flash";
 const TUTOR_SESSION_COLLECTION = "learn-tutor-sessions";
 
 type ScenarioPhase = "establish" | "develop" | "transfer" | "close";
@@ -340,7 +341,7 @@ async function recordRoleplayEvidence(input: {
     provenance: {
       method: "ai_observed",
       actorId: input.actor.uid,
-      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL, promptVersion: LEARN_TUTOR_PROMPT_VERSION } : {}),
+      ...(input.provider === "gemini" ? { modelId: DEFAULT_TUTOR_MODEL, promptVersion: LEARN_TUTOR_PROMPT_VERSION } : {}),
     },
   });
 
@@ -508,9 +509,9 @@ export const LearnTutorService = {
           maxOutputTokens: 500,
         }).then((result) => {
           try {
-            return JSON.parse(result.text) as GeminiRoleplayTurnOutput;
+            return { ...(JSON.parse(result.text) as GeminiRoleplayTurnOutput), provider: result.provider };
           } catch {
-            return { partnerReply: result.text };
+            return { provider: result.provider, partnerReply: result.text };
           }
         }).catch(() => null)
       : await callRoleplayViaGateway({
