@@ -101,6 +101,59 @@ export interface BusinessBillingAccount {
   usageLines: UsageChargeLine[];
 }
 
+export type InstitutionalBillingProfile = "free_community" | "standard_institutional" | "campus_pro" | "enterprise_legacy_migration";
+export type OrganizationCommercialModel = "campus" | "business";
+export type CanonicalOrganizationBillingStatus = "draft" | "trialing" | "active" | "past_due" | "paused" | "canceled" | "expired";
+
+export interface CanonicalOrganizationBillingRecord {
+  schemaVersion: 1;
+  customerId: string;
+  organizationId: string;
+  commercialModel: OrganizationCommercialModel;
+  institutionalProfile?: InstitutionalBillingProfile;
+  status: CanonicalOrganizationBillingStatus;
+  billingInterval: BillingInterval;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  seatAllowance: number;
+  productAccess: ProductEntryPoint[];
+  capabilities: EntitlementCapability[];
+  businessContract?: BusinessContract;
+  providerCustomerId?: string;
+  providerSubscriptionId?: string;
+  migratedFrom?: { source: "legacy_organization_fields"; legacyPlan?: string; legacyPlanTier?: string; migratedAt: string };
+}
+
+export interface AdminBillingAccount {
+  customerId: string;
+  organizationId: string;
+  organizationName: string;
+  contactEmail: string;
+  commercialModel: OrganizationCommercialModel;
+  institutionalProfile?: InstitutionalBillingProfile;
+  status: CanonicalOrganizationBillingStatus;
+  billingInterval: BillingInterval;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  seatAllowance: number;
+  usedSeats: number;
+  productAccess: ProductEntryPoint[];
+  capabilities: EntitlementCapability[];
+  businessContract?: BusinessContract;
+  invoices: CommercialInvoice[];
+  payments: CommercialPayment[];
+  providerCustomerId?: string;
+  providerSubscriptionId?: string;
+  migratedFromLegacy: boolean;
+}
+
+export interface LegacyBillingMigrationResult {
+  migrated: number;
+  alreadyCanonical: number;
+  skipped: number;
+  failures: Array<{ organizationId: string; reason: string }>;
+}
+
 /**
  * Payment-provider state is an input to Core billing, never the authorization authority.
  * Entitlements must be resolved from the canonical commercial model after payment events.
