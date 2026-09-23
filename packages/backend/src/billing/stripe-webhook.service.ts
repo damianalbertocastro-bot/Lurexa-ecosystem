@@ -1,4 +1,4 @@
-import type { CommercialInvoice, CommercialPayment, CommercialSubscription, BillingWebhookEvent } from "@lurexa/types";
+import type { CommercialEntitlementSnapshot, CommercialInvoice, CommercialPayment, CommercialSubscription, BillingWebhookEvent } from "@lurexa/types";
 import { SubscriptionService } from "../subscription.service";
 import { getServerFirestore } from "../firebase-admin.server";
 import { stripeBillingProvider } from "./stripe.adapter";
@@ -171,6 +171,24 @@ export async function processStripeWebhook(payload: string, signature: string): 
     : event.type === "invoice.payment_failed" ? paymentFromInvoiceEvent(event, "failed")
     : null;
 
+  const buildEntitlement = (subscription: CommercialSubscription, entitlement: ReturnType<typeof SubscriptionService.resolveEntitlements>): CommercialEntitlementSnapshot => ({
+    id: `${subscription.id}_${subscription.product}`,
+    subscriptionId: subscription.id,
+    customerId: subscription.customerId,
+    userId: subscription.userId,
+    product: subscription.product!,
+    capabilities: entitlement.capabilities,
+    monthlyAiTurns: entitlement.monthlyAiTurns,
+    monthlyVoiceMinutes: entitlement.monthlyVoiceMinutes,
+    offlineModulesAllowed: entitlement.offlineModulesAllowed,
+    streamingAudioEnabled: entitlement.streamingAudioEnabled,
+    effectiveAt: subscription.currentPeriodStart,
+    expiresAt: subscription.status === "canceled" || subscription.status === "unpaid" ? subscription.currentPeriodEnd : undefined,
+    source: "individual_subscription",
+    status: subscription.status === "canceled" || subscription.status === "unpaid" ? "revoked" : "active",
+    updatedAt: new Date().toISOString(),
+  });
+
   let entitlementSynchronized = false;
   await database.runTransaction(async (transaction) => {
     const current = await transaction.get(eventRef);
@@ -186,21 +204,8 @@ export async function processStripeWebhook(payload: string, signature: string): 
       if (entitlement && subscription.userId) {
         const entitlementRef = database.collection("billing_entitlements")
           .doc(`${subscription.id}_${subscription.product}`);
-        transaction.set(entitlementRef, {
-          subscriptionId: subscription.id,
-          customerId: subscription.customerId,
-          userId: subscription.userId,
-          product: subscription.product,
-          capabilities: entitlement.capabilities,
-          monthlyAiTurns: entitlement.monthlyAiTurns,
-          monthlyVoiceMinutes: entitlement.monthlyVoiceMinutes,
-          offlineModulesAllowed: entitlement.offlineModulesAllowed,
-          streamingAudioEnabled: entitlement.streamingAudioEnabled,
-          effectiveAt: subscription.currentPeriodStart,
-          expiresAt: subscription.status === "canceled" ? subscription.currentPeriodEnd : null,
-          source: "individual_subscription",
-          updatedAt: new Date().toISOString(),
-        }, { merge: true });
+        const snapshot = buildEntitlement(subscription, entitlement);
+        transaction.set(entitlementRef, snapshot, { merge: true });
 
         // Compatibility projection only. Runtime authorization must move to billing_entitlements.
         transaction.set(database.collection("users").doc(subscription.userId), {
@@ -214,7 +219,11 @@ export async function processStripeWebhook(payload: string, signature: string): 
     }
 
     if (invoice) {
-      transaction.set(database.collection("billing_invoices").doc(invoice.id), invoice, { merge: true });
+      const invoiceWithSubscription: CommercialInvoice = {
+        ...invoice,
+        subscriptionId: subscription?.id ?? invoice.subscriptionId,
+      };
+      transaction.set(database.collection("billing_invoices").doc(invoice.id), invoiceWithSubscription, { merge: true });
     }
     if (payment) {
       transaction.set(database.collection("billing_payments").doc(payment.id), payment, { merge: true });
