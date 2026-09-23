@@ -6,15 +6,12 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request): Promise<Response> {
   const authorization = request.headers.get("authorization");
   try {
-    // The reconciliation service itself never exposes provider secrets; authorization
-    // is enforced here at the administrative boundary.
-    if (!authorization?.startsWith("Bearer ")) {
-      return Response.json({ error: "Authentication is required." }, { status: 401 });
-    }
     const body = (await request.json().catch(() => ({}))) as { customerId?: string; limit?: number };
-    const result = await reconcileStripeBilling(body);
+    const result = await reconcileStripeBilling(authorization, body);
     return Response.json(result);
-  } catch {
-    return Response.json({ error: "Billing reconciliation failed." }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Billing reconciliation failed.";
+    const status = message.includes("Authentication") ? 401 : message.includes("Superadmin") ? 403 : 500;
+    return Response.json({ error: status === 500 ? "Billing reconciliation failed." : message }, { status });
   }
 }
