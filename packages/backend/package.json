@@ -19,7 +19,7 @@
     "test:working-mvp-journey": "tsx scripts/test-lurexa-working-mvp-journey.ts",
     "test:signature-delegation": "tsx scripts/test-signature-delegation.ts",
     "test:educator-growth-integration": "tsx scripts/test-educator-growth-integration.ts",
-    "test:usage-reporting": "node scripts/test-usage-ledger-reporting.mjs"
+    "test:usage-reporting": "tsx scripts/test-usage-ledger-reporting.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1121.0",
