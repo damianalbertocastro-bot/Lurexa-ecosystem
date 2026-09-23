@@ -114,7 +114,7 @@ export interface CanonicalOrganizationBillingRecord {
   status: CanonicalOrganizationBillingStatus;
   billingInterval: BillingInterval;
   currentPeriodStart: string;
-  currentPeriodEnd: string;
+  currentPeriodEnd?: string;
   seatAllowance: number;
   productAccess: ProductEntryPoint[];
   capabilities: EntitlementCapability[];
