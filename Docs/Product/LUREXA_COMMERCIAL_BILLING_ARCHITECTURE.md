@@ -169,3 +169,33 @@ Webhook signatures are verified with the Stripe signing secret, timestamp tolera
 Subscription events also produce an entitlement projection when the event contains the required user and product metadata. The existing user subscription fields are updated only as a compatibility projection; provider status is never used directly for runtime authorization.
 
 Real checkout, customer portal, tax, dunning, refunds/credits, and provider settlement reconciliation remain separate production tasks.
+
+
+## Billing hardening pass — improvements applied
+
+The billing sequence was reviewed for authority, lifecycle integrity and operational recovery. The following improvements were applied before production testing:
+
+- Entitlements are now a first-class typed snapshot rather than an ad-hoc Firestore shape. The snapshot carries identity, product, capabilities, quotas, effective/expiry timestamps, source and lifecycle status.
+- Organization identity is preserved on provider subscriptions. Provider events carrying `organizationId` synchronize the organization billing record and create organization-scoped entitlement projections from the canonical contract.
+- Invoice records retain subscription linkage when the provider supplies it, allowing invoice → subscription → entitlement tracing.
+- Invoice statuses are normalized against the canonical lifecycle enum instead of blindly casting arbitrary provider strings.
+- Reconciliation now compares Core subscriptions, invoices, payments and entitlement projections against the provider, including status, period, monetary totals and entitlement drift.
+- Reconciliation is restricted to platform superadmins and is exposed as an explicit administrative operation rather than an automatic mutation.
+- Billing server modules are exported through the governed `@lurexa/backend/billing/*` boundary instead of bypassing the package export policy.
+- CI verification now checks the billing hardening contracts in addition to the migration and provider checks.
+
+### Remaining production gates
+
+The implementation should not be considered production-billing ready until these are demonstrated with real infrastructure:
+
+1. Stripe test-mode webhook delivery against the deployed endpoint.
+2. Signature rejection, replay/timestamp rejection and duplicate-event tests.
+3. Checkout → subscription → invoice → payment → entitlement propagation.
+4. Cancellation, payment failure and recovery lifecycle tests.
+5. Business organization subscription → organization entitlement propagation.
+6. Provider/Core reconciliation with deliberately introduced mismatches.
+7. Firestore transaction/concurrency behavior under duplicate webhook delivery.
+8. Secret/configuration verification on the authoritative production deployment.
+9. Observability evidence for webhook failures, reconciliation issues and entitlement synchronization latency.
+
+No automatic reconciliation repair is enabled yet. Reconciliation reports discrepancies; it does not silently overwrite Core state. This is intentional until the repair policy and audit trail are formally validated.
