@@ -274,84 +274,26 @@ export interface PlanPricing {
   features: string[];
 }
 
-export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> = {
-  basic: {
-    tier: "basic",
-    monthlyPriceUsd: 0,
-    annualPriceUsd: 0,
-    tagline: "Placement diagnostic and level-matched trial modules",
-    features: [
-      "Adaptive placement diagnostic",
-      "3 level-matched trial modules",
-      "40 AI tutor turns / 15 voice minutes",
-      "Standard cloud processing",
-    ],
-  },
-  BASIC: {
-    tier: "BASIC",
-    monthlyPriceUsd: 0,
-    annualPriceUsd: 0,
-    tagline: "Placement diagnostic and level-matched trial modules",
-    features: [
-      "Adaptive placement diagnostic",
-      "3 level-matched trial modules",
-      "40 AI tutor turns / 15 voice minutes",
-      "Standard cloud processing",
-    ],
-  },
-  plus: {
-    tier: "plus",
-    monthlyPriceUsd: 9.99,
-    annualPriceUsd: 99,
-    tagline: "Dedicated single-product mastery with high-volume voice practice",
-    features: [
-      "Full single-product access (Learn Plus or Coach Plus)",
-      "120 voice practice minutes/mo",
-      "Premium ElevenLabs voice for the subscribed product",
-      "1 module offline caching",
-      "Targeted error remediation drills",
-    ],
-  },
-  PLUS: {
-    tier: "PLUS",
-    monthlyPriceUsd: 9.99,
-    annualPriceUsd: 99,
-    tagline: "Dedicated single-product mastery with high-volume voice practice",
-    features: [
-      "Full single-product access (Learn Plus or Coach Plus)",
-      "120 voice practice minutes/mo",
-      "Premium ElevenLabs voice for the subscribed product",
-      "1 module offline caching",
-      "Targeted error remediation drills",
-    ],
-  },
-  ultra: {
-    tier: "ultra",
-    monthlyPriceUsd: 19.99,
-    annualPriceUsd: 199,
-    tagline: "Full Learn + Coach access powered by the Universal Learner Model",
-    features: [
-      "Full Learn + Coach access",
-      "300+ voice minutes/mo with low-latency streaming",
-      "Universal Learner Model: real-time Coach ↔ Learn error sync",
-      "Unlimited offline module downloads & background sync",
-      "B1/B2 Capstone Project evaluation",
-    ],
-  },
-  ULTRA: {
-    tier: "ULTRA",
-    monthlyPriceUsd: 19.99,
-    annualPriceUsd: 199,
-    tagline: "Full Learn + Coach access powered by the Universal Learner Model",
-    features: [
-      "Full Learn + Coach access",
-      "300+ voice minutes/mo with low-latency streaming",
-      "Universal Learner Model: real-time Coach ↔ Learn error sync",
-      "Unlimited offline module downloads & background sync",
-      "B1/B2 Capstone Project evaluation",
-    ],
-  },
-};
+/**
+ * Compatibility view over the canonical LUREXA_PRICING_PLANS definition above.
+ * Keep pricing amounts/features in one source of truth; consumers that still
+ * depend on this legacy shape can use this derived representation.
+ */
+export const SUBSCRIPTION_PRICING_PLANS: Record<SubscriptionTier, PlanPricing> = Object.fromEntries(
+  Object.entries(LUREXA_PRICING_PLANS).flatMap(([key, plan]) => {
+    const tier = key as CanonicalSubscriptionTier;
+    const base = {
+      monthlyPriceUsd: plan.priceMonthly,
+      annualPriceUsd: (plan.annualPriceMonthly ?? plan.priceMonthly) * 12,
+      tagline: plan.description,
+      features: plan.features,
+    };
+    return [
+      [tier, { tier, ...base }],
+      [tier.toUpperCase(), { tier: tier.toUpperCase() as LegacySubscriptionTier, ...base }],
+    ];
+  }),
+) as Record<SubscriptionTier, PlanPricing>;
 
 export interface PlanRecommendation {
   recommendedTier: SubscriptionTier;
