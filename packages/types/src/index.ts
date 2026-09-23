@@ -4,6 +4,7 @@ export * from "./progress";
 export * from "./ai";
 export * from "./billing";
 export * from "./commercial-billing";
+export * from "./commercial-billing-lifecycle";
 export * from "./api";
 export * from "./learner";
 export * from "./learner-model";
