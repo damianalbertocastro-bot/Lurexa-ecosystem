@@ -55,6 +55,8 @@ jobs:
         run: pnpm verify:superadmin-bootstrap
       - name: Verify Vercel Release Contract
         run: pnpm verify:vercel-release
+      - name: Verify Legacy Billing Migration
+        run: pnpm verify:legacy-billing-migration
       - name: Verify Commercial Architecture Phases 15-20
         run: pnpm verify:phase15-20
 
