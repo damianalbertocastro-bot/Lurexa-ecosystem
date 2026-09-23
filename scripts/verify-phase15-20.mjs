@@ -48,6 +48,11 @@ for (const profile of ["Basic learner", "Plus Learn", "Plus Coach", "Ultra", "Te
   if (!matrix.includes(profile)) fail("Testing matrix missing: " + profile);
 }
 
+const enforcement = read("packages/backend/src/capability-enforcement.server.ts");
+for (const token of ["Learner is not authorized for the requested organization.", "organizationId", "resolveEntitlements"]) {
+  if (!enforcement.includes(token)) fail("Runtime authorization boundary missing: " + token);
+}
+
 const readiness = read("Docs/Product/LUREXA_PRODUCT_EXPANSION_READINESS_GATE.md");
 for (const token of ["Core owns", "Mind interprets", "Campus is an institutional orchestration shell", "server-side authorization", "accessibility validation", "deployment topology validation"]) {
   if (!readiness.includes(token)) fail("Expansion readiness gate missing: " + token);
