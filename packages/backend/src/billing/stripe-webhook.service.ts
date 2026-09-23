@@ -43,6 +43,7 @@ function subscriptionFromEvent(event: StripeEvent): CommercialSubscription | nul
     id: `stripe_${subscriptionId}`,
     customerId,
     userId: stringValue(metadata.userId),
+    organizationId: stringValue(metadata.organizationId),
     tier,
     product: canonicalProduct(metadata.product),
     billingInterval: "monthly",
