@@ -31,7 +31,7 @@ export interface BillingProviderAdapter {
   verifyWebhook(
     payload: string,
     signature: string,
-  ): Promise<{ eventId: string; eventType: string; payloadHash: string }>;
+  ): Promise<{ eventId: string; eventType: string; payloadHash: string; rawEvent: unknown }>;
 
   normalizeWebhookEvent(input: {
     eventId: string;
