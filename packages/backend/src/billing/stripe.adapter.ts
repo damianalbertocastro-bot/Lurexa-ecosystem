@@ -103,6 +103,11 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
   async getSubscription(providerSubscriptionId: string): Promise<CommercialSubscription | null> {
     const subscription = await stripeRequest<StripeObject>(`subscriptions/${encodeURIComponent(providerSubscriptionId)}`);
     const metadata = (subscription.metadata as StripeObject | undefined) ?? {};
+    const items = subscription.items as StripeObject | undefined;
+    const itemData = Array.isArray(items?.data) ? (items.data[0] as StripeObject | undefined) : undefined;
+    const price = itemData?.price as StripeObject | undefined;
+    const recurring = price?.recurring as StripeObject | undefined;
+    const interval = recurring?.interval === "year" ? "annual" : "monthly";
     const tier = String(metadata.tier ?? "basic").toLowerCase();
     if (tier !== "basic" && tier !== "plus" && tier !== "ultra") return null;
     const product = String(metadata.product ?? "");
