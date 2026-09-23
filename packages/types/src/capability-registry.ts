@@ -150,7 +150,6 @@ export const CAPABILITY_REGISTRY: readonly CapabilityRegistryEntry[] = [
     aiProvider: "none",
     speechProvider: "none",
     fallbackPolicy: "none",
-    fallbackPolicy: "none",
     authorizationRequirement: "Authorized organization administrator with contracted SSO capability.",
     organizationScope: "organization",
     description: "Organization-managed authentication integration.",
