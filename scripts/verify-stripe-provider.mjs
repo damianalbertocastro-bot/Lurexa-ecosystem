@@ -17,7 +17,7 @@ const checks = [
   ["Webhook signing secret is required", adapter.includes('STRIPE_WEBHOOK_SECRET')],
   ["Webhook timestamp tolerance is enforced", adapter.includes("ageSeconds > 300")],
   ["Multiple Stripe v1 signatures are supported", adapter.includes("expectedSignatures.some")],
-  ["Webhook payload is hashed before Core persistence", adapter.includes("createHash("sha256")")],
+  ["Webhook payload is hashed before Core persistence", adapter.includes("createHash") && adapter.includes("sha256")],
   ["Webhook processing is idempotent", service.includes('billing_webhook_events') && service.includes('status === "processed"')],
   ["Subscription records are persisted in Core", service.includes("billing_subscriptions")],
   ["Invoice records are persisted in Core", service.includes("billing_invoices")],
