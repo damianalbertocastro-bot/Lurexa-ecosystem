@@ -61,6 +61,27 @@ jobs:
         run: pnpm verify:stripe-provider
       - name: Verify Commercial Billing Hardening
         run: pnpm verify:commercial-billing-hardening
+      - name: Verify Stripe Production Configuration Contract
+        run: pnpm verify:stripe-production-config
+      - name: Verify Stripe Webhook Signature Guards
+        env:
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$STRIPE_WEBHOOK_SECRET" ]; then
+            echo "Stripe webhook signature integration test skipped: STRIPE_TEST_WEBHOOK_SECRET is not configured."
+          else
+            pnpm --filter @lurexa/backend test:stripe-webhook-signature
+          fi
+      - name: Run Stripe Test-Mode Lifecycle
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          STRIPE_TEST_PRICE_ID: ${{ secrets.STRIPE_TEST_PRICE_ID }}
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ] || [ -z "$STRIPE_TEST_PRICE_ID" ]; then
+            echo "Stripe provider-backed lifecycle test skipped: test-mode secrets are not configured."
+          else
+            pnpm --filter @lurexa/backend test:stripe-billing-lifecycle
+          fi
       - name: Verify Commercial Architecture Phases 15-20
         run: pnpm verify:phase15-20
 
