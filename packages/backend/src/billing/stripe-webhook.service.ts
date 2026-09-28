@@ -64,7 +64,7 @@ function subscriptionFromEvent(event: StripeEvent): CommercialSubscription | nul
   };
 }
 
-function invoiceFromEvent(event: StripeEvent): CommercialInvoice | null {
+function invoiceFromEvent(event: StripeEvent, eventCreatedAt: string): CommercialInvoice | null {
   const object = event.data.object;
   const id = stringValue(object.id);
   const customerId = stringValue(object.customer);
@@ -178,7 +178,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
     }
   }
 
-  const invoice = event.type.startsWith("invoice.") ? invoiceFromEvent(event) : null;
+  const invoice = event.type.startsWith("invoice.") ? invoiceFromEvent(event, eventCreatedAt) : null;
   if (invoice) {
     const providerSubscriptionId = stringValue(event.data.object.subscription);
     if (providerSubscriptionId) {
