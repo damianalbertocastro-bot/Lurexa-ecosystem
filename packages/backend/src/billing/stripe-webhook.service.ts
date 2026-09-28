@@ -92,7 +92,7 @@ function invoiceFromEvent(event: StripeEvent): CommercialInvoice | null {
   };
 }
 
-function paymentFromInvoiceEvent(event: StripeEvent, status: CommercialPayment["status"]): CommercialPayment | null {
+function paymentFromInvoiceEvent(event: StripeEvent, status: CommercialPayment["status"], eventCreatedAt: string): CommercialPayment | null {
   const object = event.data.object;
   const paymentId = stringValue(object.payment_intent);
   const customerId = stringValue(object.customer);
@@ -187,8 +187,8 @@ export async function processStripeWebhook(payload: string, signature: string): 
     }
   }
   const payment =
-    event.type === "invoice.paid" ? paymentFromInvoiceEvent(event, "succeeded")
-    : event.type === "invoice.payment_failed" ? paymentFromInvoiceEvent(event, "failed")
+    event.type === "invoice.paid" ? paymentFromInvoiceEvent(event, "succeeded", eventCreatedAt)
+    : event.type === "invoice.payment_failed" ? paymentFromInvoiceEvent(event, "failed", eventCreatedAt)
     : null;
 
   const buildEntitlement = (subscription: CommercialSubscription, entitlement: ReturnType<typeof SubscriptionService.resolveEntitlements>): CommercialEntitlementSnapshot => ({
@@ -229,9 +229,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
       if (billing?.schemaVersion === 1) {
         const existingOrgEventAt = billing.latestProviderEventCreatedAt;
         const organizationEventIsNewer = !existingOrgEventAt || Date.parse(eventCreatedAt) >= Date.parse(existingOrgEventAt);
-        if (!organizationEventIsNewer) {
-          // Record the webhook but never let an older provider event regress organization billing state.
-        } else {
+        if (organizationEventIsNewer) {
         const providerStatus = String(subscription?.status ?? event.data.object.status ?? "");
         const mappedStatus =
           providerStatus === "active" || providerStatus === "trialing" ? "active"
@@ -270,7 +268,6 @@ export async function processStripeWebhook(payload: string, signature: string): 
             { merge: true },
           );
           entitlementSynchronized = true;
-        }
         }
       }
     }
