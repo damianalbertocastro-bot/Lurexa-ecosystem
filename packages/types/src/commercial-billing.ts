@@ -37,6 +37,8 @@ export interface CommercialSubscription {
   currentPeriodStart: string;
   currentPeriodEnd: string;
   cancelAtPeriodEnd: boolean;
+  /** Stripe event creation time used to prevent stale out-of-order events from regressing Core state. */
+  providerEventCreatedAt?: string;
 }
 
 export interface CommercialEntitlementSnapshot {
@@ -100,6 +102,7 @@ export interface CommercialInvoice {
   issuedAt?: string;
   dueAt?: string;
   paidAt?: string;
+  providerEventCreatedAt?: string;
 }
 
 export interface CommercialPayment {
@@ -112,6 +115,7 @@ export interface CommercialPayment {
   provider: "stripe";
   providerPaymentId?: string;
   createdAt: string;
+  providerEventCreatedAt?: string;
 }
 
 export interface UsageChargeLine {
@@ -159,6 +163,8 @@ export interface CanonicalOrganizationBillingRecord {
   businessContract?: BusinessContract;
   providerCustomerId?: string;
   providerSubscriptionId?: string;
+  /** Latest accepted provider event for organization billing state. */
+  latestProviderEventCreatedAt?: string;
   migratedFrom?: { source: "legacy_organization_fields"; legacyPlan?: string; legacyPlanTier?: string; migratedAt: string };
 }
 
@@ -205,4 +211,6 @@ export interface BillingWebhookEvent {
   processedAt?: string;
   status: "received" | "processed" | "ignored" | "failed";
   payloadHash: string;
+  /** Provider event creation time, distinct from local receipt time. */
+  providerEventCreatedAt?: string;
 }
