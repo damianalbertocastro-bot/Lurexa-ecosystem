@@ -4,10 +4,14 @@ import { getServerFirestore } from "../firebase-admin.server";
 import { stripeBillingProvider } from "./stripe.adapter";
 
 type StripeObject = Record<string, unknown>;
-type StripeEvent = { id: string; type: string; data: { object: StripeObject } };
+type StripeEvent = { id: string; type: string; created?: number; data: { object: StripeObject } };
 
 function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value ? value : undefined;
+}
+
+function providerEventCreatedAt(event: StripeEvent): string {
+  return typeof event.created === "number" ? new Date(event.created * 1000).toISOString() : new Date().toISOString();
 }
 
 function metadataOf(object: StripeObject): StripeObject {
@@ -84,6 +88,7 @@ function invoiceFromEvent(event: StripeEvent): CommercialInvoice | null {
     issuedAt: typeof object.created === "number" ? new Date(object.created * 1000).toISOString() : undefined,
     dueAt: typeof object.due_date === "number" ? new Date(object.due_date * 1000).toISOString() : undefined,
     paidAt: typeof transitions?.paid_at === "number" ? new Date(transitions.paid_at * 1000).toISOString() : undefined,
+    providerEventCreatedAt: eventCreatedAt,
   };
 }
 
@@ -102,6 +107,7 @@ function paymentFromInvoiceEvent(event: StripeEvent, status: CommercialPayment["
     provider: "stripe",
     providerPaymentId: paymentId,
     createdAt: typeof object.created === "number" ? new Date(object.created * 1000).toISOString() : new Date().toISOString(),
+    providerEventCreatedAt: eventCreatedAt,
   };
 }
 
@@ -133,12 +139,14 @@ export async function processStripeWebhook(payload: string, signature: string): 
   const event = verified.rawEvent as StripeEvent;
   const eventMetadata = metadataOf(event.data.object);
   const organizationId = stringValue(eventMetadata.organizationId);
+  const eventCreatedAt = providerEventCreatedAt(event);
   const normalized: BillingWebhookEvent = stripeBillingProvider.normalizeWebhookEvent({
     eventId: verified.eventId,
     eventType: verified.eventType,
     payloadHash: verified.payloadHash,
     receivedAt: new Date().toISOString(),
   });
+  normalized.providerEventCreatedAt = eventCreatedAt;
 
   const database = getServerFirestore();
   const eventRef = database.collection("billing_webhook_events").doc(normalized.id);
@@ -206,15 +214,25 @@ export async function processStripeWebhook(payload: string, signature: string): 
     const current = await transaction.get(eventRef);
     if (current.exists && current.data()?.status === "processed") return;
 
+    const subscriptionRef = subscription ? database.collection("billing_subscriptions").doc(subscription.id) : null;
+    const subscriptionSnapshot = subscriptionRef ? await transaction.get(subscriptionRef) : null;
     const organizationRef = organizationId ? database.collection("organizations").doc(organizationId) : null;
     const organizationSnapshot = organizationRef ? await transaction.get(organizationRef) : null;
 
     transaction.set(eventRef, normalized, { merge: true });
 
+    const existingSubscriptionEventAt = subscriptionSnapshot?.data()?.providerEventCreatedAt as string | undefined;
+    const subscriptionIsNewerThanCore = !existingSubscriptionEventAt || Date.parse(eventCreatedAt) >= Date.parse(existingSubscriptionEventAt);
+
     if (organizationRef && organizationSnapshot) {
       const billing = organizationSnapshot.data()?.billing as import("@lurexa/types").CanonicalOrganizationBillingRecord | undefined;
       if (billing?.schemaVersion === 1) {
-        const providerStatus = String(event.data.object.status ?? "");
+        const existingOrgEventAt = billing.latestProviderEventCreatedAt;
+        const organizationEventIsNewer = !existingOrgEventAt || Date.parse(eventCreatedAt) >= Date.parse(existingOrgEventAt);
+        if (!organizationEventIsNewer) {
+          // Record the webhook but never let an older provider event regress organization billing state.
+        } else {
+        const providerStatus = String(subscription?.status ?? event.data.object.status ?? "");
         const mappedStatus =
           providerStatus === "active" || providerStatus === "trialing" ? "active"
           : providerStatus === "past_due" ? "past_due"
@@ -224,7 +242,8 @@ export async function processStripeWebhook(payload: string, signature: string): 
           ...billing,
           status: mappedStatus,
           providerCustomerId: stringValue(event.data.object.customer) ?? billing.providerCustomerId,
-          providerSubscriptionId: stringValue(event.data.object.id) ?? billing.providerSubscriptionId,
+          providerSubscriptionId: subscription?.providerSubscriptionId ?? stringValue(event.data.object.subscription) ?? billing.providerSubscriptionId,
+          latestProviderEventCreatedAt: eventCreatedAt,
         };
         transaction.set(organizationRef, { billing: nextBilling, updatedAt: new Date().toISOString() }, { merge: true });
 
@@ -252,18 +271,19 @@ export async function processStripeWebhook(payload: string, signature: string): 
           );
           entitlementSynchronized = true;
         }
+        }
       }
     }
 
-    if (subscription) {
+    if (subscription && subscriptionIsNewerThanCore) {
       const subscriptionRef = database.collection("billing_subscriptions").doc(subscription.id);
-      transaction.set(subscriptionRef, subscription, { merge: true });
+      transaction.set(subscriptionRef!, { ...subscription, providerEventCreatedAt: eventCreatedAt }, { merge: true });
 
       const entitlement = capabilitiesFor(subscription);
       if (entitlement && subscription.userId) {
         const entitlementRef = database.collection("billing_entitlements")
           .doc(`${subscription.id}_${subscription.product}`);
-        const snapshot = buildEntitlement(subscription, entitlement);
+        const snapshot = { ...buildEntitlement(subscription, entitlement), updatedAt: new Date().toISOString() };
         transaction.set(entitlementRef, snapshot, { merge: true });
 
         // Compatibility projection only. Runtime authorization must move to billing_entitlements.
