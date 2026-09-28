@@ -199,3 +199,37 @@ The implementation should not be considered production-billing ready until these
 9. Observability evidence for webhook failures, reconciliation issues and entitlement synchronization latency.
 
 No automatic reconciliation repair is enabled yet. Reconciliation reports discrepancies; it does not silently overwrite Core state. This is intentional until the repair policy and audit trail are formally validated.
+
+
+## Billing lifecycle hardening — 2026-09-28
+
+The implementation now records the provider event creation timestamp separately from local receipt time. Core subscription and organization billing state only accepts an event when it is at least as new as the last accepted provider event, preventing out-of-order Stripe delivery from regressing state.
+
+The webhook processor also keeps cancellation-at-period-end semantics: an active subscription with `cancel_at_period_end=true` remains entitled until the provider's effective cancellation event is processed.
+
+Executable test gates now include:
+
+- Stripe test-mode checkout-session creation;
+- real test-mode subscription creation and cancellation;
+- cancel-at-period-end toggle and recovery;
+- invoice creation verification;
+- webhook signature validation, multiple signatures, stale timestamp rejection and invalid-signature rejection;
+- optional CI execution when Stripe test secrets are configured;
+- production Stripe configuration contract verification.
+
+The provider-backed lifecycle harness intentionally skips when test-mode secrets are absent. A skipped provider test is not treated as evidence that live Stripe behavior has passed.
+
+### Remaining live acceptance gates
+
+The repository can now execute the provider-backed tests, but the following still require configured Stripe/Firebase environments:
+
+1. Stripe test-mode webhook delivery to the deployed webhook endpoint.
+2. Duplicate delivery against the same event ID with concurrent processing.
+3. Out-of-order delivery observed end-to-end through Stripe/webhook delivery.
+4. Payment failure -> recovery -> entitlement restoration.
+5. Business organization entitlement activation/revocation through real provider metadata.
+6. Reconciliation against deliberately corrupted Core records.
+7. Cross-tenant attempts using authenticated identities from separate organizations.
+8. Strict production configuration validation using the actual deployment environment.
+
+No production payment collection should be enabled until these environment-backed gates have passed.
