@@ -271,6 +271,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
         }
       }
     }
+    }
 
     if (subscription && subscriptionIsNewerThanCore) {
       const subscriptionRef = database.collection("billing_subscriptions").doc(subscription.id);
