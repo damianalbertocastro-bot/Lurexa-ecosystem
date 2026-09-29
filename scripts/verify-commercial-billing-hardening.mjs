@@ -20,7 +20,7 @@ const checks = [
   ["webhooks persist typed entitlement snapshots", entitlement.includes("CommercialEntitlementSnapshot") && entitlement.includes("buildEntitlement")],
   ["canceled and unpaid subscriptions revoke entitlements", entitlement.includes('subscription.status === "canceled" || subscription.status === "unpaid"')],
   ["invoice records retain subscription linkage", entitlement.includes("subscriptionId: subscription?.id ?? invoice.subscriptionId")],
-  ["invoice lifecycle states are normalized", entitlement.includes('"uncollectible"') && entitlement.includes('status: InvoiceStatus')],
+  ["invoice lifecycle states are normalized", types.includes("export type InvoiceStatus") && entitlement.includes('"uncollectible"') && entitlement.includes('as CommercialInvoice["status"]')],
   ["reconciliation compares subscriptions", reconcile.includes("getSubscription")],
   ["reconciliation compares invoices and monetary totals", reconcile.includes("getInvoice") && reconcile.includes("amount_mismatch")],
   ["reconciliation compares payments", reconcile.includes("getPayment")],
