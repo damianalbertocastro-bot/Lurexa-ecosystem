@@ -78,7 +78,7 @@ export default function AdminBillingPage() {
       await loadBillingData();
       playSuccess();
       toast({
-        variant: result.failures.length ? "warning" : "success",
+        variant: result.failures.length ? "info" : "success",
         title: result.failures.length ? "Migration completed with exceptions" : "Legacy billing migrated",
         description: `${result.migrated} migrated, ${result.alreadyCanonical} already canonical, ${result.skipped} skipped, ${result.failures.length} failed.`,
       });
