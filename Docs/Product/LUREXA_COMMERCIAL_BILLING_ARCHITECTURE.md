@@ -68,7 +68,7 @@ The billing domain separates:
 
 ## Payment-provider boundary
 
-Stripe is the current intended payment-provider boundary in the type contracts, but provider integration is not yet implemented.
+Stripe is the current payment-provider boundary, with the provider adapter, signed webhook runtime, canonical synchronization and test-mode lifecycle harness now implemented.
 
 Provider events must be idempotently processed and translated into Core billing state.
 
@@ -121,12 +121,11 @@ Already implemented:
 
 Not yet implemented:
 
-- real payment collection;
-- provider webhook runtime;
-- production invoices;
+- production payment collection enablement;
+- customer self-service billing portal;
 - refunds/credits;
-- dunning;
-- tax;
+- dunning policy and implementation;
+- tax policy and implementation;
 - financial reconciliation against provider settlement.
 
 The payment integration must begin only after the commercial and entitlement contracts remain green under CI.
