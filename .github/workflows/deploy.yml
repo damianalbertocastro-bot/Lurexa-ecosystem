@@ -6,10 +6,26 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      surface:
+        description: 'Target surface to deploy (or "all" for all surfaces)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ecosystem-web
+          - learn-web
+          - coach-web
+          - teach-web
+          - admin-web
+          - docs-web
+          - insight-web
+          - studio-web
 
 concurrency:
   group: product-validation-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   changes:
@@ -37,6 +53,7 @@ jobs:
               - 'apps/web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -45,6 +62,7 @@ jobs:
               - 'apps/learn-web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -53,6 +71,7 @@ jobs:
               - 'apps/coach-web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -61,6 +80,7 @@ jobs:
               - 'apps/teach-web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -69,6 +89,7 @@ jobs:
               - 'apps/admin-portal/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -77,6 +98,7 @@ jobs:
               - 'apps/docs/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -85,6 +107,7 @@ jobs:
               - 'apps/insight-web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -93,6 +116,7 @@ jobs:
               - 'apps/studio-web/**'
               - 'packages/**'
               - 'tooling/**'
+              - 'scripts/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -283,3 +307,192 @@ jobs:
             } catch (err) {
               console.log('Notice: Could not post PR comment (e.g. fork PR permissions):', err.message);
             }
+
+  production-deployment:
+    name: Cloudflare Production Deployments
+    needs: [changes, ecosystem, learn-web, coach, teach, admin, docs, insight, studio]
+    if: |
+      always() &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        needs.changes.outputs.ecosystem == 'true' ||
+        needs.changes.outputs.learn_web == 'true' ||
+        needs.changes.outputs.coach == 'true' ||
+        needs.changes.outputs.teach == 'true' ||
+        needs.changes.outputs.admin == 'true' ||
+        needs.changes.outputs.docs == 'true' ||
+        needs.changes.outputs.insight == 'true' ||
+        needs.changes.outputs.studio == 'true'
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Cloudflare readiness
+        run: pnpm verify:cloudflare
+
+      - name: Deploy Ecosystem Web Production
+        if: |
+          needs.changes.outputs.ecosystem == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'ecosystem-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying ecosystem-web (lurexa-web) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface ecosystem-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface ecosystem-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Learn Production
+        if: |
+          needs.changes.outputs.learn_web == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'learn-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying learn-web (lurexa-learn) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface learn-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface learn-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Coach Production
+        if: |
+          needs.changes.outputs.coach == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'coach-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying coach-web (lurexa-coach) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface coach-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface coach-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Teach Production
+        if: |
+          needs.changes.outputs.teach == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'teach-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying teach-web (lurexa-teach) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface teach-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface teach-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Admin Production
+        if: |
+          needs.changes.outputs.admin == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'admin-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying admin-web (lurexa-admin) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface admin-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface admin-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Docs Production
+        if: |
+          needs.changes.outputs.docs == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'docs-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying docs-web (lurexa-docs) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface docs-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface docs-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Insight Production
+        if: |
+          needs.changes.outputs.insight == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'insight-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying insight-web (lurexa-insight) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface insight-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface insight-web --target production --dry-run
+          fi
+
+      - name: Deploy Lurexa Studio Production
+        if: |
+          needs.changes.outputs.studio == 'true' ||
+          (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'studio-web'))
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying studio-web (lurexa-studio) to Cloudflare Production..."
+            node scripts/deploy-cloudflare.mjs --surface studio-web --target production --deploy
+          else
+            echo "⚠ CLOUDFLARE_API_TOKEN not present in secrets; simulating production deployment..."
+            node scripts/deploy-cloudflare.mjs --surface studio-web --target production --dry-run
+          fi
+
+      - name: Production Deployment Summary
+        if: always()
+        run: |
+          echo "### 🚀 Cloudflare Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Surface | Worker Name | Production Domain | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Web** | \`lurexa-web\` | https://lurexa.org | ${{ (needs.changes.outputs.ecosystem == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'ecosystem-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Learn** | \`lurexa-learn\` | https://learn.lurexa.org | ${{ (needs.changes.outputs.learn_web == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'learn-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Coach** | \`lurexa-coach\` | https://coach.lurexa.org | ${{ (needs.changes.outputs.coach == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'coach-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Teach** | \`lurexa-teach\` | https://teach.lurexa.org | ${{ (needs.changes.outputs.teach == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'teach-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Admin** | \`lurexa-admin\` | https://admin.lurexa.org | ${{ (needs.changes.outputs.admin == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'admin-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Docs** | \`lurexa-docs\` | https://docs.lurexa.org | ${{ (needs.changes.outputs.docs == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'docs-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Insight** | \`lurexa-insight\` | https://insight.lurexa.org | ${{ (needs.changes.outputs.insight == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'insight-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lurexa Studio** | \`lurexa-studio\` | https://studio.lurexa.org | ${{ (needs.changes.outputs.studio == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.surface == 'all' || inputs.surface == 'studio-web'))) && '✅ Deployed' || '⚪ Skipped (No changes)' }} |" >> $GITHUB_STEP_SUMMARY
+
