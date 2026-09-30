@@ -53,8 +53,8 @@ async function stripeRequest<T>(path: string, init: RequestInit = {}): Promise<T
     },
   });
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Stripe API request failed (${response.status}): ${body}`);
+    const errorBody = await response.text();
+    throw new Error(`Stripe API request failed (${response.status}): ${errorBody}`);
   }
   return response.json() as Promise<T>;
 }
