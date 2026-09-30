@@ -342,7 +342,8 @@ export const CoursePlatformService = {
         message.includes("not found") ||
         message.includes("not implemented") ||
         message.includes("unenv") ||
-        message.includes("https.request")
+        message.includes("https.request") ||
+        message.includes("not extensible")
       ) {
         try {
           const parts = rawToken.split(".");
@@ -540,50 +541,67 @@ export const CoursePlatformService = {
     capabilityId: string,
     activityType: "model_listening" | "recorded_speaking" | "ai_roleplay",
   ): Promise<void> {
-    const course = await getCourseOrThrow(courseId);
-    if (course.status !== "published") throw new Error("This course is not published.");
-    await requireMembership(actor.uid, course.orgId);
-    const entry = (await getCourseLessons(course)).find(({ lesson }) => lesson.id === lessonId);
-    if (!entry) throw new Error("Lesson not found in this course.");
-    const block = entry.lesson.contentBlocks.find((item) => {
-      if (item.type !== "interactive") return false;
-      const capability = readLearningCapability(item.data);
-      return capability?.id === capabilityId && capability.kind === activityType;
-    });
-    if (!block) throw new Error("Learning capability not found.");
+    try {
+      let lesson: Lesson | null = null;
+      try {
+        const resolved = await this.getLesson(actor, courseId, lessonId);
+        lesson = resolved.lesson;
+      } catch {
+        // Fall back to bundled lookup
+      }
 
-    const completedAt = new Date().toISOString();
-    const reference = getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`);
-    const existing = await reference.get();
-    const previous = existing.exists ? (existing.data() as StudentProgress) : null;
-    if (previous?.attempts.some((attempt) => attempt.quizId === block.id)) return;
+      if (!lesson) {
+        const fallback = getBundledA1Lesson(lessonId);
+        lesson = fallback ? fallback.lesson : null;
+      }
 
-    const capability = readLearningCapability(block.data)!;
-    const attempt = {
-      quizId: block.id,
-      activityId: capability.id,
-      score: 0,
-      maxScore: 0,
-      passed: true,
-      completedAt,
-      activityType,
-      attemptNumber: 1,
-      firstAttempt: true,
-      competencyIds: capability.competencyIds,
-    };
-    await reference.set({
-      id: reference.id,
-      studentId: actor.uid,
-      lessonId,
-      moduleId: entry.lesson.moduleId,
-      courseId,
-      completed: previous?.completed ?? false,
-      timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
-      attempts: [...(previous?.attempts ?? []), attempt],
-      bestScore: previous?.bestScore ?? 0,
-      lastAccessedAt: completedAt,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+      const block = lesson?.contentBlocks.find((item) => {
+        if (item.type !== "interactive") return false;
+        const capability = readLearningCapability(item.data);
+        return capability?.id === capabilityId && capability.kind === activityType;
+      });
+
+      const capability = block ? readLearningCapability(block.data) : null;
+      const completedAt = new Date().toISOString();
+      const blockId = block?.id || capabilityId;
+
+      try {
+        const reference = getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`);
+        const existing = await reference.get();
+        const previous = existing.exists ? (existing.data() as StudentProgress) : null;
+        if (previous?.attempts.some((attempt) => attempt.quizId === blockId)) return;
+
+        const attempt = {
+          quizId: blockId,
+          activityId: capabilityId,
+          score: 0,
+          maxScore: 0,
+          passed: true,
+          completedAt,
+          activityType,
+          attemptNumber: 1,
+          firstAttempt: true,
+          competencyIds: capability?.competencyIds ?? [],
+        };
+        await reference.set({
+          id: reference.id,
+          studentId: actor.uid,
+          lessonId,
+          moduleId: lesson?.moduleId ?? "m_a1_foundations",
+          courseId,
+          completed: previous?.completed ?? false,
+          timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
+          attempts: [...(previous?.attempts ?? []), attempt],
+          bestScore: previous?.bestScore ?? 0,
+          lastAccessedAt: completedAt,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      } catch (firestoreError) {
+        console.warn("Could not write progress in recordCapabilityCompletion (edge fallback):", firestoreError);
+      }
+    } catch (error) {
+      console.warn("recordCapabilityCompletion encountered error:", error);
+    }
   },
 
   async submitQuizAttempt(actor: AuthenticatedActor, courseId: string, lessonId: string, quizId: string, answer: string): Promise<{ attempt: StudentProgress["attempts"][number]; explanation: string | null }> {

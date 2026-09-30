@@ -987,10 +987,18 @@ export function AIRoleplayActivity({
         {provider ? (
           <span
             className={`rounded-full px-3 py-1 text-xs font-bold ${
-              provider === "gemini" ? "bg-teal-400/20 text-teal-200 ring-1 ring-teal-400/30" : "bg-amber-400/20 text-amber-200"
+              provider === "gemini"
+                ? "bg-teal-400/20 text-teal-200 ring-1 ring-teal-400/30"
+                : provider === "openrouter"
+                  ? "bg-purple-400/20 text-purple-200 ring-1 ring-purple-400/30"
+                  : "bg-amber-400/20 text-amber-200"
             }`}
           >
-            {provider === "gemini" ? "✨ Lurexa Mind AI (Live Gemini)" : "Practice Mode"}
+            {provider === "gemini"
+              ? "✨ Lurexa Mind AI (Live Gemini)"
+              : provider === "openrouter"
+                ? "🚀 Lurexa Mind AI (OpenRouter)"
+                : "Practice Mode"}
           </span>
         ) : null}
       </div>

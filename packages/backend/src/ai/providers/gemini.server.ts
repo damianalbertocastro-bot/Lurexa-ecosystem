@@ -26,32 +26,66 @@ export class GeminiProvider implements AiProvider {
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
 
     const started = Date.now();
-    const model = request.route.model;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: request.systemPrompt }] },
-        contents: request.messages.map((message) => ({
-          role: message.role === "assistant" ? "model" : "user",
-          parts: [{ text: message.content }],
-        })),
-        generationConfig: {
-          maxOutputTokens: request.maxOutputTokens ?? 300,
-          ...(request.temperature === undefined ? {} : { temperature: request.temperature }),
-        },
-      }),
-    });
+    const candidateModels = Array.from(new Set([
+      request.route.model,
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+    ]));
 
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      throw new Error(`Gemini request failed (${response.status}): ${detail.slice(0, 500)}`);
+    let lastError: Error | null = null;
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: request.systemPrompt }] },
+            contents: request.messages.map((message) => ({
+              role: message.role === "assistant" ? "model" : "user",
+              parts: [{ text: message.content }],
+            })),
+            generationConfig: {
+              maxOutputTokens: request.maxOutputTokens ?? 300,
+              ...(request.temperature === undefined ? {} : { temperature: request.temperature }),
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          const fallbackResponse = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({
+              contents: [
+                { role: "user", parts: [{ text: `${request.systemPrompt}\n\n${request.messages.map((m) => `${m.role}: ${m.content}`).join("\n")}` }] },
+              ],
+              generationConfig: {
+                maxOutputTokens: request.maxOutputTokens ?? 300,
+              },
+            }),
+          });
+          if (fallbackResponse.ok) {
+            const fallbackText = readText(await fallbackResponse.json());
+            if (fallbackText) {
+              return { text: fallbackText, route: { ...request.route, model }, latencyMs: Date.now() - started };
+            }
+          }
+          const detail = await response.text().catch(() => "");
+          lastError = new Error(`Gemini request failed (${response.status}) on ${model}: ${detail.slice(0, 300)}`);
+          continue;
+        }
+
+        const text = readText(await response.json());
+        if (text) {
+          return { text, route: { ...request.route, model }, latencyMs: Date.now() - started };
+        }
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+      }
     }
 
-    const text = readText(await response.json());
-    if (!text) throw new Error("Gemini returned no text output.");
-
-    return { text, route: request.route, latencyMs: Date.now() - started };
+    throw lastError ?? new Error("Gemini returned no text output across candidate models.");
   }
 }
