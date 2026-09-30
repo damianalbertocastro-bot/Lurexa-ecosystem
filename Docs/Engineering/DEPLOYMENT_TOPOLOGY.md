@@ -13,14 +13,14 @@ Each deployable web application in the monorepo has an autonomous OpenNext/Cloud
 
 | Application Workspace | Cloudflare Worker (Production) | Canonical Production Domain | Cloudflare Worker (Preview) | Preview / Staging Route | Deployment Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `apps/web` | `lurexa-web` | `https://lurexa.org` | N/A | `lurexa-web.damianalbertocastro.workers.dev` | **Live Deployed** |
-| `apps/learn-web` | `lurexa-learn` | `https://learn.lurexa.org` | `lurexa-learn-preview` | `lurexa-learn-preview.damianalbertocastro.workers.dev` | **Configured / Preview Ready** |
-| `apps/coach-web` | `lurexa-coach` | `https://coach.lurexa.org` | `lurexa-coach-preview` | `lurexa-coach-preview.damianalbertocastro.workers.dev` | **Configured / Preview Ready** |
-| `apps/teach-web` | `lurexa-teach` | `https://teach.lurexa.org` | `lurexa-teach-preview` | `lurexa-teach-preview.damianalbertocastro.workers.dev` | **Configured / Preview Ready** |
-| `apps/admin-portal` | `lurexa-admin` | `https://admin.lurexa.org` | N/A | `lurexa-admin.damianalbertocastro.workers.dev` | **Configured / Build Verified** |
-| `apps/docs` | `lurexa-docs` | `https://docs.lurexa.org` | N/A | `lurexa-docs.damianalbertocastro.workers.dev` | **Configured / Build Verified** |
-| `apps/insight-web` | `lurexa-insight` | `https://insight.lurexa.org` | N/A | `lurexa-insight.damianalbertocastro.workers.dev` | **Configured / Build Verified** |
-| `apps/studio-web` | `lurexa-studio` | `https://studio.lurexa.org` | N/A | `lurexa-studio.damianalbertocastro.workers.dev` | **Configured / Build Verified** |
+| `apps/web` | `lurexa-web` | `https://lurexa.org` | N/A | `lurexa-web.damianalbertocastro.workers.dev` | **Live Deployed (CD on main)** |
+| `apps/learn-web` | `lurexa-learn` | `https://learn.lurexa.org` | `lurexa-learn-preview` | `lurexa-learn-preview.damianalbertocastro.workers.dev` | **Active CD on main / Preview Ready** |
+| `apps/coach-web` | `lurexa-coach` | `https://coach.lurexa.org` | `lurexa-coach-preview` | `lurexa-coach-preview.damianalbertocastro.workers.dev` | **Active CD on main / Preview Ready** |
+| `apps/teach-web` | `lurexa-teach` | `https://teach.lurexa.org` | `lurexa-teach-preview` | `lurexa-teach-preview.damianalbertocastro.workers.dev` | **Active CD on main / Preview Ready** |
+| `apps/admin-portal` | `lurexa-admin` | `https://admin.lurexa.org` | N/A | `lurexa-admin.damianalbertocastro.workers.dev` | **Active CD on main** |
+| `apps/docs` | `lurexa-docs` | `https://docs.lurexa.org` | N/A | `lurexa-docs.damianalbertocastro.workers.dev` | **Active CD on main** |
+| `apps/insight-web` | `lurexa-insight` | `https://insight.lurexa.org` | N/A | `lurexa-insight.damianalbertocastro.workers.dev` | **Active CD on main** |
+| `apps/studio-web` | `lurexa-studio` | `https://studio.lurexa.org` | N/A | `lurexa-studio.damianalbertocastro.workers.dev` | **Active CD on main** |
 | `apps/mobile` | N/A (Client PWA/App) | Delivered via Learn surface | N/A | N/A | **Client Surface (Not Hosted on Workers)** |
 
 ---
@@ -57,17 +57,61 @@ Each deployable web application in the monorepo has an autonomous OpenNext/Cloud
 
 ---
 
-## 4. Production Deployment Branch Standard
+## 4. Production Deployment Standard across All Surfaces
 
-- **Authoritative Production Branch:** `main` is the designated deployment branch for production across all Cloudflare Workers.
-- **Continuous Deployment Policy:** All Cloudflare Worker services (`lurexa-web`, `lurexa-learn`, `lurexa-coach`, `lurexa-teach`, `lurexa-admin`, `lurexa-docs`, `lurexa-insight`, `lurexa-studio`) are bound to the `main` branch.
-- **Automated Workers Builds:** Merges and direct pushes to `main` trigger automated production builds and deployments in Cloudflare using the declared `[build]` directive (`opennextjs-cloudflare build`) in each `wrangler.toml`.
-- **Pre-Merge Validation:** Pull requests targeting `main` must pass all CI reliability gates, including `pnpm verify:cloudflare` (which audits configuration readiness across all 8 surfaces, including preview configurations) and `Product Deployment Validation`.
-- **Deployment Coordination CLI:** Operators can inspect and coordinate deployments using `pnpm deploy:cloudflare` (`scripts/deploy-cloudflare.mjs`).
-- **Secret Provisioning CLI:** Operators can validate and push production secrets (`FIREBASE_SERVICE_ACCOUNT_JSON`, `GEMINI_API_KEY`) to targeted Workers via:
-  - Audit readiness: `pnpm secrets:cloudflare`
-  - Dry-run simulation: `pnpm secrets:cloudflare:dry-run`
-  - Push secrets to workers: `pnpm secrets:cloudflare:deploy` (or with `--surface <name>` to target a single worker)
+### 4.1 Authoritative Production Branch
+- `main` is the designated deployment branch for production across all Cloudflare Workers.
+- Every merge or push into `main` automatically triggers production verification and deployments across all affected surfaces.
+
+### 4.2 Automated GitHub Actions CD Pipeline (`.github/workflows/deploy.yml`)
+The repository includes a dedicated `production-deployment` job in `.github/workflows/deploy.yml` that executes automatically when commits merge into `main`:
+1. **Change Detection:** `dorny/paths-filter` analyzes changed files to selectively target only the affected application workspaces and their shared dependencies (`packages/**`, `tooling/**`, `scripts/**`).
+2. **Pre-Deployment Reliability Gate:** All workspace quality checks (lint, TypeScript validation, unit/component tests, build compilation) must pass before deployment commences.
+3. **Selective Automated Deployment:** Each affected surface is deployed using `scripts/deploy-cloudflare.mjs --surface <name> --target production --deploy`.
+4. **Resilient Secret Handling:** Uses repository secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`). If the token is absent or restricted, executes build verification with dry-run simulation rather than failing CI.
+5. **Manual Deployment Support:** Operators can manually trigger production deployments for any single surface or all surfaces via GitHub Actions `workflow_dispatch` (Actions tab -> Product Deployment Validation -> Run workflow).
+
+### 4.3 Cloudflare Dashboard Git Integration (Workers Builds)
+In addition to the GitHub Actions CD pipeline, each Worker can be linked directly to GitHub in the Cloudflare Dashboard under **Workers & Pages -> [Worker Name] -> Settings -> Build & Deploy -> Git Integration**:
+
+| Surface | Cloudflare Worker Name | Production Branch | Root Directory | Build Command | Deploy Command | Production Domain |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Ecosystem Web** | `lurexa-web` | `main` | `apps/web` | `pnpm run build` | `npx wrangler deploy` | `lurexa.org` |
+| **Lurexa Learn** | `lurexa-learn` | `main` | `apps/learn-web` | `pnpm run build` | `npx wrangler deploy` | `learn.lurexa.org` |
+| **Lurexa Coach** | `lurexa-coach` | `main` | `apps/coach-web` | `pnpm run build` | `npx wrangler deploy` | `coach.lurexa.org` |
+| **Lurexa Teach** | `lurexa-teach` | `main` | `apps/teach-web` | `pnpm run build` | `npx wrangler deploy` | `teach.lurexa.org` |
+| **Lurexa Admin** | `lurexa-admin` | `main` | `apps/admin-portal` | `pnpm run build` | `npx wrangler deploy` | `admin.lurexa.org` |
+| **Lurexa Docs** | `lurexa-docs` | `main` | `apps/docs` | `pnpm run build` | `npx wrangler deploy` | `docs.lurexa.org` |
+| **Lurexa Insight** | `lurexa-insight` | `main` | `apps/insight-web` | `pnpm run build` | `npx wrangler deploy` | `insight.lurexa.org` |
+| **Lurexa Studio** | `lurexa-studio` | `main` | `apps/studio-web` | `pnpm run build` | `npx wrangler deploy` | `studio.lurexa.org` |
+
+*Note: In `apps/*/package.json`, `"build"` is defined as `"opennextjs-cloudflare build"`, so Cloudflare's default `pnpm run build` compiles both Next.js and the Worker bundles seamlessly.*
+
+### 4.4 Operator CLI Deployment Commands
+- **Dry-run simulate production deployments (all surfaces):**
+  ```bash
+  pnpm deploy:cloudflare:dry-run
+  ```
+- **Deploy all surfaces to production:**
+  ```bash
+  pnpm deploy:cloudflare:all
+  ```
+- **Deploy an individual surface to production:**
+  ```bash
+  node scripts/deploy-cloudflare.mjs --surface learn-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface coach-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface teach-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface admin-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface docs-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface insight-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface studio-web --target production --deploy
+  node scripts/deploy-cloudflare.mjs --surface ecosystem-web --target production --deploy
+  ```
+- **Provision secrets to production workers:**
+  ```bash
+  pnpm secrets:cloudflare:dry-run
+  pnpm secrets:cloudflare:deploy
+  ```
 
 ---
 
