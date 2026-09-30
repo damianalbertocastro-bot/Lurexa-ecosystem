@@ -225,6 +225,10 @@ export async function processStripeWebhook(payload: string, signature: string): 
     const subscriptionSnapshot = subscriptionRef ? await transaction.get(subscriptionRef) : null;
     const organizationRef = organizationId ? database.collection("organizations").doc(organizationId) : null;
     const organizationSnapshot = organizationRef ? await transaction.get(organizationRef) : null;
+    const invoiceRef = invoice ? database.collection("billing_invoices").doc(invoice.id) : null;
+    const invoiceSnapshot = invoiceRef ? await transaction.get(invoiceRef) : null;
+    const paymentRef = payment ? database.collection("billing_payments").doc(payment.id) : null;
+    const paymentSnapshot = paymentRef ? await transaction.get(paymentRef) : null;
 
     transaction.set(eventRef, normalized, { merge: true });
 
@@ -303,9 +307,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
     }
 
     if (invoice) {
-      const invoiceRef = database.collection("billing_invoices").doc(invoice.id);
-      const invoiceSnapshot = await transaction.get(invoiceRef);
-      const existingInvoiceEventAt = invoiceSnapshot.data()?.providerEventCreatedAt;
+      const existingInvoiceEventAt = invoiceSnapshot?.data()?.providerEventCreatedAt;
       if (providerEventIsAtLeastAsNew(existingInvoiceEventAt, eventCreatedAt)) {
         const invoiceWithSubscription: CommercialInvoice = {
           ...invoice,
@@ -315,9 +317,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
       }
     }
     if (payment) {
-      const paymentRef = database.collection("billing_payments").doc(payment.id);
-      const paymentSnapshot = await transaction.get(paymentRef);
-      const existingPaymentEventAt = paymentSnapshot.data()?.providerEventCreatedAt;
+      const existingPaymentEventAt = paymentSnapshot?.data()?.providerEventCreatedAt;
       if (providerEventIsAtLeastAsNew(existingPaymentEventAt, eventCreatedAt)) {
         transaction.set(paymentRef, payment, { merge: true });
       }
