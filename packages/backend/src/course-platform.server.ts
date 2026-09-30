@@ -3,6 +3,8 @@ import { getServerFirebaseAuth, getServerFirestore } from "./firebase-admin.serv
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { parseLearningCapability, readLearningCapability } from "./learning-capability-validation";
+import { buildA1ProductionCurriculum } from "./a1-production-curriculum.server";
+import { a1StarterCourse } from "./self-paced-onboarding.server";
 import type {
   CefrLevel,
   ContentBlock,
@@ -287,7 +289,42 @@ async function appendPlatformEvidence(input: {
   }
 }
 
+function getBundledA1Lesson(lessonId: string): { lesson: Lesson; nextLesson: Lesson | null } | null {
+  try {
+    const starter = a1StarterCourse(new Date().toISOString());
+    const production = buildA1ProductionCurriculum();
+    const allLessons: Lesson[] = [
+      starter.entryLesson,
+      ...starter.lessons,
+      ...production.lessons.filter((l) => l.id !== starter.entryLesson.id && !starter.lessons.some((sl: Lesson) => sl.id === l.id)),
+    ];
+    const index = allLessons.findIndex((l) => l.id === lessonId);
+    if (index >= 0) {
+      return {
+        lesson: allLessons[index]!,
+        nextLesson: allLessons[index + 1] ?? null,
+      };
+    }
+  } catch (error) {
+    console.warn("Unable to load in-memory bundled curriculum:", error);
+  }
+  return null;
+}
+
 export const CoursePlatformService = {
+  getFallbackLesson(courseId: string, lessonId: string): { lesson: Lesson; progress: StudentProgress | null; nextLesson: Lesson | null } | null {
+    if (courseId === "english-a1-foundations" || courseId.includes("a1")) {
+      const fallback = getBundledA1Lesson(lessonId);
+      if (fallback) {
+        return {
+          lesson: sanitizeLessonForLearner(fallback.lesson),
+          progress: null,
+          nextLesson: fallback.nextLesson ? sanitizeLessonForLearner(fallback.nextLesson) : null,
+        };
+      }
+    }
+    return null;
+  },
   async authenticate(authorization: string | null): Promise<AuthenticatedActor> {
     if (!authorization?.startsWith("Bearer ")) throw new Error("Authentication is required.");
     const rawToken = authorization.slice(7);
@@ -416,19 +453,43 @@ export const CoursePlatformService = {
   },
 
   async getLesson(actor: AuthenticatedActor, courseId: string, lessonId: string): Promise<{ lesson: Lesson; progress: StudentProgress | null; nextLesson: Lesson | null }> {
-    const course = await getCourseOrThrow(courseId);
-    if (course.status !== "published") throw new Error("This course is not published.");
-    await requireMembership(actor.uid, course.orgId);
-    const lessons = await getCourseLessons(course);
-    const lessonIndex = lessons.findIndex(({ lesson }) => lesson.id === lessonId);
-    if (lessonIndex < 0) throw new Error("Lesson not found in this course.");
-    const entry = lessons[lessonIndex];
-    const progress = await getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`).get();
-    return {
-      lesson: sanitizeLessonForLearner(entry.lesson),
-      progress: progress.exists ? (progress.data() as StudentProgress) : null,
-      nextLesson: lessons[lessonIndex + 1]?.lesson ?? null,
-    };
+    try {
+      const course = await getCourseOrThrow(courseId);
+      if (course.status !== "published") throw new Error("This course is not published.");
+      await requireMembership(actor.uid, course.orgId);
+      const lessons = await getCourseLessons(course);
+      const lessonIndex = lessons.findIndex(({ lesson }) => lesson.id === lessonId);
+      if (lessonIndex < 0) throw new Error("Lesson not found in this course.");
+      const entry = lessons[lessonIndex]!;
+      let progressData: StudentProgress | null = null;
+      try {
+        const progress = await getServerFirestore().collection("progress").doc(`${actor.uid}_${lessonId}`).get();
+        if (progress.exists) progressData = progress.data() as StudentProgress;
+      } catch {
+        // Safe read fallback for edge/unenv environments
+      }
+      return {
+        lesson: sanitizeLessonForLearner(entry.lesson),
+        progress: progressData,
+        nextLesson: lessons[lessonIndex + 1]?.lesson ?? null,
+      };
+    } catch (primaryError) {
+      const message = primaryError instanceof Error ? primaryError.message : String(primaryError);
+      if (message.includes("do not have access") || message.includes("not published")) {
+        throw primaryError;
+      }
+      if (courseId === "english-a1-foundations" || courseId.includes("a1")) {
+        const fallback = getBundledA1Lesson(lessonId);
+        if (fallback) {
+          return {
+            lesson: sanitizeLessonForLearner(fallback.lesson),
+            progress: null,
+            nextLesson: fallback.nextLesson ? sanitizeLessonForLearner(fallback.nextLesson) : null,
+          };
+        }
+      }
+      throw primaryError;
+    }
   },
 
   async completeLesson(actor: AuthenticatedActor, courseId: string, lessonId: string, timeSpentSeconds: number): Promise<StudentProgress> {

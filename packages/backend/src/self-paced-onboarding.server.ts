@@ -369,7 +369,7 @@ function structuredA1Lesson(spec: A1LessonBlueprint): Lesson {
   };
 }
 
-function a1StarterCourse(now: string): { course: Course; modules: Module[]; lessons: Lesson[]; entryLesson: Lesson } {
+export function a1StarterCourse(now: string): { course: Course; modules: Module[]; lessons: Lesson[]; entryLesson: Lesson } {
   const unitOneNames = structuredA1Lesson({
     id: "a1-ask-your-name",
     moduleId: MODULE_ID,

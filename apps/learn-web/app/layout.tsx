@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = resolveServerLocale(cookieStore);
 
   return (
-    <html lang={locale} data-scroll-behavior="smooth" className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${inter.variable} overflow-x-hidden w-full max-w-full`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -52,7 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
       </head>
-      <body className="antialiased bg-slate-50 text-slate-900">
+      <body className="antialiased bg-slate-50 text-slate-900 overflow-x-hidden w-full max-w-full">
         <I18nProvider initialLocale={locale}>
           <SkipToContent targetId="main-content" />
           <PwaOfflineSyncProvider>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { LurexaLearnLogo } from "./components/LurexaLearnLogo";
 import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
@@ -10,6 +11,7 @@ import { useTranslation } from "@lurexa/i18n";
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const proof = [
     {
@@ -32,15 +34,17 @@ export default function HomePage() {
     },
   ];
   return (
-    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[var(--lx-canvas)] text-slate-950 flex flex-col justify-between">
-      <div>
+    <main id="main-content" tabIndex={-1} className="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--lx-canvas)] text-slate-950 flex flex-col justify-between">
+      <div className="w-full max-w-full overflow-x-hidden">
         {/* Sticky Global Navigation */}
         <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
-          <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
+          <nav aria-label="Primary" className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <LurexaLearnLogo inverse />
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Desktop Navigation (> md) */}
+            <div className="hidden md:flex items-center gap-2 sm:gap-3">
               {/* Unified Utility Capsule (Language + Theme + Ecosystem) */}
               <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/10 p-1 shadow-2xs">
                 <LanguageSelector variant="segmented" compact inverse />
@@ -52,7 +56,7 @@ export default function HomePage() {
 
               <Link
                 href="/login"
-                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+                className="inline-flex rounded-xl px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 sm:text-sm"
               >
                 {t("nav.signIn")}
               </Link>
@@ -63,7 +67,72 @@ export default function HomePage() {
                 {t("learn.startFree")}
               </Link>
             </div>
+
+            {/* Mobile Navigation Controls (< md) */}
+            <div className="flex md:hidden items-center gap-2">
+              <Link
+                href="/onboarding"
+                className="rounded-lg bg-gradient-to-r from-sky-400 to-cyan-300 px-3 py-1.5 text-xs font-black text-slate-950 shadow-sm transition hover:brightness-110 whitespace-nowrap"
+              >
+                {t("learn.startFree")}
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={mobileMenuOpen}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              >
+                {mobileMenuOpen ? (
+                  <span className="text-base font-bold" aria-hidden="true">✕</span>
+                ) : (
+                  <span className="text-base font-bold" aria-hidden="true">☰</span>
+                )}
+              </button>
+            </div>
           </nav>
+
+          {/* Mobile Navigation Drawer / Overlay */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-white/10 bg-slate-950/98 px-5 py-5 shadow-2xl backdrop-blur-2xl animate-fade-slide-up">
+              <div className="flex flex-col gap-4">
+                {/* Language and Theme */}
+                <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                  <span className="text-xs font-semibold text-slate-300">Preferences</span>
+                  <div className="flex items-center gap-2">
+                    <LanguageSelector variant="segmented" compact inverse />
+                    <div className="h-4 w-px bg-white/15" aria-hidden="true" />
+                    <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-white/10" />
+                  </div>
+                </div>
+
+                {/* Ecosystem Switcher */}
+                <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                  <span className="text-xs font-semibold text-slate-300">Ecosystem</span>
+                  <EcosystemDropdown currentApp="learn" compact inverse className="border-0 bg-transparent shadow-none" />
+                </div>
+
+                {/* Sign In & Secondary Action */}
+                <div className="flex flex-col gap-2 pt-1">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center justify-center rounded-xl border border-white/20 py-2.5 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+                  >
+                    {t("nav.signIn")}
+                  </Link>
+                  <Link
+                    href="/onboarding"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 py-3 text-sm font-black text-slate-950 shadow-md transition hover:brightness-110"
+                  >
+                    {t("learn.startLearningFree")}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Hero Section */}

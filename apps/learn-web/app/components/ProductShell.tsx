@@ -70,7 +70,7 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
   const isLearnerSpace = area === "Learner space" || area === "Practice space";
 
   return (
-    <div className="min-h-screen bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--learn-canvas)] text-[var(--learn-ink)]">
       <header className="sticky top-0 z-30 border-b border-[var(--lx-border)] bg-[var(--lx-surface)]/90 shadow-[0_8px_24px_rgba(32,52,128,.05)] backdrop-blur-xl">
         <div className="mx-auto flex min-h-[64px] sm:min-h-[72px] max-w-7xl items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -101,7 +101,7 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
             </Button>
 
             {/* Proposal 1 Approved: Unified Utility Capsule (Language + Theme + Ecosystem) */}
-            <div className="flex items-center gap-1 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1 shadow-2xs">
+            <div className="hidden sm:flex items-center gap-1 rounded-xl border border-[var(--lx-border)] bg-[var(--lx-canvas)] p-1 shadow-2xs">
               <LanguageSelector variant="segmented" compact />
               <div className="h-4 w-px bg-[var(--lx-border)]" aria-hidden="true" />
               <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-transparent shadow-none hover:bg-[var(--lx-surface)]" />
@@ -138,26 +138,42 @@ export function ProductShell({ children, area, homeHref, product = "learn" }: Pr
                 <span aria-hidden="true">👤</span>
               </button>
               {mobileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-2 shadow-2xl z-50 animate-scale-in">
-                  <Link
-                    href="/profile"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] transition"
-                  >
-                    <span>👤</span>
-                    <span>{t("nav.profile")}</span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      void signOut();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition text-left"
-                  >
-                    <span>🚪</span>
-                    <span>{t("nav.signOut")}</span>
-                  </button>
+                <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[var(--lx-border)] bg-[var(--lx-surface)] p-3 shadow-2xl z-50 animate-scale-in">
+                  <div className="flex flex-col gap-2 pb-2.5 border-b border-[var(--lx-border)]">
+                    <div className="flex items-center justify-between gap-1 px-1 py-1">
+                      <span className="text-[11px] font-bold text-[var(--lx-muted)]">Language</span>
+                      <LanguageSelector variant="segmented" compact />
+                    </div>
+                    <div className="flex items-center justify-between gap-1 px-1 py-1">
+                      <span className="text-[11px] font-bold text-[var(--lx-muted)]">Theme</span>
+                      <ThemeToggle className="h-8 w-8 rounded-lg border-0 bg-[var(--lx-canvas)] shadow-none" />
+                    </div>
+                    <div className="flex items-center justify-between gap-1 px-1 py-1">
+                      <span className="text-[11px] font-bold text-[var(--lx-muted)]">Ecosystem</span>
+                      <EcosystemDropdown currentApp="learn" compact className="border-0 bg-transparent shadow-none" />
+                    </div>
+                  </div>
+                  <div className="pt-2 flex flex-col gap-1">
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-extrabold text-[var(--lx-ink)] hover:bg-[var(--lx-canvas)] transition"
+                    >
+                      <span>👤</span>
+                      <span>{t("nav.profile")}</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        void signOut();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition text-left"
+                    >
+                      <span>🚪</span>
+                      <span>{t("nav.signOut")}</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

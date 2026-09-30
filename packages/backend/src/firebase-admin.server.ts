@@ -55,6 +55,21 @@ function parseServiceAccountContent(content: string, filePath?: string): ValidFi
   return null;
 }
 
+function safeReadFile(filePath: string): string | null {
+  try {
+    if (!fs || typeof fs.existsSync !== "function" || typeof fs.readFileSync !== "function") {
+      return null;
+    }
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+    return fs.readFileSync(filePath, "utf-8");
+  } catch {
+    // Gracefully handle [unenv] fs.readFileSync is not implemented yet or missing file
+    return null;
+  }
+}
+
 function readServiceAccount(): ValidFirebaseServiceAccount | null {
   // 1. Check direct inline JSON environment variable
   const serializedServiceAccount = getRawServiceAccountJson();
@@ -66,25 +81,21 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
 
   // 2. Check GOOGLE_APPLICATION_CREDENTIALS file path (strip quotes if present)
   const googleCredentialsPath = stripQuotes(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-  if (googleCredentialsPath && fs.existsSync(googleCredentialsPath)) {
-    try {
-      const fileContent = fs.readFileSync(googleCredentialsPath, "utf-8");
+  if (googleCredentialsPath) {
+    const fileContent = safeReadFile(googleCredentialsPath);
+    if (fileContent) {
       const parsed = parseServiceAccountContent(fileContent, googleCredentialsPath);
       if (parsed) return parsed;
-    } catch {
-      // safe fallback
     }
   }
 
   // 3. Check FIREBASE_SERVICE_ACCOUNT_PATH if provided
   const customPath = stripQuotes(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
-  if (customPath && fs.existsSync(customPath)) {
-    try {
-      const fileContent = fs.readFileSync(customPath, "utf-8");
+  if (customPath) {
+    const fileContent = safeReadFile(customPath);
+    if (fileContent) {
       const parsed = parseServiceAccountContent(fileContent, customPath);
       if (parsed) return parsed;
-    } catch {
-      // safe fallback
     }
   }
 
@@ -96,14 +107,10 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
     "c:/Users/damia/lurexa/service-account.json",
   ];
   for (const direct of directCandidates) {
-    if (fs.existsSync(direct)) {
-      try {
-        const fileContent = fs.readFileSync(direct, "utf-8");
-        const parsed = parseServiceAccountContent(fileContent, direct);
-        if (parsed) return parsed;
-      } catch {
-        // safe fallback
-      }
+    const fileContent = safeReadFile(direct);
+    if (fileContent) {
+      const parsed = parseServiceAccountContent(fileContent, direct);
+      if (parsed) return parsed;
     }
   }
 
@@ -119,9 +126,13 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
   let currentDir = process.cwd();
   for (let i = 0; i < 6; i++) {
     searchDirs.add(currentDir);
-    const parent = path.dirname(currentDir);
-    if (parent === currentDir) break;
-    currentDir = parent;
+    try {
+      const parent = path.dirname(currentDir);
+      if (parent === currentDir) break;
+      currentDir = parent;
+    } catch {
+      break;
+    }
   }
   // Explicit workspace root candidates
   searchDirs.add("C:\\Users\\damia\\lurexa");
@@ -130,29 +141,21 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
   for (const dir of searchDirs) {
     for (const fileName of fileNames) {
       const candidate = path.resolve(dir, fileName);
-      if (fs.existsSync(candidate)) {
-        try {
-          const fileContent = fs.readFileSync(candidate, "utf-8");
-          const parsed = parseServiceAccountContent(fileContent, candidate);
-          if (parsed) return parsed;
-        } catch {
-          // safe fallback
-        }
+      const fileContent = safeReadFile(candidate);
+      if (fileContent) {
+        const parsed = parseServiceAccountContent(fileContent, candidate);
+        if (parsed) return parsed;
       }
     }
 
     // Also check for .env.local in parent folders (e.g. monorepo root)
     const envLocalCandidate = path.resolve(dir, ".env.local");
-    if (fs.existsSync(envLocalCandidate)) {
-      try {
-        const envContent = fs.readFileSync(envLocalCandidate, "utf-8");
-        const match = envContent.match(/FIREBASE_SERVICE_ACCOUNT_JSON\s*=\s*(['"])([\s\S]*?)\1/);
-        if (match && match[2]) {
-          const parsed = parseServiceAccountContent(match[2]);
-          if (parsed) return parsed;
-        }
-      } catch {
-        // safe fallback
+    const envContent = safeReadFile(envLocalCandidate);
+    if (envContent) {
+      const match = envContent.match(/FIREBASE_SERVICE_ACCOUNT_JSON\s*=\s*(['"])([\s\S]*?)\1/);
+      if (match && match[2]) {
+        const parsed = parseServiceAccountContent(match[2]);
+        if (parsed) return parsed;
       }
     }
   }
@@ -196,9 +199,16 @@ export function getFirebaseAdminApp(): App {
   if (serviceAccount) {
     // Keep environment aligned so Google Cloud SDKs and google-auth-library
     // can authenticate without ADC ("Could not load the default credentials") errors.
-    if (serviceAccount.filePath) {
+    // Only set GOOGLE_APPLICATION_CREDENTIALS if it is a readable file on the current filesystem.
+    if (serviceAccount.filePath && safeReadFile(serviceAccount.filePath)) {
       process.env.GOOGLE_APPLICATION_CREDENTIALS = serviceAccount.filePath;
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS && !safeReadFile(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
+      // In Cloudflare Workers / unenv or edge environments, an unreadable local file path
+      // causes google-auth-library to throw "[unenv] fs.readFileSync is not implemented yet!".
+      // Delete the unreadable path to prevent ADC poisoning.
+      delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
     }
+
     if (!process.env.GCLOUD_PROJECT) {
       process.env.GCLOUD_PROJECT = serviceAccount.project_id;
     }
@@ -221,6 +231,11 @@ export function getFirebaseAdminApp(): App {
       },
       CORE_ADMIN_APP_NAME,
     );
+  }
+
+  // If no service account was resolved and GOOGLE_APPLICATION_CREDENTIALS points to an unreadable path, clean it up
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS && !safeReadFile(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
   }
 
   if (existingApp) return existingApp;
