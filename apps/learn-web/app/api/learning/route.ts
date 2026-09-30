@@ -35,6 +35,10 @@ export async function GET(request: Request): Promise<Response> {
       try {
         return Response.json(await CoursePlatformService.getLesson(actor, courseId, lessonId));
       } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("do not have access") || message.includes("not published")) {
+          throw err;
+        }
         const fallback = CoursePlatformService.getFallbackLesson(courseId, lessonId);
         if (fallback) return Response.json(fallback);
         throw err;

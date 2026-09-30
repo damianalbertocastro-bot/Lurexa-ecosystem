@@ -474,6 +474,10 @@ export const CoursePlatformService = {
         nextLesson: lessons[lessonIndex + 1]?.lesson ?? null,
       };
     } catch (primaryError) {
+      const message = primaryError instanceof Error ? primaryError.message : String(primaryError);
+      if (message.includes("do not have access") || message.includes("not published")) {
+        throw primaryError;
+      }
       if (courseId === "english-a1-foundations" || courseId.includes("a1")) {
         const fallback = getBundledA1Lesson(lessonId);
         if (fallback) {
