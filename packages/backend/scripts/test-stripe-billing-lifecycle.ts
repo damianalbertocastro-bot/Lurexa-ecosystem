@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 
 const secret = process.env.STRIPE_SECRET_KEY?.trim();
 const priceId = process.env.STRIPE_TEST_PRICE_ID?.trim();
-// eslint-disable-next-line turbo/no-undeclared-env-vars
 const customerId = process.env.STRIPE_TEST_CUSTOMER_ID?.trim();
 
 if (!secret || !secret.startsWith("sk_test_")) {
