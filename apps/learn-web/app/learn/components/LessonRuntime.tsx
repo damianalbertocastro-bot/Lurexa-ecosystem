@@ -151,14 +151,19 @@ export function LessonRuntime({ courseId, lessonId, retrievalScheduleId }: Lesso
         setPayload(lessonPayload);
 
         if (!lessonPayload.progress?.completed) {
-          const startResponse = await authenticatedFetch("/api/learning", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "startLesson", courseId, lessonId }),
-          });
-          const startBody: unknown = await startResponse.json();
-          if (!startResponse.ok) throw new Error(readError(startBody, "Unable to save lesson progress."));
-          setPayload((current) => (current ? { ...current, progress: startBody as StudentProgress } : current));
+          try {
+            const startResponse = await authenticatedFetch("/api/learning", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "startLesson", courseId, lessonId }),
+            });
+            const startBody: unknown = await startResponse.json();
+            if (startResponse.ok) {
+              setPayload((current) => (current ? { ...current, progress: startBody as StudentProgress } : current));
+            }
+          } catch (progressError) {
+            console.warn("Non-fatal: could not save initial start progress, continuing interactive lesson:", progressError);
+          }
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : "Unable to load this lesson.");

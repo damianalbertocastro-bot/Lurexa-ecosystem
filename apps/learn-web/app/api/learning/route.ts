@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 function failure(error: unknown): Response {
   const rawMessage = error instanceof Error ? error.message : "Request failed.";
-  const message = rawMessage.includes("unenv") || rawMessage.includes("not implemented") || rawMessage.includes("https.request")
+  const message = rawMessage.includes("unenv") || rawMessage.includes("not implemented") || rawMessage.includes("https.request") || rawMessage.includes("not extensible") || rawMessage.includes("credentials")
     ? "Edge runtime service temporarily constrained. Please retry or access platform services directly."
     : rawMessage;
   const normalized = message.toLocaleLowerCase();
@@ -31,7 +31,15 @@ export async function GET(request: Request): Promise<Response> {
     if (url.searchParams.get("teacherDashboard") === "1") {
       return Response.json(await CoursePlatformService.getTeacherCourses(actor));
     }
-    if (courseId && lessonId) return Response.json(await CoursePlatformService.getLesson(actor, courseId, lessonId));
+    if (courseId && lessonId) {
+      try {
+        return Response.json(await CoursePlatformService.getLesson(actor, courseId, lessonId));
+      } catch (err) {
+        const fallback = CoursePlatformService.getFallbackLesson(courseId, lessonId);
+        if (fallback) return Response.json(fallback);
+        throw err;
+      }
+    }
     return Response.json(await CoursePlatformService.getLearnerCourses(actor));
   } catch (error) { return failure(error); }
 }

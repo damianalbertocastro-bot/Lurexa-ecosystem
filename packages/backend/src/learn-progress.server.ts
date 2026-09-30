@@ -122,10 +122,14 @@ export const LearnProgressService = {
       lastAccessedAt: now,
     };
 
-    await reference.set(
+    try {
+      await reference.set(
       { ...record, updatedAt: FieldValue.serverTimestamp() },
       { merge: true }
     );
+    } catch (saveError) {
+      console.warn("Could not persist startLesson progress to Firestore (edge or unenv constraint):", saveError);
+    }
 
     return record;
   },

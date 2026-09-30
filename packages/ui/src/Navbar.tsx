@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { getEcosystemUrl, type EcosystemAppKey } from "@lurexa/config/domains";
 import { MasterMark } from "./MasterMark";
 import { EcosystemDropdown } from "./EcosystemDropdown";
@@ -35,6 +35,7 @@ export function Navbar({
   inverse = false,
   className = "",
 }: NavbarProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const rootUrl = getEcosystemUrl("root");
   const resolvedBrandHref = brandHref ?? (currentApp && currentApp !== "root" ? "/" : rootUrl);
 
@@ -44,7 +45,7 @@ export function Navbar({
 
   return (
     <header className={`sticky top-0 z-40 border-b backdrop-blur-xl ${containerClasses} ${className}`}>
-      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <a
             href={resolvedBrandHref}
@@ -86,7 +87,8 @@ export function Navbar({
           </nav>
         )}
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Desktop Controls (>= sm) */}
+        <div className="hidden sm:flex items-center gap-2 sm:gap-2.5">
           <div className={`flex items-center gap-1 rounded-xl border p-1 shadow-2xs ${
             inverse ? "border-white/15 bg-white/10" : "border-slate-200/90 bg-white/95"
           }`}>
@@ -96,7 +98,57 @@ export function Navbar({
           </div>
           {rightSlot}
         </div>
+
+        {/* Mobile Controls (< sm) */}
+        <div className="flex sm:hidden items-center gap-2">
+          {rightSlot}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border text-sm transition ${
+              inverse
+                ? "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                : "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            {mobileMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Drawer (< sm) */}
+      {mobileMenuOpen && (
+        <div className={`sm:hidden border-t px-4 py-4 shadow-xl backdrop-blur-xl ${
+          inverse ? "border-white/10 bg-[var(--color-brand-navy)]/98 text-white" : "border-slate-200 bg-white/98 text-slate-900"
+        }`}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-2 p-2 rounded-xl border border-slate-200/50 bg-slate-50/50 dark:bg-slate-800/50">
+              <span className="text-xs font-bold opacity-75">Language</span>
+              <LanguageSelector variant="segmented" compact inverse={inverse} />
+            </div>
+            <div className="flex items-center justify-between gap-2 p-2 rounded-xl border border-slate-200/50 bg-slate-50/50 dark:bg-slate-800/50">
+              <span className="text-xs font-bold opacity-75">Ecosystem</span>
+              <EcosystemDropdown currentApp={currentApp} compact inverse={inverse} className="border-0 bg-transparent shadow-none" />
+            </div>
+            {navLinks.length > 0 && (
+              <div className="flex flex-col gap-1 pt-2 border-t border-slate-200/50">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-lg px-3 py-2 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
