@@ -86,7 +86,11 @@ export interface LearnTutorSession {
   updatedAt: string;
 }
 
-/** The learner client submits only stable identifiers, optional trusted session identity, and the new learner-authored message. */
+/**
+ * The learner client submits only stable identifiers, optional trusted session
+ * identity, and the new learner-authored message. Prior roleplay turns are
+ * owned by the server and cannot be rewritten by the browser.
+ */
 export interface LearnTutorTurnRequest {
   courseId: string;
   lessonId: string;
