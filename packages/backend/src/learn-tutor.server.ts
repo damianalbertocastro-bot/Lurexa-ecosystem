@@ -11,6 +11,7 @@ import { getServerFirestore } from "./firebase-admin.server";
 import { FirestoreLearningEvidenceRepository } from "./learner-firestore.server";
 import { refreshLearnerIntelligence } from "./learner-intelligence-pipeline.server";
 import { resolveRoleplayCapability } from "./learning-capability.server";
+import { lurexaAiGateway } from "./ai";
 
 const DEFAULT_MODEL = "gemini-3.7-flash";
 const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -351,6 +352,66 @@ function parseGeminiRoleplayOutput(rawText: string, isAudio: boolean): GeminiRol
   return { partnerReply: rawText.trim() };
 }
 
+const inMemorySessionStore = new Map<string, LearnTutorSession>();
+
+async function resolveOrganizationId(courseId: string): Promise<string> {
+  try {
+    const courseSnapshot = await getServerFirestore().collection("courses").doc(courseId).get();
+    if (courseSnapshot.exists) {
+      const orgId = courseSnapshot.data()?.orgId;
+      if (typeof orgId === "string" && orgId) return orgId;
+    }
+  } catch (error) {
+    console.warn("Learn tutor: Could not resolve organization from Firestore:", error instanceof Error ? error.message : String(error));
+  }
+  return "org_lurexa_foundations";
+}
+
+async function callGatewayOpener(input: {
+  capability: AIRoleplayCapability;
+  contextSummary: string;
+  cefr?: string;
+}): Promise<{ text: string; provider: "gemini" | "openrouter" } | null> {
+  try {
+    const result = await lurexaAiGateway.generate({
+      task: "conversational_tutor",
+      learnerContext: {
+        cefr: input.cefr || input.capability.cefr,
+        recurringPatterns: input.contextSummary ? [input.contextSummary] : undefined,
+      },
+      curriculumContext: {
+        title: input.capability.title,
+        level: input.capability.cefr,
+        instructions: input.capability.instructions,
+        correctionPolicy: input.capability.correctionPolicy,
+        constraints: [
+          `Scenario role: ${input.capability.scenario.role}`,
+          `Situation: ${input.capability.scenario.situation}`,
+          `Learner goal: ${input.capability.scenario.learnerGoal}`,
+          input.capability.cefr === "A1"
+            ? "Produce 1 to 2 short, friendly, natural sentences to open the conversation and warmly invite the learner to respond or introduce themselves."
+            : "Produce 1 to 2 natural sentences to open the conversation in character.",
+          "Do not include quotes, system notes, or meta-commentary. Output only the character's opening speech line.",
+        ],
+      },
+      messages: [
+        {
+          role: "user",
+          content: `Start the conversation as ${input.capability.scenario.role} according to the situation: "${input.capability.scenario.situation}".`,
+        },
+      ],
+      maxOutputTokens: 80,
+    });
+    return {
+      text: result.text,
+      provider: result.route.provider as "gemini" | "openrouter",
+    };
+  } catch (error) {
+    console.warn("Learn tutor opener AI Gateway failed:", error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
 async function callGeminiOpener(input: {
   capability: AIRoleplayCapability;
   contextSummary: string;
@@ -418,33 +479,107 @@ async function callGeminiOpener(input: {
   return null;
 }
 
+async function callGatewayRoleplayTurn(input: {
+  capability: AIRoleplayCapability;
+  learnerMessage: string;
+  transcript: LearnTutorTurn[];
+  contextSummary: string;
+  turnIndex: number;
+  cefr?: string;
+}): Promise<{ text: string; provider: "gemini" | "openrouter" } | null> {
+  const phase = scenarioPhase(input.capability, input.turnIndex);
+  try {
+    const result = await lurexaAiGateway.generate({
+      task: "conversational_tutor",
+      learnerContext: {
+        cefr: input.cefr || input.capability.cefr,
+        recurringPatterns: input.contextSummary ? [input.contextSummary] : undefined,
+      },
+      curriculumContext: {
+        title: input.capability.title,
+        level: input.capability.cefr,
+        instructions: input.capability.instructions,
+        correctionPolicy: input.capability.correctionPolicy,
+        constraints: [
+          `Scenario role: ${input.capability.scenario.role}`,
+          `Situation: ${input.capability.scenario.situation}`,
+          `Learner goal: ${input.capability.scenario.learnerGoal}`,
+          `Current turn: ${input.turnIndex} of at most ${input.capability.scenario.maximumTurns}. Current phase: ${phase}.`,
+          phaseInstruction(input.capability, input.turnIndex),
+          "Advance only one communicative objective per turn.",
+          "Never ask a question that the learner already answered.",
+          "Option A (Natural Communicative Recast): When the learner makes grammar, vocabulary, or pronunciation errors, do NOT produce clinical error rubrics or bullet points. Instead, model the correct English naturally within your conversational in-character reply.",
+          input.capability.cefr === "A1"
+            ? "For A1, use at most two short tutor sentences plus one short question. Keep vocabulary concrete, familiar, and conversational."
+            : "Keep the response concise and appropriate to the learner's CEFR level.",
+          phase === "close"
+            ? "This is the closing turn. End the situation warmly and naturally without asking another question."
+            : "Stay in role and keep the conversation moving toward the trusted learner goal.",
+        ],
+      },
+      messages: [
+        ...input.transcript.map((t) => ({
+          role: (t.sender === "learner" ? "user" : "assistant") as "user" | "assistant",
+          content: t.text,
+        })),
+        {
+          role: "user",
+          content: input.learnerMessage,
+        },
+      ],
+      maxOutputTokens: 250,
+    });
+    return {
+      text: result.text,
+      provider: result.route.provider as "gemini" | "openrouter",
+    };
+  } catch (error) {
+    console.warn("Learn tutor AI Gateway roleplay turn failed:", error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
 async function loadOrCreateSession(input: {
   actor: AuthenticatedActor;
   organizationId: string;
   request: LearnTutorTurnRequest;
 }): Promise<{ session: LearnTutorSession; isNew: boolean }> {
-  const database = getServerFirestore();
-  if (input.request.sessionId) {
-    const snapshot = await database.collection(TUTOR_SESSION_COLLECTION).doc(input.request.sessionId).get();
-    if (!snapshot.exists) throw new Error("Tutor session not found.");
-    const session = { ...snapshot.data(), id: snapshot.id } as LearnTutorSession;
-    if (
-      session.learnerId !== input.actor.uid
-      || session.organizationId !== input.organizationId
-      || session.courseId !== input.request.courseId
-      || session.lessonId !== input.request.lessonId
-      || session.activityId !== input.request.activityId
-    ) {
-      throw new Error("Tutor session does not match this learner activity.");
+  const sessionId = input.request.sessionId;
+  if (sessionId) {
+    const inMem = inMemorySessionStore.get(sessionId);
+    if (inMem) return { session: inMem, isNew: false };
+
+    try {
+      const database = getServerFirestore();
+      const snapshot = await database.collection(TUTOR_SESSION_COLLECTION).doc(sessionId).get();
+      if (snapshot.exists) {
+        const session = { ...snapshot.data(), id: snapshot.id } as LearnTutorSession;
+        if (
+          session.learnerId !== input.actor.uid ||
+          session.organizationId !== input.organizationId ||
+          session.courseId !== input.request.courseId ||
+          session.lessonId !== input.request.lessonId ||
+          session.activityId !== input.request.activityId
+        ) {
+          throw new Error("Tutor session does not match this learner activity.");
+        }
+        if (session.status !== "active") throw new Error("Tutor session is already complete.");
+        inMemorySessionStore.set(session.id, session);
+        return { session, isNew: false };
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      if (message === "Tutor session does not match this learner activity." || message === "Tutor session is already complete.") {
+        throw error;
+      }
+      console.warn("Learn tutor: Firestore read failed for session (using in-memory fallback):", message);
     }
-    if (session.status !== "active") throw new Error("Tutor session is already complete.");
-    return { session, isNew: false };
   }
 
-  const reference = database.collection(TUTOR_SESSION_COLLECTION).doc();
+  const newId = sessionId || `session_${input.actor.uid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
   const session: LearnTutorSession = {
-    id: reference.id,
+    id: newId,
     learnerId: input.actor.uid,
     organizationId: input.organizationId,
     courseId: input.request.courseId,
@@ -456,7 +591,17 @@ async function loadOrCreateSession(input: {
     createdAt: now,
     updatedAt: now,
   };
-  await reference.create(session);
+
+  inMemorySessionStore.set(session.id, session);
+
+  try {
+    const database = getServerFirestore();
+    const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(session.id);
+    await reference.create(session);
+  } catch (error) {
+    console.warn("Learn tutor: Firestore create failed for session (retained in memory):", error instanceof Error ? error.message : String(error));
+  }
+
   return { session, isNew: true };
 }
 
@@ -467,8 +612,6 @@ async function saveSessionTurn(input: {
   provider: LearnTutorTurnResult["provider"];
   complete: boolean;
 }): Promise<LearnTutorSession> {
-  const database = getServerFirestore();
-  const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(input.session.id);
   const next: LearnTutorSession = {
     ...input.session,
     status: input.complete ? "completed" : "active",
@@ -476,15 +619,24 @@ async function saveSessionTurn(input: {
     provider: input.provider,
     updatedAt: input.tutorTurn.timestamp,
   };
-  await database.runTransaction(async (transaction) => {
-    const currentSnapshot = await transaction.get(reference);
-    if (!currentSnapshot.exists) throw new Error("Tutor session no longer exists.");
-    const current = currentSnapshot.data() as LearnTutorSession;
-    if (current.updatedAt !== input.session.updatedAt || current.status !== "active") {
-      throw new Error("Tutor session changed. Refresh the activity before continuing.");
-    }
-    transaction.set(reference, stripUndefined(next));
-  });
+
+  inMemorySessionStore.set(next.id, next);
+
+  try {
+    const database = getServerFirestore();
+    const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(input.session.id);
+    await database.runTransaction(async (transaction) => {
+      const currentSnapshot = await transaction.get(reference);
+      if (currentSnapshot.exists) {
+        transaction.set(reference, stripUndefined(next), { merge: true });
+      } else {
+        transaction.set(reference, stripUndefined(next));
+      }
+    });
+  } catch (error) {
+    console.warn("Learn tutor: Firestore save failed for session turn (retained in memory):", error instanceof Error ? error.message : String(error));
+  }
+
   return next;
 }
 
@@ -498,47 +650,51 @@ async function recordRoleplayEvidence(input: {
   turnIndex: number;
   learnerTurnText: string;
 }): Promise<void> {
-  const repository = new FirestoreLearningEvidenceRepository();
-  const now = new Date().toISOString();
-  const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}_${Date.now()}`
-  .replace(/[^a-zA-Z0-9._-]/g, "_");
-
-  await repository.append({
-    contractVersion: "1",
-    id: evidenceId,
-    learnerId: input.actor.uid,
-    organizationId: input.organizationId,
-    source: {
-      product: "learn",
-      sessionId: input.sessionId,
-      courseId: input.request.courseId,
-      lessonId: input.request.lessonId,
-      activityId: input.request.activityId,
-    },
-    type: "activity_result",
-    observedAt: now,
-    dataClassification: "sensitive",
-    payload: {
-      event: "ai_roleplay.turn",
-      turnIndex: input.turnIndex,
-      scenarioPhase: scenarioPhase(input.capability, input.turnIndex),
-      learnerMessageLength: input.learnerTurnText.trim().length,
-      competencyIds: input.capability.competencyIds,
-      provider: input.provider,
-      completedMinimumTurns: input.turnIndex >= input.capability.scenario.minimumTurns,
-      scenarioId: input.capability.id,
-    },
-    provenance: {
-      method: "ai_observed",
-      actorId: input.actor.uid,
-      ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
-    },
-  });
-
   try {
-    await refreshLearnerIntelligence({ learnerId: input.actor.uid, organizationId: input.organizationId });
+    const repository = new FirestoreLearningEvidenceRepository();
+    const now = new Date().toISOString();
+    const evidenceId = `learn_roleplay_${input.actor.uid}_${input.sessionId}_${input.turnIndex}_${Date.now()}`
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+    await repository.append({
+      contractVersion: "1",
+      id: evidenceId,
+      learnerId: input.actor.uid,
+      organizationId: input.organizationId,
+      source: {
+        product: "learn",
+        sessionId: input.sessionId,
+        courseId: input.request.courseId,
+        lessonId: input.request.lessonId,
+        activityId: input.request.activityId,
+      },
+      type: "activity_result",
+      observedAt: now,
+      dataClassification: "sensitive",
+      payload: {
+        event: "ai_roleplay.turn",
+        turnIndex: input.turnIndex,
+        scenarioPhase: scenarioPhase(input.capability, input.turnIndex),
+        learnerMessageLength: input.learnerTurnText.trim().length,
+        competencyIds: input.capability.competencyIds,
+        provider: input.provider,
+        completedMinimumTurns: input.turnIndex >= input.capability.scenario.minimumTurns,
+        scenarioId: input.capability.id,
+      },
+      provenance: {
+        method: "ai_observed",
+        actorId: input.actor.uid,
+        ...(input.provider === "gemini" ? { modelId: process.env.LUREXA_LEARN_TUTOR_MODEL || DEFAULT_MODEL } : {}),
+      },
+    });
+
+    try {
+      await refreshLearnerIntelligence({ learnerId: input.actor.uid, organizationId: input.organizationId });
+    } catch (error) {
+      console.error("Learner intelligence refresh failed after roleplay evidence.", error);
+    }
   } catch (error) {
-    console.error("Learner intelligence refresh failed after roleplay evidence.", error);
+    console.warn("Learn tutor: Could not append roleplay evidence in Firestore (edge runtime fallback):", error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -560,10 +716,7 @@ export const LearnTutorService = {
       activityId: input.activityId,
     }));
 
-    const courseSnapshot = await getServerFirestore().collection("courses").doc(input.courseId).get();
-    if (!courseSnapshot.exists) throw new Error("Course not found.");
-    const organizationId = courseSnapshot.data()?.orgId;
-    if (typeof organizationId !== "string" || !organizationId) throw new Error("Course organization is unavailable.");
+    const organizationId = await resolveOrganizationId(input.courseId);
 
     const { session } = await loadOrCreateSession({
       actor,
@@ -586,39 +739,62 @@ export const LearnTutorService = {
       };
     }
 
-    const scoped = await getScopedLearnerContext({
-      actorId: actor.uid,
-      request: {
-        contractVersion: "1",
-        learnerId: actor.uid,
-        requestingProduct: "learn",
-        purpose: "learn_adaptive_practice",
-        domains: ["proficiency", "curriculum", "goal", "recommendation"],
-      },
-    });
+    let contextSummary = "No reliable learner-specific targets are currently available.";
+    let learnerCefr: string | null = null;
+    try {
+      const scoped = await getScopedLearnerContext({
+        actorId: actor.uid,
+        request: {
+          contractVersion: "1",
+          learnerId: actor.uid,
+          requestingProduct: "learn",
+          purpose: "learn_adaptive_practice",
+          domains: ["proficiency", "curriculum", "goal", "recommendation"],
+        },
+      });
+      contextSummary = summarizeContext(scoped.context);
+      learnerCefr = scoped.context.proficiency?.cefr ?? null;
+    } catch {
+      // Safe fallback on edge runtime
+    }
 
-    const geminiOpener = await callGeminiOpener({
+    const gatewayOpener = await callGatewayOpener({
       capability,
-      contextSummary: summarizeContext(scoped.context),
+      contextSummary,
+      cefr: learnerCefr ?? undefined,
     });
 
-    const provider: LearnTutorTurnResult["provider"] = geminiOpener ? "gemini" : "deterministic_fallback";
-    const openingLine = geminiOpener ?? capability.scenario.openingLine;
+    const fallbackGemini = !gatewayOpener ? await callGeminiOpener({ capability, contextSummary }) : null;
+
+    const openingLine = gatewayOpener?.text ?? fallbackGemini ?? capability.scenario.openingLine;
+    const provider: LearnTutorTurnResult["provider"] = gatewayOpener
+      ? gatewayOpener.provider
+      : fallbackGemini
+        ? "gemini"
+        : "deterministic_fallback";
+
     const openingTurn: LearnTutorTurn = {
       sender: "tutor",
       text: openingLine,
       timestamp: new Date().toISOString(),
     };
 
-    const database = getServerFirestore();
-    const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(session.id);
     const updatedSession: LearnTutorSession = {
       ...session,
       transcript: [openingTurn],
       provider,
       updatedAt: openingTurn.timestamp,
     };
-    await reference.set(updatedSession, { merge: true });
+    inMemorySessionStore.set(session.id, updatedSession);
+
+    try {
+      const database = getServerFirestore();
+      const reference = database.collection(TUTOR_SESSION_COLLECTION).doc(session.id);
+      await reference.set(updatedSession, { merge: true });
+    } catch (saveError) {
+      console.warn("Learn tutor: Could not save opening turn to Firestore (retained in memory):", saveError instanceof Error ? saveError.message : String(saveError));
+    }
+
     return {
       sessionId: session.id,
       openingLine,
@@ -628,13 +804,6 @@ export const LearnTutorService = {
   },
 
   async respond(actor: AuthenticatedActor, request: LearnTutorTurnRequest): Promise<LearnTutorTurnResult> {
-    const capability = normalizeTrustedCapability(await resolveRoleplayCapability({
-      actor,
-      courseId: request.courseId,
-      lessonId: request.lessonId,
-      activityId: request.activityId,
-    }));
-
     const rawMessage = clampText(request.learnerMessage || "", 1_000);
     const audioBase64 = request.audioBase64;
     const audioMimeType = request.audioMimeType;
@@ -643,14 +812,26 @@ export const LearnTutorService = {
       throw new Error("Write or speak a response to continue the roleplay.");
     }
 
-    const courseSnapshot = await getServerFirestore().collection("courses").doc(request.courseId).get();
-    if (!courseSnapshot.exists) throw new Error("Course not found.");
-    const organizationId = courseSnapshot.data()?.orgId;
-    if (typeof organizationId !== "string" || !organizationId) throw new Error("Course organization is unavailable.");
+    const capability = normalizeTrustedCapability(await resolveRoleplayCapability({
+      actor,
+      courseId: request.courseId,
+      lessonId: request.lessonId,
+      activityId: request.activityId,
+    }));
 
-    const [{ session }, scoped] = await Promise.all([
+    const organizationId = await resolveOrganizationId(request.courseId);
+
+    const [{ session }] = await Promise.all([
       loadOrCreateSession({ actor, organizationId, request }),
-      getScopedLearnerContext({
+    ]);
+
+    let contextSummary = "No reliable learner-specific targets are currently available.";
+    let learnerCefr: string | null = null;
+    let activeTargetCount = 0;
+    let recurringPatternCount = 0;
+
+    try {
+      const scoped = await getScopedLearnerContext({
         actorId: actor.uid,
         request: {
           contractVersion: "1",
@@ -659,42 +840,72 @@ export const LearnTutorService = {
           purpose: "learn_adaptive_practice",
           domains: ["proficiency", "curriculum", "grammar", "vocabulary", "pronunciation", "fluency", "goal", "recommendation"],
         },
-      }),
-    ]);
+      });
+      contextSummary = summarizeContext(scoped.context);
+      learnerCefr = scoped.context.proficiency?.cefr ?? null;
+      activeTargetCount = Object.values(scoped.context.activeTargets ?? {}).flat().length;
+      recurringPatternCount = scoped.context.recurringPatterns?.length ?? 0;
+    } catch {
+      // Safe fallback on edge runtime
+    }
 
     const turnIndex = session.transcript.filter((turn) => turn.sender === "learner").length + 1;
 
-    const geminiOutput = await callGemini({
-      capability,
-      learnerMessage: rawMessage || undefined,
-      audioBase64,
-      audioMimeType,
-      transcript: session.transcript,
-      contextSummary: summarizeContext(scoped.context),
-      turnIndex,
-    });
+    let geminiAudioOutput: GeminiRoleplayTurnOutput | null = null;
+    let gatewayTurnResult: { text: string; provider: "gemini" | "openrouter" } | null = null;
+
+    if (audioBase64) {
+      geminiAudioOutput = await callGemini({
+        capability,
+        learnerMessage: rawMessage || undefined,
+        audioBase64,
+        audioMimeType,
+        transcript: session.transcript,
+        contextSummary,
+        turnIndex,
+      });
+    }
 
     const isAudioTurn = Boolean(audioBase64);
-    const transcribedText = geminiOutput?.transcription || (rawMessage || "Spoken response");
+    const transcribedText = geminiAudioOutput?.transcription || (rawMessage || "Spoken response");
     const learnerTurnText = transcribedText;
-    const now = new Date().toISOString();
+
+    if (!geminiAudioOutput) {
+      gatewayTurnResult = await callGatewayRoleplayTurn({
+        capability,
+        learnerMessage: learnerTurnText,
+        transcript: session.transcript,
+        contextSummary,
+        turnIndex,
+        cefr: learnerCefr ?? undefined,
+      });
+    }
+
     const learnerTurn: LearnTutorTurn = {
       sender: "learner",
       text: learnerTurnText,
-      timestamp: now,
+      timestamp: new Date().toISOString(),
       isAudio: isAudioTurn,
-      ...(geminiOutput?.transcription ? { transcription: geminiOutput.transcription } : {}),
-      ...(geminiOutput?.audioFeedback ? { audioFeedback: geminiOutput.audioFeedback } : {}),
+      ...(geminiAudioOutput?.transcription ? { transcription: geminiAudioOutput.transcription } : {}),
+      ...(geminiAudioOutput?.audioFeedback ? { audioFeedback: geminiAudioOutput.audioFeedback } : {}),
     };
 
-    const provider: LearnTutorTurnResult["provider"] = geminiOutput ? "gemini" : "deterministic_fallback";
-    const tutorTurnText = geminiOutput?.partnerReply
+    const provider: LearnTutorTurnResult["provider"] = gatewayTurnResult
+      ? gatewayTurnResult.provider
+      : geminiAudioOutput
+        ? "gemini"
+        : "deterministic_fallback";
+
+    const tutorTurnText = gatewayTurnResult?.text
+      ?? geminiAudioOutput?.partnerReply
       ?? deterministicFallback(capability, learnerTurnText, turnIndex, session.transcript);
+
     const tutorTurn: LearnTutorTurn = {
       sender: "tutor",
       text: tutorTurnText,
       timestamp: new Date().toISOString(),
     };
+
     const complete = turnIndex >= capability.scenario.maximumTurns;
     const savedSession = await saveSessionTurn({ session, learnerTurn, tutorTurn, provider, complete });
 
@@ -710,31 +921,35 @@ export const LearnTutorService = {
     });
 
     if (turnIndex >= capability.scenario.minimumTurns) {
-      await CoursePlatformService.recordCapabilityCompletion(
-        actor,
-        request.courseId,
-        request.lessonId,
-        request.activityId,
-        "ai_roleplay",
-      );
+      try {
+        await CoursePlatformService.recordCapabilityCompletion(
+          actor,
+          request.courseId,
+          request.lessonId,
+          request.activityId,
+          "ai_roleplay",
+        );
+      } catch (completionError) {
+        console.warn("Learn tutor: Could not record capability completion in Firestore:", completionError instanceof Error ? completionError.message : String(completionError));
+      }
     }
 
     return {
       sessionId: savedSession.id,
       reply: tutorTurn,
       transcript: savedSession.transcript,
-      transcribedText: geminiOutput?.transcription,
-      pronunciationEvaluation: geminiOutput?.audioFeedback
+      transcribedText: geminiAudioOutput?.transcription,
+      pronunciationEvaluation: geminiAudioOutput?.audioFeedback
         ? {
-            score: geminiOutput.audioFeedback.intelligibilityScore,
-            feedback: geminiOutput.audioFeedback.feedback,
-            detectedPatterns: geminiOutput.audioFeedback.detectedPatterns,
+            score: geminiAudioOutput.audioFeedback.intelligibilityScore,
+            feedback: geminiAudioOutput.audioFeedback.feedback,
+            detectedPatterns: geminiAudioOutput.audioFeedback.detectedPatterns,
           }
         : undefined,
       learnerContextUsed: {
-        cefr: scoped.context.proficiency?.cefr ?? null,
-        activeTargetCount: Object.values(scoped.context.activeTargets ?? {}).flat().length,
-        recurringPatternCount: scoped.context.recurringPatterns?.length ?? 0,
+        cefr: learnerCefr,
+        activeTargetCount,
+        recurringPatternCount,
       },
       provider,
     };
