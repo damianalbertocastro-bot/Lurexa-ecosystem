@@ -1,6 +1,5 @@
 import type {
   BusinessCapability,
-  BusinessContract,
   CanonicalOrganizationBillingRecord,
   EntitlementCapability,
   InstitutionalBillingProfile,

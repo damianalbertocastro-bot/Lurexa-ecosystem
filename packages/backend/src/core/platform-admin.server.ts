@@ -9,7 +9,7 @@ import type {
 } from "@lurexa/types";
 import { getServerFirebaseAuth, getServerFirestore } from "../firebase-admin.server";
 import { buildCanonicalOrganizationBillingRecord } from "../billing/legacy-billing-migration";
-import type { AdminBillingAccount, CanonicalOrganizationBillingRecord, LegacyBillingMigrationResult } from "@lurexa/types";
+import type { AdminBillingAccount, CanonicalOrganizationBillingRecord, CommercialInvoice, CommercialPayment, LegacyBillingMigrationResult } from "@lurexa/types";
 
 function asOrganization(
   id: string,
@@ -155,7 +155,7 @@ export const PlatformAdminService = {
     const database = getServerFirestore();
     const organizationsSnapshot = await database.collection("organizations").get();
 
-    const accounts = await Promise.all(organizationsSnapshot.docs.map(async (doc) => {
+    const accounts = await Promise.all(organizationsSnapshot.docs.map(async (doc): Promise<AdminBillingAccount | null> => {
       const data = doc.data();
       const canonical = data.billing as CanonicalOrganizationBillingRecord | undefined;
       const projection = canonical ?? buildCanonicalOrganizationBillingRecord(doc.id, data);
@@ -186,12 +186,12 @@ export const PlatformAdminService = {
         productAccess: projection.productAccess,
         capabilities: projection.capabilities,
         businessContract: projection.businessContract,
-        invoices: invoicesSnapshot.docs.map((invoice) => invoice.data()),
-        payments: paymentsSnapshot.docs.map((payment) => payment.data()),
+        invoices: invoicesSnapshot.docs.map((invoice) => invoice.data() as CommercialInvoice),
+        payments: paymentsSnapshot.docs.map((payment) => payment.data() as CommercialPayment),
         providerCustomerId: projection.providerCustomerId,
         providerSubscriptionId: projection.providerSubscriptionId,
         migratedFromLegacy: Boolean(projection.migratedFrom),
-      } satisfies AdminBillingAccount;
+      };
     }));
 
     return accounts.filter((account): account is AdminBillingAccount => Boolean(account));

@@ -14,7 +14,7 @@ import { EcosystemDropdown } from "@lurexa/ui/EcosystemDropdown";
 import { useToast } from "@lurexa/ui/Toast";
 import { useSoundEffects } from "@lurexa/ui/useSoundEffects";
 import { AuthService } from "@lurexa/backend";
-import type { AdminBillingAccount, InstitutionalBillingProfile } from "@lurexa/types";
+import type { AdminBillingAccount } from "@lurexa/types";
 import { authenticatedFetch } from "../../lib/authenticated-fetch";
 
 const PROFILE_LABELS: Record<string, string> = {
