@@ -14,6 +14,13 @@ function providerEventCreatedAt(event: StripeEvent): string {
   return typeof event.created === "number" ? new Date(event.created * 1000).toISOString() : new Date().toISOString();
 }
 
+function providerEventIsAtLeastAsNew(current: unknown, incoming: string): boolean {
+  if (typeof current !== "string") return true;
+  const currentMs = Date.parse(current);
+  const incomingMs = Date.parse(incoming);
+  return !Number.isFinite(currentMs) || !Number.isFinite(incomingMs) || incomingMs >= currentMs;
+}
+
 function metadataOf(object: StripeObject): StripeObject {
   return (object.metadata as StripeObject | undefined) ?? {};
 }
@@ -222,13 +229,13 @@ export async function processStripeWebhook(payload: string, signature: string): 
     transaction.set(eventRef, normalized, { merge: true });
 
     const existingSubscriptionEventAt = subscriptionSnapshot?.data()?.providerEventCreatedAt as string | undefined;
-    const subscriptionIsNewerThanCore = !existingSubscriptionEventAt || Date.parse(eventCreatedAt) >= Date.parse(existingSubscriptionEventAt);
+    const subscriptionIsNewerThanCore = providerEventIsAtLeastAsNew(existingSubscriptionEventAt, eventCreatedAt);
 
     if (organizationRef && organizationSnapshot) {
       const billing = organizationSnapshot.data()?.billing as import("@lurexa/types").CanonicalOrganizationBillingRecord | undefined;
       if (billing?.schemaVersion === 1) {
         const existingOrgEventAt = billing.latestProviderEventCreatedAt;
-        const organizationEventIsNewer = !existingOrgEventAt || Date.parse(eventCreatedAt) >= Date.parse(existingOrgEventAt);
+        const organizationEventIsNewer = providerEventIsAtLeastAsNew(existingOrgEventAt, eventCreatedAt);
         if (organizationEventIsNewer) {
         const providerStatus = String(subscription?.status ?? event.data.object.status ?? "");
         const mappedStatus =
@@ -296,14 +303,24 @@ export async function processStripeWebhook(payload: string, signature: string): 
     }
 
     if (invoice) {
-      const invoiceWithSubscription: CommercialInvoice = {
-        ...invoice,
-        subscriptionId: subscription?.id ?? invoice.subscriptionId,
-      };
-      transaction.set(database.collection("billing_invoices").doc(invoice.id), invoiceWithSubscription, { merge: true });
+      const invoiceRef = database.collection("billing_invoices").doc(invoice.id);
+      const invoiceSnapshot = await transaction.get(invoiceRef);
+      const existingInvoiceEventAt = invoiceSnapshot.data()?.providerEventCreatedAt;
+      if (providerEventIsAtLeastAsNew(existingInvoiceEventAt, eventCreatedAt)) {
+        const invoiceWithSubscription: CommercialInvoice = {
+          ...invoice,
+          subscriptionId: subscription?.id ?? invoice.subscriptionId,
+        };
+        transaction.set(invoiceRef, invoiceWithSubscription, { merge: true });
+      }
     }
     if (payment) {
-      transaction.set(database.collection("billing_payments").doc(payment.id), payment, { merge: true });
+      const paymentRef = database.collection("billing_payments").doc(payment.id);
+      const paymentSnapshot = await transaction.get(paymentRef);
+      const existingPaymentEventAt = paymentSnapshot.data()?.providerEventCreatedAt;
+      if (providerEventIsAtLeastAsNew(existingPaymentEventAt, eventCreatedAt)) {
+        transaction.set(paymentRef, payment, { merge: true });
+      }
     }
 
     transaction.set(eventRef, {
