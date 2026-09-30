@@ -170,7 +170,7 @@ export const PlatformAdminService = {
       const paymentsSnapshot = await database.collection("billing_payments")
         .where("customerId", "==", projection.customerId).get();
 
-      return {
+      const account: AdminBillingAccount = {
         customerId: projection.customerId,
         organizationId: doc.id,
         organizationName: data.name || "Unnamed Institution",
@@ -186,15 +186,16 @@ export const PlatformAdminService = {
         productAccess: projection.productAccess,
         capabilities: projection.capabilities,
         businessContract: projection.businessContract,
-        invoices: invoicesSnapshot.docs.map((invoice) => invoice.data() as CommercialInvoice),
-        payments: paymentsSnapshot.docs.map((payment) => payment.data() as CommercialPayment),
+        invoices: invoicesSnapshot.docs.map((invoice) => invoice.data() as unknown as CommercialInvoice),
+        payments: paymentsSnapshot.docs.map((payment) => payment.data() as unknown as CommercialPayment),
         providerCustomerId: projection.providerCustomerId,
         providerSubscriptionId: projection.providerSubscriptionId,
         migratedFromLegacy: Boolean(projection.migratedFrom),
       };
+      return account;
     }));
 
-    return accounts.filter((account): account is AdminBillingAccount => Boolean(account));
+    return accounts.filter((account): account is AdminBillingAccount => account !== null);
   },
 
   async migrateLegacyBillingAccounts(
