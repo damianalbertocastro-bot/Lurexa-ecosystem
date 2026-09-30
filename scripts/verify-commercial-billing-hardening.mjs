@@ -29,7 +29,7 @@ const checks = [
   ["reconciliation requires superadmin", reconcile.includes('token.role !== "super_admin"')],
   ["admin reconciliation endpoint exists", adminRoute.includes("reconcileStripeBilling")],
   ["billing modules are exported through the governed backend boundary", backendPackage.includes('"./billing/*"')],
-  ["out-of-order provider events are guarded", entitlement.includes("providerEventCreatedAt") && entitlement.includes("Date.parse(eventCreatedAt)")],
+  ["out-of-order provider events are guarded", entitlement.includes("providerEventIsAtLeastAsNew") && entitlement.includes("providerEventCreatedAt")],
   ["Business provider subscription identity is not taken from the webhook object ID", entitlement.includes("subscription?.providerSubscriptionId ?? stringValue(event.data.object.subscription)")],
   ["organization entitlements are scoped by server-loaded organization billing", entitlement.includes("organizations") && entitlement.includes("organizationSnapshot")],
   ["provider event records retain provider creation time", types.includes("providerEventCreatedAt?: string") && types.includes("BillingWebhookEvent")],
