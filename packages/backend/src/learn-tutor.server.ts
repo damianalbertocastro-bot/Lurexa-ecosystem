@@ -507,6 +507,7 @@ async function callGatewayRoleplayTurn(input: {
           `Current turn: ${input.turnIndex} of at most ${input.capability.scenario.maximumTurns}. Current phase: ${phase}.`,
           phaseInstruction(input.capability, input.turnIndex),
           "Advance only one communicative objective per turn.",
+          "Never ask a question that the learner already answered.",
           "Option A (Natural Communicative Recast): When the learner makes grammar, vocabulary, or pronunciation errors, do NOT produce clinical error rubrics or bullet points. Instead, model the correct English naturally within your conversational in-character reply.",
           input.capability.cefr === "A1"
             ? "For A1, use at most two short tutor sentences plus one short question. Keep vocabulary concrete, familiar, and conversational."
@@ -554,17 +555,24 @@ async function loadOrCreateSession(input: {
       if (snapshot.exists) {
         const session = { ...snapshot.data(), id: snapshot.id } as LearnTutorSession;
         if (
-          session.learnerId === input.actor.uid &&
-          session.courseId === input.request.courseId &&
-          session.lessonId === input.request.lessonId &&
-          session.activityId === input.request.activityId
+          session.learnerId !== input.actor.uid ||
+          session.organizationId !== input.organizationId ||
+          session.courseId !== input.request.courseId ||
+          session.lessonId !== input.request.lessonId ||
+          session.activityId !== input.request.activityId
         ) {
-          inMemorySessionStore.set(session.id, session);
-          return { session, isNew: false };
+          throw new Error("Tutor session does not match this learner activity.");
         }
+        if (session.status !== "active") throw new Error("Tutor session is already complete.");
+        inMemorySessionStore.set(session.id, session);
+        return { session, isNew: false };
       }
     } catch (error) {
-      console.warn("Learn tutor: Firestore read failed for session (using in-memory fallback):", error instanceof Error ? error.message : String(error));
+      const message = error instanceof Error ? error.message : "";
+      if (message === "Tutor session does not match this learner activity." || message === "Tutor session is already complete.") {
+        throw error;
+      }
+      console.warn("Learn tutor: Firestore read failed for session (using in-memory fallback):", message);
     }
   }
 
