@@ -72,7 +72,10 @@ export async function POST(request: Request): Promise<Response> {
 
     return Response.json(await LearnTutorService.respond(actor, payload as LearnTutorTurnRequest));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to continue the tutor scenario.";
+    const rawMessage = error instanceof Error ? error.message : "Unable to continue the tutor scenario.";
+    const message = rawMessage.includes("unenv") || rawMessage.includes("not implemented") || rawMessage.includes("https.request") || rawMessage.includes("not extensible") || rawMessage.includes("credentials")
+      ? "Edge runtime service temporarily constrained. Please retry or continue in practice mode."
+      : rawMessage;
     const status = message === "Authentication is required." ? 401 : message.toLowerCase().includes("not found") ? 404 : 400;
     return Response.json({ error: message }, { status });
   }
