@@ -286,7 +286,7 @@ export async function processStripeWebhook(payload: string, signature: string): 
 
     if (subscription && subscriptionIsNewerThanCore) {
       const subscriptionRef = database.collection("billing_subscriptions").doc(subscription.id);
-      transaction.set(subscriptionRef!, { ...subscription, providerEventCreatedAt: eventCreatedAt }, { merge: true });
+      transaction.set(subscriptionRef, { ...subscription, providerEventCreatedAt: eventCreatedAt }, { merge: true });
 
       const entitlement = capabilitiesFor(subscription);
       if (entitlement && subscription.userId) {
@@ -313,13 +313,13 @@ export async function processStripeWebhook(payload: string, signature: string): 
           ...invoice,
           subscriptionId: subscription?.id ?? invoice.subscriptionId,
         };
-        transaction.set(invoiceRef, invoiceWithSubscription, { merge: true });
+        if (invoiceRef) transaction.set(invoiceRef, invoiceWithSubscription, { merge: true });
       }
     }
     if (payment) {
       const existingPaymentEventAt = paymentSnapshot?.data()?.providerEventCreatedAt;
       if (providerEventIsAtLeastAsNew(existingPaymentEventAt, eventCreatedAt)) {
-        transaction.set(paymentRef, payment, { merge: true });
+        if (paymentRef) transaction.set(paymentRef, payment, { merge: true });
       }
     }
 
