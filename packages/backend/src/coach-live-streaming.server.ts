@@ -6,8 +6,7 @@
  */
 
 import type { BusinessContract } from "@lurexa/types";
-import { CAPABILITY_REGISTRY } from "@lurexa/types";
-import { resolveAuthorizedCapability } from "./capability-enforcement.server";
+import { authorizeCommercialCapability } from "./capability-enforcement.server";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
@@ -51,13 +50,11 @@ export class CoachLiveStreamingServerService {
     codec: string;
     error?: string;
   }> {
-    const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === "coach.live_streaming");
-    if (!capability) throw new Error("Coach live streaming capability is not registered.");
-    const entitlements = await resolveAuthorizedCapability({
+    const { entitlements } = await authorizeCommercialCapability({
       learnerId: config.learnerId,
       organizationId: config.organizationId,
       product: "COACH",
-      capability,
+      capabilityId: "coach.live_streaming",
     });
     if (!entitlements.streamingAudioEnabled) {
       return {
