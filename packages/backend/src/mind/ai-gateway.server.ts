@@ -3,7 +3,7 @@ import { CAPABILITY_REGISTRY } from "@lurexa/types";
 import { BusinessUsageService } from "../business-usage.server";
 import { UsageLedgerService } from "../usage-ledger.server";
 import { QuotaEnforcementServerService } from "../core/quota-enforcement.server";
-import { resolveAuthorizedCapability } from "../capability-enforcement.server";
+import { authorizeCommercialCapability } from "../capability-enforcement.server";
 
 export interface MindAITask {
   capabilityId: string;
@@ -114,13 +114,11 @@ function openRouterKey(): string | null {
 
 export const AIGateway = {
   async execute(task: MindAITask): Promise<AIGatewayResult> {
-    const capability = findCapability(task.capabilityId);
-    if (capability.product !== task.product) throw new Error("Capability/product mismatch.");
-    const entitlements = await resolveAuthorizedCapability({
+    const { capability, entitlements } = await authorizeCommercialCapability({
       learnerId: task.learnerId,
       organizationId: task.organizationId,
       product: task.product,
-      capability,
+      capabilityId: task.capabilityId,
     });
 
     const businessApplied = await BusinessUsageService.consumeIfBusiness({
