@@ -7,6 +7,7 @@ const fail = (message) => { console.error("[phase15-20] " + message); process.ex
 
 const required = [
   "Docs/Engineering/LUREXA_AI_GATEWAY_RESILIENCE.md",
+  "Docs/Engineering/LUREXA_COMMERCIAL_CAPABILITY_A_TO_F_COMPLETION.md",
   "Docs/Engineering/LUREXA_RUNTIME_AUTHORIZATION_AUDIT.md",
   "Docs/Engineering/LUREXA_USAGE_REPORTING.md",
   "Docs/Product/LUREXA_COMMERCIAL_UX_SOURCE_OF_TRUTH.md",
@@ -27,9 +28,16 @@ if ((registry.match(/id: "business.analytics"/g) || []).length !== 1) fail("Busi
 if ((registry.match(/id: "business.sso"/g) || []).length !== 1) fail("Business SSO capability is duplicated.");
 if (!registry.includes('entitlementCapability: "live_streaming"')) fail("Coach live streaming lacks an entitlement capability.");
 
+const enforcement = read("packages/backend/src/capability-enforcement.server.ts");
+if (!enforcement.includes("authorizeCommercialCapability") || !enforcement.includes("CAPABILITY_REGISTRY.find")) fail("Phase A canonical registry authorization boundary is missing.");
+if (!enforcement.includes("organizationScope === \"organization\"")) fail("Organization-scoped capability enforcement is missing.");
+
+const aiGateway = read("packages/backend/src/mind/ai-gateway.server.ts");
+if (!aiGateway.includes("authorizeCommercialCapability") || !aiGateway.includes("capabilityId: task.capabilityId")) fail("AI Gateway is not consuming the authoritative capability resolver.");
+
 const coachLive = read("packages/backend/src/coach-live-streaming.server.ts");
 if (coachLive.includes("DEFAULT_TIER_QUOTAS") || coachLive.includes("tier: SubscriptionTier")) fail("Coach live streaming still trusts direct tier quota input.");
-if (!coachLive.includes("resolveAuthorizedCapability")) fail("Coach live streaming does not use server-owned capability authorization.");
+if (!coachLive.includes("authorizeCommercialCapability") || !coachLive.includes('capabilityId: "coach.live_streaming"')) fail("Coach live streaming does not use registry-ID server-owned capability authorization.");
 
 const ledger = read("packages/backend/src/usage-ledger.server.ts");
 for (const token of ["usage-ledger-monthly", "businessAiTurns", "businessVoiceMinutes", "idempotencyKey"]) {
@@ -48,7 +56,6 @@ for (const profile of ["Basic learner", "Plus Learn", "Plus Coach", "Ultra", "Te
   if (!matrix.includes(profile)) fail("Testing matrix missing: " + profile);
 }
 
-const enforcement = read("packages/backend/src/capability-enforcement.server.ts");
 for (const token of ["Learner is not authorized for the requested organization.", "organizationId", "resolveEntitlements"]) {
   if (!enforcement.includes(token)) fail("Runtime authorization boundary missing: " + token);
 }
