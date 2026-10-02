@@ -115,6 +115,7 @@ export const LearnCurriculumAudioService = {
         product: "LEARN",
         capabilityId: "learn.curriculum_audio",
         text: audioInput,
+        actorId: input.actor.uid,
         learnerId: input.actor.uid,
         organizationId,
       });
