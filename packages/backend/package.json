@@ -22,7 +22,8 @@
     "test:educator-growth-integration": "tsx scripts/test-educator-growth-integration.ts",
     "test:usage-reporting": "tsx scripts/test-usage-ledger-reporting.mjs",
     "test:stripe-billing-lifecycle": "tsx scripts/test-stripe-billing-lifecycle.ts",
-    "test:stripe-webhook-signature": "tsx scripts/test-stripe-webhook-signature.ts"
+    "test:stripe-webhook-signature": "tsx scripts/test-stripe-webhook-signature.ts",
+    "test:commercial-capability-authorization": "tsx scripts/test-commercial-capability-authorization.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1121.0",
