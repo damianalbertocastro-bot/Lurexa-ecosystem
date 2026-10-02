@@ -17,11 +17,16 @@ export interface AuthorizedCapabilityResolution {
  * entitlement, quota and scope metadata.
  */
 export async function authorizeCommercialCapability(input: {
+  actorId: string;
   learnerId: string;
   organizationId: string;
   product: ProductEntryPoint;
   capabilityId: string;
 }): Promise<AuthorizedCapabilityResolution> {
+  if (!input.actorId) throw new Error("Authenticated identity is required.");
+  if (input.actorId !== input.learnerId) {
+    throw new Error("The authenticated identity cannot act on behalf of this learner.");
+  }
   const capability = CAPABILITY_REGISTRY.find((entry) => entry.id === input.capabilityId);
   if (!capability || !capability.enabled) {
     throw new Error("The requested capability is not registered or enabled.");
@@ -69,12 +74,14 @@ export async function authorizeCommercialCapability(input: {
  * resolved from the canonical registry.
  */
 export async function resolveAuthorizedCapability(input: {
+  actorId: string;
   learnerId: string;
   organizationId: string;
   product: ProductEntryPoint;
   capability: CapabilityRegistryEntry;
 }): Promise<ResolvedEntitlements> {
   const resolution = await authorizeCommercialCapability({
+    actorId: input.actorId,
     learnerId: input.learnerId,
     organizationId: input.organizationId,
     product: input.product,
