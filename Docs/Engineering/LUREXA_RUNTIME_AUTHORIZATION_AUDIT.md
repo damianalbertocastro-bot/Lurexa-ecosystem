@@ -1,6 +1,6 @@
 # Lurexa Runtime Authorization Audit
 
-Status: Phase 17 implementation baseline
+Status: Phase 17 hardened baseline
 
 ## Authority chain
 
@@ -16,6 +16,9 @@ SubscriptionService remains the canonical entitlement resolver. resolveAuthorize
 - coach.live_streaming is a first-class capability with live_streaming entitlement.
 - Business organization contracts are resolved from the server-owned organization record.
 - Product/capability mismatches are rejected before provider execution.
+- Authenticated Firebase subject binding is now mandatory for learner-scoped capability execution; a caller cannot substitute another learner ID.
+- AI, speech, and Coach live-streaming gateways propagate the authenticated actor context into capability authorization.
+- A CI security test covers missing-authenticated-subject and cross-learner substitution attempts.
 
 ## Deliberate authorities
 
