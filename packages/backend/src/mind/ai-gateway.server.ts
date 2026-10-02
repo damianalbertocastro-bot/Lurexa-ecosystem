@@ -102,13 +102,6 @@ async function fetchProvider(
   throw lastError instanceof Error ? lastError : new Error("AI provider request failed.");
 }
 
-function findCapability(id: string): CapabilityRegistryEntry {
-  const entry = CAPABILITY_REGISTRY.find((candidate) => candidate.id === id);
-  if (!entry || !entry.enabled) throw new Error("AI capability is not registered or enabled.");
-  if (entry.aiProvider === "none") throw new Error("Capability does not permit an AI provider.");
-  return entry;
-}
-
 function openRouterKey(): string | null {
   const value = process.env.OPENROUTER_API_KEY?.trim();
   return value || null;
