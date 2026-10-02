@@ -10,6 +10,7 @@ import { authorizeCommercialCapability } from "./capability-enforcement.server";
 
 export interface LiveStreamSessionConfig {
   sessionId: string;
+  actorId: string;
   learnerId: string;
   organizationId: string;
   businessContract?: BusinessContract | null;
@@ -51,6 +52,7 @@ export class CoachLiveStreamingServerService {
     error?: string;
   }> {
     const { entitlements } = await authorizeCommercialCapability({
+      actorId: config.actorId,
       learnerId: config.learnerId,
       organizationId: config.organizationId,
       product: "COACH",
