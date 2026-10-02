@@ -15,6 +15,8 @@ export interface MindAITask {
   audioMimeType?: string;
   model?: string;
   maxOutputTokens?: number;
+  /** Firebase-verified subject at the authenticated server boundary. */
+  actorId: string;
   learnerId: string;
   organizationId: string;
 }
@@ -115,6 +117,7 @@ function openRouterKey(): string | null {
 export const AIGateway = {
   async execute(task: MindAITask): Promise<AIGatewayResult> {
     const { capability, entitlements } = await authorizeCommercialCapability({
+      actorId: task.actorId,
       learnerId: task.learnerId,
       organizationId: task.organizationId,
       product: task.product,
