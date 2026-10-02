@@ -12,6 +12,7 @@ interface SpeechRequest {
   product: "LEARN" | "COACH" | "TEACH" | "ADMIN" | "STUDIO" | "INSIGHT";
   capabilityId: string;
   text: string;
+  actorId: string;
   learnerId: string;
   organizationId: string;
   provider?: SpeechProvider;
@@ -40,6 +41,7 @@ export const SpeechGateway = {
       throw new Error("Speech capability is not registered for this product.");
     }
     const entitlements = await resolveAuthorizedCapability({
+      actorId: input.actorId,
       learnerId: input.learnerId,
       organizationId: input.organizationId,
       product: input.product,
