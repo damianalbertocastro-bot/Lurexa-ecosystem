@@ -30,14 +30,17 @@ if (!registry.includes('entitlementCapability: "live_streaming"')) fail("Coach l
 
 const enforcement = read("packages/backend/src/capability-enforcement.server.ts");
 if (!enforcement.includes("authorizeCommercialCapability") || !enforcement.includes("CAPABILITY_REGISTRY.find")) fail("Phase A canonical registry authorization boundary is missing.");
+if (!enforcement.includes("actorId: string") || !enforcement.includes("input.actorId !== input.learnerId")) fail("Authenticated-subject learner binding is missing.");
 if (!enforcement.includes("organizationScope === \"organization\"")) fail("Organization-scoped capability enforcement is missing.");
 
 const aiGateway = read("packages/backend/src/mind/ai-gateway.server.ts");
 if (!aiGateway.includes("authorizeCommercialCapability") || !aiGateway.includes("capabilityId: task.capabilityId")) fail("AI Gateway is not consuming the authoritative capability resolver.");
+if (!aiGateway.includes("actorId: task.actorId")) fail("AI Gateway is not propagating the authenticated actor.");
 
 const coachLive = read("packages/backend/src/coach-live-streaming.server.ts");
 if (coachLive.includes("DEFAULT_TIER_QUOTAS") || coachLive.includes("tier: SubscriptionTier")) fail("Coach live streaming still trusts direct tier quota input.");
 if (!coachLive.includes("authorizeCommercialCapability") || !coachLive.includes('capabilityId: "coach.live_streaming"')) fail("Coach live streaming does not use registry-ID server-owned capability authorization.");
+if (!coachLive.includes("actorId: config.actorId")) fail("Coach live streaming does not propagate the authenticated actor.");
 
 const ledger = read("packages/backend/src/usage-ledger.server.ts");
 for (const token of ["usage-ledger-monthly", "businessAiTurns", "businessVoiceMinutes", "idempotencyKey"]) {
