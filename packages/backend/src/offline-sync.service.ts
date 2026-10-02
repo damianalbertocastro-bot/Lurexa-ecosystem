@@ -149,7 +149,35 @@ export const OfflineSyncService = {
     for (const item of pendingEvidence) {
       try {
         await localDb.evidenceQueue.update(item.id, { status: "syncing" });
-        // Mark as processed/deleted upon successful flush
+        if (item.type === "spoken_production" && item.audioBlob) {
+          const formData = new FormData();
+          formData.set("audio", item.audioBlob, `${item.id}.webm`);
+          const payload = item.payload as Record<string, unknown>;
+          formData.set("courseId", String(payload.courseId || ""));
+          formData.set("lessonId", String(payload.lessonId || ""));
+          formData.set("activityId", String(payload.activityId || ""));
+          formData.set("durationMs", String(payload.audioDurationMs || 0));
+          if (typeof payload.transcript === "string") formData.set("transcript", payload.transcript);
+          const response = await fetch("/api/learning/spoken-evidence", { method: "POST", body: formData });
+          if (!response.ok) throw new Error(`Spoken evidence sync failed: ${response.status}`);
+        } else {
+          const response = await fetch("/api/learning/offline-evidence", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: item.id,
+              learnerId: item.learnerId,
+              competencyId: item.competencyId,
+              type: "activity_result",
+              payload: item.payload,
+              courseId: item.payload.courseId,
+              lessonId: item.payload.lessonId,
+              activityId: item.payload.activityId,
+              observedAt: new Date(item.createdAt).toISOString(),
+            }),
+          });
+          if (!response.ok) throw new Error(`Offline evidence sync failed: ${response.status}`);
+        }
         await localDb.evidenceQueue.delete(item.id);
         syncedEvidence++;
       } catch {

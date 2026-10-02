@@ -472,21 +472,21 @@ export default function Home() {
               </a>
             </article>
 
-            {/* Enterprise Business */}
+            {/* Business */}
             <article className={styles.pricingCard}>
-              <span className={styles.planBadge}>{t("landing.pricing.enterpriseBadge")}</span>
-              <h3>{t("landing.pricing.enterpriseTitle")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.enterprisePrice")}<span>/seat</span></p>
-              <p className={styles.planDescription}>{t("landing.pricing.enterpriseDesc")}</p>
+              <span className={styles.planBadge}>{t("landing.pricing.businessBadge")}</span>
+              <h3>{t("landing.pricing.businessTitle")}</h3>
+              <p className={styles.planPrice}>{t("landing.pricing.businessPrice")}</p>
+              <p className={styles.planDescription}>{t("landing.pricing.businessDesc")}</p>
               <ul className={styles.planFeatures}>
-                <li>✓ {t("landing.pricing.enterpriseF1")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF2")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF3")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF4")}</li>
-                <li>✓ {t("landing.pricing.enterpriseF5")}</li>
+                <li>✓ {t("landing.pricing.businessF1")}</li>
+                <li>✓ {t("landing.pricing.businessF2")}</li>
+                <li>✓ {t("landing.pricing.businessF3")}</li>
+                <li>✓ {t("landing.pricing.businessF4")}</li>
+                <li>✓ {t("landing.pricing.businessF5")}</li>
               </ul>
-              <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Enterprise%20Fluency%20Inquiry">
-                {t("landing.pricing.enterpriseCta")} →
+              <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Lurexa%20Business%20Inquiry">
+                {t("landing.pricing.businessCta")} →
               </a>
             </article>
           </div>

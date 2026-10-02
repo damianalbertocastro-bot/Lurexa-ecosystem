@@ -1,13 +1,12 @@
 /**
- * Lurexa Core Enterprise Batch Provisioning Service (Server-Only)
- * 
- * Manages institutional bulk roster onboarding, enterprise seat allocation,
- * and organization domain SSO binding.
+ * Lurexa Core Business Batch Provisioning Service (Server-Only).
+ * Manages organizational roster onboarding; commercial usage is represented
+ * by BusinessContract rather than an individual subscription tier.
  */
 
-import { SubscriptionTier, PlanQuotas, DEFAULT_TIER_QUOTAS } from "@lurexa/types";
+import type { BusinessUsageAllowance } from "@lurexa/types";
 
-export interface EnterpriseRosterRow {
+export interface BusinessRosterRow {
   email: string;
   fullName: string;
   role: "student" | "teacher" | "admin";
@@ -30,7 +29,7 @@ export class BatchProvisioningServerService {
    */
   public static async provisionInstitutionalRoster(
     organizationId: string,
-    rows: EnterpriseRosterRow[]
+    rows: BusinessRosterRow[]
   ): Promise<BatchProvisioningResult> {
     let successCount = 0;
     const errors: { row: number; email: string; message: string }[] = [];
@@ -64,24 +63,15 @@ export class BatchProvisioningServerService {
   /**
    * Calculates shared pool quota for an enterprise organization.
    */
-  public static calculateOrganizationQuotaPool(
+  public static calculateOrganizationUsageAllowance(
     seatCount: number,
-    tier: SubscriptionTier = "ENTERPRISE"
-  ): PlanQuotas {
-    const baseQuotas = DEFAULT_TIER_QUOTAS[tier];
+    negotiatedAiTurnsPerSeat = 1000,
+    negotiatedVoiceMinutesPerSeat = 300
+  ): BusinessUsageAllowance {
     return {
-      tier,
-      maxVoiceMinutes: baseQuotas.maxVoiceMinutes * seatCount,
-      maxAiTurns: baseQuotas.maxAiTurns * seatCount,
-      allowCrossProductSync: true,
-      allowCapstones: true,
-      allowOfflineCaching: true,
-      monthlyVoiceMinutes: baseQuotas.monthlyVoiceMinutes * seatCount,
-      monthlyAiTurns: baseQuotas.monthlyAiTurns * seatCount,
-      universalLearnerModelSync: true,
-      offlineModulesAllowed: 999, // Unlimited
-      streamingAudioEnabled: true,
-      cohortAnalyticsEnabled: true,
+      monthlyAiTurns: negotiatedAiTurnsPerSeat * Math.max(0, seatCount),
+      monthlyVoiceMinutes: negotiatedVoiceMinutesPerSeat * Math.max(0, seatCount),
+      learnerOrSeatAllowance: Math.max(0, seatCount),
     };
   }
 }

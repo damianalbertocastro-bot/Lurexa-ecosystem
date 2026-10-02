@@ -71,7 +71,7 @@ export async function getInstitutionWorkspaceContext(
       organizationId: input.organizationId,
       product,
       status: "active",
-      seats: orgData.plan === "enterprise" ? 500 : 100,
+      seats: typeof orgData.allocatedSeats === "number" ? orgData.allocatedSeats : 100,
     }));
   }
 

@@ -91,6 +91,8 @@ for (const required of [
   "NEXT_PUBLIC_LUREXA_DOCS_URL",
   "FIREBASE_SERVICE_ACCOUNT_JSON",
   "GEMINI_API_KEY",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
 ]) {
   if (!environmentContract.includes(required)) fail(`canonical environment contract is missing ${required}`);
 }
