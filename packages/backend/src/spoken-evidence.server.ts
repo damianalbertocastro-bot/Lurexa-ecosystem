@@ -150,6 +150,7 @@ export async function evaluateSpokenAttemptWithGemini(input: {
     ].filter(Boolean).join("\n"),
     audioBase64: input.audioBuffer.toString("base64"),
     audioMimeType: input.mimeType || "audio/webm",
+    actorId: input.learnerId,
     learnerId: input.learnerId,
     organizationId: input.organizationId,
     maxOutputTokens: 500,
