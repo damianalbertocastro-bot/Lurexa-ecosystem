@@ -106,10 +106,21 @@ export function InteractiveGrammarCard({
       return;
     }
 
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
     const cleanText = text.replace(/^[•\s*"]+|["]+$/g, "");
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = "en-US";
     utterance.rate = 0.9; // Slightly measured for pedagogical clarity
+
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice =
+      voices.find((v) => v.lang.startsWith("en-US") && !v.localService) ||
+      voices.find((v) => v.lang.startsWith("en-US")) ||
+      voices.find((v) => v.lang.startsWith("en"));
+    if (enVoice) utterance.voice = enVoice;
 
     utterance.onstart = () => setPlayingText(text);
     utterance.onend = () => setPlayingText(null);
@@ -271,15 +282,21 @@ export function InteractiveGrammarCard({
                   <span>✓</span>
                   <span>Affirmative</span>
                 </span>
-                <Button
+                <button
                   type="button"
                   onClick={() => speakText(data.forms.affirmative)}
-                  className="rounded-full bg-emerald-200/60 p-1.5 text-emerald-900 hover:bg-emerald-300 transition"
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
+                    playingText === data.forms.affirmative
+                      ? "bg-emerald-600 border-emerald-600 text-white ring-2 ring-emerald-300 animate-pulse scale-105"
+                      : "bg-emerald-100/80 border-emerald-200 text-emerald-800 hover:bg-emerald-200/90"
+                  }`}
                   title="Listen to affirmative form"
                   aria-label="Listen to affirmative form"
                 >
-                  {playingText === data.forms.affirmative ? "⏹️" : "🔊"}
-                </Button>
+                  <span className="text-xs select-none" aria-hidden="true">
+                    {playingText === data.forms.affirmative ? "⏹" : "🔊"}
+                  </span>
+                </button>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
                 {data.forms.affirmative}
@@ -295,15 +312,21 @@ export function InteractiveGrammarCard({
                   <span>✕</span>
                   <span>Negative</span>
                 </span>
-                <Button
+                <button
                   type="button"
                   onClick={() => speakText(data.forms.negative)}
-                  className="rounded-full bg-rose-200/60 p-1.5 text-rose-900 hover:bg-rose-300 transition"
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
+                    playingText === data.forms.negative
+                      ? "bg-rose-600 border-rose-600 text-white ring-2 ring-rose-300 animate-pulse scale-105"
+                      : "bg-rose-100/80 border-rose-200 text-rose-800 hover:bg-rose-200/90"
+                  }`}
                   title="Listen to negative form"
                   aria-label="Listen to negative form"
                 >
-                  {playingText === data.forms.negative ? "⏹️" : "🔊"}
-                </Button>
+                  <span className="text-xs select-none" aria-hidden="true">
+                    {playingText === data.forms.negative ? "⏹" : "🔊"}
+                  </span>
+                </button>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
                 {data.forms.negative}
@@ -319,15 +342,21 @@ export function InteractiveGrammarCard({
                   <span>?</span>
                   <span>Question / Inversion</span>
                 </span>
-                <Button
+                <button
                   type="button"
                   onClick={() => speakText(data.forms.question)}
-                  className="rounded-full bg-amber-200/60 p-1.5 text-amber-900 hover:bg-amber-300 transition"
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
+                    playingText === data.forms.question
+                      ? "bg-amber-600 border-amber-600 text-white ring-2 ring-amber-300 animate-pulse scale-105"
+                      : "bg-amber-100/80 border-amber-200 text-amber-800 hover:bg-amber-200/90"
+                  }`}
                   title="Listen to question form"
                   aria-label="Listen to question form"
                 >
-                  {playingText === data.forms.question ? "⏹️" : "🔊"}
-                </Button>
+                  <span className="text-xs select-none" aria-hidden="true">
+                    {playingText === data.forms.question ? "⏹" : "🔊"}
+                  </span>
+                </button>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
                 {data.forms.question}
@@ -364,16 +393,22 @@ export function InteractiveGrammarCard({
                 key={`${example}-${idx}`}
                 className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-xs sm:text-sm font-semibold text-slate-900 shadow-sm hover:border-indigo-300 transition"
               >
-                <span>• &ldquo;{example}&rdquo;</span>
-                <Button
+                <span className="leading-relaxed">• &ldquo;{example}&rdquo;</span>
+                <button
                   type="button"
                   onClick={() => speakText(example)}
-                  className="shrink-0 rounded-full bg-indigo-50 p-2 text-indigo-700 hover:bg-indigo-100 transition"
-                  title="Listen to example"
-                  aria-label="Listen to example"
+                  className={`shrink-0 flex items-center justify-center h-9 w-9 rounded-full border transition-all ${
+                    playingText === example
+                      ? "bg-indigo-600 border-indigo-600 text-white shadow-md ring-2 ring-indigo-300 animate-pulse scale-105"
+                      : "bg-indigo-50/90 hover:bg-indigo-100 border-indigo-200 text-indigo-700 hover:scale-105 active:scale-95"
+                  }`}
+                  title={playingText === example ? "Stop audio" : "Listen to example"}
+                  aria-label={playingText === example ? `Stop listening to "${example}"` : `Listen to "${example}"`}
                 >
-                  {playingText === example ? "⏹️" : "🔊"}
-                </Button>
+                  <span className="text-sm select-none" aria-hidden="true">
+                    {playingText === example ? "⏹" : "🔊"}
+                  </span>
+                </button>
               </div>
             ))}
           </div>
@@ -384,8 +419,10 @@ export function InteractiveGrammarCard({
       <div className="mt-6 border-t border-indigo-100 pt-4 flex flex-wrap items-center justify-between gap-3">
         <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={() => setShowQuickCheck((prev) => !prev)}
-          className="inline-flex items-center gap-2 rounded-xl border border-indigo-300 bg-white px-4 py-2 text-xs font-bold text-indigo-700 shadow-sm hover:bg-indigo-50 transition"
+          className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2 text-xs font-bold text-indigo-700 shadow-xs hover:bg-indigo-50 hover:text-indigo-900 transition"
         >
           <span>⚡</span>
           <span>{showQuickCheck ? "Hide Quick Structure Check" : "Quick Check: Test Your Understanding"}</span>
@@ -413,17 +450,17 @@ export function InteractiveGrammarCard({
               }
 
               return (
-                <Button
+                <button
                   key={`${opt.text}-${idx}`}
                   type="button"
                   onClick={() => setQuizAnswerSelected(idx)}
-                  className={`rounded-xl border p-3.5 text-left text-xs sm:text-sm transition flex items-center justify-between ${style}`}
+                  className={`w-full rounded-xl border p-3.5 text-left text-xs sm:text-sm transition flex items-center justify-between font-medium ${style}`}
                 >
                   <span>{opt.text}</span>
                   {isSelected ? (
-                    <span className="font-black text-xs">{opt.isCorrect ? "✓ Correct" : "✕ Try Again"}</span>
+                    <span className="font-black text-xs shrink-0 ml-2">{opt.isCorrect ? "✓ Correct" : "✕ Try Again"}</span>
                   ) : null}
-                </Button>
+                </button>
               );
             })}
           </div>

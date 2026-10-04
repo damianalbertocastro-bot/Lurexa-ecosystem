@@ -802,7 +802,16 @@ export function AIRoleplayActivity({
       // Restore input and transcript on failure
       setTranscript(previousTranscript);
       setLearnerMessage(message);
-      setError(sendError instanceof Error ? sendError.message : "Unable to continue the roleplay.");
+      const rawMsg = sendError instanceof Error ? sendError.message : "Unable to continue the roleplay.";
+      const friendlyMsg =
+        rawMsg.includes("extensible") ||
+        rawMsg.includes("unenv") ||
+        rawMsg.includes("network") ||
+        rawMsg.includes("Failed to fetch") ||
+        rawMsg.includes("Unexpected token")
+          ? "We encountered a temporary connection issue. Offline practice mode is active—you can retry or keep practicing."
+          : rawMsg;
+      setError(friendlyMsg);
       setFallbackMode(true);
     } finally {
       setSending(false);
@@ -954,7 +963,17 @@ export function AIRoleplayActivity({
         }
       } catch (voiceError) {
         setTranscript(previousTranscript);
-        setError(voiceError instanceof Error ? voiceError.message : "Unable to send spoken roleplay turn.");
+        const rawMsg = voiceError instanceof Error ? voiceError.message : "Unable to send spoken roleplay turn.";
+        const friendlyMsg =
+          rawMsg.includes("extensible") ||
+          rawMsg.includes("unenv") ||
+          rawMsg.includes("network") ||
+          rawMsg.includes("Failed to fetch") ||
+          rawMsg.includes("Unexpected token")
+            ? "We encountered a temporary connection issue evaluating the audio. Offline practice mode is active—you can retry or keep practicing."
+            : rawMsg;
+        setError(friendlyMsg);
+        setFallbackMode(true);
       } finally {
         setSending(false);
         setVoiceElapsedSeconds(0);
@@ -1163,9 +1182,24 @@ export function AIRoleplayActivity({
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-2xl bg-rose-500/20 border border-rose-500/30 p-4 text-sm text-rose-200" role="alert">
-          {error}
-        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/20 p-4 text-sm text-rose-200" role="alert">
+          <div className="flex items-center gap-2">
+            <span className="text-base select-none">⚠️</span>
+            <span>{error}</span>
+          </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setError(null);
+              if (learnerMessage.trim()) {
+                void sendTurn();
+              }
+            }}
+            className="rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
+          >
+            Retry Turn
+          </Button>
+        </div>
       ) : null}
     </section>
   );

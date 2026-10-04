@@ -553,7 +553,12 @@ async function loadOrCreateSession(input: {
       const database = getServerFirestore();
       const snapshot = await database.collection(TUTOR_SESSION_COLLECTION).doc(sessionId).get();
       if (snapshot.exists) {
-        const session = { ...snapshot.data(), id: snapshot.id } as LearnTutorSession;
+        const rawData = snapshot.data();
+        const session = {
+          ...rawData,
+          id: snapshot.id,
+          transcript: Array.isArray(rawData?.transcript) ? rawData.transcript : [],
+        } as LearnTutorSession;
         if (
           session.learnerId !== input.actor.uid ||
           session.organizationId !== input.organizationId ||
@@ -615,7 +620,7 @@ async function saveSessionTurn(input: {
   const next: LearnTutorSession = {
     ...input.session,
     status: input.complete ? "completed" : "active",
-    transcript: [...input.session.transcript, input.learnerTurn, input.tutorTurn].slice(-24),
+    transcript: [...(Array.isArray(input.session.transcript) ? input.session.transcript : []), input.learnerTurn, input.tutorTurn].slice(-24),
     provider: input.provider,
     updatedAt: input.tutorTurn.timestamp,
   };

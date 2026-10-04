@@ -329,8 +329,7 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Action Panel */}
-        <div className="mt-10 rounded-3xl border border-white/10 bg-gradient-to-br from-[var(--color-brand-navy)] via-[var(--color-brand-navy)] to-[var(--lx-primary)] p-7 text-white shadow-xl sm:p-8">
+        <div className="mt-10 rounded-3xl border border-white/10 bg-[#0a1c55] bg-gradient-to-br from-[#0a1c55] via-[#0f256e] to-[var(--lx-primary)] p-7 text-white shadow-xl sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-cyan-300">
