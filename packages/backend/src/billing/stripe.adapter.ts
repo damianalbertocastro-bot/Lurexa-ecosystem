@@ -100,6 +100,37 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
     };
   }
 
+  async listSubscriptions(input: { customerId?: string; limit?: number } = {}): Promise<CommercialSubscription[]> {
+    const query = new URLSearchParams({ limit: String(Math.min(Math.max(input.limit ?? 100, 1), 100)) });
+    if (input.customerId) query.set("customer", input.customerId);
+    const result = await stripeRequest<{ data: StripeObject[] }>(`subscriptions?${query.toString()}`);
+    return result.data.map((subscription) => {
+      const metadata = (subscription.metadata as StripeObject | undefined) ?? {};
+      const items = subscription.items as StripeObject | undefined;
+      const itemData = Array.isArray(items?.data) ? (items.data[0] as StripeObject | undefined) : undefined;
+      const price = itemData?.price as StripeObject | undefined;
+      const recurring = price?.recurring as StripeObject | undefined;
+      const interval = recurring?.interval === "year" ? "annual" : "monthly";
+      const tier = String(metadata.tier ?? "basic").toLowerCase();
+      const product = String(metadata.product ?? "");
+      return {
+        id: stringValue(subscription.id) ?? "",
+        customerId: stringValue(subscription.customer) ?? "",
+        userId: stringValue(metadata.userId),
+        organizationId: stringValue(metadata.organizationId),
+        tier: (tier === "plus" || tier === "ultra" ? tier : "basic") as CommercialSubscription["tier"],
+        product: ["LEARN", "COACH", "TEACH", "ADMIN", "STUDIO", "INSIGHT"].includes(product) ? product as CommercialSubscription["product"] : undefined,
+        billingInterval: interval,
+        status: String(subscription.status) as CommercialSubscription["status"],
+        provider: "stripe",
+        providerSubscriptionId: stringValue(subscription.id),
+        currentPeriodStart: timestampToIso(subscription.current_period_start),
+        currentPeriodEnd: timestampToIso(subscription.current_period_end),
+        cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
+      };
+    });
+  }
+
   async getSubscription(providerSubscriptionId: string): Promise<CommercialSubscription | null> {
     const subscription = await stripeRequest<StripeObject>(`subscriptions/${encodeURIComponent(providerSubscriptionId)}`);
     const metadata = (subscription.metadata as StripeObject | undefined) ?? {};
@@ -129,6 +160,29 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
     };
   }
 
+  async listInvoices(input: { customerId?: string; limit?: number } = {}): Promise<CommercialInvoice[]> {
+    const query = new URLSearchParams({ limit: String(Math.min(Math.max(input.limit ?? 100, 1), 100)) });
+    if (input.customerId) query.set("customer", input.customerId);
+    const result = await stripeRequest<{ data: StripeObject[] }>(`invoices?${query.toString()}`);
+    return result.data.map((invoice) => ({
+      id: stringValue(invoice.id) ?? "",
+      customerId: stringValue(invoice.customer) ?? "",
+      currency: "USD",
+      billingPeriodStart: timestampToIso(invoice.period_start),
+      billingPeriodEnd: timestampToIso(invoice.period_end),
+      subtotalUsd: Number(invoice.subtotal ?? 0) / 100,
+      taxUsd: Number(invoice.tax ?? 0) / 100,
+      totalUsd: Number(invoice.total ?? 0) / 100,
+      status: String(invoice.status ?? "draft") as CommercialInvoice["status"],
+      providerInvoiceId: stringValue(invoice.id),
+      issuedAt: invoice.created ? timestampToIso(invoice.created) : undefined,
+      dueAt: invoice.due_date ? timestampToIso(invoice.due_date) : undefined,
+      paidAt: invoice.status_transitions && typeof invoice.status_transitions === "object"
+        ? timestampToIso((invoice.status_transitions as StripeObject).paid_at)
+        : undefined,
+    }));
+  }
+
   async getInvoice(providerInvoiceId: string): Promise<CommercialInvoice | null> {
     const invoice = await stripeRequest<StripeObject>(`invoices/${encodeURIComponent(providerInvoiceId)}`);
     return {
@@ -148,6 +202,22 @@ export class StripeBillingProviderAdapter implements BillingProviderAdapter {
         ? timestampToIso((invoice.status_transitions as StripeObject).paid_at)
         : undefined,
     };
+  }
+
+  async listPayments(input: { customerId?: string; limit?: number } = {}): Promise<CommercialPayment[]> {
+    const query = new URLSearchParams({ limit: String(Math.min(Math.max(input.limit ?? 100, 1), 100)) });
+    if (input.customerId) query.set("customer", input.customerId);
+    const result = await stripeRequest<{ data: StripeObject[] }>(`payment_intents?${query.toString()}`);
+    return result.data.map((payment) => ({
+      id: stringValue(payment.id) ?? "",
+      customerId: stringValue(payment.customer) ?? "",
+      currency: "USD",
+      amountUsd: Number(payment.amount ?? 0) / 100,
+      status: payment.status === "succeeded" ? "succeeded" : payment.status === "canceled" ? "failed" : "pending",
+      provider: "stripe",
+      providerPaymentId: stringValue(payment.id),
+      createdAt: timestampToIso(payment.created),
+    }));
   }
 
   async getPayment(providerPaymentId: string): Promise<CommercialPayment | null> {
