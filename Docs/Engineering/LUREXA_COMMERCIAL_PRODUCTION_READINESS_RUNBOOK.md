@@ -51,7 +51,7 @@ Expected behavior:
 - no automatic repair occurs;
 - unrelated tenants remain untouched.
 
-Also verify provider-first detection where the provider contains a record absent from Core. This is a required future reconciliation enhancement if the provider adapter has not yet implemented provider listing.
+Also verify provider-first detection where the provider contains a record absent from Core. The Stripe adapter now exposes bounded provider listing operations for subscriptions, invoices, and payments so reconciliation can report provider-only records without repairing them.
 
 ## Gate 4 — Production configuration
 
