@@ -48,6 +48,14 @@ export async function reconcileStripeBilling(authorization: string | null, input
 
   const issues: BillingReconciliationIssue[] = [];
   let checked = 0;
+  const providerLimit = Math.min(limit, 100);
+
+  const [providerSubscriptions, providerInvoices, providerPayments] = await Promise.all([
+    stripeBillingProvider.listSubscriptions({ customerId: input?.customerId, limit: providerLimit }),
+    stripeBillingProvider.listInvoices({ customerId: input?.customerId, limit: providerLimit }),
+    stripeBillingProvider.listPayments({ customerId: input?.customerId, limit: providerLimit }),
+  ]);
+
 
   const subscriptions = subscriptionsSnapshot.docs
     .map((doc) => doc.data() as CommercialSubscription)
@@ -130,6 +138,27 @@ export async function reconcileStripeBilling(authorization: string | null, input
       }
     } catch (error) {
       issues.push(issue("payment", local.id, "provider_reference_mismatch", error instanceof Error ? error.message : "Provider lookup failed."));
+    }
+  }
+
+  const localSubscriptionIds = new Set(subscriptions.map((record) => record.providerSubscriptionId).filter(Boolean));
+  for (const provider of providerSubscriptions) {
+    if (provider.providerSubscriptionId && !localSubscriptionIds.has(provider.providerSubscriptionId)) {
+      issues.push(issue("subscription", provider.providerSubscriptionId, "missing_canonical", "Provider subscription exists in Stripe but has no canonical Core billing subscription."));
+    }
+  }
+
+  const localInvoiceIds = new Set(invoices.map((record) => record.providerInvoiceId).filter(Boolean));
+  for (const provider of providerInvoices) {
+    if (provider.providerInvoiceId && !localInvoiceIds.has(provider.providerInvoiceId)) {
+      issues.push(issue("invoice", provider.providerInvoiceId, "missing_canonical", "Provider invoice exists in Stripe but has no canonical Core billing invoice."));
+    }
+  }
+
+  const localPaymentIds = new Set(payments.map((record) => record.providerPaymentId).filter(Boolean));
+  for (const provider of providerPayments) {
+    if (provider.providerPaymentId && !localPaymentIds.has(provider.providerPaymentId)) {
+      issues.push(issue("payment", provider.providerPaymentId, "missing_canonical", "Provider payment exists in Stripe but has no canonical Core billing payment."));
     }
   }
 
