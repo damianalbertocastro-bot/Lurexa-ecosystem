@@ -1,5 +1,3 @@
-import type { CapabilityRegistryEntry } from "@lurexa/types";
-import { CAPABILITY_REGISTRY } from "@lurexa/types";
 import { BusinessUsageService } from "../business-usage.server";
 import { UsageLedgerService } from "../usage-ledger.server";
 import { QuotaEnforcementServerService } from "../core/quota-enforcement.server";
