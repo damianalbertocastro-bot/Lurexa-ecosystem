@@ -29,6 +29,9 @@ const checks = [
   ["legacy Enterprise is not a tier hierarchy rank", !read("packages/backend/src/subscription.service.ts").includes("enterprise: 4")],
   ["legacy Enterprise is absent from Coach streaming boundary", !read("packages/backend/src/coach-live-streaming.server.ts").includes("Ultra & Enterprise")],
   ["legacy Enterprise is absent from capstone customer messaging", !read("apps/learn-web/app/learn/a1/capstone/page.tsx").includes("Ultra or Enterprise")],
+  ["provider listing contract exists for reconciliation", read("packages/backend/src/billing/billing-provider.adapter.ts").includes("listSubscriptions") && read("packages/backend/src/billing/billing-provider.adapter.ts").includes("listInvoices") && read("packages/backend/src/billing/billing-provider.adapter.ts").includes("listPayments")],
+  ["Stripe provider exposes billing listings", read("packages/backend/src/billing/stripe.adapter.ts").includes("async listSubscriptions") && read("packages/backend/src/billing/stripe.adapter.ts").includes("async listInvoices") && read("packages/backend/src/billing/stripe.adapter.ts").includes("async listPayments")],
+  ["reconciliation detects provider-only records", read("packages/backend/src/billing/reconciliation.service.ts").includes("Provider subscription exists in Stripe but has no canonical Core billing subscription.") && read("packages/backend/src/billing/reconciliation.service.ts").includes("Provider invoice exists in Stripe but has no canonical Core billing invoice.") && read("packages/backend/src/billing/reconciliation.service.ts").includes("Provider payment exists in Stripe but has no canonical Core billing payment.")],
 ];
 
 const failures = checks.filter(([, ok]) => !ok);
