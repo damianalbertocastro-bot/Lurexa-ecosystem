@@ -82,6 +82,8 @@ jobs:
           else
             pnpm --filter @lurexa/backend test:stripe-billing-lifecycle
           fi
+      - name: Type check commercial acceptance harness
+        run: pnpm --filter @lurexa/backend check-types
       - name: Verify Commercial Architecture Phases 15-20
         run: pnpm verify:phase15-20
 
