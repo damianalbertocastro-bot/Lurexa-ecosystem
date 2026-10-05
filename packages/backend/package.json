@@ -23,7 +23,8 @@
     "test:usage-reporting": "tsx scripts/test-usage-ledger-reporting.mjs",
     "test:stripe-billing-lifecycle": "tsx scripts/test-stripe-billing-lifecycle.ts",
     "test:stripe-webhook-signature": "tsx scripts/test-stripe-webhook-signature.ts",
-    "test:commercial-capability-authorization": "tsx scripts/test-commercial-capability-authorization.ts"
+    "test:commercial-capability-authorization": "tsx scripts/test-commercial-capability-authorization.ts",
+    "test:commercial-live-acceptance": "tsx scripts/test-commercial-live-acceptance.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1121.0",
