@@ -41,7 +41,10 @@ jobs:
           STRIPE_TEST_PRICE_ID: ${{ secrets.STRIPE_TEST_PRICE_ID }}
         run: |
           test -n "$STRIPE_SECRET_KEY"
-          test "$STRIPE_SECRET_KEY" = "sk_test_"* || true
+          case "$STRIPE_SECRET_KEY" in
+            sk_test_*) ;;
+            *) echo "STRIPE_TEST_SECRET_KEY must be a Stripe test-mode key."; exit 1 ;;
+          esac
           test -n "$STRIPE_WEBHOOK_SECRET"
           test -n "$STRIPE_TEST_PRICE_ID"
 
