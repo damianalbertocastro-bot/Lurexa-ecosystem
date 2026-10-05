@@ -32,6 +32,8 @@ export const lurexaServerEnv = {
   geminiApiKey: "GEMINI_API_KEY",
   learnTutorModel: "LUREXA_LEARN_TUTOR_MODEL",
   learnTtsVoice: "LUREXA_LEARN_TTS_VOICE",
+  stripeSecretKey: "STRIPE_SECRET_KEY",
+  stripeWebhookSecret: "STRIPE_WEBHOOK_SECRET",
 } as const;
 
 export const lurexaPlatformEnv = {

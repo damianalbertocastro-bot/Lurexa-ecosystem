@@ -87,7 +87,13 @@ self.addEventListener("fetch", (event) => {
   // 3. Navigation / HTML pages -> Network-First with Cache Fallback
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(async () => {
+      fetch(event.request).then(async (networkResponse) => {
+        if (networkResponse.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(event.request, networkResponse.clone());
+        }
+        return networkResponse;
+      }).catch(async () => {
         const cache = await caches.open(CACHE_NAME);
         const cached = await cache.match(event.request);
         return cached || (await cache.match("/")) || new Response("Offline - Please reconnect.", {

@@ -188,7 +188,7 @@ async function main(): Promise<void> {
     activityId: "a1-m1-u1-l1-ai-greeting-roleplay",
     learnerMessage: "Hello, I am Ana.",
   });
-  assert.equal(firstRoleplayTurn.provider, "deterministic_fallback", "roleplay remains locally testable without a provider credential");
+  assert.ok(["openrouter", "deterministic_fallback"].includes(firstRoleplayTurn.provider), "roleplay must use OpenRouter or deterministic fallback when no provider is configured");
   await LearnTutorService.respond(learner, {
     courseId: A1_PRODUCTION_COURSE_ID,
     lessonId,

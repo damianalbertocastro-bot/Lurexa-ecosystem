@@ -3,6 +3,8 @@ export * from "./course";
 export * from "./progress";
 export * from "./ai";
 export * from "./billing";
+export * from "./commercial-billing";
+export * from "./commercial-billing-lifecycle";
 export * from "./api";
 export * from "./learner";
 export * from "./learner-model";
@@ -23,4 +25,4 @@ export * from "./studio";
 export * from "./subscription";
 export * from "./placement";
 export * from "./storage";
-
+export * from "./capability-registry";

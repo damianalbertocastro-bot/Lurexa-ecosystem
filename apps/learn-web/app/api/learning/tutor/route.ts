@@ -79,9 +79,5 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function GET(): Promise<Response> {
-  const result = await LearnTutorService.testGeminiLiveConnection();
-  return Response.json({
-    status: "ok",
-    ...result,
-  });
+  return Response.json(LearnTutorService.getDiagnosticStatus());
 }

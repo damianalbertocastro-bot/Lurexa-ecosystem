@@ -86,7 +86,8 @@ export interface LearnTutorSession {
   activityId: string;
   status: "active" | "completed";
   transcript: LearnTutorTurn[];
-  provider: "gemini" | "deterministic_fallback" | null;
+  provider: "openrouter" | "gemini" | "deterministic_fallback" | null;
+  promptVersion?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -104,6 +105,7 @@ export interface LearnTutorTurnRequest {
   learnerMessage?: string;
   audioBase64?: string;
   audioMimeType?: string;
+  audioDurationMs?: number;
 }
 
 export interface LearnTutorTurnResult {
@@ -121,7 +123,7 @@ export interface LearnTutorTurnResult {
     activeTargetCount: number;
     recurringPatternCount: number;
   };
-  provider: "gemini" | "deterministic_fallback";
+  provider: "openrouter" | "gemini" | "deterministic_fallback";
 }
 
 export interface SpokenEvidenceRecord {
