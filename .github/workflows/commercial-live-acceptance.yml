@@ -1,0 +1,60 @@
+name: Commercial Live Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      webhook_url:
+        description: "Deployed Lurexa billing webhook URL"
+        required: true
+        type: string
+        default: "https://lurexa-learn-preview.damianalbertocastro.workers.dev/api/billing/webhook"
+
+permissions:
+  contents: read
+
+jobs:
+  stripe-test-acceptance:
+    name: Stripe test-mode live acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Stripe test configuration
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
+          STRIPE_TEST_PRICE_ID: ${{ secrets.STRIPE_TEST_PRICE_ID }}
+        run: |
+          test -n "$STRIPE_SECRET_KEY"
+          test "$STRIPE_SECRET_KEY" = "sk_test_"* || true
+          test -n "$STRIPE_WEBHOOK_SECRET"
+          test -n "$STRIPE_TEST_PRICE_ID"
+
+      - name: Run provider-backed Stripe lifecycle
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          STRIPE_TEST_PRICE_ID: ${{ secrets.STRIPE_TEST_PRICE_ID }}
+        run: pnpm --filter @lurexa/backend test:stripe-billing-lifecycle
+
+      - name: Run deployed webhook acceptance
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          STRIPE_TEST_PRICE_ID: ${{ secrets.STRIPE_TEST_PRICE_ID }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
+          LUREXA_BILLING_WEBHOOK_URL: ${{ inputs.webhook_url }}
+        run: pnpm --filter @lurexa/backend test:commercial-live-acceptance
