@@ -115,3 +115,11 @@ The following cannot be marked passed by repository inspection alone:
 - live production secret validation.
 
 Those require the deployment and provider environments.
+## Live acceptance execution
+
+The repository now contains a manual GitHub Actions workflow at `.github/workflows/commercial-live-acceptance.yml` and a provider-backed harness at `packages/backend/scripts/test-commercial-live-acceptance.ts`.
+
+Run the workflow only against Stripe test mode. It requires the GitHub Actions secrets `STRIPE_TEST_SECRET_KEY`, `STRIPE_TEST_WEBHOOK_SECRET`, and `STRIPE_TEST_PRICE_ID`. The workflow input `webhook_url` must point to the deployed Lurexa billing webhook for the same Stripe test environment.
+
+The harness verifies the configured Stripe webhook endpoint, creates a real Stripe test subscription, delivers a signed event to the deployed endpoint, exercises concurrent duplicate delivery, cancellation-at-period-end, a stale out-of-order event, and effective cancellation. It does not claim payment-failure recovery, Business cross-tenant isolation, or production-secret readiness; those remain separate acceptance gates.
+
