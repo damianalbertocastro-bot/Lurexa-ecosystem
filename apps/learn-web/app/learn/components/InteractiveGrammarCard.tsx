@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@lurexa/ui/button";
+import { authenticatedFetch } from "../../../lib/authenticated-fetch";
 
 export interface InteractiveGrammarCardProps {
   blockId: string;
@@ -82,8 +83,44 @@ export function InteractiveGrammarCard({
     initialDialect === "es" || initialDialect === "ht" ? initialDialect : "es-DO"
   );
   const [playingText, setPlayingText] = useState<string | null>(null);
+  const [loadingText, setLoadingText] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const [showQuickCheck, setShowQuickCheck] = useState(false);
   const [quizAnswerSelected, setQuizAnswerSelected] = useState<number | null>(null);
+
+  // References to prevent V8 GC bug and track active audio / cached blobs
+  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const activeAudioElementRef = useRef<HTMLAudioElement | null>(null);
+  const audioCacheRef = useRef<Map<string, string>>(new Map());
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+
+  // Preload available browser voices and cleanup on unmount
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const updateVoices = () => {
+        voicesRef.current = window.speechSynthesis.getVoices();
+      };
+      updateVoices();
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (activeAudioElementRef.current) {
+        activeAudioElementRef.current.pause();
+        activeAudioElementRef.current = null;
+      }
+      audioCacheRef.current.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // ignore
+        }
+      });
+      audioCacheRef.current.clear();
+    };
+  }, []);
 
   // Parse formula tokens: e.g. "[Subject] + [Verb 'to be'] + [Complement]"
   const formulaSlots = useMemo(() => {
@@ -96,38 +133,163 @@ export function InteractiveGrammarCard({
     return slots.length > 0 ? slots : ["Subject", "Verb", "Structure"];
   }, [data.formula]);
 
-  // Audio speech synthesis helper
-  const speakText = (text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  const stopAllAudio = useCallback(() => {
+    if (activeAudioElementRef.current) {
+      activeAudioElementRef.current.pause();
+      activeAudioElementRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      activeUtteranceRef.current = null;
+    }
+    setPlayingText(null);
+    setLoadingText(null);
+  }, []);
 
-    window.speechSynthesis.cancel();
-    if (playingText === text) {
-      setPlayingText(null);
+  // Primary Engine: Web Speech API with V8 GC fix, pause-resume protection, and cancel tick
+  const playSpeechSynthesis = useCallback((cleanText: string, rawText: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+        resolve(false);
+        return;
+      }
+
+      try {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = "en-US";
+        utterance.rate = 0.9; // Measured tempo for pedagogical clarity
+
+        const voices = voicesRef.current.length > 0 ? voicesRef.current : window.speechSynthesis.getVoices();
+        const preferredVoice =
+          voices.find((v) => (v.lang === "en-US" || v.lang === "en_US") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Neural"))) ||
+          voices.find((v) => v.lang === "en-US" || v.lang === "en_US") ||
+          voices.find((v) => v.lang.startsWith("en-")) ||
+          voices.find((v) => v.lang.startsWith("en"));
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+
+        utterance.onstart = () => {
+          setLoadingText(null);
+          setPlayingText(rawText);
+        };
+
+        utterance.onend = () => {
+          setPlayingText(null);
+          activeUtteranceRef.current = null;
+          resolve(true);
+        };
+
+        utterance.onerror = (event) => {
+          console.warn("SpeechSynthesis utterance error:", event);
+          setPlayingText(null);
+          activeUtteranceRef.current = null;
+          resolve(false);
+        };
+
+        // CRITICAL: Retain in ref to prevent Chromium/V8 from garbage collecting the utterance
+        activeUtteranceRef.current = utterance;
+
+        // CRITICAL: 50ms tick after cancel prevents Chromium cancellation race
+        setTimeout(() => {
+          window.speechSynthesis.speak(utterance);
+        }, 50);
+      } catch (err) {
+        console.warn("Web Speech API execution error:", err);
+        resolve(false);
+      }
+    });
+  }, []);
+
+  // Secondary Engine: Server Audio Endpoint (/api/learning/audio) with in-memory caching
+  const playServerAudio = useCallback(async (cleanText: string, rawText: string): Promise<boolean> => {
+    try {
+      let objectUrl = audioCacheRef.current.get(cleanText);
+      if (!objectUrl) {
+        let response: Response;
+        try {
+          response = await authenticatedFetch("/api/learning/audio", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: cleanText, locale: "en-US" }),
+          });
+        } catch {
+          response = await fetch("/api/learning/audio", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: cleanText, locale: "en-US" }),
+          });
+        }
+
+        if (!response.ok) return false;
+        const blob = await response.blob();
+        if (!blob.size) return false;
+        objectUrl = URL.createObjectURL(blob);
+        audioCacheRef.current.set(cleanText, objectUrl);
+      }
+
+      return new Promise((resolve) => {
+        const audio = new Audio(objectUrl);
+        activeAudioElementRef.current = audio;
+
+        audio.onplay = () => {
+          setLoadingText(null);
+          setPlayingText(rawText);
+        };
+
+        audio.onended = () => {
+          setPlayingText(null);
+          activeAudioElementRef.current = null;
+          resolve(true);
+        };
+
+        audio.onerror = () => {
+          setPlayingText(null);
+          activeAudioElementRef.current = null;
+          resolve(false);
+        };
+
+        audio.play().catch((err) => {
+          console.warn("Audio element play error:", err);
+          resolve(false);
+        });
+      });
+    } catch (err) {
+      console.warn("Server audio request error:", err);
+      return false;
+    }
+  }, []);
+
+  // Main Audio Toggle Controller
+  const handleToggleAudio = useCallback(async (text: string) => {
+    if (playingText === text || loadingText === text) {
+      stopAllAudio();
       return;
     }
 
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
+    stopAllAudio();
+    setAudioError(null);
+    setLoadingText(text);
 
-    const cleanText = text.replace(/^[•\s*"]+|["]+$/g, "");
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = "en-US";
-    utterance.rate = 0.9; // Slightly measured for pedagogical clarity
+    const cleanText = text.replace(/^[•\s*"]+|["]+$/g, "").trim();
 
-    const voices = window.speechSynthesis.getVoices();
-    const enVoice =
-      voices.find((v) => v.lang.startsWith("en-US") && !v.localService) ||
-      voices.find((v) => v.lang.startsWith("en-US")) ||
-      voices.find((v) => v.lang.startsWith("en"));
-    if (enVoice) utterance.voice = enVoice;
+    // 1. Try Web Speech API first (instant, natural spoken pronunciation)
+    const speechSuccess = await playSpeechSynthesis(cleanText, text);
+    if (speechSuccess) return;
 
-    utterance.onstart = () => setPlayingText(text);
-    utterance.onend = () => setPlayingText(null);
-    utterance.onerror = () => setPlayingText(null);
+    // 2. Try Server Audio endpoint as fallback
+    const serverSuccess = await playServerAudio(cleanText, text);
+    if (serverSuccess) return;
 
-    window.speechSynthesis.speak(utterance);
-  };
+    setLoadingText(null);
+    setPlayingText(null);
+    setAudioError("Audio playback is unavailable in this browser environment.");
+  }, [playingText, loadingText, stopAllAudio, playSpeechSynthesis, playServerAudio]);
 
   // Dialect-specific transfer note adaptations
   const adaptedTransferTip = useMemo(() => {
@@ -284,17 +446,32 @@ export function InteractiveGrammarCard({
                 </span>
                 <button
                   type="button"
-                  onClick={() => speakText(data.forms.affirmative)}
+                  onClick={() => void handleToggleAudio(data.forms.affirmative)}
+                  disabled={loadingText === data.forms.affirmative}
                   className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
                     playingText === data.forms.affirmative
                       ? "bg-emerald-600 border-emerald-600 text-white ring-2 ring-emerald-300 animate-pulse scale-105"
-                      : "bg-emerald-100/80 border-emerald-200 text-emerald-800 hover:bg-emerald-200/90"
+                      : loadingText === data.forms.affirmative
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 cursor-wait"
+                        : "bg-emerald-100/80 border-emerald-200 text-emerald-800 hover:bg-emerald-200/90"
                   }`}
-                  title="Listen to affirmative form"
+                  title={
+                    loadingText === data.forms.affirmative
+                      ? "Generating audio..."
+                      : playingText === data.forms.affirmative
+                        ? "Stop audio"
+                        : "Listen to affirmative form"
+                  }
                   aria-label="Listen to affirmative form"
                 >
                   <span className="text-xs select-none" aria-hidden="true">
-                    {playingText === data.forms.affirmative ? "⏹" : "🔊"}
+                    {loadingText === data.forms.affirmative ? (
+                      <span className="inline-block h-3 w-3 animate-spin rounded-full border border-emerald-800 border-t-transparent" />
+                    ) : playingText === data.forms.affirmative ? (
+                      "⏹"
+                    ) : (
+                      "🔊"
+                    )}
                   </span>
                 </button>
               </div>
@@ -314,17 +491,32 @@ export function InteractiveGrammarCard({
                 </span>
                 <button
                   type="button"
-                  onClick={() => speakText(data.forms.negative)}
+                  onClick={() => void handleToggleAudio(data.forms.negative)}
+                  disabled={loadingText === data.forms.negative}
                   className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
                     playingText === data.forms.negative
                       ? "bg-rose-600 border-rose-600 text-white ring-2 ring-rose-300 animate-pulse scale-105"
-                      : "bg-rose-100/80 border-rose-200 text-rose-800 hover:bg-rose-200/90"
+                      : loadingText === data.forms.negative
+                        ? "bg-rose-100 border-rose-300 text-rose-800 cursor-wait"
+                        : "bg-rose-100/80 border-rose-200 text-rose-800 hover:bg-rose-200/90"
                   }`}
-                  title="Listen to negative form"
+                  title={
+                    loadingText === data.forms.negative
+                      ? "Generating audio..."
+                      : playingText === data.forms.negative
+                        ? "Stop audio"
+                        : "Listen to negative form"
+                  }
                   aria-label="Listen to negative form"
                 >
                   <span className="text-xs select-none" aria-hidden="true">
-                    {playingText === data.forms.negative ? "⏹" : "🔊"}
+                    {loadingText === data.forms.negative ? (
+                      <span className="inline-block h-3 w-3 animate-spin rounded-full border border-rose-800 border-t-transparent" />
+                    ) : playingText === data.forms.negative ? (
+                      "⏹"
+                    ) : (
+                      "🔊"
+                    )}
                   </span>
                 </button>
               </div>
@@ -344,17 +536,32 @@ export function InteractiveGrammarCard({
                 </span>
                 <button
                   type="button"
-                  onClick={() => speakText(data.forms.question)}
+                  onClick={() => void handleToggleAudio(data.forms.question)}
+                  disabled={loadingText === data.forms.question}
                   className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
                     playingText === data.forms.question
                       ? "bg-amber-600 border-amber-600 text-white ring-2 ring-amber-300 animate-pulse scale-105"
-                      : "bg-amber-100/80 border-amber-200 text-amber-800 hover:bg-amber-200/90"
+                      : loadingText === data.forms.question
+                        ? "bg-amber-100 border-amber-300 text-amber-800 cursor-wait"
+                        : "bg-amber-100/80 border-amber-200 text-amber-800 hover:bg-amber-200/90"
                   }`}
-                  title="Listen to question form"
+                  title={
+                    loadingText === data.forms.question
+                      ? "Generating audio..."
+                      : playingText === data.forms.question
+                        ? "Stop audio"
+                        : "Listen to question form"
+                  }
                   aria-label="Listen to question form"
                 >
                   <span className="text-xs select-none" aria-hidden="true">
-                    {playingText === data.forms.question ? "⏹" : "🔊"}
+                    {loadingText === data.forms.question ? (
+                      <span className="inline-block h-3 w-3 animate-spin rounded-full border border-amber-800 border-t-transparent" />
+                    ) : playingText === data.forms.question ? (
+                      "⏹"
+                    ) : (
+                      "🔊"
+                    )}
                   </span>
                 </button>
               </div>
@@ -396,22 +603,59 @@ export function InteractiveGrammarCard({
                 <span className="leading-relaxed">• &ldquo;{example}&rdquo;</span>
                 <button
                   type="button"
-                  onClick={() => speakText(example)}
-                  className={`shrink-0 flex items-center justify-center h-9 w-9 rounded-full border transition-all ${
+                  onClick={() => void handleToggleAudio(example)}
+                  disabled={loadingText === example}
+                  className={`shrink-0 flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl border transition-all ${
                     playingText === example
-                      ? "bg-indigo-600 border-indigo-600 text-white shadow-md ring-2 ring-indigo-300 animate-pulse scale-105"
-                      : "bg-indigo-50/90 hover:bg-indigo-100 border-indigo-200 text-indigo-700 hover:scale-105 active:scale-95"
+                      ? "bg-indigo-700 border-indigo-700 text-white shadow-md ring-2 ring-indigo-300 animate-pulse scale-105"
+                      : loadingText === example
+                        ? "bg-indigo-100 border-indigo-300 text-indigo-700 cursor-wait"
+                        : "bg-indigo-600 hover:bg-indigo-700 border-indigo-600 text-white hover:scale-105 active:scale-95 shadow-xs"
                   }`}
-                  title={playingText === example ? "Stop audio" : "Listen to example"}
-                  aria-label={playingText === example ? `Stop listening to "${example}"` : `Listen to "${example}"`}
+                  title={
+                    loadingText === example
+                      ? "Generating audio..."
+                      : playingText === example
+                        ? "Stop audio"
+                        : "Listen to example"
+                  }
+                  aria-label={
+                    loadingText === example
+                      ? `Generating audio for "${example}"`
+                      : playingText === example
+                        ? `Stop listening to "${example}"`
+                        : `Listen to "${example}"`
+                  }
                 >
                   <span className="text-sm select-none" aria-hidden="true">
-                    {playingText === example ? "⏹" : "🔊"}
+                    {loadingText === example ? (
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+                    ) : playingText === example ? (
+                      "⏹"
+                    ) : (
+                      "🔊"
+                    )}
                   </span>
                 </button>
               </div>
             ))}
           </div>
+
+          {audioError ? (
+            <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+              <div className="flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{audioError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAudioError(null)}
+                className="text-amber-800 font-bold hover:underline ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
