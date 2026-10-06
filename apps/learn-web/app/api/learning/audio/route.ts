@@ -9,12 +9,49 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const actor = await CoursePlatformService.authenticate(request.headers.get("authorization"));
+    const authHeader = request.headers.get("authorization");
+    let actor: { uid: string; email: string | null } | null = null;
+    if (authHeader) {
+      try {
+        actor = await CoursePlatformService.authenticate(authHeader);
+      } catch (authErr) {
+        console.warn("Audio route auth verification fallback:", authErr);
+      }
+    }
+
     const body: unknown = await request.json();
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
       throw new Error("Invalid curriculum audio request.");
     }
-    const payload = body as { courseId?: unknown; lessonId?: unknown; activityId?: unknown };
+    const payload = body as {
+      courseId?: unknown;
+      lessonId?: unknown;
+      activityId?: unknown;
+      text?: unknown;
+      voice?: unknown;
+      locale?: unknown;
+    };
+
+    if (typeof payload.text === "string" && payload.text.trim()) {
+      const audio = await LearnCurriculumAudioService.synthesizeText({
+        text: payload.text.trim(),
+        voice: typeof payload.voice === "string" ? payload.voice : undefined,
+        locale: typeof payload.locale === "string" ? payload.locale : undefined,
+      });
+      return new Response(audio.bytes, {
+        status: 200,
+        headers: {
+          "Content-Type": audio.contentType,
+          "Cache-Control": "public, max-age=86400",
+          "Content-Disposition": "inline",
+        },
+      });
+    }
+
+    if (!actor) {
+      throw new Error("Authentication is required.");
+    }
+
     if (typeof payload.courseId !== "string" || !payload.courseId) throw new Error("courseId is required.");
     if (typeof payload.lessonId !== "string" || !payload.lessonId) throw new Error("lessonId is required.");
     if (typeof payload.activityId !== "string" || !payload.activityId) throw new Error("activityId is required.");

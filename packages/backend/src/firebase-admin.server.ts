@@ -176,6 +176,10 @@ function readServiceAccount(): ValidFirebaseServiceAccount | null {
   return null;
 }
 
+export function getResolvedServiceAccount(): ValidFirebaseServiceAccount | null {
+  return readServiceAccount();
+}
+
 function getProjectId(serviceAccount: ValidFirebaseServiceAccount | null): string {
   return serviceAccount?.project_id
     ?? process.env.FIREBASE_PROJECT_ID

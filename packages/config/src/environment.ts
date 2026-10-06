@@ -30,8 +30,14 @@ export const lurexaServerEnv = {
   firebaseStorageBucket: "FIREBASE_STORAGE_BUCKET",
   firestoreEmulatorHost: "FIRESTORE_EMULATOR_HOST",
   geminiApiKey: "GEMINI_API_KEY",
+  openrouterApiKey: "OPENROUTER_API_KEY",
+  lurexaPublicUrl: "LUREXA_PUBLIC_URL",
   learnTutorModel: "LUREXA_LEARN_TUTOR_MODEL",
   learnTtsVoice: "LUREXA_LEARN_TTS_VOICE",
+  aiGeminiFastModel: "LUREXA_AI_GEMINI_FAST_MODEL",
+  aiGeminiReasoningModel: "LUREXA_AI_GEMINI_REASONING_MODEL",
+  aiOpenrouterFastModel: "LUREXA_AI_OPENROUTER_FAST_MODEL",
+  aiOpenrouterReasoningModel: "LUREXA_AI_OPENROUTER_REASONING_MODEL",
 } as const;
 
 export const lurexaPlatformEnv = {

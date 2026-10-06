@@ -1,7 +1,7 @@
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 
 import type { AuthenticatedActor } from "./course-platform.server";
-import { getRawServiceAccountJson } from "./firebase-admin.server";
+import { getResolvedServiceAccount, getRawServiceAccountJson } from "./firebase-admin.server";
 import { resolveLearningCapability } from "./learning-capability.server";
 import { buildA1ProductionCurriculum } from "./a1-production-curriculum.server";
 import { TelemetryService } from "./telemetry.service";
@@ -38,15 +38,9 @@ export interface AudioManifestItem {
 }
 
 function createTextToSpeechClient(): TextToSpeechClient | null {
-  const serialized = getRawServiceAccountJson();
-  if (!serialized) return null;
-  let serviceAccount: GoogleServiceAccount;
-  try {
-    serviceAccount = JSON.parse(serialized) as GoogleServiceAccount;
-  } catch {
-    return null;
-  }
+  const serviceAccount = getResolvedServiceAccount();
   if (
+    !serviceAccount ||
     typeof serviceAccount.project_id !== "string" ||
     typeof serviceAccount.client_email !== "string" ||
     typeof serviceAccount.private_key !== "string"
@@ -70,9 +64,8 @@ function toArrayBuffer(audioContent: Uint8Array | string): ArrayBuffer {
 }
 
 /**
- * Creates a minimal valid synthetic audio buffer for local development and
- * automated tests only. Production-like runtimes must surface provider
- * failures instead of pretending real curriculum audio was generated.
+ * Creates an audible synthetic audio buffer for local development and
+ * automated tests when cloud providers are unconfigured.
  */
 function createSyntheticAudioBuffer(durationSeconds = 2): ArrayBuffer {
   const sampleRate = 22050;
@@ -93,6 +86,17 @@ function createSyntheticAudioBuffer(durationSeconds = 2): ArrayBuffer {
   view.setUint16(34, 16, true);
   view.setUint32(36, 0x64617461, false);
   view.setUint32(40, numSamples * 2, true);
+
+  // Generate an audible pleasant harmonic chime (523Hz + 659Hz with exponential decay)
+  const freq1 = 523.25;
+  const freq2 = 659.25;
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sampleRate;
+    const decay = Math.exp(-2.2 * t);
+    const sample = Math.sin(2 * Math.PI * freq1 * t) * 0.35 + Math.sin(2 * Math.PI * freq2 * t) * 0.25;
+    const intSample = Math.max(-32768, Math.min(32767, Math.floor(sample * decay * 32767)));
+    view.setInt16(44 + i * 2, intSample, true);
+  }
 
   return buffer;
 }
@@ -204,6 +208,56 @@ export const LearnCurriculumAudioService = {
         errorCode: providerError.code,
         metadata: { syntheticFallback: true },
       });
+      return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
+    }
+  },
+
+  async synthesizeText(input: {
+    text: string;
+    voice?: string;
+    locale?: string;
+  }): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+    const clean = input.text.trim().slice(0, 500);
+    if (!clean) throw new Error("Text is required for audio synthesis.");
+
+    const ttsClient = createTextToSpeechClient();
+    if (!ttsClient) {
+      const error = new CurriculumAudioProviderError(
+        "AUDIO_PROVIDER_UNCONFIGURED",
+        "Curriculum audio provider is not configured for this runtime.",
+      );
+      if (!canUseSyntheticAudio()) throw error;
+      const estimatedSeconds = Math.max(2, Math.ceil(clean.length / 15));
+      return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
+    }
+
+    try {
+      const [response] = await ttsClient.synthesizeSpeech({
+        input: { text: clean },
+        voice: {
+          languageCode: input.locale || DEFAULT_LANGUAGE_CODE,
+          name: input.voice || process.env.LUREXA_LEARN_TTS_VOICE?.trim() || DEFAULT_VOICE,
+        },
+        audioConfig: { audioEncoding: "MP3", speakingRate: 0.92, pitch: 0.0 },
+      });
+
+      if (!response.audioContent) {
+        throw new CurriculumAudioProviderError(
+          "AUDIO_PROVIDER_EMPTY_RESPONSE",
+          "Curriculum audio provider returned an empty response.",
+        );
+      }
+
+      return { bytes: toArrayBuffer(response.audioContent), contentType: "audio/mpeg" };
+    } catch (error) {
+      if (!canUseSyntheticAudio()) {
+        throw new CurriculumAudioProviderError(
+          "AUDIO_PROVIDER_FAILED",
+          "Curriculum audio provider request failed.",
+          { cause: error },
+        );
+      }
+      const estimatedSeconds = Math.max(2, Math.ceil(clean.length / 15));
       return { bytes: createSyntheticAudioBuffer(estimatedSeconds), contentType: "audio/wav" };
     }
   },
