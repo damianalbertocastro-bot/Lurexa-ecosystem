@@ -175,7 +175,7 @@ export default function A1CapstonePage() {
                   Capstone Oral Defense &amp; Exit Certification
                 </h4>
                 <p className="mt-0.5 text-xs text-slate-600">
-                  You are currently on the {String(userTier).toUpperCase()} plan. B1/B2 Capstone oral defense, portfolio verification, and exit evaluations require an active Ultra or Enterprise subscription.
+                  You are currently on the {String(userTier).toUpperCase()} plan. B1/B2 Capstone oral defense, portfolio verification, and exit evaluations require an active Ultra subscription.
                 </p>
               </div>
               <button

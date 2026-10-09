@@ -166,15 +166,15 @@ export const PlatformAdminService = {
         const usedSeats = membersSnapshot.size;
         const allocatedSeats = typeof data.allocatedSeats === "number" ? data.allocatedSeats : Math.max(usedSeats, 25);
         const planTier: import("@lurexa/types").InstitutionalPlanTier =
-          data.plan === "enterprise"
-            ? "enterprise"
+          data.plan === "business"
+            ? "business"
             : data.plan === "campus"
             ? "campus_pro"
             : data.plan === "standard"
             ? "standard_institutional"
             : "free_community";
 
-        const pricePerSeat = planTier === "enterprise" ? 12 : planTier === "campus_pro" ? 8 : planTier === "standard_institutional" ? 5 : 0;
+        const pricePerSeat = planTier === "business" ? null : 0;
         const createdAt = typeof data.createdAt === "string" ? data.createdAt : new Date().toISOString();
 
         return {
@@ -195,7 +195,7 @@ export const PlatformAdminService = {
             {
               id: `inv_${doc.id}_1`,
               invoiceNumber: `LX-INV-2026-${doc.id.slice(0, 4).toUpperCase()}`,
-              amountUsd: allocatedSeats * pricePerSeat * 12,
+              amountUsd: pricePerSeat == null ? 0 : allocatedSeats * pricePerSeat * 12,
               status: "paid" as const,
               issuedAt: createdAt,
               paidAt: createdAt,

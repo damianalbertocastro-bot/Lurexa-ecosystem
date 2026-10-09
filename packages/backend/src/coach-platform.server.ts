@@ -18,6 +18,7 @@ import { LinguisticIntelligenceService } from "./linguistic-intelligence.service
 import { refreshLearnerIntelligence } from "./core/learner-intelligence.server";
 import { CoachCascadedRuntimeService } from "./coach-cascaded-runtime.service";
 import { QuotaEnforcementServerService } from "./core/quota-enforcement.server";
+import { BusinessUsageService } from "./business-usage.server";
 
 export interface CoachTurnResult {
   session: CoachSession;
@@ -181,8 +182,12 @@ export const CoachPlatformService = {
       // Dev fallback
     }
 
-    // Enforce AI turns quota
-    try {
+    const businessUsageApplied = await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      aiTurns: 1,
+      product: "COACH",
+    });
+    if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
         actorId: actor.uid,
         usageType: "ai_turns",
@@ -191,9 +196,6 @@ export const CoachPlatformService = {
       if (!quotaCheck.allowed) {
         throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
       }
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("quota exceeded")) throw err;
-      // non-blocking in dev if quota service needs firestore
     }
 
     // Educator-professional Coach is intentionally excluded from the ordinary
@@ -286,8 +288,16 @@ export const CoachPlatformService = {
     if (!session) throw new Error("Coach session not found.");
     if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
 
-    // Enforce AI turns and voice minutes quota
-    try {
+    const voiceMinutes = input.audioDurationMs && input.audioDurationMs > 0
+      ? Math.ceil(input.audioDurationMs / 60000)
+      : 0;
+    const businessUsageApplied = await BusinessUsageService.consumeIfBusiness({
+      learnerId: actor.uid,
+      aiTurns: 1,
+      voiceMinutes,
+      product: "COACH",
+    });
+    if (!businessUsageApplied) {
       const quotaCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
         actorId: actor.uid,
         usageType: "ai_turns",
@@ -296,18 +306,16 @@ export const CoachPlatformService = {
       if (!quotaCheck.allowed) {
         throw new Error(quotaCheck.message || "Monthly AI conversation quota exceeded.");
       }
-
-      if (input.audioDurationMs && input.audioDurationMs > 0) {
-        const minutes = Math.ceil(input.audioDurationMs / 60000);
-        await QuotaEnforcementServerService.assertAndConsumeQuota({
+      if (voiceMinutes > 0) {
+        const voiceCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
           actorId: actor.uid,
           usageType: "voice_minutes",
-          unitsToConsume: minutes,
+          unitsToConsume: voiceMinutes,
         });
+        if (!voiceCheck.allowed) {
+          throw new Error(voiceCheck.message || "Monthly voice quota exceeded.");
+        }
       }
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("quota exceeded")) throw err;
-      // Dev fallback
     }
 
     // 1. Stage 1: Fast Turn loop (<800ms)
@@ -374,6 +382,29 @@ export const CoachPlatformService = {
     if (session.learnerId !== actor.uid) throw new Error("You do not have access to this Coach session.");
 
     const cefr = input.targetCefr || session.focus?.cefr || "A1";
+
+    // Streaming is an entitlement boundary. Business contracts use the pooled
+    // voice allowance; individual tiers use the existing streaming capability.
+    const organizationId = await BusinessUsageService.getLearnerOrganizationId(actor.uid);
+    const businessContract = organizationId ? await BusinessUsageService.getContract(organizationId) : null;
+    if (businessContract) {
+      if (!businessContract.productAccess.includes("COACH")) {
+        throw new Error("Business contract does not grant access to COACH.");
+      }
+      const remaining = await BusinessUsageService.getRemainingAllowance(organizationId!);
+      if (remaining.voiceMinutes <= 0) {
+        throw new Error("Business monthly voice allowance exceeded.");
+      }
+    } else {
+      const streamingCheck = await QuotaEnforcementServerService.assertAndConsumeQuota({
+        actorId: actor.uid,
+        usageType: "streaming_audio",
+        unitsToConsume: 1,
+      });
+      if (!streamingCheck.allowed) {
+        throw new Error(streamingCheck.message || "Streaming audio is not available.");
+      }
+    }
     const systemInstruction = `You are Lurexa Coach, an empathetic, encouraging spoken English coach specialized for Dominican and Caribbean Spanish speakers learning English. Your goal is natural communicative competence and intelligible pronunciation at CEFR ${cefr}. Never mock or seek accent erasure; focus on phonemic intelligibility (e.g. word-initial /s/ clusters like 'study' without epenthetic 'e', and clear coda consonants). Keep your turns short (1-2 sentences), conversational, and prompt the learner to speak.`;
 
     const apiKey = process.env.GEMINI_API_KEY;

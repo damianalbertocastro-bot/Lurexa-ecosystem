@@ -476,7 +476,7 @@ export default function Home() {
             <article className={styles.pricingCard}>
               <span className={styles.planBadge}>{t("landing.pricing.enterpriseBadge")}</span>
               <h3>{t("landing.pricing.enterpriseTitle")}</h3>
-              <p className={styles.planPrice}>{t("landing.pricing.enterprisePrice")}<span>/seat</span></p>
+              <p className={styles.planPrice}>{t("landing.pricing.enterprisePrice")}</p>
               <p className={styles.planDescription}>{t("landing.pricing.enterpriseDesc")}</p>
               <ul className={styles.planFeatures}>
                 <li>✓ {t("landing.pricing.enterpriseF1")}</li>
@@ -485,7 +485,7 @@ export default function Home() {
                 <li>✓ {t("landing.pricing.enterpriseF4")}</li>
                 <li>✓ {t("landing.pricing.enterpriseF5")}</li>
               </ul>
-              <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Enterprise%20Fluency%20Inquiry">
+              <a className={styles.planButtonSecondary} href="mailto:contact@lurexa.org?subject=Lurexa%20Business%20Inquiry">
                 {t("landing.pricing.enterpriseCta")} →
               </a>
             </article>

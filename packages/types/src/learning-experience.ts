@@ -87,6 +87,7 @@ export interface LearnTutorSession {
   status: "active" | "completed";
   transcript: LearnTutorTurn[];
   provider: "gemini" | "deterministic_fallback" | null;
+  promptVersion?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -104,6 +105,7 @@ export interface LearnTutorTurnRequest {
   learnerMessage?: string;
   audioBase64?: string;
   audioMimeType?: string;
+  audioDurationMs?: number;
 }
 
 export interface LearnTutorTurnResult {
