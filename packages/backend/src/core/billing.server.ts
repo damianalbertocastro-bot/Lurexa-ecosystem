@@ -5,12 +5,13 @@
  * and Stripe webhook lifecycle processing.
  */
 
-import { SubscriptionTier, SUBSCRIPTION_PRICING_PLANS } from "@lurexa/types";
+import { SubscriptionTier, SUBSCRIPTION_PRICING_PLANS, PLUS_PRODUCT_OPTIONS } from "@lurexa/types";
 
 export interface CheckoutSessionOptions {
   userId: string;
   userEmail: string;
   tier: SubscriptionTier;
+  selectedProduct?: (typeof PLUS_PRODUCT_OPTIONS)[number];
   successUrl: string;
   cancelUrl: string;
 }
@@ -19,6 +20,7 @@ export interface StripeCheckoutResult {
   sessionId: string;
   checkoutUrl: string;
   tier: SubscriptionTier;
+  selectedProduct?: (typeof PLUS_PRODUCT_OPTIONS)[number];
   amountCents: number;
 }
 
@@ -44,6 +46,12 @@ export class BillingServerService {
     options: CheckoutSessionOptions
   ): Promise<StripeCheckoutResult> {
     const plan = SUBSCRIPTION_PRICING_PLANS[options.tier];
+    if (options.tier === "PLUS" && !options.selectedProduct) {
+      throw new Error("Plus checkout requires an explicit product selection: Learn, Coach, or Teach.");
+    }
+    if (options.tier !== "PLUS" && options.selectedProduct) {
+      throw new Error("A product selection is only valid for Plus checkout.");
+    }
     if (!plan) {
       throw new Error(`Invalid subscription tier requested: ${options.tier}`);
     }
@@ -55,6 +63,7 @@ export class BillingServerService {
       sessionId,
       checkoutUrl,
       tier: options.tier,
+      selectedProduct: options.selectedProduct,
       amountCents: Math.round(plan.monthlyPriceUsd * 100),
     };
   }
@@ -79,6 +88,7 @@ export class BillingServerService {
     eventType: string;
     targetUserId?: string;
     newTier?: SubscriptionTier;
+    selectedProduct?: (typeof PLUS_PRODUCT_OPTIONS)[number];
   } {
     const eventType = event.type;
     const obj = event.data.object;
@@ -86,11 +96,16 @@ export class BillingServerService {
 
     if (eventType === "checkout.session.completed") {
       const tier = (obj.metadata?.tier as SubscriptionTier) || "PLUS";
+      const selectedProduct = obj.metadata?.selectedProduct as (typeof PLUS_PRODUCT_OPTIONS)[number] | undefined;
+      if (tier === "PLUS" && !selectedProduct) {
+        throw new Error("Invalid completed Plus subscription: selectedProduct metadata is required.");
+      }
       return {
         handled: true,
         eventType,
         targetUserId,
         newTier: tier,
+        selectedProduct,
       };
     }
 
